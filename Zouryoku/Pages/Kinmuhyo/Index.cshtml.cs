@@ -488,8 +488,7 @@ namespace Zouryoku.Pages.Kinmuhyo
                 nippouYoteisPrevMonth, 
                 nippouYoteisNextMonth, 
                 allNippous, 
-                today, 
-                info.ContinuousWorkDaysActual);
+                today);
 
             // 残業時間の計算
             info.TotalOvertimeHours = CalculateTotalOvertime(nippous, workingHours, true);
@@ -559,7 +558,6 @@ namespace Zouryoku.Pages.Kinmuhyo
         private int CountContinuousWorkDaysActual(List<Nippou> nippous, DateOnly systemDate)
         {
             // システム日付までに出勤した日付を取得（実績がある日のみ）
-            // 出勤時間または実働時間がある日を出勤日とみなす
             var workedDates = nippous
                .Where(n => n.NippouYmd <= systemDate)
                .Select(n => n.NippouYmd)
@@ -594,8 +592,7 @@ namespace Zouryoku.Pages.Kinmuhyo
             List<NippouYotei> nippouYoteisPrevMonth,
             List<NippouYotei> nippouYoteisNextMonth,
             List<Nippou> nippous,
-            DateOnly systemDate,
-            int actualContinuousDays)
+            DateOnly systemDate)
         {
             // 前月・当月・翌月の予定を結合（出勤予定のみ）
             var plannedDates = nippouYoteisPrevMonth

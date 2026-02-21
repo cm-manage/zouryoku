@@ -180,19 +180,22 @@ namespace Zouryoku.Pages.Kinmuhyo
                 ref message, ref titleLevel,ref messageLevel, totalHours,
                 OvertimeRedThreshold100, OvertimeYellowThreshold100, Limit100,
                 workStatus.OvertimeExtensionStatus, 
-                isExempt, false, false);
+                isExempt);
 
-            AddOvertimeAlert(
-                ref message, ref titleLevel, ref messageLevel, totalHours,
-                OvertimeRedThreshold80, OvertimeYellowThreshold80, 
-                Limit80, workStatus.OvertimeExtensionStatus, 
-                isExempt, true, workStatus.IsOvertimeLimitUnlimited);
+            if (!workStatus.IsOvertimeLimitUnlimited)
+            {
+                AddOvertimeAlert(
+                    ref message, ref titleLevel, ref messageLevel, totalHours,
+                    OvertimeRedThreshold80, OvertimeYellowThreshold80, 
+                    Limit80, workStatus.OvertimeExtensionStatus, 
+                    isExempt);
 
-            AddOvertimeAlert(
-                ref message, ref titleLevel, ref messageLevel, totalHours,
-                OvertimeRedThreshold45, OvertimeYellowThreshold45, 
-                Limit45, workStatus.OvertimeExtensionStatus, 
-                isExempt, true, workStatus.IsOvertimeLimitUnlimited);
+                AddOvertimeAlert(
+                    ref message, ref titleLevel, ref messageLevel, totalHours,
+                    OvertimeRedThreshold45, OvertimeYellowThreshold45, 
+                    Limit45, workStatus.OvertimeExtensionStatus, 
+                    isExempt);
+            }
 
             if (message == null)
             {
@@ -357,13 +360,8 @@ namespace Zouryoku.Pages.Kinmuhyo
             double yellowThreshold, 
             string? limitLabel, 
             string? extensionStatus, 
-            bool isExempt, 
-            bool checkLimitActive, 
-            bool isUnlimited)
+            bool isExempt)
         {
-            if (checkLimitActive && isUnlimited)
-                return;
-
             if (totalHours >= redThreshold)
             {
                 message = isExempt ? "-" : string.Format(OvertimeLimitMessage, limitLabel, extensionStatus);
@@ -418,7 +416,7 @@ namespace Zouryoku.Pages.Kinmuhyo
                 var plannedLabel = GetPlannedLabel(nippouYotei.NippouYoteiYmd, plannedPaidLeaves, furikyuuZans);
 
                 hikadoubiDict.TryGetValue(nippouYotei.NippouYoteiYmd, out var hikadoubi);
-                var lineClass = GetStyles(nippouYotei.NippouYoteiYmd, nippouYotei.Worked, hikadoubi, today);
+                var lineClass = GetStyles(nippouYotei.NippouYoteiYmd, nippouYotei.Worked, hikadoubi);
 
                 return new KarendaHyojiRowViewModel(
                     PlannedWork: nippouYotei.Worked,
@@ -458,8 +456,7 @@ namespace Zouryoku.Pages.Kinmuhyo
         private string GetStyles(
             DateOnly date, 
             bool plannedWork, 
-            Hikadoubi? hikadoubi, 
-            DateOnly today)
+            Hikadoubi? hikadoubi)
         {
             // 祝祭日判定を最優先
             if ((hikadoubi?.SyukusaijitsuFlag ?? それ以外) == 祝祭日)

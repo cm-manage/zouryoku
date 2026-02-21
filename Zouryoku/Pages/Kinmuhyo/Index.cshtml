@@ -377,19 +377,6 @@
         // 同一部署のユーザーを empId で検索して読み込む
         function loadSameBusyoUsers(empId) {
             if (!empId) return;
-            try {
-                currentSelectedId = empId;
-                const idx = findIndexById(currentSelectedId);
-                if (idx !== -1 && deptEmployees[idx]) {
-                    const displayName = deptEmployees[idx].name ?? deptEmployees[idx].syainName ?? '';
-                    $('#selected-user-display').val(displayName);
-                }
-                $('#SyainId').val(currentSelectedId);
-                updateEmployeeNavButtons();
-                updateBrowserUrl(currentSelectedId, currentYear, currentMonth, 1);
-            } catch (e) {
-                console.warn('Optimistic update failed', e);
-            }
 
             $('#SyainId').val(empId);
             const nippou = String(currentYear).padStart(4, '0') + '-' + String(currentMonth).padStart(2, '0') + '-01';

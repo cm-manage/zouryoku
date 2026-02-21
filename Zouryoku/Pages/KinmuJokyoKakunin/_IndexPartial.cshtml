@@ -1,0 +1,168 @@
+﻿@model Zouryoku.Pages.KinmuJokyoKakunin.TableViewModel
+
+<!-- タブ -->
+<div class="d-flex">
+    <div class="custom-tab-item active" data-type="work">残業情報</div>
+    <div class="custom-tab-item" data-type="holiday">休暇情報</div>
+</div>
+
+<!-- テーブル -->
+<table class="table app-table__base table-bordered table-striped align-middle" id="work-table">
+    <thead class="table-primary text-center">
+        <tr>
+            <th rowspan="2" class="th-busyo align-middle">部署</th>
+            <th rowspan="2" class="th-syain-name align-middle">社員名</th>
+            <th rowspan="2" class="th-zokusei-name align-middle">勤怠属性</th>
+            <th rowspan="2" class="th-year-month align-middle">年月</th>
+            <th rowspan="2" class="th-jitsudo align-middle">実働</th>
+            <th colspan="5">残業</th>
+            <th rowspan="2" class="th-max-consecutive-working-days align-middle">最大連勤日数</th>
+        </tr>
+        <tr>
+            <th class="th-zangyo">残業(法休除く)</th>
+            <th class="th-zangyo">残業</th>
+            <th class="th-zangyo">平均最大</th>
+            <th class="th-zangyo">年間累計</th>
+            <th class="th-zangyo">制限超過回数</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Model.WorkList)
+        {
+            <tr>
+                <td>@row.BusyoName</td>
+                <td>@row.SyainName</td>
+                <td>@row.ZokuseiName</td>
+                <td>@row.YearMonth</td>
+                <td class="text-end">@row.Jitsudo</td>
+                <td class="text-end">@row.ZangyoExceptHoliday.ToString("F2")</td>
+                <td class="text-end @row.ZangyoWarnLevel">@row.Zangyo.ToString("F2")</td>
+                <td class="text-end @row.AverageMaxWarnLevel">@row.AverageMax.ToString("F2")</td>
+                <td class="text-end @row.YearTotalWarnLevel">@row.YearTotal.ToString("F2")</td>
+                <td class="text-end @row.OverLimitCountWarnLevel">@row.OverLimitCount</td>
+                <td class="text-end @row.MaxConsecutiveWorkingDaysWarnLevel">@row.MaxConsecutiveWorkingDays</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<table class="table app-table__base table-bordered table-striped align-middle" id="holiday-table">
+    <thead class="table-primary text-center">
+        <tr>
+            <th rowspan="2" class="th-busyo align-middle">部署</th>
+            <th rowspan="2" class="th-syain-name align-middle">社員名</th>
+            <th rowspan="2" class="th-zokusei-name align-middle">勤怠属性</th>
+            <th rowspan="2" class="th-year-month align-middle">年月</th>
+            <th rowspan="2" class="th-jitsudo align-middle">実働</th>
+
+            <th colspan="3">有給休暇</th>
+            <th colspan="1">特別休暇</th>
+            <th colspan="3">振替休暇</th>
+        </tr>
+        <tr>
+            <th class="th-yukyu">年間累計</th>
+            <th class="th-yukyu">残日数</th>
+            <th class="th-yukyu">うち半日残</th>
+
+            <th class="th-special-used">取得</th>
+
+            <th class="th-furikyu">残日数</th>
+            <th class="th-furikyu">3ヶ月期限</th>
+            <th class="th-furikyu">失効日数</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var row in Model.HolidayList)
+        {
+            <tr>
+                <td>@row.BusyoName</td>
+                <td>@row.SyainName</td>
+                <td>@row.ZokuseiName</td>
+                <td>@row.YearMonth</td>
+                <td class="text-end">@row.Jitsudo</td>
+
+                <td class="text-end @row.PaidYearTotalWarnLevel">@row.PaidYearTotal.ToString("F1")</td>
+                <td class="text-end">@row.PaidRemain.ToString("F1")</td>
+                <td class="text-end">@row.PaidHalfRemain.ToString("F1")</td>
+
+                <td class="text-end">@row.SpecialUsed?.ToString("F0")</td>
+
+                <td class="text-end">@row.TransferRemain.ToString("F1")</td>
+                <td class="text-end">@row.Transfer3Month.ToString("F1")</td>
+                <td class="text-end">@row.TransferExpired.ToString("F1")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    /* タブ */
+    .custom-tab-item {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: 1px solid #B7D3ED;
+        /* 下側の枠線を消して、タブがテーブルと一体化しているように見せる */
+        border-bottom: none;
+        background: #ffffff;
+        color: #2F75B5;
+        font-weight: bold;
+        /* 上角を丸める */
+        border-radius: 4px 4px 0 0;
+    }
+
+        /* 選択中のタブ */
+        .custom-tab-item.active {
+            background: #2F75B5;
+            color: white;
+        }
+
+    /* テーブル */
+    table {
+        /* 共通 */
+        .th-busyo {
+            width: 20%;
+        }
+        .th-syain-name {
+            width: 13%;
+        }
+        .th-zokusei-name {
+            width: 11%;
+        }
+        .th-year-month {
+            width: 7%;
+        }
+        .th-jitsudo {
+            width: 7%;
+        }
+
+        /* 残業 */
+        .th-zangyo {
+            width: 7%;
+        }
+        .th-max-consecutive-working-days {
+            width: 7%;
+        }
+
+        /* 休暇 */
+        .th-yukyu {
+            width: 6%;
+        }
+        .th-special-used {
+            width: 6%;
+        }
+        .th-furikyu {
+            width: 6%;
+        }
+    }
+
+    /* 警告 */
+    td.warn-level {
+        background-color: #f5b7b1 !important;
+    }
+
+    /* 通知 */
+    td.notice-level {
+        background-color: #ffecb5 !important;
+    }
+</style>

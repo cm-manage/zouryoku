@@ -1,0 +1,1216 @@
+@charset "UTF-8";
+/* =======================================================
+   共通スタイル定義ファイル（画面パターン対応）
+   設計方針：
+   - Bootstrap＋BEM準拠
+   - PC/モバイル対応
+   - 画面パターン（登録・検索・カレンダーなど）切替対応
+========================================================= */
+
+/* ========================================
+   Root Variables（共通テーマ変数定義）
+======================================== */
+:root {
+    --iframe-header-color: #003686; /* iziModalで使用 */
+    --header-color: rgb(110 162 243);
+    --screen-bg-color: #f8f9fa; // 画面の背景色
+    --area-bg-white: #fff; // エリアの背景色
+
+    --line-height: 1.4;
+    --font-weight: 500;
+    --margin-zero: 0;
+    --font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "メイリオ", "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+    --font-size: 0.875rem;
+    --font-color: #333333; // 暗めのグレー（ほぼ黒寄り） */
+
+    --border-color: #dee2e6; // 入力項目の枠線の色
+    --border-radius: 0.25rem; // 入力項目の角の丸み
+
+    --transition: 0.2s ease-in-out;
+    --content-padding-pc: 2rem;
+    --content-padding-sp: 1rem;
+    --padding-updown: 1rem;
+    --padding-leftright: 2rem;
+    --zouryoku-header-height: 60px;
+    --btn-default-bg-color: #0d6efd;
+    --btn-default-color: #fff;
+    --btn-border-radius: 0.375rem;
+
+    @media (max-width: 991px) {
+        --font-size: 12px; /* フォントサイズを小さくする */
+
+        --padding-updown: 0.6rem;
+        --padding-leftright: 1rem;
+    }
+}
+
+/* ========================================
+   Base Layout
+======================================== */
+html {
+    font-size       : var(--font-size);
+}
+
+body {
+    font-family     : var(--font-family);
+    font-size       : var(--font-size);
+    color           : var(--font-color);
+    background-color: var(--screen-bg-color);
+    line-height     : var(--line-height);
+    font-weight     : var(--font-weight);
+    margin          : var(--margin-zero);
+
+}
+
+pre {
+    // 等幅フォントに変わってしまうので、一律設定を上書き
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+}
+
+.app-validation-summary-errors {
+    & > ul {
+        margin: unset;
+        width: 100%;
+        list-style: inside;
+        padding: unset;
+        padding-left: 15px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+}
+
+/* ---------- iziModal ---------- */
+.iziModal .iziModal-header .iziModal-noSubtitle .iziModal-header-title {
+    font-size  : var(--font-size);
+    font-weight: var(--font-weight);
+}
+
+/* _Layout.cshtmlの通知領域(IDセレクタ) */
+/* BusyoSentaku, _Layout.cshtml, _Layout_NoSession.cshtml, messageUtil.js */
+#message-notification {
+    width: 100%;
+
+    & > .alert {
+        display: flex;
+    }
+}
+
+/* 
+   jQuery UI Autocomplete の
+   「results are available, use up and down arrow keys to navigate.」
+   というメッセージを消す
+*/
+.app-ui-helper-hidden-accessible {
+    display: none;
+}
+
+@media (max-width: 991px) {
+
+    .layout__header {
+        text-align     : center;
+    }
+    .header {
+        flex-direction : column;
+        gap            : 0.5rem;
+    }
+    .layout__body {
+        padding        : var(--content-padding-sp);
+    }
+    .btn--base {
+        width          : 100%;
+    }
+    .icon-group {
+        display        : none !important;
+    }
+    .user-texts > div:first-child {
+        display        : none;              /* 部署名を非表示 */
+    }
+}
+
+
+/* ========================================
+   Header Block
+======================================== */
+
+
+/* ========================================
+   Button / Input（再利用部品）/ border
+======================================== */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+textarea.form-control,                         /* bootstrap.cssのtextarea.form-controlによる上書き対策のため具体的に指定する */
+select:not([multiple]) {
+    /* ブラウザ固有の入力欄機能（type="number"の上下ボタン、type="date"のピッカーなど）を無効化する */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    &::-webkit-calendar-picker-indicator,
+    &::-ms-expand {
+        display: none;
+    }
+}
+
+// 入力不可状態
+input[readonly] {
+    background : #f2f2f2;
+    color      : #000;
+    cursor     : not-allowed;
+}
+
+input[readonly]:focus {
+    border     : 1px solid var(--border-color);
+    background : #f2f2f2;
+    color      : #000;
+    cursor     : not-allowed;
+    outline    : none;
+}
+
+textarea[readonly] {
+    background: #f2f2f2;
+    color: #000;
+    cursor: not-allowed;
+
+}
+
+textarea[readonly]:focus {
+    border: 1px solid var(--border-color);
+    background: #f2f2f2;
+    color: #000;
+    cursor: not-allowed;
+    outline: none;
+}
+
+// 破棄予定↓
+//.app-input {
+//    display       : flex;
+//    flex-direction: column;
+//    margin-bottom : 1rem;
+//}
+// 破棄予定↑
+
+
+.app-input__textbox,
+.app-input__select {
+    border        : 1px solid var(--border-color);
+    border-radius : var(--border-radius);
+    padding       : 0.5rem 0.75rem;
+    font-size     : var(--font-size);
+    transition    : border-color var(--transition);
+
+    /* 無効化時はグレーで表示 */
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+        border: 0; /* disabled時に青い線が出るため消す */
+    }
+}
+
+.app-input__textarea {
+    border        : 1px solid var(--border-color);
+    border-radius : var(--border-radius);
+    padding       : 0.5rem 0.75rem;
+    font-size     : var(--font-size);
+    transition    : border-color var(--transition);
+}
+
+.app-input__textarea:focus,
+.app-input__textbox:focus,
+.app-input__select:focus {
+    border-color: var(--color-primary);
+    outline     : none;
+}
+
+/* common.jsのchangeCtrlBorder(,)でエラーがある項目を赤で囲む */
+.error-border {
+    border: 1px solid #EE8484;
+    background-color: var(--area-bg-white);
+}
+
+/* common.jsのchangeCtrlBorder(,)で警告がある項目を黄で囲む */
+.warning-border {
+    border          : 1px solid #fd7e00;
+    background-color: var(--area-bg-white);
+}
+
+// クリックできる状態（カード系画面で使用）
+.app-clickable {
+    cursor: pointer
+}
+
+/* ボタン(基本) */
+.app-btn__base {
+    display         : inline-flex; /* ボタン内のFontAwesomeアイコンと文字の間を空ける */
+    align-items     : center;
+    justify-content : center;
+    padding-top     : 0.6rem;
+    padding-bottom  : 0.6rem;
+    padding-left    : 1rem;
+    padding-right   : 1rem;
+    gap             : 0.5rem; /* ボタン内のFontAwesomeアイコンと文字の間を空ける */
+    font-size       : var(--font-size);
+    text-wrap       : nowrap; /* ボタン内の自動改行を禁止 */
+    font-weight     : inherit; /* bodyのfont-size継承を想定 */
+    border-radius   : var(--btn-border-radius);
+
+    /* ブラウザ固有の入力欄機能（type="number"の上下ボタン、type="date"のピッカーなど）を無効化する */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    &::-webkit-calendar-picker-indicator,
+    &::-ms-expand {
+        display: none;
+    }
+    /* 無効化時はグレーで表示 */
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+        border: 0; /* disabled時に青い線が出るため消す */
+    }
+    /* btn-infoの文字色を白に変更 */
+    &.btn--info {
+        --bs-btn-color: #fff;
+        --bs-btn-hover-color: #fff;
+        --bs-btn-active-color: #fff;
+    }
+    /* btn-outline-infoの文字色を白に変更 */
+    &.btn__outline--info {
+        --bs-btn-hover-color: #fff;
+        --bs-btn-active-color: #fff;
+    }
+}
+
+/* ボタンサイズ(sm) */
+.app-btn--sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* ボタンサイズ(lg) */
+.app-btn--lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.25rem;
+}
+
+/* ボタン色(bootstrapのボタンを使用しない場合) */
+.app-btn__color--red {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #ff0000 0%, #ff7777 100%);
+    background-image: -o-linear-gradient(to right, #ff0000 0%, #ff7777 100%);
+    background-image: linear-gradient(to right, #ff0000 0%, #ff7777 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.app-btn__color--blue {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #1f6bff 0%, #1a9eef 100%);
+    background-image: -o-linear-gradient(to right, #1f6bff 0%, #1a9eef 100%);
+    background-image: linear-gradient(to right, #1f6bff 0%, #1a9eef 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.app-btn__color--green {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #00947f 0%, #62cd01 100%);
+    background-image: -o-linear-gradient(to right, #00947f 0%, #62cd01 100%);
+    background-image: linear-gradient(to right, #00947f 0%, #62cd01 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.app-btn__color--cyan {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #00bcd4 0%, #00acc1 100%);
+    background-image: -o-linear-gradient(to right, #00bcd4 0%, #00acc1 100%);
+    background-image: linear-gradient(to right, #00bcd4 0%, #00acc1 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.app-btn__color--orange {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #fa441e 0%, #fd830e 100%);
+    background-image: -o-linear-gradient(to right, #fa441e 0%, #fd830e 100%);
+    background-image: linear-gradient(to right, #fa441e 0%, #fd830e 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+
+.app-btn__color--grey {
+    color: #fff;
+    background-color: grey;
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+
+/* ---------- .box ---------- */
+/* バイパスログイン画面などで使用 */
+.app-box {
+    display         : flex;
+    align-items     : center;
+    justify-content : space-between;
+    flex-wrap       : wrap;
+    padding         : 20px;
+    margin          : 15px auto 0;
+    background-color: #fff;
+    box-shadow      : 0 0 20px rgb(110 162 243);
+    border-radius   : 6px;
+    /* .size */
+    &.s {
+        width: 440px;
+    }
+
+    &.m {
+        width: 780px;
+    }
+    /* .accodion */
+    &.accodion {
+        padding: 10px 20px;
+
+        .subtitle::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-left: -15px;
+            margin-right: 8px;
+            margin-bottom: 3px;
+            border-top: 2px solid #1f6bff;
+            border-right: 2px solid #1f6bff;
+            -webkit-transform: rotate(135deg);
+            transform: rotate(135deg);
+        }
+
+        .contents {
+            display: none;
+        }
+
+        &.open {
+            padding: 20px;
+
+            .subtitle::before {
+                margin-bottom: 0;
+                -webkit-transform: rotate(315deg);
+                transform: rotate(315deg);
+            }
+
+            .contents {
+                display: flex;
+            }
+        }
+    }
+
+    /* モバイル用 */
+    @media (max-width: 767px) {
+        display: block;
+
+        /* .size */
+        &.s {
+            width: 100%;
+        }
+
+        &.m {
+            width: 100%;
+        }
+        /* .accodion */
+        &.accodion {
+            padding: 10px 15px;
+
+            &.open {
+                padding: 10px 15px 20px;
+
+                .contents {
+                    max-width: 100%;
+                    overflow: scroll;
+                }
+            }
+        }
+    }
+}
+
+
+/* ========================================
+   Alert / Message
+======================================== */
+.app-alert {
+    position     : relative;
+    padding      : 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border       : 1px solid transparent;
+    border-radius: var(--border-radius);
+}
+
+.app-alert__error {
+    background-color: #fae1e4;
+    border          : 1px solid #f7d5d9;
+    color           : #d60000;
+}
+.app-alert__warn {
+    background-color: #fae1e4;
+    border          : 1px solid #f7d5d9;
+    color           : #d60000;
+}
+.app-alert__info {
+    background-color: #e1fae4;
+    border          : 1px solid #b5f7d5;
+    color           : #1d8027;
+}
+
+
+/* ========================================
+   画面パターン共通定義
+======================================== */
+
+// --- テーブル（検索結果(デフォルト)） ---
+.app-table__base {
+
+    & > * > * > * {
+        /* フォントを小さくしているぶんパディングも小さくする */
+        padding-left: .4rem;
+        padding-right: .4rem;
+        vertical-align: middle;
+    }
+
+    & > thead > * > * {
+        /* table-primaryはhtml側で定義 */
+        text-align: center !important;
+        font-weight: bold;
+        white-space: nowrap;
+        background-color: #2F75B5;
+        border-color: #73A6D4;
+        color: #fff;
+    }
+
+    & > tbody > * > * {
+        /* フォントを小さくしているぶんパディングも小さくする */
+        padding-left: .4rem;
+        padding-right: .4rem;
+        /* テーブル各列の幅がtbodyの影響を受けずに指定できるようゼロを指定 */
+        max-width: 0;
+        border: 1px solid #73A6D4;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    & > tbody > tr:hover td {
+        background-color: #d9efff;
+    }
+
+    & > tbody > tr:nth-of-type(odd) > * {
+        --bs-table-bg-type: #DDEBF7;
+    }
+}
+
+// --- テーブル（検索結果(カレンダー)） ---
+.app-table__calendar {
+
+    & > * > * > * {
+        /* フォントを小さくしているぶんパディングも小さくする */
+        padding-left: .4rem;
+        padding-right: .4rem;
+        white-space: normal;
+        vertical-align: middle;
+    }
+
+    & > thead {
+        /* table-primaryはhtml側で定義 */
+        text-align: center !important;
+        font-weight: bold;
+        --border-color: #2f75b5;
+        --font-color: #fff;
+    }
+
+    & > tbody > * > * {
+        /* フォントを小さくしているぶんパディングも小さくする */
+        padding-left: .4rem;
+        padding-right: .4rem;
+        /* テーブル各列の幅がtbodyの影響を受けずに指定できるようゼロを指定 */
+        max-width: 0;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .table-bordered-vertical th,
+    .table-bordered-vertical td {
+        border: 1px solid #dee2e6; /* セルに枠線 */
+    }
+    // 一覧の行に対する背景色とフォントカラー(祝日)
+    .app-line--holiday {
+        --bs-table-accent-bg: #FFE4E5;
+
+        td:nth-child(1 of .app-day-no) {
+            color: rgba(var(--bs-danger-rgb), 1);
+
+            &:visited {
+                color: rgba(var(--bs-danger-rgb), 0.8);
+            }
+        }
+    }
+    // 一覧の行に対する背景色とフォントカラー(日曜日)
+    .app-line--sunday {
+        --bs-table-accent-bg: #FFE4E5;
+
+        td:nth-child(1 of .app-day-no) {
+            color: rgba(var(--bs-danger-rgb), 1);
+
+            &:visited {
+                color: rgba(var(--bs-danger-rgb), 0.8);
+            }
+        }
+    }
+    // 一覧の行に対する背景色とフォントカラー(土曜日)
+    .app-line--saturday {
+        --bs-table-accent-bg: #DDEBF7;
+
+        td:nth-child(1 of .app-day-no) {
+            color: rgba(var(--bs-primary-rgb), 1);
+
+            &:visited {
+                color: rgba(var(--bs-primary-rgb), 0.8);
+            }
+        }
+    }
+    // 一覧の行に対する背景色とフォントカラー(平日)
+    .app-line--weekday {
+        --bs-table-accent-bg: #FFFFFF;
+
+        td:nth-child(1 of .app-day-no) {
+            color: rgba(var(--bs-text-body-rgb), 1);
+
+            &:visited {
+                color: rgba(var(--bs-text-body-rgb), 0.8);
+            }
+        }
+    }
+    // 曜日別フォントカラー(祝日)
+    .app-day__color--holiday,
+    .table > :not(caption) > * > .app-day__color--holiday {
+        color: rgba(var(--bs-danger-rgb), 1);
+
+        &:visited {
+            color: rgba(var(--bs-danger-rgb), 0.8);
+        }
+    }
+    // 曜日別フォントカラー(日曜日)
+    .app-day__color--sunday,
+    .table > :not(caption) > * > .app-day__color--sunday {
+        color: rgba(var(--bs-danger-rgb), 1);
+
+        &:visited {
+            color: rgba(var(--bs-danger-rgb), 0.8);
+        }
+    }
+    // 曜日別フォントカラー(土曜日)
+    .app-day__color--saturday,
+    .table > :not(caption) > * > .app-day__color--saturday {
+        color: rgba(var(--bs-primary-rgb), 1);
+
+        &:visited {
+            color: rgba(var(--bs-primary-rgb), 0.8);
+        }
+    }
+    // 曜日別フォントカラー(平日)
+    .app-day__color--weekday,
+    .table > :not(caption) > * > .app-day__color--weekday {
+        color: rgba(var(--bs-text-body-rgb), 1);
+
+        &:visited {
+            color: rgba(var(--bs-text-body-rgb), 0.8);
+        }
+    }
+    // 曜日別背景色カラー(祝日＆日曜日)
+    .app-back__color--holiday > *,
+    .app-back__color--sunday > * {
+        --bs-table-accent-bg: #FFE4E5;
+    }
+    // 曜日別背景色カラー(土曜日)
+    .app-back__color--saturday > * {
+        --bs-table-accent-bg: #DDEBF7;
+    }
+}
+
+.app-screen--header-area {
+    --zouryoku-header-height: 60px;
+
+    body {
+        padding-top: var(--zouryoku-header-height); /* ヘッダーの縦幅だけコンテンツを下に寄せる */
+    }
+
+    .app-header-bar {
+        background: linear-gradient(90deg, rgba(45, 65, 118, 1) 0%, rgba(29, 85, 143, 1) 100%);
+        color: #fff;
+        padding: 6px 16px; /* ← 余白を狭くしたまま */
+        position: fixed; /* ヘッダーを画面に固定 */
+        top: 0;
+        left: 0;
+        width: 100%; /* ビューポート幅いっぱいに */
+        height: var(--zouryoku-header-height);
+        z-index: 200; /* 他のコンテンツより前面に表示 */
+    }
+
+    .system-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .screen-name {
+        font-size: 1rem;
+        opacity: 0.9;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .user-info {
+        text-align: right;
+        font-size: 0.9rem;
+        line-height: 1.2;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .user-texts {
+        display: flex;
+        flex-direction: column;
+        text-align: right;
+        line-height: 1.2;
+        gap: 0.2rem;
+    }
+
+    .icon-group {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 1.6rem;
+        color: #fff;
+    }
+
+    .icon-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #fff;
+        position: relative; /* バッジ表示用 */
+        text-decoration: none;
+    }
+
+        .icon-item:hover {
+            color: #cce0ff;
+        }
+
+    .icon-label {
+        display: none;
+    }
+
+    .hamburger-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .hamburger-label {
+        display: none;
+    }
+
+    .hamburger-container:hover {
+        color: #cce0ff;
+    }
+
+    .badge {
+        font-size: 0.55rem;
+    }
+
+    /* ===== スマホ対応 ===== */
+    @media (max-width: 768px) {
+        .icon-group {
+            display: none !important;
+        }
+        /* 部署名を非表示 */
+        .user-texts > div:first-child {
+            display: none;
+        }
+    }
+}
+
+// --- メニュー部 ---
+.app-screen--menu {
+    .app-active_header {
+        border-bottom: 1px solid var(--bs-border-color);
+    }
+    /* 親メニューのホバー */
+    .accordion-button:hover {
+        background-color: #f0f0f0;
+        color: #0d6efd;
+    }
+    /* 矢印を消す */
+    .accordion-button.app-no_arrow::after {
+        display: none !important;
+    }
+    /* 子メニュー専用スタイル */
+    .accordion-button.app-child_link {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 14px;
+        font-size: 14px;
+        background-color: #fff;
+        color: #000000;
+        border: none;
+        box-shadow: none;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+        /* 子メニューのホバー */
+        .accordion-button.app-child_link:hover {
+            background-color: #f0f0f0;
+            color: #0d6efd;
+        }
+    /* 親メニューバッジ */
+    .app-badge {
+        position: absolute;
+        display: flex;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: var(--font-size);
+        align-items: center;
+        justify-content: center;
+    }
+    .app-menu_link{
+        text-decoration: underline;
+    }
+    /* メニューヘッダー内 */
+    .accordion-header {
+        .app-no_arrow {
+            text-decoration: none;
+        }
+
+        .app-badge {
+            right: calc(var(--bs-accordion-btn-icon-width) * 3);
+        }
+    }
+    /* 子メニュー内 */
+    .accordion-body {
+        .app-badge {
+            right: calc(var(--bs-accordion-btn-icon-width));
+        }
+    }
+}
+
+// --- 登録系画面（Entry） ---
+.app-screen--entry {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    // 項目名ラベル
+    .app-input__label {
+        display: flex;
+        align-items: center;
+        font-size: var(--font-size);
+        font-weight: bold;
+        background: #DEEBF7;
+        border-radius: var(--btn-border-radius);
+    }
+    // ヘッダーエリア
+    .app-area__header {
+    }
+    // ボディエリア
+    .app-area__body {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        padding-left: 1.8rem;
+        padding-right: 1rem;
+        padding-bottom: 1rem;
+        background-color: var(--area-bg-white);
+        border: 1.5px solid #ccc;
+        border-radius: 10px;
+    }
+    // フッターエリア
+    .app-area__footer {
+        background-color: var(--screen-bg-color);
+        position: fixed; // fixed-bottomを常時適用
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1030;
+    }
+}
+
+// --- 検索系画面（Search） ---
+// 利用画面：出退勤一覧
+.app-screen--search {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    // 項目名ラベル
+    .app-input__label {
+        display: flex;
+        align-items: center;
+        font-size: var(--font-size);
+        font-weight: bold;
+        border-radius: var(--btn-border-radius);
+    }
+    // 検索条件エリア
+    .app-area__search-criteria {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-bottom: 1rem;
+        background-color: var(--area-bg-white);
+        border: 1.5px solid #ccc;
+        border-radius: 10px;
+    }
+    // ツールボタンエリア
+    .app-area__tool-button {
+        display         : flex;     // 横並び
+        justify-content : flex-end; // 右寄せ
+    }
+    // 検索結果エリア
+    .app-area__search-results {
+    }
+}
+
+
+// --- 単票形式画面（single-form） ---
+.app-screen--single-form {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    // 単票罫線（四角形）
+    .app-square {
+        border-top: solid 1px;
+        border-bottom: solid 1px;
+        border-left: solid 1px;
+        border-right: solid 1px;
+        margin: 0;
+        padding: 0;
+    }
+    // 単票罫線（四角形ー底辺無し）
+    .app-square-no-bottom {
+        border-top: solid 1px;
+        border-left: solid 1px;
+        border-right: solid 1px;
+        margin: 0;
+        padding: 0;
+    }
+    // 項目見出し
+    .app-item-heading {
+        display: flex;
+        align-items: center;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        font-weight: bold;
+        background: #DEEBF7;
+    }
+    // 項目値
+    .app-field-value {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+    // ヘッダーエリア
+    .app-area__header {
+    }
+    // ボディエリア
+    .app-area__body {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        padding-top: 1.8rem;
+        padding-left: 1.8rem;
+        padding-right: 1.8rem;
+        padding-bottom: 1.8rem;
+        background-color: var(--area-bg-white);
+        border: 1.5px solid #ccc;
+        border-radius: 10px;
+    }
+}
+
+
+// --- その他画面（other2） ---
+// 利用画面：社員選択
+.app-screen--others2 {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    // 単票罫線（四角形）
+    .app-square {
+        border: 1px solid #D2D2D2;
+        margin: 0;
+        padding: 0;
+        background-color: var(--area-bg-white);
+    }
+    // 項目名ラベル
+    .app-input__label {
+        display: flex;
+        align-items: center;
+        font-size: var(--font-size);
+        font-weight: bold;
+        border-radius: var(--btn-border-radius);
+    }
+    // ヘッダーエリア
+    .app-area__header {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border: none;
+        border-radius: 10px;
+    }
+    // ボディエリア
+    .app-area__body {
+        border: none;
+    }
+    // フッターエリア
+    .app-area__footer {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1030;
+    }
+}
+
+
+// --- その他画面（other1） ---
+// 利用画面：部署選択
+.app-screen--others {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    // 項目名ラベル
+    .app-input__label {
+        display: flex;
+        align-items: center;
+        font-size: var(--font-size);
+        font-weight: bold;
+        border-radius: var(--btn-border-radius);
+    }
+    // ヘッダーエリア
+    .app-area__header {
+        background-color: var(--area-bg-white);
+    }
+    // ボディエリア
+    .app-area__body {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        padding-left: 1.8rem;
+        padding-right: 1rem;
+        padding-bottom: 1rem;
+        background-color: var(--area-bg-white);
+        border: 1.5px solid #ccc;
+        border-radius: 10px;
+    }
+    // フッターエリア
+    .app-area__footer {
+        // fixed-bottomを常時適用
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1030;
+    }
+}
+
+/* ----------------------------------------
+   center-page-area
+   （パスワード変更画面などの中央表示画面）
+   利用箇所：page403.cshtml
+             page404.cshtml
+             BypassLogin.cshtml
+             Index.cshtml
+   ---------------------------------------- */
+.app-center-page-area {
+    padding: 60px 0;
+
+    .logo {
+        text-align: center;
+
+        img {
+            width: inherit;
+        }
+
+        &.login-logo img {
+            width: inherit;
+        }
+    }
+
+    .box {
+        display: block;
+        padding: 50px;
+        margin-top: 30px;
+    }
+
+    .login_title {
+        margin-bottom: 30px;
+        color: #1f6bff;
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+
+        img {
+            width: 15px;
+            margin-right: 10px;
+        }
+    }
+
+    p {
+        margin-top: 15px;
+        color: #1f6bff;
+        font-weight: bold;
+
+        & + div {
+            margin-top: 7px;
+        }
+    }
+
+    input {
+        width: 100%;
+    }
+
+    .btn_area {
+        margin: 30px 0 10px;
+        margin-top: 20px;
+        padding: 0 40px;
+
+        a {
+            padding: 0 40px;
+        }
+
+        & > * {
+            min-width: 125px;
+        }
+
+        & > :first-child {
+        margin-right: 10px;
+        }
+    }
+
+    .lead {
+        line-height: 1.8;
+    }
+
+    .input_email {
+        width: 370px;
+        margin: 20px auto;
+
+        div {
+            color: #1f6bff;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            margin-top: 10px;
+        }
+    }
+
+    .terms {
+        max-height: 350px;
+        padding: 20px 30px;
+        border: 1px solid #d3d6de;
+        border-radius: 5px;
+        overflow: scroll;
+
+        .dl {
+            padding-bottom: 20px;
+        }
+
+        dt {
+            padding-top: 15px;
+        }
+
+        dd {
+            text-indent: -2em;
+            padding-left: 2em;
+        }
+
+        li {
+            text-indent: -3em;
+            padding-left: 3em;
+        }
+    }
+
+    .agree_terms {
+        margin-top: 20px;
+        text-align: center;
+
+        label {
+        }
+
+        input {
+            display: none;
+        }
+    }
+
+    .item_title {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+}
+
+
+/* ========================================
+   レスポンシブ対応
+======================================== */
+@media (max-width: 991px) {
+
+    .app-layout__header {
+        text-align: center;
+        padding   : 0.6rem 1rem;
+    }
+    .app-header {
+        flex-direction: column;
+        gap           : 0.5rem;
+    }
+    .app-layout__body {
+        padding       : var(--content-padding-sp);
+    }
+    .app-btn__style--base {
+        width         : 100%;
+    }
+    .app-icon-group {
+        display: none !important;
+    }
+    /* 部署名を非表示 */
+    .app-user-texts > div:first-child {
+        display: none;
+    }
+}

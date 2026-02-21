@@ -1,0 +1,95 @@
+@page
+@model Zouryoku.Pages.AnkenJohoHyoji.TestDriverModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "TestDriver";
+}
+
+<div>TestDriver</div>
+<table>
+    <tr>
+        <th>案件ID</th>
+        <td>：</td>
+        <td>
+            <input id="anken-id" type="text" value="32"/>
+        </td>
+    </tr>
+    <tr>
+        <th>登録可能フラグ</th>
+        <td>：</td>
+        <td>
+            <form id="canAdds">
+                <input type="radio" name="canAdd" value="true" checked />
+                <label>True</label>
+                <input type="radio" name="canAdd" value="false" />
+                <label>False</label>
+            </form>
+        </td>
+    </tr>
+</table>
+<button type="button" id="disp-anken-detail" class="btn btn-primary">表示</button>
+<br />
+<table>
+    <tr>
+        <th>更新済フラグ：</th>
+        <td>
+            <input type="text" id="check-flag" readonly/>
+        </td>
+    </tr>
+</table>
+<button type="button" id="check-flag-reset" class="btn btn-outline-secondary">リセット</button>
+
+@section InputScripts {
+    <script>
+        $(function () {
+            // -----------------------------
+            // 案件情報表示画面からのメッセージ受信
+            // -----------------------------
+            function handleMessage(event) {
+                const e = event.originalEvent;
+
+                // セキュリティチェック（オリジン確認）
+                if (e.origin !== window.location.origin) return;
+
+                const data = e.data;
+                if (!data || data.type !== "ankenRegistered") return;
+
+                $('#check-flag').val('更新済フラグを受信');
+            }
+
+            // -----------------------------
+            // 案件情報表示画面からのメッセージリセット
+            // -----------------------------
+            function resetFlag() {
+                $('#check-flag').val('');
+            }
+
+            // -----------------------------
+            // 案件情報表示モーダル起動
+            // -----------------------------
+            function openAnkenDetailModal() {
+                const canAdd = $('input[name="canAdd"]:checked').val();
+                const id = $('#anken-id').val();
+
+                const modalId = 'anken-details-modal';
+
+                const params = new URLSearchParams();
+                params.set("CanAdd", canAdd );
+
+                const baseUrl = toQueryUrl('@Url.Page("./Index")');
+                const url = `${baseUrl}${params.toString()}`;
+
+                const title = '案件詳細';
+
+                showInputModal(modalId, url, id, title, null, 1000, 700);
+            }
+
+            // -----------------------------
+            // イベント登録
+            // -----------------------------
+            $(window).on("message", handleMessage);
+            $('#check-flag-reset').on('click', resetFlag);
+            $('#disp-anken-detail').on('click', openAnkenDetailModal);
+        });
+    </script>
+}

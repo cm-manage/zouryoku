@@ -1,0 +1,37 @@
+﻿@model Zouryoku.Pages.BusyoMasterMaintenanceKensaku.IndexModel
+
+@* 検索結果一覧 ******************************************************************************** *@
+@if (Model.Results != null && Model.Results.Any())
+{
+    <table class="table app-table__base table-bordered table-striped table-hover text-nowrap align-middle">
+        <thead class="text-center">
+            <tr>
+                <th class="app-table__busyo-code">@Html.DisplayNameFor(m => m.Results.First().BusyoCode)</th>
+                <th class="app-table__busyo-name">@Html.DisplayNameFor(m => m.Results.First().BusyoName)</th>
+                <th class="app-table__bumoncyo">@Html.DisplayNameFor(m => m.Results.First().BumoncyoName)</th>
+                <th class="app-table__shonin-busyo">@Html.DisplayNameFor(m => m.Results.First().ShoninBusyoName)</th>
+                <th class="app-table__invalid">@Html.DisplayNameFor(m => m.Results.First().IsActiveDisplay)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Results)
+            {
+                <tr>
+                    <td class="text-center">@item.BusyoCode</td>
+                    <td>
+                        <a href="javascript:void(0);" class="text-primary busyo-link" data-id="@item.BusyoId">
+                            @item.BusyoName
+                        </a>
+                    </td>
+                    <td>@item.BumoncyoName</td>
+                    <td>@item.ShoninBusyoName</td>
+                    <td class="text-center">@item.IsActiveDisplay</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>検索結果がありません。</p>
+}

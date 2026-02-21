@@ -1,0 +1,21 @@
+﻿@page
+@model Zouryoku.Pages.ForTest.AutocompleteTestModel
+
+<div>
+    <label for="input">テスト用テキストボックス</label>
+    <input type="text" id="input"/>
+    <br />
+    <label for="callbackSuccessStar">コールバック関数が呼び出されると「★」が表示される：</label>
+    <input type="text" id="callbackSuccessStar" />
+</div>
+
+@section Scripts{
+    <script>
+    $(function(){
+        const $input = $("#input");
+        initAutocomplete($input, toUrl("Autocomplete"), function(){
+            $("#callbackSuccessStar").val("★");
+        })
+    })
+    </script>
+}

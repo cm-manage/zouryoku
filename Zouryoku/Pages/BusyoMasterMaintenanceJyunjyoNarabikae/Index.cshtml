@@ -1,0 +1,116 @@
+@page
+
+@using Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
+
+@model Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae.IndexModel
+
+@{
+    ViewData["Title"] = "部署順序並び替え";
+}
+
+<div class="app-screen--entry">
+    @* ページ上部のテキスト *@
+    <div class="app-area__header mt-3">
+        部署名をドラッグ＆ドロップして順序を変更できます。ハンドルを掴んで移動してください。
+    </div>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+        @* 部署ツリー *@
+        <div class="app-area__body">
+            <ul data-js="sections" class="list-group mt-3">
+                    @for (int i = 0; i < Model.RootBusyoOrders.Count; i++)
+                {
+                    @await Html.PartialAsync("_BusyoOrderNode",
+                        new IndexModel.BusyoOrderRenderContext(
+                            Model.RootBusyoOrders[i],
+                            $"busyoOrders[{i}]"
+                        )
+                    )
+                }
+            </ul>
+        </div>
+    </form>
+    <div class="py-3 my-3"></div>
+    <!-- フッターエリア -->
+    <div class="app-area__footer">
+        <hr />
+        <div class="text-end p-2">
+            <button type="button" class="btn btn-primary app-btn__base" id="register-btn">
+                <i class="fa-solid fa-check"></i>登録
+            </button>
+        </div>
+    </div>
+</div>
+
+@section InputScripts {
+    <script>
+        $(function () {
+            // [data-js="busyo"] をドラッグで入れ替え可能にする
+            // 入れ替え可能なのは同じ階層の要素同士のみ
+            // ハンドルは [data-js="handle"]
+            // 並び替え後に Jyunjyo の値を更新する
+            // ※ jQuery UI Sortable を使用
+            $('[data-js="sections"]').sortable({
+                cursor: 'move',
+                handle: '[data-js="handle"]',
+                update: function () {
+                    $(this).children('[data-js="busyo"]').children('input[name$=".Jyunjyo"]').each(function (i) {
+                        $(this).val(i + 1);
+                    });
+                }
+            });
+
+            // 共通登録 Ajax 処理
+            // data: 省略時は form の内容をシリアライズ
+            // 戻り値: Promise オブジェクト
+            function commonSendRegisterAjax(url, data = $('form').serializeArray()) {
+                return new Promise((resolve, reject) => {
+                    sendRegisterAjax(url, data, function(result) {
+                        switch (result.status) {
+                            case responseStatusSuccess: // 成功
+                                resolve(result);
+                                break;
+                            case responseStatusError: // エラー
+                                errorMessage(result.message);
+                                scrollTo(0, 0);
+                                resolve(null);
+                                break;
+                        }
+                    });
+                });
+            }
+
+            // 登録ボタンイベント
+            $('#register-btn').on('click', function () {
+                // エラークリア
+                errorClear();
+
+                commonConfirm('登録します。よろしいですか？', null, async function() {
+                    const result = await commonSendRegisterAjax(toUrl('Register'));
+
+                    if (!result) return;
+
+                    registerSuccessSwal('登録しました', null, function() {
+                        closeCurrentIziModal();
+                    });
+                });
+            });
+        });
+    </script>
+}
+
+@section InputStyles {
+    <style>
+        /* 隣り合ったボーダーが 1px で表示されるようにネガティブマージンを入れる */
+        .app-my-border-collapse {
+            margin-top: -1px;
+            margin-bottom: -1px;
+        }
+        /* ハンドルのドラッグ可能エリアを拡張する */
+        .app-handle {
+            margin: -0.5rem -1rem;
+            padding: 0.5rem 1rem;
+        }
+    </style>
+}

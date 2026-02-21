@@ -1,0 +1,27 @@
+@page
+@model TestDriverModel
+@{
+    if (!System.Diagnostics.Debugger.IsAttached) throw new InvalidOperationException("本番環境にテストドライバが混入しています");
+
+    ViewData["Title"] = "TestDriver";
+}
+
+<div>TestDriver</div>
+<br />
+<button type="button" id="open-modal-btn" class="btn btn-primary">表示</button>
+
+@section InputScripts {
+    <script>
+        $(function () {
+            // -----------------------------
+            // モーダル起動
+            // -----------------------------
+            $('#open-modal-btn').on('click', function () {
+                const modalId = 'test-modal';
+                const url = '@Url.Page("./Index")';
+                const title = '部署順序並び替え';
+                showInputModal(modalId, url, null, title, null, 1000, 700);
+            });
+        });
+    </script>
+}

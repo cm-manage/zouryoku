@@ -1,0 +1,650 @@
+﻿@using Model.Enums
+@using Zouryoku.Pages.Shared.Components
+@model Zouryoku.Pages.Example.IndexModel.ViewModel
+
+@* 【表示項目】 **************************************************************************************@
+<form method="post">
+    <div class="d-flex flex-column gap-3">
+
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+        <h2>２．共通コントロール</h2>
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+
+        @* テキストボックス *@
+        <div class="d-flex align-items-center gap-1">
+            <label asp-for="TextBox" class="label-local">@Html.DisplayNameFor(m => m.TextBox)</label>
+            <div>
+                <span asp-validation-for="TextBox" class="text-danger"></span>
+                <input type="text" asp-for="TextBox" class="form-control input-local" />
+            </div>
+        </div>
+
+        @* ドロップダウンリスト *@
+        @* asp-items版 *@
+        <div class="d-flex align-items-center gap-1">
+            <label asp-for="DropdownList1" class="label-local">@Html.DisplayNameFor(m => m.DropdownList1)</label>
+            <select asp-for="DropdownList1" asp-items="@Model.DropdownList1Items" class="form-select input-local"></select>
+        </div>
+        @* <option>版 *@
+        <div class="d-flex align-items-center gap-1">
+            <label asp-for="DropdownList2" class="label-local">@Html.DisplayNameFor(m => m.DropdownList2)</label>
+            <select asp-for="DropdownList2" class="form-select input-local">
+                @foreach (RegistrationStatusClassification option in Enum.GetValues(typeof(RegistrationStatusClassification)))
+                {
+                    <option>@option</option>
+                }
+            </select>
+        </div>
+
+        @* ラジオボタン *@
+        <div class="d-flex align-items-center gap-1">
+            <label asp-for="RadioButton" class="label-local">@Html.DisplayNameFor(m => m.RadioButton)</label>
+            <div>
+                <span asp-validation-for="TextBox" class="text-danger"></span>
+                <div class="d-flex align-items-center gap-3">
+                    @foreach (RegistrationStatusClassification option in Enum.GetValues(typeof(RegistrationStatusClassification)))
+                    {
+                        <label class="form-check">
+                            <input type="radio" asp-for="RadioButton" value="@option"
+                                   id="radio-button-option-@option"
+                                   class="form-check-input" />
+                            <span class="form-check-label">@option</span>
+                        </label>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* チェックボックス *@
+        <div class="d-flex align-items-center gap-1">
+            <div class="label-local">チェックボックス</div>
+            <div class="d-flex align-items-center gap-3">
+                <label class="form-check">
+                    <input type="checkbox" asp-for="CheckBox1" class="form-check-input" />
+                    <span class="form-check-label">@Html.DisplayNameFor(m => m.CheckBox1)</span>
+                </label>
+                <label class="form-check">
+                    <input type="checkbox" asp-for="CheckBox2" class="form-check-input" />
+                    <span class="form-check-label">@Html.DisplayNameFor(m => m.CheckBox2)</span>
+                </label>
+                <label class="form-check">
+                    <input type="checkbox" asp-for="CheckBox3" class="form-check-input" />
+                    <span class="form-check-label">@Html.DisplayNameFor(m => m.CheckBox3)</span>
+                </label>
+            </div>
+        </div>
+
+        @* トグルスイッチ *@
+        <div class="d-flex align-items-center gap-1">
+            <label asp-for="ToggleSwitch" class="label-local">@Html.DisplayNameFor(m => m.ToggleSwitch)</label>
+            <label class="form-check form-switch">
+                <input type="checkbox" asp-for="ToggleSwitch" class="form-check-input" />
+                <span class="form-check-label">オン / オフ</span>
+            </label>
+        </div>
+
+        @* 日付入力 *@
+        <div class="d-flex align-items-center gap-1">
+            <label asp-for="Datepicker" class="label-local">@Html.DisplayNameFor(m => m.Datepicker)</label>
+            <div>
+                <span asp-validation-for="Datepicker" class="text-danger"></span>
+                <div class="input-group input-local">
+                    <input type="text" asp-for="Datepicker" class="form-control" />
+                </div>
+                <partial name="Components/_Datepicker" model="@(new DatepickerModel { Id = "Datepicker" })" />
+            </div>
+        </div>
+        @* 日付入力（範囲） *@
+        <div class="d-flex align-items-center gap-1">
+            <label asp-for="DatepickerRange" class="label-local">日付入力（範囲）</label>
+            <div>
+                <span asp-validation-for="DatepickerRange.From" class="text-danger"></span>
+                <span asp-validation-for="DatepickerRange.To" class="text-danger"></span>
+                <span asp-validation-for="DatepickerRange.SelectedOption" class="text-danger"></span>
+                <div class="d-flex align-items-center gap-1">
+                    <div class="input-group input-local">
+                        <input type="text" asp-for="DatepickerRange.From"
+                               title="@Html.DisplayNameFor(m => m.DatepickerRange.From)"
+                               class="form-control" />
+                    </div>
+                    <span class="mx-1" aria-hidden="true">～</span>
+                    <div class="input-group input-local">
+                        <input type="text" asp-for="DatepickerRange.To"
+                               title="@Html.DisplayNameFor(m => m.DatepickerRange.To)"
+                               class="form-control" />
+                    </div>
+                    <select asp-for="DatepickerRange.SelectedOption"
+                            asp-items="@DatepickerRangeModel.ItemsFrom(Model.DatepickerRangeOptions)"
+                            title="@Html.DisplayNameFor(m => m.DatepickerRange.SelectedOption)"
+                            class="form-select ms-2 input-short-local">
+                    </select>
+                </div>
+                <partial name="Components/_DatepickerRange"
+                         model="@(new DatepickerRangeModel
+                         {
+                             FromId = "DatepickerRange.From",
+                             ToId = "DatepickerRange.To",
+                             SelectId = "DatepickerRange.SelectedOption",
+                             MinDate = new DateOnly(2025, 1, 6),
+                             MaxDate = new DateOnly(2025, 12, 26),
+                             NumberOfMonthsWidth = 4,
+                             NumberOfMonthsHeight = 3,
+                         })" />
+            </div>
+        </div>
+
+        @* ボタン *@
+        <div class="d-flex align-items-center gap-1">
+            <div class="label-local">ボタン</div>
+            <button type="button" id="search-btn" class="btn btn-primary">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                検索
+            </button>
+
+            <button type="button" id="back-btn" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i>
+                戻る
+            </button>
+
+            <button type="button" id="insert-btn" class="btn btn-success">
+                <i class="fa-solid fa-plus"></i>
+                新規
+            </button>
+
+            <button type="button" id="delete-btn" class="btn btn-danger">
+                <i class="fa-solid fa-trash"></i>
+                削除
+            </button>
+        </div>
+
+        @* ページャ *@
+        <div class="d-flex align-items-center gap-1">
+            <div class="label-local">ページャ</div>
+            @{
+                var pageIndex = 2;
+                var total = 36;
+                var pageSize = 3;
+                var pagesNum = (total - 1) / pageSize + 1;
+                var skip = 5;
+            }
+            <div class="d-flex justify-content-center align-content-center m-3 gap-1">
+                <button type="button" class="btn btn-outline-info move" data-offset="@(-skip)" @(pageIndex < skip ? "disabled" : null)><i class="fa-solid fa-chevrons-left"></i></button>
+                <button type="button" class="btn btn-info move" data-offset="-1" @(pageIndex < 1 ? "disabled" : null)><i class="fa-solid fa-chevron-left"></i></button>
+                <span id="page-num" class="fs-6 align-self-center">
+                    @(pageIndex + 1)/@pagesNum
+                </span>
+                <button type="button" class="btn btn-info move" data-offset="1" @(pagesNum - 2 < pageIndex ? "disabled" : null)><i class="fa-solid fa-chevron-right"></i></button>
+                <button type="button" class="btn btn-outline-info move" data-offset="@skip" @(pagesNum - skip - 1 < pageIndex ? "disabled" : null)><i class="fa-solid fa-chevrons-right"></i></button>
+
+                @* ページ移動用の隠しフィールド *@
+                <input type="hidden" name="total" value="@total" />
+                <input type="hidden" name="pageIndex" value="@pageIndex" id="page-index" />
+            </div>
+        </div>
+
+
+
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+        <h2>２．1．共通パーツ (画面に依存するため、内部実装は未実装)</h2>
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+
+        <h3>オートコンプリート</h3>
+        <div>
+            <div class="position-relative input-long-local">
+                <input type="text" id="input-autocomplete" class="form-control" autocomplete="off" />
+                <ul id="input-autocomplete-dropdown" class="dropdown-menu w-100"></ul>
+            </div>
+        </div>
+
+        <h3>部署選択　※単一選択</h3>
+        <div>
+            <div class="d-flex align-items-center gap-1">
+                <div class="input-group input-long-local">
+                    <input type="text" value="デジタルネクスト事業部" class="form-control" />
+                    <button type="button" class="btn btn-primary">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <h3>部署選択　※複数選択</h3>
+        <div>
+            <div class="d-flex align-items-center gap-1">
+                <div>
+                    <select class="form-select input-long-local">
+                        <option></option>
+                        <option>営業部</option>
+                        <option>人事部</option>
+                        <option>経理部</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    検索
+                </button>
+            </div>
+            <div class="d-flex gap-1 mt-1">
+                <span class="badge bg-primary d-flex align-items-center">
+                    営業部
+                    <button type="button" class="btn-close btn-close-white ms-1"></button>
+                </span>
+                <span class="badge bg-primary d-flex align-items-center">
+                    人事部
+                    <button type="button" class="btn-close btn-close-white ms-1"></button>
+                </span>
+                <span class="badge bg-primary d-flex align-items-center">
+                    経理部
+                    <button type="button" class="btn-close btn-close-white ms-1"></button>
+                </span>
+            </div>
+        </div>
+
+        <h3>データグリッド</h3>
+        <div>
+            <table class="table table-bordered align-middle">
+                <thead class="table-primary text-center">
+                    <tr>
+                        <th rowspan="2" class="th-tantosya align-middle">担当者</th>
+                        <th rowspan="2" class="th-hiduke align-middle">日付</th>
+                        <th colspan="6">出退記録</th>
+                        <th colspan="7">日報</th>
+                        <th rowspan="2" class="th-pclog align-middle">ＰＣログ</th>
+                        <th rowspan="2" class="th-shinsei-nyuryoku align-middle">申請入力</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="th-syukkin-time">出勤時間１</th>
+                        <th colspan="2" class="th-syukkin-time">出勤時間２</th>
+                        <th colspan="2" class="th-syukkin-time">出勤時間３</th>
+                        <th class="th-syukkin-kubun">出勤区分</th>
+                        <th colspan="2" class="th-kinmu-time">勤務時間１</th>
+                        <th colspan="2" class="th-kinmu-time">勤務時間２</th>
+                        <th colspan="2" class="th-kinmu-time">勤務時間３</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var day in Model.Days)
+                    {
+                        <tr class="@day.RowColorClass">
+                            <td>
+                                @* 担当者 *@
+                                @day.Name
+                            </td>
+                            <td class="text-center">
+                                @* 日付 *@
+                                <a href="/">
+                                    @Html.DisplayFor(_ => day.Date)
+                                </a>
+                            </td>
+                            @for (int i = 0; i < IndexModel.TimePerDay; i++)
+                            {
+                                @* 出勤時間１～３ *@
+                                <td class="text-center">
+                                    @if (day.WorkingHours.Count >= i + 1)
+                                    {
+                                        @if (day.WorkingHours[i].SyukkinHasLocation)
+                                        {
+                                            <a href="@day.WorkingHours[i].SyukkinHref">@Html.DisplayFor(_ => day.WorkingHours[i].SyukkinTime)</a>
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayFor(_ => day.WorkingHours[i].SyukkinTime)
+                                        }
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (day.WorkingHours.Count >= i + 1)
+                                    {
+                                        @if (day.WorkingHours[i].TaikinHasLocation)
+                                        {
+                                            <a href="@day.WorkingHours[i].TaikinHref">@Html.DisplayFor(_ => day.WorkingHours[i].TaikinTime)</a>
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayFor(_ => day.WorkingHours[i].TaikinTime)
+                                        }
+                                    }
+                                </td>
+                            }
+                            <td>
+                                @* 出勤区分 *@
+                                @day.SyukkinKubun1
+                            </td>
+                            @for (int i = 0; i < IndexModel.TimePerDay; i++)
+                            {
+                                @* 勤務時間１～３ *@
+                                <td class="text-center">
+                                    @if (day.Nippous.Count >= i + 1)
+                                    {
+                                        @if (day.Nippous[i].SyukkinHasLocation)
+                                        {
+                                            <a href="@day.Nippous[i].SyukkinHref">@Html.DisplayFor(_ => day.Nippous[i].SyukkinHm)</a>
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayFor(_ => day.Nippous[i].SyukkinHm)
+                                        }
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (day.Nippous.Count >= i + 1)
+                                    {
+                                        @if (day.Nippous[i].TaisyutsuHasLocation)
+                                        {
+                                            <a href="@day.Nippous[i].TaisyutsuHref">@Html.DisplayFor(_ => day.Nippous[i].TaisyutsuHm)</a>
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayFor(_ => day.Nippous[i].TaisyutsuHm)
+                                        }
+                                    }
+                                </td>
+                            }
+                            <td>
+                                @* ＰＣログ *@
+                                @foreach (var pcLog in day.PcLogs)
+                                {
+                                    @:【@pcLog.PcName】
+                                    <span class="pc-log-time">@Html.DisplayFor(_ => pcLog.LogOnDateTime)</span>
+                                    @:-
+                                    <span class="pc-log-time">@Html.DisplayFor(_ => pcLog.LogOffDateTime)</span>
+                                    <br />
+                                }
+                            </td>
+                            <td>
+                                @* 申請入力 *@
+                                @day.UkagaiSyubetsu
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
+
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+        <h2>２．2．ボタンの種類</h2>
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+
+        <h3>サブミット系ボタン　…　塗りつぶし</h3>
+        <div class="d-flex align-items-center gap-5">
+            <button type="button" class="btn btn-primary">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                検索
+            </button>
+
+            <button type="button" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i>
+                戻る
+            </button>
+
+            <button type="button" class="btn btn-success">
+                <i class="fa-solid fa-circle-check"></i>
+                承認
+            </button>
+
+            <button type="button" class="btn btn-danger">
+                <i class="fa-solid fa-trash"></i>
+                削除
+            </button>
+
+            <button type="button" class="btn btn-info">
+                <i class="fa-solid fa-circle-info"></i>
+                項目説明
+            </button>
+        </div>
+
+        <h3>画面操作系ボタン　…　アウトライン</h3>
+        <div class="d-flex gap-5">
+            <button type="button" class="btn btn-outline-primary">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                検索
+            </button>
+
+            <button type="button" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left"></i>
+                戻る
+            </button>
+
+            <button type="button" class="btn btn-outline-success">
+                <i class="fa-solid fa-circle-check"></i>
+                承認
+            </button>
+
+            <button type="button" class="btn btn-outline-danger">
+                <i class="fa-solid fa-trash"></i>
+                削除
+            </button>
+
+            <button type="button" class="btn btn-outline-info">
+                <i class="fa-solid fa-circle-info"></i>
+                項目説明
+            </button>
+        </div>
+
+
+
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+        <h2>２．3．ボタンの配置</h2>
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+
+        <div class="d-flex align-items-center gap-3">
+            <h3 class="h3-label-local">
+                登録画面（モーダル）　…　申請入力など
+            </h3>
+            <button type="button" id="modal-register-btn" class="btn btn-primary ms-3">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                モーダルを開く
+            </button>
+            <div>
+                (登録したカード: @string.Join(", ", Model.ModalRegister.Cards.Select(c => c.Name)))
+            </div>
+            @for (int i = 0; i < Model.ModalRegister.Cards.Count; i++)
+            {
+                <input type="hidden" asp-for="ModalRegister.Cards[i].Name" />
+            }
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <h3 class="h3-label-local">
+                入力補助検索画面　…　案件名検索など
+            </h3>
+            <button type="button" id="modal-sub-search-btn" class="btn btn-primary ms-3">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                モーダルを開く
+            </button>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <h3 class="h3-label-local">
+                検索画面　…　出退勤一覧など
+            </h3>
+            <button type="button" id="modal-search-btn" class="btn btn-primary ms-3">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                モーダルを開く
+            </button>
+            <div>
+                (検索した値: @Model.ModalSearch.Name, @Model.ModalSearch.Address, @Model.ModalSearch.Tel)
+            </div>
+            <input type="hidden" asp-for="ModalSearch.Name" />
+            <input type="hidden" asp-for="ModalSearch.Address" />
+            <input type="hidden" asp-for="ModalSearch.Tel" />
+        </div>
+
+
+
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+        <h2>３．メッセージ出力</h2>
+        @*/////////////////////////////////////////////////////////////////////////////////////*@
+
+        <div class="d-flex align-items-center gap-3">
+            <h3 class="h3-label-local">
+                通知メッセージ
+            </h3>
+            <button type="button" id="preview-info-btn" class="btn btn-primary ms-3">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                プレビュー
+            </button>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <h3 class="h3-label-local">
+                警告メッセージ
+            </h3>
+            <button type="button" id="preview-warning-btn" class="btn btn-primary ms-3">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                プレビュー
+            </button>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <h3 class="h3-label-local">
+                エラーメッセージ
+            </h3>
+            <button type="button" id="preview-error-btn" class="btn btn-primary ms-3">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                プレビュー
+            </button>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <h3 class="h3-label-local">
+                単項目エラーメッセージ
+            </h3>
+            <button type="button" id="preview-single-error-btn" class="btn btn-primary ms-3">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                プレビュー
+            </button>
+            <label asp-for="Busyo">
+                <span class="text-danger me-1">＊</span>
+                @Html.DisplayNameFor(m => m.Busyo)
+            </label>
+            <div>
+                <span asp-validation-for="Busyo" class="text-danger"></span>
+                <input type="text" asp-for="Busyo" class="form-control input-local" />
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <h3 class="h3-label-local">
+                確認メッセージ
+            </h3>
+            <button type="button" id="preview-confirm-btn" class="btn btn-primary ms-3">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                プレビュー
+            </button>
+        </div>
+    </div>
+</form>
+
+
+
+@* 【サンプル用】サンプルが見やすいようにページ下部を伸ばす *@
+<div class="py-5 my-5"></div>
+<div class="py-5 my-5"></div>
+<div class="py-5 my-5"></div>
+
+@* バリデーションを有効化 *@
+<partial name="_ValidationScriptsPartial" />
+
+@* バリデーション表示を有効化 *@
+<script>
+    $.validator.setDefaults({
+        highlight: function (element) {
+            $(element).addClass("is-invalid");
+        },
+        unhighlight: function (element) {
+            $(element).removeClass("is-invalid");
+        },
+        errorClass: "invalid-feedback",
+        errorPlacement: function (error, element) {
+            var name = element.attr("name");
+            $("span[data-valmsg-for='" + name + "']").html(error);
+        }
+    });
+</script>
+
+@* オートコンプリートを有効化 *@
+<script>
+    $(function() {
+        const $input = $('#input-autocomplete');
+        const $dropdown = $('#input-autocomplete-dropdown')
+        commonAutoComplete($input, $dropdown, 'Autocomplete');
+    })
+</script>
+
+
+
+@* CSS *********************************************************************************@
+<style>
+    h2 {
+        margin: 2rem 0;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .label-local {
+        width: 15rem;
+    }
+
+    .h3-label-local {
+        width: 25rem;
+    }
+
+    .input-local {
+        width: 15rem;
+    }
+
+    .input-short-local {
+        width: 10rem;
+    }
+
+    .input-long-local {
+        width: 25rem;
+    }
+
+    .pc-log-time {
+        display: inline-block;
+        width: 2rem;
+        text-align: center;
+    }
+
+    table {
+        /* 担当者 */
+        .th-tantosya {
+            width: 6%;
+        }
+        /* 日付 */
+        .th-hiduke {
+            width: 4%;
+        }
+        /* ＰＣログ */
+        .th-pclog {
+            width: 9%;
+        }
+        /* 申請入力 */
+        .th-shinsei-nyuryoku {
+            width: 10%;
+        }
+        /* 出勤区分 */
+        .th-syukkin-kubun {
+            width: 6%;
+        }
+        /* 出勤時間1～3 */
+        .th-syukkin-time {
+            width: 5%;
+            min-width: 10ch;
+        }
+        /* 勤務時間1～3 */
+        .th-kinmu-time {
+            width: 4%;
+            min-width: 10ch;
+        }
+    }
+</style>

@@ -1,0 +1,460 @@
+﻿@page
+@using Zouryoku.Pages.Shared.Components
+@using CommonLibrary.Extensions;
+@model Zouryoku.Pages.BusyoMasterMaintenanceTouroku.InputModel
+@{
+    ViewData["Title"] = "部署マスタ登録";
+}
+
+<!-- 初期表示時エラー用 -->
+@if (!Model.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-errors d-flex">
+        <div><i class="fas fa-exclamation-triangle fa-fw"></i></div>
+        <div id="validation-summary" asp-validation-summary="ModelOnly" class="app-validation-summary-errors"></div>
+    </div>
+}
+
+<div class="app-screen--entry">
+
+    <div class="app-area__header">
+        <div class="ms-3">
+            履歴対象となる<span class="text-primary fw-bold">*</span>の項目を変更した場合、新たな社員情報が作られます。<br />
+            この時、適用開始日が新規データの有効開始日となります。<br />
+            再登録（適用開始日と有効開始日が同じ）の場合、履歴は発生せず上書きとなります。<br />
+            <span class="text-danger fw-bold">*</span>は必須入力です。<span class="text-primary fw-bold">*</span>は履歴対象です。
+        </div>
+    </div>
+
+    <div class="app-area__body">
+        <form method="post" id="busyo-input-form">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="Input.IsCreate" />
+            <input type="hidden" asp-for="Input.BusyoId" />
+            <input type="hidden" asp-for="Input.BusyoBaseId" />
+
+            <!-- 部署番号 -->
+            <div class="row mt-3 mb-3 align-items-center">
+                <label asp-for="Input.BusyoCode" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.BusyoCode)
+                    <span class="text-danger fw-bold">*</span>
+                </label>
+                <div class="col-md-3">
+                    <input asp-for="Input.BusyoCode" class="form-control form-control-sm app-input__textbox" />
+                    <span class="text-danger small" asp-validation-for="Input.BusyoCode"></span>
+                </div>
+            </div>
+
+            <!-- 部署名称 -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.BusyoName" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.BusyoName)
+                    <span class="text-danger fw-bold">*</span>
+                    <span class="text-primary fw-bold">*</span>
+                </label>
+                <div class="col-md-5">
+                    <input asp-for="Input.BusyoName" class="form-control form-control-sm app-input__textbox" />
+                    <span class="text-danger small" asp-validation-for="Input.BusyoName"></span>
+                </div>
+            </div>
+
+            <!-- 部署名称カナ -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.BusyoKanaName" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.BusyoKanaName)
+                    <span class="text-danger fw-bold">*</span>
+                </label>
+                <div class="col-md-5">
+                    <input asp-for="Input.BusyoKanaName" class="form-control form-control-sm app-input__textbox" />
+                    <span class="text-danger small" asp-validation-for="Input.BusyoKanaName"></span>
+                </div>
+            </div>
+
+            <!-- 部署略称 -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.BusyoRyakusyou" class="col-md-2 col-form-label app-input__label ps-2"></label>
+                <div class="col-md-3">
+                    <input asp-for="Input.BusyoRyakusyou" class="form-control form-control-sm app-input__textbox" />
+                    <span class="text-danger small" asp-validation-for="Input.BusyoRyakusyou"></span>
+                </div>
+            </div>
+
+            <!-- 親部署 -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.OyaName" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.OyaName)
+                    <span class="text-danger fw-bold">*</span>
+                    <span class="text-primary fw-bold">*</span>
+                </label>
+
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <!-- 表示用：親部署名 -->
+                        <input asp-for="Input.OyaName" class="form-control form-control-sm app-input__textbox bg-light"
+                               readonly />
+
+                        <!-- hidden：ID とコード -->
+                        <input type="hidden" asp-for="Input.OyaId" />
+                        <input type="hidden" asp-for="Input.OyaCode" />
+
+                        <!-- 検索ボタン -->
+                        <button type="button" class="btn btn-primary app-btn__base" id="btn-search-oya" aria-label="親部署を検索">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    <span class="text-danger small" asp-validation-for="Input.OyaName"></span>
+                </div>
+            </div>
+
+            <!-- 適用開始日 -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.ApplyDate" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.ApplyDate)
+                    <span class="text-danger fw-bold">*</span>
+                </label>
+                <div class="col-md-3 position-relative d-flex align-items-center">
+                    <div class="input-group input-local w-100">
+                        <input type="text" asp-for="Input.ApplyDate" class="form-control form-control-sm app-input__textbox" />
+                    </div>
+                    <span class="text-danger small ms-2" asp-validation-for="Input.ApplyDate"></span>
+
+                    <partial name="Components/_Datepicker"
+                             model="@(new DatepickerModel { Id = "Input_ApplyDate" })" />
+                </div>
+            </div>
+
+            <!-- 有効開始日 -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.StartYmd" class="col-md-2 col-form-label app-input__label ps-2"></label>
+                <div class="col-md-3">
+                    <span class="form-control-plaintext ms-2">
+                        @Model.Input.StartYmd.YMDSlash()
+                    </span>
+                    <input type="hidden" asp-for="Input.StartYmd" />
+                </div>
+            </div>
+
+            <!-- 有効終了日 -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.EndYmd" class="col-md-2 col-form-label app-input__label ps-2"></label>
+                <div class="col-md-3">
+                    <span class="form-control-plaintext ms-2">
+                        @Model.Input.EndYmd.YMDSlash()
+                    </span>
+                    <input type="hidden" asp-for="Input.EndYmd" />
+                </div>
+            </div>
+
+            <!-- 箇所コード -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.KasyoCode" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.KasyoCode)
+                    <span class="text-danger fw-bold">*</span>
+                </label>
+                <div class="col-md-3">
+                    <input asp-for="Input.KasyoCode" class="form-control form-control-sm app-input__textbox" />
+                    <span class="text-danger small" asp-validation-for="Input.KasyoCode"></span>
+                </div>
+            </div>
+
+            <!-- 会計コード -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.KaikeiCode" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.KaikeiCode)
+                    <span class="text-danger fw-bold">*</span>
+                </label>
+                <div class="col-md-3">
+                    <input asp-for="Input.KaikeiCode" class="form-control form-control-sm app-input__textbox" />
+                    <span class="text-danger small" asp-validation-for="Input.KaikeiCode"></span>
+                </div>
+            </div>
+
+            <!-- 経理コード -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.KeiriCode" class="col-md-2 col-form-label app-input__label ps-2"></label>
+                <div class="col-md-3">
+                    <input asp-for="Input.KeiriCode" class="form-control form-control-sm app-input__textbox" />
+                </div>
+            </div>
+
+            <!-- アクティブフラグ -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.IsActive" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.IsActive)
+                    <span class="text-primary fw-bold">*</span>
+                </label>
+                <div class="col-md-3 d-flex align-items-center">
+                    <input asp-for="Input.IsActive" type="checkbox" class="form-check-input ms-2" />
+                </div>
+            </div>
+
+            <!-- 部門長 -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.BumoncyoName" class="col-md-2 col-form-label app-input__label ps-2"></label>
+
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="input-group">
+                        <!-- 表示用：部門長名 -->
+                        <input asp-for="Input.BumoncyoName" class="form-control form-control-sm app-input__textbox"
+                               readonly />
+
+                        <!-- hidden：部門長ID -->
+                        <input type="hidden" asp-for="Input.BumoncyoId" />
+
+                        <!-- 検索ボタン -->
+                        <button type="button" class="btn btn-primary app-btn__base" id="btn-search-bumoncyo">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+
+                    <!-- 解除ボタン -->
+                    <button type="button" class="btn btn-outline-secondary app-btn__base ms-2" id="btn-clear-bumoncyo">
+                        <i class="fa-solid fa-eraser"></i>
+                        解除
+                    </button>
+                </div>
+            </div>
+
+            <!-- 承認部署 -->
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.ShoninBusyoName" class="col-md-2 col-form-label app-input__label ps-2"></label>
+
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="input-group">
+                        <!-- 表示用：承認部署名 -->
+                        <input asp-for="Input.ShoninBusyoName" class="form-control form-control-sm app-input__textbox"
+                               readonly />
+
+                        <!-- hidden：承認部署ID -->
+                        <input type="hidden" asp-for="Input.ShoninBusyoId" />
+
+                        <!-- 検索ボタン -->
+                        <button type="button" class="btn btn-primary app-btn__base" id="btn-search-shonin-busyo">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+
+                    <!-- 解除ボタン -->
+                    <button type="button" class="btn btn-outline-secondary app-btn__base ms-2" id="btn-clear-shonin-busyo" aria-label="承認部署を解除">
+                        <i class="fa-solid fa-eraser"></i>
+                        解除
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="Input.BusyoVersion" />
+            <input type="hidden" asp-for="Input.BusyoBaseVersion" />
+        </form>
+    </div>
+
+    <!-- フッター潜り込み余白 -->
+    <div class="py-3 my-3"></div>
+
+    <!-- フッターエリア -->
+    <div class="app-area__footer">
+        <hr />
+        <div class="text-end p-2">
+            <button type="button" class="btn btn-primary app-btn__base" id="btn-register">
+                <i class="fa-solid fa-check"></i>登録
+            </button>
+        </div>
+    </div>
+</div>
+
+@section InputScripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        $(function () {
+            // -----------------------------------
+            // 定数
+            // -----------------------------------
+
+            // フォーム要素
+            const $form = $('form');
+
+            // 部署選択対象
+            // 親部署？承認部署？
+            const BusyoTarget = {
+                OYA: 'oya',
+                SHONIN: 'shonin'
+            };
+
+            // 現在の部署選択対象
+            // ※部署選択モーダルからの戻り値反映用
+            // ※BusyoTarget のいずれかが入る
+            let selectedBusyoTarget = null;
+
+            // 部署フィールドマップ
+            // ※部署選択モーダルからの戻り値反映用
+            const busyoFieldMap = {
+                [BusyoTarget.OYA]: {
+                    id: '#Input_OyaId',
+                    name: '#Input_OyaName',
+                    code: '#Input_OyaCode'
+                },
+                [BusyoTarget.SHONIN]: {
+                    id: '#Input_ShoninBusyoId',
+                    name: '#Input_ShoninBusyoName'
+                }
+            };
+
+            // メッセージハンドルマップ
+            // ※子画面からのメッセージ受信用
+            const messageHandlers = {
+                busyoSelected: (payload) => applySelectedBusyo(payload),
+                syainSelected: (payload) => applySelectedSyain(payload),
+            };
+
+            // -----------------------------------
+            // 初期化
+            // -----------------------------------
+            bindEvents();
+
+            // -----------------------------------
+            // イベント登録
+            // -----------------------------------
+            function bindEvents() {
+                // 親部署 選択
+                $('#btn-search-oya').on('click', onSelectOyaBusyo);
+
+                // 部門長 選択
+                $('#btn-search-bumoncyo').on('click', onSelectBumoncyo);
+
+                // 部門長 解除
+                $('#btn-clear-bumoncyo').on('click', onClearBumoncyo);
+
+                // 承認部署 選択
+                $('#btn-search-shonin-busyo').on('click', onSelectShoninBusyo);
+
+                // 承認部署 解除
+                $('#btn-clear-shonin-busyo').on('click', onClearShoninBusyo);
+
+                // 登録ボタン押下
+                $('#btn-register').on('click', register);
+
+                // 子画面選択項目受け取り
+                $(window).on('message', onWindowMessage);
+            }
+
+            // -----------------------------------
+            // イベントハンドラ
+            // -----------------------------------
+
+            // 親部署 選択
+            function onSelectOyaBusyo() {
+                selectedBusyoTarget = BusyoTarget.OYA;
+                openBusyoSelectModal(false);
+            }
+
+            // 部門長 選択
+            function onSelectBumoncyo() {
+                openSyainSelectModal(false);
+            }
+
+            // 部門長 解除
+            function onClearBumoncyo() {
+                $('#Input_BumoncyoId').val('');
+                $('#Input_BumoncyoName').val('');
+            }
+
+            // 承認部署 選択
+            function onSelectShoninBusyo() {
+                selectedBusyoTarget = BusyoTarget.SHONIN;
+                openBusyoSelectModal(false);
+            }
+
+            // 承認部署 解除
+            function onClearShoninBusyo() {
+                $('#Input_ShoninBusyoId').val('');
+                $('#Input_ShoninBusyoName').val('');
+            }
+
+            // 登録
+            async function register() {
+                // 既存Validationエラーメッセージクリア
+                clearErrors('#busyo-input-form');
+
+                // クライアント側バリデーション
+                if (!$form.valid()) return;
+
+                // 確認ダイアログ & 登録処理実行
+                commonConfirm(null, null, async () => {
+                    await executeRegister();
+                });
+            }
+
+            // -----------------------------------
+            // Ajax を Promise 化
+            // -----------------------------------
+            function sendRegisterAjaxAsync(url, data) {
+                return new Promise((resolve) => {
+                    sendRegisterAjax(url, data, (result) => resolve(result));
+                });
+            }
+
+            // -----------------------------------
+            // 登録処理
+            // -----------------------------------
+            async function executeRegister() {
+                const result = await sendRegisterAjaxAsync(toUrl('Register'), $form.serializeArray());
+
+                if (!result) return;
+
+                switch (result.status) {
+                    case responseStatusSuccess:
+                        // --- 登録しました ---
+                        registerSuccessSwal(null, null, () => closeCurrentIziModal());
+                        break;
+                    case responseStatusError:
+                        // サーバー側の ModelState エラー or 業務エラー
+                        errorMessage(result.message);
+                        break;
+                }
+            }
+
+            // -----------------------------------
+            // 子画面からのメッセージ受信
+            // -----------------------------------
+            function onWindowMessage(event) {
+                const e = event.originalEvent;
+
+                // セキュリティチェック（オリジン確認）
+                if (e.origin !== window.location.origin) return;
+
+                const handler = messageHandlers[e.data?.type];
+                if (handler) {
+                    handler(e.data.payload || e.data.selectedSyain);
+                }
+            }
+
+            // -----------------------------
+            // 選択部署の反映
+            // -----------------------------
+            function applySelectedBusyo(busyo) {
+                if (!busyo || !selectedBusyoTarget) return;
+
+                // 反映先フィールド取得
+                const fields = busyoFieldMap[selectedBusyoTarget];
+                if (!fields) return;
+
+                // 値セット
+                $(fields.name).val(busyo.name);
+                $(fields.id).val(busyo.id);
+                // コードはコードフィールドがある場合のみ
+                if (fields.code) $(fields.code).val(busyo.code);
+            }
+
+            // -----------------------------
+            // 選択社員の反映
+            // -----------------------------
+            function applySelectedSyain(syain) {
+                if (!syain) return;
+
+                $('#Input_BumoncyoName').val(syain.syainName);
+                $('#Input_BumoncyoId').val(syain.syainBaseId);
+            }
+        });
+    </script>
+}

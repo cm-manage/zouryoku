@@ -1,0 +1,35 @@
+@* 勤務状況（残業・有給残・振休・連勤等）*@
+@model IList<Zouryoku.Pages.Kinmuhyo.KinmuJokyoRowViewModel>
+
+<table class="table table-bordered kinmu-jokyo-table">
+    <tbody>
+        @foreach (var s in Model)
+        {
+            var title = s.TitleLevel switch
+            {
+                IndexViewModel.LevelWarn => "bg-warning",
+                IndexViewModel.LevelDanger=> "bg-danger",
+                IndexViewModel.LevelPrimary => "bg-primary",
+                _ => ""
+            };
+
+            var message = s.MessageLevel switch
+            {
+                IndexViewModel.LevelDanger => "bg-danger-subtle",
+                IndexViewModel.LevelWarn => "bg-warning-subtle",
+                _ => "",
+            };
+            <tr>
+                <td class="@title kinmu-jokyo-label app-alert text-white">
+                    @s.Label
+                </td>
+                <td class="border-end @message kinmu-jokyo-value">
+                    @s.Value
+                </td>
+                <td class="@message kinmu-jokyo-description d-none d-lg-table-cell">
+                    @s.Description
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

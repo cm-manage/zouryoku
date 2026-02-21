@@ -1,0 +1,126 @@
+﻿@using System.Text.RegularExpressions
+@model Zouryoku.Pages.Shared.Components.DatepickerRangeModel
+
+@* From, To に datepicker を追加 *@
+<partial name="Components/_Datepicker"
+         model="@(new DatepickerModel
+         {
+             Id = Model.FromId,
+             MinDate = Model.MinDate,
+             MaxDate = Model.MaxDate,
+             NumberOfMonthsWidth = Model.NumberOfMonthsWidth,
+             NumberOfMonthsHeight = Model.NumberOfMonthsHeight,
+         })" />
+<partial name="Components/_Datepicker"
+         model="@(new DatepickerModel
+         {
+             Id = Model.ToId,
+             MinDate = Model.MinDate,
+             MaxDate = Model.MaxDate,
+             NumberOfMonthsWidth = Model.NumberOfMonthsWidth,
+             NumberOfMonthsHeight = Model.NumberOfMonthsHeight,
+         })" />
+
+@* JavaScript ************************************************************************************************@
+<script>
+    function setDatepicker() {
+        const id2Selector = id => '#' + id.replace(/[.\[\]]/g, '_');
+        const fromSelector = id2Selector('@Model.FromId');
+        const toSelector = id2Selector('@Model.ToId');
+        const selectSelector = id2Selector('@Model.SelectId');
+        const validationSelector = '[data-valmsg-for="@Model.FromId"]';
+        const $from = $(fromSelector);
+        const $to = $(toSelector);
+        const $select = $(selectSelector);
+        const $validation = $(validationSelector);
+        // from, to, validation の存在チェックは _Datepicker でされるため不要
+        if ($select.length === 0) console.error(`セレクタ '${selectSelector}' は見つかりません。`);
+
+        // 範囲バリデーションメソッドを追加
+        /**
+         * _DatepickerRange の項目をバリデーションします。 _DatepickerRange を一つしか使用していない画面では引数を省略可能です。
+         */
+        $from[0].datepickerRangeIsValid = $to[0].datepickerRangeIsValid = () => {
+            const fromDate = new Date($from.val());
+            const toDate = new Date($to.val());
+            if (toDate < fromDate) {
+                // 即設定すると _Datepicker で削除されるため setTimeout を使う
+                $validation.html('開始日付が終了日付より後の日付です。開始日付～終了日付の範囲になるようにしてください。');
+                $.validator.defaults.highlight($from);
+                $.validator.defaults.highlight($to);
+                return false;
+            }
+
+            $validation.empty();
+            $.validator.defaults.unhighlight($from);
+            $.validator.defaults.unhighlight($to);
+            return true;
+        }
+
+        /** 指定の期間でFrom, Toを上書きする */
+        function setKikan(kikan) {
+            const today = new Date();
+            const dateRanges = {
+                '@DatepickerRangeModel.Option.Yesterday': () => {
+                    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+                    return { from: d, to: d };
+                },
+                '@DatepickerRangeModel.Option.Today': () => ({ from: today, to: today }),
+                '@DatepickerRangeModel.Option.ThisMonth': () => ({
+                    from: new Date(today.getFullYear(), today.getMonth(), 1),
+                    to: today
+                }),
+                '@DatepickerRangeModel.Option.Past2Months': () => ({
+                    from: new Date(today.getFullYear(), today.getMonth() - 1, 1),
+                    to: today
+                }),
+                '@DatepickerRangeModel.Option.Past3Months': () => ({
+                    from: new Date(today.getFullYear(), today.getMonth() - 2, 1),
+                    to: today
+                }),
+                '@DatepickerRangeModel.Option.PastHalfYear': () => ({
+                    from: new Date(today.getFullYear(), today.getMonth() - 5, 1),
+                    to: today
+                }),
+                '@DatepickerRangeModel.Option.ThisFiscalYear': () => {
+                    // 年度初日の年を取得：10月1日以降はその年、それ以外は前年
+                    const nendo = today.getMonth() >= 9 ? today.getFullYear() : today.getFullYear() - 1;
+                    return { from: new Date(nendo, 9, 1), to: new Date(nendo + 1, 8, 30) }; // 10月1日～翌年9月30日
+                }
+            };
+
+            const range = dateRanges[kikan]?.();
+            if (range) {
+                $from.val(date2Yyyy_mm_dd(range.from));
+                $to.val(date2Yyyy_mm_dd(range.to));
+                $from.trigger('change');
+                $to.trigger('change');
+            }
+        }
+
+        function date2Yyyy_mm_dd(date) {
+            const yyyy = date.getFullYear();
+            const mm = ('0' + (date.getMonth() + 1)).slice(-2);
+            const dd = ('0' + date.getDate()).slice(-2);
+            return `${yyyy}/${mm}/${dd}`;
+        }
+
+        // 期間選択切り替え時、期間（From, To）を変更する
+        $select.on('change', function() {
+            setKikan($select.val());
+        });
+
+        if (!$from.val() && !$to.val())
+        {
+            @* From/To が空の場合、初期選択期間で初期化 *@
+            @* DatepickerRangeModel.Values.From/To は null 非許容のため、独自プロパティにバインドして使用してください。 *@
+            setKikan($select.val());
+        }
+    }
+    if (document.readyState === 'complete') {
+        setDatepicker(); // 動的挿入に対応するため、ロード完了済みなら即実行
+    } else {
+        window.addEventListener('DOMContentLoaded', setDatepicker);
+    }
+    setDatepicker = undefined; // グローバル汚染を回避（jQuery Validateで8進数が認識されるため type="module" は使えない）
+</script>

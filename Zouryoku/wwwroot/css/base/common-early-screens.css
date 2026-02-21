@@ -1,0 +1,303 @@
+﻿/* バイパスログイン画面などの最初期作成画面のCSS */
+@charset "UTF-8";
+
+:root {
+    /*--header-color: rgb(110 162 243);*/ /* .boxで使用しているが名前が不適のためクラス内へ移動 */
+}
+
+.btn.btn-blue {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #1f6bff 0%, #1a9eef 100%);
+    background-image: -o-linear-gradient(to right, #1f6bff 0%, #1a9eef 100%);
+    background-image: linear-gradient(to right, #1f6bff 0%, #1a9eef 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.btn.btn-red {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #ff0000 0%, #ff7777 100%);
+    background-image: -o-linear-gradient(to right, #ff0000 0%, #ff7777 100%);
+    background-image: linear-gradient(to right, #ff0000 0%, #ff7777 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.btn.btn-orange {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #fa441e 0%, #fd830e 100%);
+    background-image: -o-linear-gradient(to right, #fa441e 0%, #fd830e 100%);
+    background-image: linear-gradient(to right, #fa441e 0%, #fd830e 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.btn.btn-green {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #00947f 0%, #62cd01 100%);
+    background-image: -o-linear-gradient(to right, #00947f 0%, #62cd01 100%);
+    background-image: linear-gradient(to right, #00947f 0%, #62cd01 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.btn.btn-yellow {
+    color: #fff;
+    background-image: -webkit-linear-gradient(to right, #ffa000 0%, #ffd253 100%);
+    background-image: -o-linear-gradient(to right, #ffa000 0%, #ffd253 100%);
+    background-image: linear-gradient(to right, #ffa000 0%, #ffd253 100%);
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.btn.btn-white {
+    height: 32px;
+    background-color: #fff;
+    border: 1px solid #1f6bff;
+    color: #1f6bff;
+    line-height: 32px;
+    padding: 0 25px;
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+.btn.btn-grey {
+    color: #fff;
+    background-color: grey;
+
+    &:disabled {
+        background: #aaa;
+        color: #fff;
+    }
+}
+
+/* ---------- .box ---------- */
+/* バイパスログイン画面などで使用 */
+.box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    padding: 20px;
+    margin: 15px auto 0;
+    background-color: #fff;
+    box-shadow: 0 0 20px rgb(110 162 243);
+    border-radius: 6px;
+    /* .size */
+    &.s {
+        width: 440px;
+    }
+
+    &.m {
+        width: 780px;
+    }
+    /* .accodion */
+    &.accodion {
+        padding: 10px 20px;
+
+        .subtitle::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-left: -15px;
+            margin-right: 8px;
+            margin-bottom: 3px;
+            border-top: 2px solid #1f6bff;
+            border-right: 2px solid #1f6bff;
+            -webkit-transform: rotate(135deg);
+            transform: rotate(135deg);
+        }
+
+        .contents {
+            display: none;
+        }
+
+        &.open {
+            padding: 20px;
+
+            .subtitle::before {
+                margin-bottom: 0;
+                -webkit-transform: rotate(315deg);
+                transform: rotate(315deg);
+            }
+
+            .contents {
+                display: flex;
+            }
+        }
+    }
+    /* モバイル用 */
+    @media (max-width: 767px) {
+        display: block;
+        /* .size */
+        &.s {
+            width: 100%;
+        }
+
+        &.m {
+            width: 100%;
+        }
+        /* .accodion */
+        &.accodion {
+            padding: 10px 15px;
+
+            &.open {
+                padding: 10px 15px 20px;
+
+                .contents {
+                    max-width: 100%;
+                    overflow: scroll;
+                }
+            }
+        }
+    }
+}
+
+/* ---------- center-page-area（パスワード変更画面などの中央表示画面） ---------- */
+.center-page-area {
+    padding: 60px 0;
+
+    .logo {
+        text-align: center;
+
+        img {
+            width: inherit;
+        }
+
+        &.login-logo img {
+            width: inherit;
+        }
+    }
+
+    .box {
+        display: block;
+        padding: 50px;
+        margin-top: 30px;
+    }
+
+    .login_title {
+        margin-bottom: 30px;
+        color: #1f6bff;
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+
+        img {
+            width: 15px;
+            margin-right: 10px;
+        }
+    }
+
+    p {
+        margin-top: 15px;
+        color: #1f6bff;
+        font-weight: bold;
+
+        & + div {
+            margin-top: 7px;
+        }
+    }
+
+    input {
+        width: 100%;
+    }
+
+    .btn_area {
+        margin: 30px 0 10px;
+        margin-top: 20px;
+        padding: 0 40px;
+
+        a {
+            padding: 0 40px;
+        }
+
+        & > * {
+            min-width: 125px;
+        }
+
+        & > :first-child {
+            margin-right: 10px;
+        }
+    }
+
+    .lead {
+        line-height: 1.8;
+    }
+
+    .input_email {
+        width: 370px;
+        margin: 20px auto;
+
+        div {
+            color: #1f6bff;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            margin-top: 10px;
+        }
+    }
+
+    .terms {
+        max-height: 350px;
+        padding: 20px 30px;
+        border: 1px solid #d3d6de;
+        border-radius: 5px;
+        overflow: scroll;
+
+        .dl {
+            padding-bottom: 20px;
+        }
+
+        dt {
+            padding-top: 15px;
+        }
+
+        dd {
+            text-indent: -2em;
+            padding-left: 2em;
+        }
+
+        li {
+            text-indent: -3em;
+            padding-left: 3em;
+        }
+    }
+
+    .agree_terms {
+        margin-top: 20px;
+        text-align: center;
+
+        label {
+        }
+
+        input {
+            display: none;
+        }
+    }
+
+    .item_title {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+}

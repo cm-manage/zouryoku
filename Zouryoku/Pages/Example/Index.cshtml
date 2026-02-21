@@ -1,0 +1,330 @@
+﻿@page
+@using Model.Enums
+@model Zouryoku.Pages.Example.IndexModel
+@{
+    ViewData["Title"] = "画面UI方針サンプル";
+}
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+<partial name="_ZouryokuHeader" model="Model" />
+
+<div id="partial"></div>
+
+@* JavaScript ****************************************************************************************************@
+@section Scripts {
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+    <script>
+        // 初期表示
+        $partial = $('#partial');
+        function renderPartial(data = $('form').serializeArray()) {
+            sendGetAjax(toUrl("Search"), data, function(partialView) {
+                $partial.html(partialView);
+            }, false);
+        }
+        renderPartial();
+
+        function commonSendRegisterAjax(url, data = $('form').serializeArray()) {
+            return new Promise(resolve => {
+                sendRegisterAjax(url, data, function(result) {
+                    errorClear();
+                    if (result.status == responseStatusSuccess) { // 成功
+                        resolve(result);
+                    }
+                    else if (result.status == responseStatusWarning) { // 警告
+                        commonConfirm(result.message, null, function () {
+                            resolve(result);
+                        });
+                    }
+                    else if (result.status == responseStatusError) { // エラー
+                        errorMessage(result.message);
+                        scrollTo(0, 0);
+                        resolve(null);
+                    }
+                });
+            })
+        }
+
+        /**
+         * 指定の名前で始まる入力値のみをシリアル化したオブジェクトを取得する
+         */
+        function serializeFormObjectStartsWith(searchString = '') {
+            if (searchString.length >= 1) {
+                searchString += '.'; // 文字列が指定されていたら、 ModalSearch.Name のような '.' 区切りに対応するためのドットを付ける
+            }
+            return Object.fromEntries($('form').serializeArray()
+                .filter(o => o.name.startsWith(searchString)) // 指定の文字列で始まる値のみ送信
+                .map(o => [o.name.substring(searchString.length), o.value])) // 指定の名前部分は削除したキーに変更
+        }
+
+        /**
+         * 指定の名前で始まる入力値のみをシリアル化したオブジェクトを取得する
+         */
+        function serializeFormObjectNotStartsWith(withoutString) {
+            return Object.fromEntries($('form').serializeArray()
+                .filter(o => !o.name.startsWith(withoutString)) // 指定の文字列で始まらない値のみ送信
+                .map(o => [o.name, o.value])) // 指定の名前部分は削除したキーに変更
+        }
+
+        /**
+         * 指定の名前をオブジェクトのキーに挿入する
+         */
+        function putObjectKeyStartsWith(target, keyString) {
+            keyString += '.'; // ModalSearch.Name のような '.' 区切りに対応するためのドットを付ける
+            return Object.fromEntries(Object.entries(target).map(([k, v]) => [keyString + k, v]));
+        }
+
+        /**
+         * showInputModalをラップし、モーダルからアウトプットが返されるまで待機する関数
+         */
+        function showInputModalWrapper(modalId, url, title, modalinputData, width = 700, height = 400) {
+            return new Promise(resolve => {
+                showInputModal(modalId, url, null, title, function() { }, width, height, 'var(--iframe-header-color)');
+
+                // 閉じられたら即終了
+                $(`#${modalId}`).on('closed', function() { resolve(null); });
+
+                $(`#${modalId} iframe`).on('load', function() {
+                    // モーダルへインプットを渡す
+                    this.contentWindow.postMessage({ type: 'modalinput', input: modalinputData }, location.origin);
+
+                    // モーダルからアウトプットを取得するイベントを登録
+                    $(window).on('message', function(e) {
+                        if (e.originalEvent.data.type !== 'modaloutput') return;
+
+                        resolve(e.originalEvent.data.output); // アウトプットを返す
+                        $(`#${modalId}`).iziModal('close'); // モーダルは閉じる
+                    })
+                });
+            })
+        }
+
+
+
+        // 検索ボタン押下
+        $partial.on('click', '#search-btn', function() {
+            // クライアント側の検証でエラーがない場合のみ、検索処理を行う
+            if (!$('form').valid() |
+                !$('#DatepickerRange_From')[0].datepickerRangeIsValid()) return;
+
+            alert('検索成功');
+        });
+
+        // 登録ボタン押下
+        $partial.on('click', '#insert-btn', function() {
+            // クライアント側の検証でエラーがない場合のみ、登録処理を行う
+            if (!$('form').valid() |
+                !$('#DatepickerRange_From')[0].datepickerRangeIsValid()) return;
+
+            alert('登録成功');
+        });
+
+        // 登録画面モーダル表示ボタン押下
+        $partial.on('click', '#modal-register-btn', async function () {
+            const modalId = 'modal-register';
+            const url = '@Url.Page("/Example/ModalRegister")';
+            const title = '登録画面（モーダル）';
+
+            // モーダルへ渡すインプット
+            const input = serializeFormObjectStartsWith('ModalRegister');
+
+            // モーダルのアウトプットを取得
+            const output = await showInputModalWrapper(modalId, url, title, input);
+            if (!output) return; // 閉じられたら即終了
+
+            // モーダルのアウトプットを取得して再レンダリング
+            renderPartial({
+                ...serializeFormObjectNotStartsWith('ModalRegister'),
+                ...putObjectKeyStartsWith(output, 'ModalRegister')
+            });
+        });
+
+        // 入力補助検索画面モーダル表示ボタン押下
+        $partial.on('click', '#modal-sub-search-btn', async function () {
+            const modalId = 'modal-sub-search';
+            const url = '@Url.Page("/Example/ModalSubSearch")';
+            const title = '入力補助検索画面（モーダル）';
+            
+            // モーダルを表示（インプット・アウトプットなし）
+            await showInputModalWrapper(modalId, url, title, null);
+        });
+
+        // 検索画面モーダル表示ボタン押下
+        $partial.on('click', '#modal-search-btn', async function () {
+            const modalId = 'modal-search';
+            const url = '@Url.Page("/Example/ModalSearch")';
+            const title = '検索画面（モーダル）';
+
+            // モーダルへ渡すインプット
+            const input = serializeFormObjectStartsWith('ModalSearch');
+
+            // モーダルのアウトプットを取得
+            const output = await showInputModalWrapper(modalId, url, title, input);
+            if (!output) return; // 閉じられたら即終了
+
+            // モーダルのアウトプットを取得して再レンダリング
+            renderPartial({
+                ...serializeFormObjectNotStartsWith('ModalSearch'),
+                ...putObjectKeyStartsWith(output, 'ModalSearch')
+            });
+        });
+
+        // 通知メッセージプレビューボタン押下
+        $partial.on('click', '#preview-info-btn', function () {
+            infoMessage('通知メッセージ');
+            scrollTo(0, 0);
+        });
+
+        // 警告メッセージプレビューボタン押下
+        $partial.on('click', '#preview-warning-btn', function () {
+            warningMessage('警告メッセージ');
+            scrollTo(0, 0);
+        });
+
+        // エラーメッセージプレビューボタン押下
+        $partial.on('click', '#preview-error-btn', async function () {
+            await commonSendRegisterAjax(toUrl('PreviewError'));
+        });
+
+        // 単項目エラーメッセージプレビューボタン押下
+        $partial.on('click', '#preview-single-error-btn', async function () {
+            // クライアント側の検証でエラーがない場合のみ、登録処理を行う
+            if (!$('form').valid()) return;
+
+            alert('成功');
+        });
+
+        // 確認メッセージプレビューボタン押下
+        $partial.on('click', '#preview-confirm-btn', async function () {
+            commonConfirm('申請します。よろしいですか？', null, async function() {
+                const result = await commonSendRegisterAjax(toUrl('PreviewSuccess'));
+                if (!result) return; // エラーレスポンスでは中断
+
+                registerSuccessSwal('申請しました'); // 2 完了メッセージを表示
+                renderPartial(); // 3 画面を表示
+            });
+        });
+    </script>
+
+    @* オートコンプリートスクリプト *@
+    <script>
+        /**
+         * オートコンプリートの作成
+         * @@param {any} $input / オートコンプリートを出すinput
+         * @@param {any} $dropdown / ドロップダウンを出すul
+         * @@param {any} url / url(ハンドラーの名前)
+         */
+        function commonAutoComplete($input, $dropdown, url) {
+
+            //入力されているか判断するためのTimer
+            let debounceTimer = null;
+            const DEBOUNCE_MS = 200;
+            //検索を許可するかどうか
+            let shouldSearch = true;
+
+            // 入力イベント
+            $input.on('input', () => {
+                shouldSearch = true;
+                scheduleSearch(() => renderingProcess($input, $dropdown, url));
+            });
+
+            // 入力欄／候補以外をクリックしたら閉じる
+            $(document).on('click', (e) => {
+                if (!$input.get(0).contains(e.target) && !$dropdown.get(0).contains(e.target)) {
+                    hideDropdown($dropdown);
+                }
+            });
+
+            //入力が止まったかを判定する
+            function scheduleSearch(fn) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(fn, DEBOUNCE_MS);
+            }
+
+            // --------------------------
+            // 表示処理
+            // --------------------------
+            function renderingProcess($inputEl, $dropdownEl, urlBase) {
+                if (!shouldSearch) {
+                    return;
+                }
+
+                //inputに入力された値を取得
+                const term = $inputEl.val().trim();
+
+                if (term === "") {
+                    hideDropdown($dropdownEl);
+                    return;
+                }
+
+                $.get({
+                    url: toUrl(urlBase),
+                    data: { term },
+                    global: false,
+                    success: function (data) {
+                        showDropdown(data, $inputEl, $dropdownEl);
+                    },
+                    error: function () {
+                        hideDropdown($dropdownEl);
+                    }
+                });
+            }
+
+            // --------------------------
+            // オートコンプリート表示
+            // --------------------------
+            function showDropdown(data, $inputEl, $dropdownEl) {
+
+                //ドロップダウンの中身を空にする
+                $dropdownEl.empty();
+
+                //データに何も無ければ非表示
+                if (!data || data.length === 0) {
+                    hideDropdown($dropdownEl);
+                    return;
+                }
+
+                $.each(data, function (index, item) {
+
+                    const label = item.label ?? item;
+                    const value = item.value ?? item;
+
+                    const $a = $('<a>', {
+                        href: '#',
+                        class: 'dropdown-item text-wrap',
+                        text: label
+                    });
+
+                    //liの子要素にaを追加
+                    const $li = $('<li>').append($a);
+
+                    // 選択イベント
+                    $a.on('mousedown', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $inputEl.val(value);
+                        shouldSearch = false;       //候補を選択後、再度表示しないように制御
+                        hideDropdown($dropdownEl);
+                    });
+
+                    $dropdownEl.append($li);
+
+                    //候補の間に区切り線を追加
+                    if (index !== data.length - 1) {
+                        $dropdownEl.append(`
+                            <li><hr class="dropdown-divider"></li>
+                        `);
+                    }
+                });
+
+                $dropdownEl.addClass('show').show();
+            }
+
+            // --------------------------
+            // 非表示
+            // --------------------------
+            function hideDropdown($dropdownEl) {
+                $dropdownEl.removeClass('show').hide().empty();
+            }
+        }
+    </script>
+}

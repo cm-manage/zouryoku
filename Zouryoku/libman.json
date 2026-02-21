@@ -1,0 +1,71 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "microsoft-signalr@8.0.7",
+      "destination": "wwwroot/lib/microsoft-signalr/",
+      "files": [
+        "signalr.min.js"
+      ]
+    },
+    {
+      "library": "highcharts@12.2.0",
+      "destination": "wwwroot/lib/highcharts/",
+      "files": [
+        "highcharts-more.min.js",
+        "highcharts.min.js",
+        "modules/accessibility.min.js",
+        "modules/no-data-to-display.min.js"
+      ]
+    },
+    {
+      "library": "bootstrap@5.3.8",
+      "destination": "wwwroot/lib/bootstrap",
+      "files": [
+        "css/bootstrap.min.css",
+        "js/bootstrap.min.js"
+      ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "jquery@3.7.1",
+      "destination": "wwwroot/lib/jquery/",
+      "files": [
+        "jquery.min.js"
+      ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "jquery-validate@1.21.0",
+      "destination": "wwwroot/lib/jquery-validate/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "jquery-validation-unobtrusive@4.0.0",
+      "destination": "wwwroot/lib/jquery-validation-unobtrusive/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "jquery@3.7.1",
+      "destination": "wwwroot/lib/jquery/",
+      "files": [
+        "jquery.min.js"
+      ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "jqueryui@1.14.1",
+      "destination": "wwwroot/lib/jqueryui/"
+    },
+    {
+      // cdnjsのjqueryui@1.14.1にはi18nが存在しないためunpkgで追加
+      "library": "jquery-ui@1.14.1",
+      "provider": "unpkg",
+      "files": [
+        "ui/i18n/datepicker-ja.js"
+      ],
+      "destination": "wwwroot/lib/jqueryui/"
+    }
+  ]
+}

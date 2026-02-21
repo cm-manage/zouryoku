@@ -1,0 +1,9 @@
+
+{
+    "region" : "ap-northeast-1",
+    "profile" : "kyonason",
+    "configuration" : "Release",
+    "image-tag"     : "knudge:1.0.0",
+    "docker-build-working-dir" : "",
+    "vstoolkit-deployment-mode" : "PushOnly"
+}

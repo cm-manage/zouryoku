@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/assets/images/favicon.ico" asp-append-version="true">
+    <title>Zouryoku @ViewData["Title"]</title>
+
+    <!-- FontAwesome CSS -->
+    <link type="text/css" rel="stylesheet" href="~/assets/icons/font-awesome/css/all.min.css" asp-append-version="true" />
+    <!-- Bootstrap v5.3.8 CSS -->
+    <link type="text/css" rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
+    <!-- Common CSS -->
+    <link type="text/css" rel="stylesheet" href="~/css/reset.css" asp-append-version="true" />
+    <link type="text/css" rel="stylesheet" href="~/css/modules.css" asp-append-version="true" />
+    <link type="text/css" rel="stylesheet" href="~/css/base/common.css" asp-append-version="true">
+    <link type="text/css" rel="stylesheet" href="~/css/base/main.css" asp-append-version="true">
+</head>
+
+<body>
+
+    <div id="message-notification" class="fix_area"></div>
+
+    @RenderBody()
+
+    <!-- JavaScript -->
+    <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
+    <!-- Bootstrap v5.3.8-->
+    <script src="~/lib/bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
+    <!-- Common JavaScript -->
+    <script src="~/js/base/common.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+

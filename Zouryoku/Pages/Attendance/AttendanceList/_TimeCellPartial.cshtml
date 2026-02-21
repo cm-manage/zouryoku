@@ -1,0 +1,21 @@
+﻿@model TimeCellModel
+
+@* 出退勤一覧の出勤・退勤１～３の共通部分ページ *@
+<td data-bs-toggle="@(Model.IsHimatagi ? "tooltip" : null)"
+    title="@(Model.IsHimatagi? Model.Tooltip: null)">
+
+    @if (!string.IsNullOrEmpty(Model.Position))
+    {
+        <a href="@(Model.GoogleMap + Model.Position)" target="_blank">@Model.Time</a>
+    }
+    else
+    {
+        @Model.Time
+    }
+
+    @if (Model.IsHimatagi && !string.IsNullOrEmpty(Model.MidnightText))
+    {
+        <span>@Model.MidnightText</span>
+        <span class="text-danger @Model.ExtraClass">(*)</span>
+    }
+</td>

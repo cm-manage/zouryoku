@@ -1,0 +1,48 @@
+﻿@page
+@model Zouryoku.Pages.Kokyaku.KokyakuNameSearch.KokyakuModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "顧客情報検索（モック）";
+}
+
+<label>顧客情報検索（モック）（表示状態フラグ：@Model.IsNormal）</label>
+<br />
+<div class="kokyaku-input row">
+    <label for="id" class="col-3">ID</label>
+    <input id="id" type="number" class="col-9" min="4" />
+    <label for="name" class="col-3">顧客名称</label>
+    <input id="name" class="col-9" type="text" />
+    <button class="kokyaku-input-btn btn btn-primary">入力した顧客を選択</button>
+</div>
+
+@section Scripts {
+    <!-- iziModal -->
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <!--iziModalUtil JavaScript -->
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+    <script>
+        $(".kokyaku-select").on("click", function(){
+            const id = $(this).data("id")
+            const name = $(this).data("name")
+
+            window.parent.postMessage({
+                type: "kokyakuSelected",
+                id: id,
+                name: name
+            }, "*")
+            closeCurrentIziModal()
+        })
+        $(".kokyaku-input-btn").on("click", function(){
+            const id = $(".kokyaku-input #id").val()
+            const name = $(".kokyaku-input #name").val()
+
+            window.parent.postMessage({
+                type: "kokyakuSelected",
+                id: id,
+                name: name
+            }, "*")
+
+            closeCurrentIziModal()
+        })
+    </script>
+}

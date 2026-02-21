@@ -1,0 +1,110 @@
+﻿@using Zouryoku.Enums;
+@using Zouryoku.Models.Menu;
+@using static Zouryoku.Enums.MenuCode;
+@model List<ParentMenu>
+
+@{
+    //foreach内でそれぞれのメニューに固有のIDを付けるための変数
+    var index = 0;
+}
+<div class="offcanvas offcanvas-end app-screen--menu" tabindex="-1" id="offcanvas-menu" aria-labelledby="offcanvasMenuLabel" data-bs-backdrop="true">
+    <!-- 見出し -->
+    <div class="offcanvas-header">
+        <i class="fa-solid fa-bars"></i>
+        <h5 class="offcanvas-title" id="offcanvasMenuLabel">メニュー</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="閉じる"></button>
+    </div>
+    <!-- 本体 -->
+    <div class="offcanvas-body">
+        <div class="accordion" id="accordion-menu">
+            @foreach (var menu in Model)
+            {
+                index++;
+                @if (!menu.HasChild)
+                {
+                    <!-- 親メニューのみ表示の場合 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-@index">
+                            <a class="accordion-button collapsed app-no_arrow"
+                               data-role="hide-link"
+                               asp-page="@menu.OwnUrl">
+                                <i class="fa-solid @menu.OwnIconClass"></i>
+                                @menu.DisplayOwnName
+                            </a>
+                        </h2>
+                    </div>
+                }
+                else
+                {
+                    <!-- 親メニュー＋子メニューの表示の場合 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-@index">
+                            <!-- 親メニューを設定 -->
+                            <button class="accordion-button collapsed"
+                                    data-role="parent-toggle"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#menu-@index"
+                                    type="button">
+                                <i class="fa-solid @menu.OwnIconClass"></i>
+                                <span>@menu.DisplayOwnName</span>
+                                @if (menu.DisplayOwnName == "申請管理")
+                                {
+                                    <span id="badge-parent-menu" class="badge bg-primary rounded-3 app-badge"></span>
+                                }
+                                
+                            </button>
+                        </h2>
+                        <div id="menu-@index"
+                             class="accordion-collapse collapse"
+                             data-bs-parent="#accordion-menu"
+                             aria-labelledby="heading-@index">
+                            <div class="accordion-body">
+                                <!-- 子メニューをループで設定 -->
+                                <ul class="list-unstyled">
+                                    @foreach (var childMenu in menu.ChildMenus)
+                                    {
+                                        <li>
+                                            @if (childMenu.IsOpenModal)
+                                            {
+                                                var modalId = $"modal_{index}";
+                                                var url = Url.Page(childMenu.Url, childMenu.Param);
+
+                                                <button type="button"
+                                                        class="accordion-button app-no_arrow app-child_link"
+                                                        data-role="open-modal"
+                                                        data-modal-id="@modalId"
+                                                        data-url="@url"
+                                                        data-title="@childMenu.DisplayName">
+                                                    <i class="fa-solid @childMenu.IconClass"></i>
+                                                    <span class="app-menu_link">@childMenu.DisplayName</span>
+                                                    @if (@childMenu.MenuCode == 申請確認)
+                                                    {
+                                                        <span id="badge-child-menu" class="badge bg-primary rounded-3 app-badge"></span>
+                                                    }
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <a class="accordion-button app-no_arrow app-child_link"
+                                                   data-role="hide-link"
+                                                   asp-page="@childMenu.Url"
+                                                   asp-all-route-data="@childMenu.Param">
+                                                    <i class="fa-solid @childMenu.IconClass"></i>
+                                                    <span class="app-menu_link">@childMenu.DisplayName</span>
+                                                    @if (@childMenu.MenuCode == 申請確認)
+                                                    {
+                                                        <span id="badge-child-menu" class="badge bg-primary rounded-3 app-badge"></span>
+                                                    }
+                                                </a>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

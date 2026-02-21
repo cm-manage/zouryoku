@@ -1,0 +1,93 @@
+﻿@model Zouryoku.Pages.Example.ModalSubDetailsModel.ViewModel
+
+<div class="d-flex flex-column gap-3 mt-1">
+    <div class="d-flex justify-content-between">
+        <div>
+            @* 戻るボタン *@
+            <button type="button" id="back-btn" class="btn btn-secondary responsive-btn">
+                <i class="fa-solid fa-arrow-left"></i>
+                戻る
+            </button>
+        </div>
+        <div>
+            @* 修正ボタン *@
+            <button type="button" id="update-btn" class="btn btn-primary responsive-btn">
+                <i class="fa-solid fa-pen-to-square"></i>
+                修正
+            </button>
+        </div>
+    </div>
+    <div class="table-grid">
+        <div class="row">
+            <div class="col-12 bg-primary-subtle">基本情報</div>
+        </div>
+        <div class="row">
+            @* 受注工番 *@
+            <div class="col-12 col-sm-6 bg-secondary-subtle">@Html.DisplayNameFor(m => m.JuchuuNo)</div>
+            <div class="col-12 col-sm-6">@Html.DisplayFor(m => m.JuchuuNo)</div>
+        </div>
+        <div class="row">
+            @* 受注件名 *@
+            <div class="col-12 col-sm-6 bg-secondary-subtle">@Html.DisplayNameFor(m => m.JuchuuName)</div>
+            <div class="col-12 col-sm-6">@Html.DisplayFor(m => m.JuchuuName)</div>
+        </div>
+        <div class="row">
+            @* 案件名 *@
+            <div class="col-12 col-sm-6 bg-secondary-subtle">@Html.DisplayNameFor(m => m.AnkenName)</div>
+            <div class="col-12 col-sm-6">@Html.DisplayFor(m => m.AnkenName)</div>
+        </div>
+        <div class="row">
+            @* 受注種類 *@
+            <div class="col-12 col-sm-6 bg-secondary-subtle">@Html.DisplayNameFor(m => m.JyutyuSyurui)</div>
+            <div class="col-12 col-sm-6">@Html.DisplayFor(m => m.JyutyuSyurui)</div>
+        </div>
+        <div class="row">
+            @* 顧客情報 *@
+            <div class="col-12 col-sm-6 bg-secondary-subtle">@Html.DisplayNameFor(m => m.KokyakuKaisyaName)</div>
+            <div class="col-12 col-sm-6">@Html.DisplayFor(m => m.KokyakuKaisyaName)</div>
+        </div>
+        <div class="row">
+            @* 弊社責任者 *@
+            <div class="col-12 col-sm-6 bg-secondary-subtle">@Html.DisplayNameFor(m => m.SekininsyaName)</div>
+            <div class="col-12 col-sm-6">@Html.DisplayFor(m => m.SekininsyaName)</div>
+        </div>
+        <div class="row">
+            @* 案件内容 *@
+            <div class="col-12 col-sm-6 bg-secondary-subtle">@Html.DisplayNameFor(m => m.AnkenNaiyou)</div>
+            <div class="col-12 col-sm-6">@Html.DisplayFor(m => m.AnkenNaiyou)</div>
+        </div>
+    </div>
+</div>
+
+
+
+@* CSS *********************************************************************************@
+<style>
+    /* Bootstrapグリッドシステムをテーブル風に装飾するクラス */
+    .table-grid {
+        &, * {
+            /* テーブル全体とセルのborderの初期値を一括設定 */
+            --bs-border-opacity: 1;
+            border-width: 0;
+            border-style: solid;
+            border-color: rgba(var(--bs-dark-rgb), var(--bs-border-opacity));
+        }
+
+        & {
+            /* テーブル全体の左と上にborder表示 */
+            border-width: 1px 0 0 1px;
+        }
+
+        .row {
+            /* 負のmarginがあるとborderが隠れるため0で上書き */
+            --bs-gutter-x: 0;
+            --bs-gutter-y: 0;
+            /* テーブルのセルのスタイル */
+            & > div {
+                padding: .4rem .2rem;
+                /* セルの右と下にborder表示 */
+                border-width: 0 1px 1px 0;
+            }
+        }
+    }
+</style>

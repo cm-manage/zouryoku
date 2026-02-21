@@ -1,0 +1,74 @@
+﻿@page
+@model Zouryoku.Pages.Example.ModalRegisterModel
+
+<div id="partial"></div>
+
+@* JavaScript ****************************************************************************************************@
+@section Scripts {
+    <script>
+        // 初期表示
+        $partial = $('#partial');
+        function renderPartial(data = $('form').serializeArray()) {
+            sendGetAjax(toUrl('Search'), data, function(partialView) {
+                $partial.html(partialView);
+            }, false);
+        }
+
+        function commonSendRegisterAjax(url, data = $('form').serializeArray()) {
+            return new Promise(resolve => {
+                sendRegisterAjax(url, data, function(result) {
+                    errorClear();
+                    if (result.status == responseStatusSuccess) { // 成功
+                        resolve(result);
+                    }
+                    else if (result.status == responseStatusWarning) { // 警告
+                        commonConfirm(result.message, null, function () {
+                            resolve(result);
+                        });
+                    }
+                    else if (result.status == responseStatusError) { // エラー
+                        errorMessage(result.message);
+                        scrollTo(0, 0);
+                        resolve(null);
+                    }
+                });
+            })
+        }
+
+        // モーダル呼び出し元からインプットを取得
+        $(window).on('message', function(e) {
+            if (e.originalEvent.data.type !== 'modalinput') return;
+
+            // インプットを画面に表示する
+            renderPartial(e.originalEvent.data.input);
+        })
+
+        // 削除ボタン押下
+        $partial.on('click', '.delete-btn', function() {
+            const data = $('form').serializeArray();
+            data.push({ name: 'index', value: $(this).attr('data-index') }); // どのカードの削除ボタンかを取得
+            sendGetAjax(toUrl('Delete'), data, function(partialView) {
+                $partial.html(partialView);
+            }, false);
+        });
+
+        // 追加ボタン押下
+        $partial.on('click', '#insert-btn', function() {
+            sendGetAjax(toUrl('Insert'), $('form').serializeArray(), function(partialView) {
+                $partial.html(partialView);
+            }, false);
+        });
+
+        // 登録ボタン押下
+        $partial.on('click', '#register-btn', async function() {
+            const result = await commonSendRegisterAjax(toUrl('Register'));
+            if (!result) return;
+
+            // 呼び出し元へ返すアウトプット
+            const modaloutputData = Object.fromEntries($('form').serializeArray().map(({name, value}) => [name, value]));
+
+            // アウトプットを呼び出し元へ返す
+            window.parent.postMessage({ type: 'modaloutput', output: modaloutputData }, location.origin);
+        });
+    </script>
+}

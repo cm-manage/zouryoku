@@ -1,0 +1,321 @@
+﻿@page
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@model Zouryoku.Pages.KinmuJokyoKakunin.IndexModel
+@{
+    ViewData["Title"] = "勤務状況確認";
+}
+<partial name="_ZouryokuHeader" model="Model" />
+
+@section InputStyles {
+    <style>
+        /* タグ（部署チップ） */
+        .tag-container {
+            flex-basis: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background: #0d6efd;
+            color: white;
+            border-radius: 6px; /* 丸すぎない角丸 */
+            padding: 4px 12px;
+            font-size: 0.9rem;
+        }
+
+            .tag .remove {
+                border: none;
+                background: transparent;
+                color: white;
+                margin-left: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 1rem;
+            }
+    </style>
+}
+
+<div class="app-screen--search">
+    <form id="searchForm">
+
+        <!-- 検索条件エリア -->
+        <div class="app-area__search-criteria">
+
+            <!-- 期間 -->
+            <div class="row align-items-center mt-3">
+                <div class="col-auto d-flex">
+                    <label class="me-5 fw-bold">
+                        期間 <span class="text-danger">*</span>
+                    </label>
+                </div>
+                <div class="col-auto d-flex">
+                    <input type="month" id="search-from" class="form-control" value="@Model.SearchIndex.From" />
+                </div>
+                <div class="col-auto d-flex">
+                    <span class="mx-2">〜</span>
+                </div>
+                <div class="col-auto d-flex">
+                    <input type="month" id="search-to" class="form-control" value="@Model.SearchIndex.To" />
+                </div>
+            </div>
+
+            <!-- 警告レベル -->
+            <div class="row align-items-center mt-3">
+                <div class="col-auto d-flex">
+                    <label class="me-3 fw-bold">
+                        警告レベル <span class="text-danger">*</span>
+                    </label>
+                </div>
+
+                <div class="col-auto d-flex">
+                    @foreach (WarnLevel radioItem in Enum.GetValues(typeof(WarnLevel)))
+                    {
+                        var display = radioItem.GetType()
+                            .GetMember(radioItem.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()?
+                            .Name ?? radioItem.ToString();
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input"
+                                type="radio"
+                                id="warnLevel_@radioItem"
+                                name="WarnLevel"
+                                value="@radioItem"
+                                   @(Model.SearchIndex.WarnLevel == radioItem ? "checked" : "") />
+                            <label class="form-check-label" for="warnLevel_@radioItem">@display</label>
+                        </div>
+                    }
+                </div>
+             </div>
+
+            <!-- 部署（別画面選択→タグ返却） -->
+            <div class="row align-items-center mt-3">
+                <div class="col-auto d-flex">
+                    <label class="me-9 fw-bold">
+                        部署
+                    </label>
+                </div>
+
+                <!-- セレクトボックス -->
+                <div class="col-aut d-flex">
+                    <select id="busyo-mode" class="form-select">
+                        <option value="all" selected>全社</option>
+                        <option value="select">部署を選択する</option>
+                    </select>
+                </div>
+                <div class="col-auto d-flex">
+                    <button type="button" id="btn-select-busyo" class="btn btn-primary app-btn__base d-none">
+                        <i class="fa-solid fa-list"></i>選択
+                    </button>
+                </div>
+
+                <!-- タグ表示エリア -->
+                <div id="BusyoTagContainer" class="tag-container"></div>
+                <input type="hidden" id="selected-busyo-ids"/>
+            </div>
+
+            <!-- 検索ボタン -->
+            <div class="row mt-3">
+                <div class="col-auto">
+                    <button type="button" class="btn btn-primary app-btn__base" id="btn-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>検索
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ツールボタンエリア -->
+        <div class="app-area__tool-button text-end mb-3">
+            <button type="button" id="btn-explain" class="btn btn-outline-info app-btn__base">項目説明</button>
+            <button type="button" id="btn-export" class="btn btn-success app-btn__base">Excel出力</button>
+        </div>
+    </form>
+</div>
+
+<!-- Partial 表示エリア -->
+<div id="partial"></div>
+
+@section InputScripts {
+    <script>
+        $(function() {
+
+            // =================================================
+            // 初期検索
+            // =================================================
+            $(function () {
+                $('#btn-search').trigger('click');
+            });
+
+            // =================================================
+            // 検索
+            // =================================================
+            $('#btn-search').on('click', search);
+
+            function search() {
+                errorClear();
+
+                const param = {
+                    from: $('#search-from').val(),
+                    to: $('#search-to').val(),
+                    warnLevel: $("input[name='WarnLevel']:checked").val(),
+                    busyoMode: $('#busyo-mode').val(),
+                    busyo: $('#selected-busyo-ids').val(),
+                };
+
+                sendGetAjax(toUrl("Search"), param, function (res) {
+                    $('#partial').html(res);
+                    switchTab("work");
+                });
+            }
+
+            // =================================================
+            // タブ選択
+            // =================================================
+            $('#partial').on('click', '.custom-tab-item', function () {
+                switchTab($(this).data('type'));
+            });
+
+            function switchTab(type) {
+                $('.custom-tab-item').removeClass('active');
+                $(`.custom-tab-item[data-type="${type}"]`).addClass('active');
+
+                if (type === "work") {
+                    $('#work-table').removeClass('d-none');
+                    $('#holiday-table').addClass('d-none');
+                } else {
+                    $('#work-table').addClass('d-none');
+                    $('#holiday-table').removeClass('d-none');
+                }
+            }
+
+            // =================================================
+            // 部署選択
+            // =================================================
+            // 状態管理：選択済み部署
+            let selectedBusyoList = [];
+
+            // モード切替（全社 / 部署選択）
+            $('#busyo-mode').on('change', function () {
+              const isAll = $(this).val() === 'all';
+              $('#btn-select-busyo').toggleClass('d-none', isAll);
+
+              if (isAll) {
+                selectedBusyoList = [];
+                renderBusyoTags();
+              }
+            });
+
+            // 部署選択画面を開く
+            $('#btn-select-busyo').on('click', function (e) {
+                e.preventDefault();
+
+                // 再オープン用に ID のみ渡す
+                const ids = selectedBusyoList.map(b => b.id);
+
+                // 複数選択固定
+                openBusyoSelectModal(true, ids);
+            });
+
+            // 子画面からの postMessage 受信
+            $(window).on("message", function (event) {
+                const e = event.originalEvent;
+
+                // オリジンチェック
+                if (e.origin !== window.location.origin) return;
+
+                const data = e.data;
+                if (!data || data.type !== "busyoSelected") return;
+
+                updateSelectedBusyo(data.payload);
+            });
+
+            // 選択結果反映
+            function updateSelectedBusyo(payload) {
+                // payload は配列前提
+                selectedBusyoList = payload.map(b => ({
+                    id: b.id,
+                    name: b.name
+                }));
+
+                renderBusyoTags();
+            }
+
+            // =================================================
+            // タグ描画 & hidden 反映
+            // =================================================
+            const $busyoTagContainer = $('#BusyoTagContainer');
+            const $busyoHidden = $('#selected-busyo-ids');
+
+            function renderBusyoTags() {
+                $busyoTagContainer.empty();
+
+                if (selectedBusyoList.length === 0) {
+                    $busyoHidden.val('');
+                    return;
+                }
+
+                // hidden に ID 配列を JSON 格納
+                $busyoHidden.val(
+                    JSON.stringify(selectedBusyoList.map(b => b.id))
+                );
+
+                // タグ生成
+                selectedBusyoList.forEach(busyo => {
+                    const $tag = $(`
+                        <span class="tag">
+                            ${busyo.name}
+                            <button type="button" class="remove">✕</button>
+                        </span>
+                    `);
+
+                    // タグ削除
+                    $tag.find('.remove').on('click', function () {
+                        selectedBusyoList =
+                            selectedBusyoList.filter(b => b.id !== busyo.id);
+                        renderBusyoTags();
+                    });
+
+                    $busyoTagContainer.append($tag);
+                });
+            }
+
+            // =================================================
+            // 項目説明
+            // =================================================
+            $('#btn-explain').on('click', function () {
+                showModal(
+                    'explain-modal',
+                    '@Url.Page("/Explanation/Description")',
+                    '項目説明',
+                    '',
+                    function () {},
+                    800,
+                    480,
+                    'var(--iframe-header-color)'
+                );
+            });
+
+            // =================================================
+            // Excel出力
+            // =================================================
+            $('#btn-export').on('click', function () {
+                const url = '@Url.Page("Index", "ExportExcel")';
+
+                let iframe = document.getElementById('downloadFrame');
+                if (!iframe) {
+                    iframe = document.createElement('iframe');
+                    iframe.id = 'downloadFrame';
+                    iframe.style.display = 'none';
+                    document.body.appendChild(iframe);
+                }
+                iframe.src = url;
+            });
+        });
+    </script>
+}

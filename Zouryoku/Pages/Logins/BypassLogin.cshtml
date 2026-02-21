@@ -1,0 +1,36 @@
+﻿@page
+@model Zouryoku.Pages.Logins.BypassLoginModel
+@{
+    Layout = "_Layout_NoSession";
+    ViewData["Title"] = "簡易ログイン (バイパス)";
+}
+
+<div class="center-page-area">
+    <div class="box m">
+        <div class="contents">
+            <p class="login_title"><span>増力日誌 - バイパスログイン</span></p>
+
+            <div class="login-form">
+                <form method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary w-100">ログイン</button>
+                    </div>
+                </form>
+                <div class="mt-3">
+                    <a href="@Url.Page("/Logins/Index")" class="btn btn-link">Entra ID ログインへ戻る</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

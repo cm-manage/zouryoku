@@ -1,0 +1,42 @@
+﻿@model Zouryoku.Pages.Shared.Components.OnChangeToSubmitPartialModel
+@{
+    var selector = Model.Selector;
+}
+
+<script>
+    function initializeComponent() {
+        const $target = $('@selector');
+        if ($target.length === 0) {
+            console.error('【Zouryoku】_OnChangeToSubmitPartial: 指定されたセレクタ \'@selector\' が見つかりません。');
+        }
+
+        let keydowned = false;
+        let changed = false;
+
+        $target.on('keydown', function (e) {
+            keydowned = true;
+            if (e.key === 'Enter') { e.target.blur(); } // Enterキーで確定
+        });
+
+        $target.on('change', function (e) {
+            changed = true;
+            if (!keydowned) {
+                 $target.trigger('change2Submit'); // ピッカー選択時
+                 keydowned = changed = false;
+            }
+        });
+
+        $target.on('blur', function (e) {
+            if (changed) {
+                $target.trigger('change2Submit'); // 入力完了時
+                keydowned = changed = false;
+            }
+        });
+    }
+    if (document.readyState === 'complete') {
+        initializeComponent(); // 動的挿入に対応するため、ロード完了済みなら即実行
+    } else {
+        window.addEventListener('DOMContentLoaded', initializeComponent);
+    }
+    initializeComponent = undefined;
+</script>

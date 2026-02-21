@@ -1,0 +1,4 @@
+﻿/* 入力画面共通の簡易スタイル */
+.input-form-header{font-weight:700;margin-bottom:1rem;font-size:1.25rem;}
+.input-form-actions{display:flex;gap:.5rem;margin-top:1rem;}
+.input-form-actions .btn{min-width:100px;}

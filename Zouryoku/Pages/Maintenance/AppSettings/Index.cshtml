@@ -1,0 +1,114 @@
+﻿@page
+@using Model.Enums
+@model Zouryoku.Pages.Maintenance.AppSettings.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "アプリケーション設定";
+}
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+
+<h1>@ViewData["Title"]</h1>
+<h4><br />アプリケーション設定</h4>
+<hr />
+<style>
+    .form-group {
+        margin-top: 15px;
+    }
+</style>
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label class="control-label">日報停止日</label>
+                <div>
+                    <span asp-validation-for="AppSetting.NippoStopDate" class="text-danger"></span>
+                </div>
+                <div>
+                    <input asp-for="AppSetting.NippoStopDate" type="date" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">MSテナントID</label>
+                <div>
+                    <span asp-validation-for="AppSetting.MsTenantId" class="text-danger"></span>
+                </div>
+                <div>
+                    <input asp-for="AppSetting.MsTenantId" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">MSクライアントID</label>
+                <div>
+                    <span asp-validation-for="AppSetting.MsClientId" class="text-danger"></span>
+                </div>
+                <div>
+                    <input asp-for="AppSetting.MsClientId" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">MSクライアントシークレット</label>
+                <div>
+                    <span asp-validation-for="AppSetting.MsClientSecret" class="text-danger"></span>
+                </div>
+                <div>
+                    <input asp-for="AppSetting.MsClientSecret" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">SMTPユーザ</label>
+                <div>
+                    <span asp-validation-for="AppSetting.SmtpUser" class="text-danger"></span>
+                </div>
+                <div>
+                    <input asp-for="AppSetting.SmtpUser" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">SMTPパスワード</label>
+                <div>
+                    <span asp-validation-for="AppSetting.SmtpPassword" class="text-danger"></span>
+                </div>
+                <div>
+                    <input asp-for="AppSetting.SmtpPassword" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="button" value="登録" class="btn btn-primary" id="registerBtn" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <!-- iziModal -->
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <!--iziModalUtil JavaScript -->
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+    <script>
+        // 登録ボタン
+        $('#registerBtn').on('click', function () {
+            register('登録', 'Register');
+        });
+
+        /** 登録 */
+        function register(actionName, handler) {
+            // クライアント側の検証でエラーがない場合のみ、登録処理を行う
+            if (!$('form').valid()) {
+                return
+            };
+
+        commonConfirm(actionName + 'します。よろしいですか？', null, function() {
+            // 登録処理
+            sendRegisterAjax(toUrl(handler), $('form').serializeArray(), function(data) {
+                registerSuccessSwal(actionName + 'しました', null, function() {
+                        closeCurrentIziModal();
+                    });
+                });
+            });
+        }
+    </script>
+}

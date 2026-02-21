@@ -1,0 +1,314 @@
+﻿@page
+@model Zouryoku.Pages.KokyakuMeiKensaku.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "顧客名検索";
+}
+
+<div class="app-screen--search">
+    <div class="mt-3">
+        <button id="search-history" class="app-btn__base btn btn-secondary d-none">参照履歴</button>
+    </div>
+
+    <form id="search-form" class="app-area__search-criteria">
+        <div class="row mt-3">
+            <label class="col-12 col-lg-auto col-form-label fw-bold app-input__label" asp-for="CustomerName"></label>
+            <div class="col-12 col-lg-8">
+                <span class="text-danger" asp-validation-for="CustomerName"></span>
+                <input class="form-control" type="text" autocomplete="off" asp-for="CustomerName" />
+                @* 検索実行したときの顧客名 *@
+                <input id="searched-customer-name" type="hidden" />
+            </div>
+        </div>
+        <div class="row mx-0 mt-3">
+            <button id="search-btn" class="app-btn__base btn btn-primary col-12 col-lg-auto" type="button">
+                <i class="fa-solid fa-magnifying-glass"></i>検索
+            </button>
+        </div>
+    </form>
+
+    @* ツールボタン部分 *@
+    <div class="app-area__tool-button"></div>
+
+    @* 動的ページ部分 *@
+    <main id="partial-page-div" class="app-search__search-results">
+        <partial name="_KokyakuKaishasPage" model="Model.CustomerNameSearchPage" />
+    </main>
+</div>
+
+@section InputScripts {
+    <script>
+        $(function () {
+            // ==================================
+            // 定数
+            // ==================================
+
+            // jQueryセレクタ
+            // ----------------------------------
+
+            // 顧客選択
+            const SELECTOR_SELECT_CUSTOMER = '[data-js="customerSelect"]';
+            // 削除ボタン
+            const SELECTOR_DELETE_BTN = '[data-js="historyDelete"]';
+            // ページ遷移ボタン
+            const SELECTOR_PAGER_BTN = '[data-js="movePage"]';
+            // 顧客情報画面ボタン
+            const SELECTOR_INFO_BTN = '[data-js="customerShowInfo"]';
+            // 検索フォーム
+            const SELECTOR_SEARCH_FORM = '#search-form';
+            // 検索ボタン
+            const SELECTOR_SEARCH_BTN = '#search-btn';
+
+            // jQueryオブジェクト
+            // ----------------------------------
+
+            // 動的ページ部分
+            const $partialPage = $('#partial-page-div');
+            // 検索フォーム
+            const $searchForm = $(SELECTOR_SEARCH_FORM);
+            // 入力欄
+            const $customerNameInput = $('#@nameof(Model.CustomerName)');
+
+            // URL
+            // ----------------------------------
+
+            // オートコンプリート時の顧客名検索
+            const URL_AUTOCOMPLETE_CUSTOMER_NAME = 'api/KokyakuMeiSuggestions';
+            // 顧客情報の存在チェック
+            const URL_CHECK_EXISTENCE = toUrl('CheckExistence');
+            // 参照履歴削除
+            const URL_DELETE_HISTORY = toUrl('DeleteHistory');
+            // ページ移動
+            const URL_MOVE_PAGE = toUrl('MovePage');
+            // 履歴参照
+            const URL_REFERENCE_HISTORY = toUrl('ReferenceHistory');
+            // 顧客名検索
+            const URL_SEARCH = toUrl('SearchCustomers');
+            // 顧客情報カードクリック（参照履歴を追加）
+            const URL_SELECT = toUrl('Select');
+
+            // その他
+            // ----------------------------------
+
+            // カードクリックが可能かどうかのフラグ
+            // NOTE: ()で囲まないとVisual Studioが;をC#のものと認識して警告を吐く
+            const canCardClick = @(Model.CanCardClick.ToString().ToLower());
+
+            // ==================================
+            // イベント
+            // ==================================
+
+            // オートコンプリート
+            initAutocomplete($customerNameInput, URL_AUTOCOMPLETE_CUSTOMER_NAME);
+
+            // バリデーション設定
+            initValidation(SELECTOR_SEARCH_FORM);
+
+            // カードがクリック可能かどうかをUIに反映（初期遷移時）
+            reflectClickable(SELECTOR_SELECT_CUSTOMER);
+
+            // 検索欄でのEnterでページ遷移を防止するためにsubmitイベントを上書き
+            $(document).on('submit', SELECTOR_SEARCH_FORM, () => {
+                $(SELECTOR_SEARCH_BTN).click();
+                return false;
+            })
+
+            // カードクリック時
+            $(document).on('click', SELECTOR_SELECT_CUSTOMER, async function() {
+                // 参照モードでないなら処理を行わない
+                if(!canCardClick)
+                    return;
+
+                // 参照履歴テーブルに履歴を追加
+                const params = $(this).serializeArray();
+                const promise = postAsync(URL_SELECT, params);
+
+                // 親画面へ渡すパラメータを取得
+                const id = $(this).data('customer-id');
+                const name = $(this).data('customer-name');
+
+                // 親画面へメッセージを渡す
+                window.parent.postMessage({
+                    type: 'kokyakuSelected',
+                    id,
+                    name,
+                }, window.location.origin);
+
+                // 参照履歴への追加を待機
+                await promise;
+
+                // この画面を閉じる
+                closeCurrentIziModal();
+            });
+
+            // 検索ボタンクリック時
+            $(SELECTOR_SEARCH_BTN).on('click', async function() {
+                // 既存のバリデーションエラー表示をクリア
+                clearErrors(SELECTOR_SEARCH_FORM);
+
+                // クライアント側バリデーション
+                if (!$searchForm.valid())
+                    return;
+
+                // 参照履歴ボタンを表示
+                $('#search-history').removeClass('d-none');
+
+                // 検索処理
+                const promise = getAsync(URL_SEARCH, $searchForm.serializeArray());
+
+                // 検索ワードをhiddenに保持
+                $('#searched-customer-name').val($customerNameInput.val());
+
+                // 検索結果を部分ページ部分に反映
+                updatePartialPage(await promise);
+            });
+
+            // 履歴削除ボタンクリック時
+            $(document).on('click', SELECTOR_DELETE_BTN, function() {
+                // パラメータの取得
+                const params = $(this).closest('form').serializeArray();
+
+                // ダイアログ表示
+                deleteConfirmSwal(
+                    '削除してもよろしいでしょうか？',
+                    null,
+                    // OK押下時
+                    async () => {
+                        // 削除処理
+                        await postAsync(URL_DELETE_HISTORY, params);
+
+                        // 更新後のページを取得
+                        const promise = reloadContents();
+
+                        // 成功ダイアログの表示
+                        deleteSuccessSwal('');
+
+                        // ページ更新
+                        updatePartialPage(await promise);
+                    }
+                );
+            });
+
+            // 参照履歴ボタンクリック時
+            $('#search-history').on('click', async function() {
+                // 参照履歴ボタンを非表示
+                $(this).addClass('d-none');
+
+                // 参照履歴を取得
+                const data = await getAsync(URL_REFERENCE_HISTORY);
+
+                // 部分ページに反映
+                updatePartialPage(data);
+            });
+
+            // ページ移動ボタンクリック時
+            $(document).on('click', SELECTOR_PAGER_BTN, async function() {
+                // パラメータ取得
+                const offset = $(this).data('offset');
+
+                // ページ移動後の表示データを取得
+                const data = await movePage(offset);
+
+                // 部分ページに反映
+                updatePartialPage(data);
+            });
+
+            // 顧客会社情報リンククリック
+            $(document).on('click', SELECTOR_INFO_BTN, function() {
+                // 顧客会社IDを取得
+                const customerId = $(this).data('customer-id');
+
+                // 選択された顧客情報が存在するかチェック
+                sendGetAjax(URL_CHECK_EXISTENCE, {customerId,}, () => {
+                    // 存在したときは顧客情報画面を表示
+                    showModal(
+                        'kokyaku-info-modal',
+                        `@Url.Page("../KokyakuJohoHyoji/Index")?id=${customerId}`,
+                        '顧客情報',
+                        '',
+                        async () => updatePartialPage(await reloadContents()),
+                        1000,
+                        700,
+                        'var(--iframe-header-color)'
+                    );
+                });
+            });
+
+            // ======================================
+            // 共通処理
+            // ======================================
+
+            /**
+             * sendGetAjaxをPromise化する
+             * @@param {URL} url リクエスト先のURL
+             * @@param {JSON} [params=null] リクエストボディに含めるパラメータ
+             * @@returns resolveでdataキーに格納されているデータを返すPromise
+             */
+            function getAsync(url, params = null) {
+                return new Promise(resolve => {
+                    sendGetAjax(url, params, data => resolve(data), false);
+                });
+            }
+
+            /**
+             * sendAjaxをPromise化する
+             * @@param {URL} url リクエスト先のURL
+             * @@param {JSON} [params=null] リクエストボディに含めるパラメータ
+             * @@returns resolveでdataキーに格納されているデータを返すPromise
+             */
+            function postAsync(url, params = null) {
+                return new Promise(resolve => {
+                    sendAjax(url, params, data => resolve(data), false, null, true);
+                });
+            }
+
+            /**
+             * ページをオフセット分移動した先の表示データを取得する
+             * @@param {number} offset オフセット
+             */
+            async function movePage(offset) {
+                // パラメータの取得
+                const pageIndex = $('#page-index').val();
+                const isReferHistory = $('#is-refer-history').val();
+                const customerName = $('#searched-customer-name').val();
+
+                // 送信用のデータ
+                const params = {
+                    offset,
+                    pageIndex,
+                    isReferHistory,
+                    customerName
+                };
+
+                return getAsync(URL_MOVE_PAGE, params);
+            }
+
+            /**
+             * 画面に表示している情報を更新する
+             */
+            async function reloadContents() {
+                // NOTE: 0ページ移動した先の情報を取得 = 現在のページの最新情報を取得
+                return movePage(0);
+            }
+
+            /**
+             * 部分ページを書き換える
+             * @@param {string} data 書き換えるHTML文字列
+             */
+            function updatePartialPage(data) {
+                $partialPage.html(data);
+                // クリック可能かどうかをUIに反映する
+                reflectClickable(SELECTOR_SELECT_CUSTOMER);
+            }
+
+            /**
+             * クリック可能かどうかをUIに反映する
+             * @@param {string} selector 反映する要素のjQueryセレクタ
+             */
+            function reflectClickable(selector) {
+                if (canCardClick)
+                    $(selector).addClass('app-clickable');
+            }
+        });
+    </script>
+}

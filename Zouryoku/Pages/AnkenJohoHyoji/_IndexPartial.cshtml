@@ -1,0 +1,86 @@
+@model Zouryoku.Pages.AnkenJohoHyoji.IndexModel.ViewModel
+
+<!-- ヘッダーエリア -->
+<div class="app-area__header text-end">
+    <div>
+        @* 修正ボタン *@
+        <button type="button" id="btn-anken-edit" class="btn btn-primary btn-base @Model.EditButtonClass">
+            <i class="fa-solid fa-pen-to-square"></i>
+            修正
+        </button>
+    </div>
+</div>
+
+<!-- ボディエリア -->
+<div class="app-area__body">
+    <div class="row app-square-no-bottom border-primary-subtle">
+        @* 受注工番 *@
+        <div class="app-item-heading col-lg-3">
+            @Html.DisplayNameFor(model => model.DispJuchuNo)
+        </div>
+        <div class="app-field-value col-lg-9">
+            @Html.DisplayFor(model => model.DispJuchuNo)
+        </div>
+    </div>
+    <div class="row app-square-no-bottom border-primary-subtle">
+        @* 受注件名 *@
+        <div class="app-item-heading col-lg-3">
+            @Html.DisplayNameFor(model => model.Bukken)
+        </div>
+        <div class="app-field-value col-lg-9">
+            <a href="#" id="link-detail-juchu" data-id="@Model.KingsJuchuId" class="@Model.KingsJuchuLinkClass">
+                @Html.DisplayFor(model => model.Bukken)
+            </a>
+        </div>
+    </div>
+    <div class="row app-square-no-bottom border-primary-subtle">
+        @* 案件名 *@
+        <div class="app-item-heading col-lg-3">
+            @Html.DisplayNameFor(model => model.AnkenName)
+        </div>
+        <div class="app-field-value col-lg-9">
+            @Html.DisplayFor(model => model.AnkenName)
+        </div>
+    </div>
+    <div class="row app-square-no-bottom border-primary-subtle">
+        @* 受注種類 *@
+        <div class="app-item-heading col-lg-3">
+            @Html.DisplayNameFor(model => model.JyutyuSyuruiName)
+        </div>
+        <div class="app-field-value col-lg-9">
+            @Html.DisplayFor(model => model.JyutyuSyuruiName)
+        </div>
+    </div>
+    <div class="row app-square-no-bottom border-primary-subtle">
+        @* 顧客情報 *@
+        <div class="app-item-heading col-lg-3">
+            @Html.DisplayNameFor(model => model.KokyakuName)
+        </div>
+        <div class="app-field-value col-lg-9">
+            <a href="#" id="link-detail-kokyaku" data-id="@Model.KokyakuKaisyaId" class="@Model.KokyakuKaisyaLinkClass">
+                @Html.DisplayFor(model => model.KokyakuName)
+            </a>
+        </div>
+    </div>
+    <div class="row app-square-no-bottom border-primary-subtle">
+        @* 弊社責任者 *@
+        <div class="app-item-heading col-lg-3">
+            @Html.DisplayNameFor(model => model.SyainName)
+        </div>
+        <div class="app-field-value col-lg-9">
+            @Html.DisplayFor(model => model.SyainName)
+        </div>
+    </div>
+    <div class="row app-square border-primary-subtle">
+        @* 案件内容 *@
+        <div class="app-item-heading col-lg-3">
+            @Html.DisplayNameFor(model => model.Naiyou)
+        </div>
+        <div class="app-field-value col-lg-9">
+            <pre>@Html.DisplayFor(model => model.Naiyou)</pre>
+        </div>
+    </div>
+</div>
+
+<!-- フッターエリア -->
+<div class="app-area__footer"></div>

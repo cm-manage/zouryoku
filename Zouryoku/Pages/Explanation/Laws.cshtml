@@ -1,0 +1,87 @@
+﻿@page
+@model Zouryoku.Pages.Explanation.LawsModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "勤怠に関する法令・規則";
+}
+<style>
+    .card {
+        margin-top : 30px;
+    }
+
+    .control-label {
+        margin-top: 20px;
+        font-size: 20px;
+    }
+</style>
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group">
+                <label class="control-label">勤怠に関する法令・規則</label>
+            </div>
+            <!-- 残業時間 セクション -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">残業時間</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            法定労働時間は原則1日8時間、週40時間。これを超える労働は時間外労働（残業）として割増賃金の支払い義務あり。
+                        </li>
+                        <li>
+                            時間外割増率、深夜・休日の取り扱い、36協定の必須性を記載。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 連続勤務 セクション -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">連続勤務</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            連続勤務（長待機労働）と健康リスクに関する指針、必要な休息時間の確保について
+                        </li>
+                        <li>
+                            一定時間以上の勤務が続く場合は医師による面比率の措置推奨
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 有給取得 セクション -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">有給取得</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li>
+                            付与日数、年期指定、計画的付与、年5日の確実な取得義務化（労働法改正の影響など）。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 振替休暇 セクション -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">振替休暇</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li>
+                            代替休暇（代休）と源泉休日の違い、付与条件、申請期限等。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

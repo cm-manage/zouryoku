@@ -1,0 +1,421 @@
+﻿@page
+@model Zouryoku.Pages.Maintenance.Syains.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "個人設定";
+}
+<style>
+    .personal-settings-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    /* セクションスタイル */
+    .photo-settings-section {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, #3b7dd6 0%, #2d5ba3 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .add-button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.5rem;
+        background: #3b7dd6;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .add-button:hover {
+            background: #2d5ba3;
+            transform: translateY(-1px);
+            color: white;
+            text-decoration: none;
+        }
+
+    .button-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .section-content {
+        padding: 1.5rem;
+    }
+
+    /* 写真テーブル */
+    .photo-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .photo-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #cbd5e1;
+    }
+
+        .photo-table thead {
+            background: #3b7dd6;
+            color: white;
+        }
+
+        .photo-table th {
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            border-right: 1px solid #2d5ba3;
+            white-space: nowrap;
+        }
+
+            .photo-table th:last-child {
+                border-right: none;
+            }
+
+        .photo-table td {
+            padding: 1.5rem 1rem;
+            border-right: 1px solid #cbd5e1;
+            border-bottom: 1px solid #cbd5e1;
+            text-align: center;
+        }
+
+            .photo-table td:last-child {
+                border-right: none;
+            }
+
+        .photo-table tbody tr:last-child td {
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .photo-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .photo-table tbody tr.selected-row {
+            background: #e0e7ff;
+        }
+
+    .col-edit {
+        width: 120px;
+    }
+
+    .col-image {
+        width: auto;
+        min-width: 300px;
+    }
+
+    .col-status {
+        width: 150px;
+    }
+
+    /* 編集ボタン */
+    .btn-edit {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 4px;
+        background: #3b7dd6;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+    }
+
+        .btn-edit:hover {
+            background: #2d5ba3;
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+
+    /* 写真アイテム */
+    .photo-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px;
+        background: #f8fafc;
+        border-radius: 4px;
+    }
+
+    .photo-thumbnail {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 4px;
+    }
+
+    .photo-placeholder-small {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        background: #f1f5f9;
+    }
+
+    .placeholder-icon-small {
+        width: 60px;
+        height: 60px;
+        color: #cbd5e1;
+    }
+
+    /* 設定状態 */
+    .status-badge {
+        display: inline-block;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .status-registered {
+        background: #dcfce7;
+        color: #166534;
+        text-align: center;
+    }
+
+    .btn-set-photo {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+    }
+
+        .btn-set-photo:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+
+    /* 空状態 */
+    .empty-message {
+        text-align: center;
+        padding: 3rem 1rem !important;
+        color: #64748b;
+    }
+
+        .empty-message p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+    /* メッセージ */
+    .alert {
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .d-none {
+        display: none;
+    }
+
+    /* レスポンシブ */
+    @@media (max-width: 768px) {
+        .personal-settings-container {
+            padding: 1rem;
+        }
+
+        .section-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .add-button {
+            align-self: flex-end;
+        }
+
+        .col-edit,
+        .col-image,
+        .col-status {
+            width: auto;
+        }
+
+        .photo-table {
+            font-size: 0.875rem;
+        }
+
+            .photo-table th,
+            .photo-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+        .photo-item {
+            height: 150px;
+        }
+
+        .btn-edit {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+<div class="personal-settings-container">
+    <!-- エラーメッセージ表示 -->
+    <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+    <div id="successMessage" class="alert alert-success d-none" role="alert"></div>
+
+    <!-- 顔写真設定セクション -->
+    <div class="photo-settings-section">
+        <div class="section-header">
+            <h3 class="section-title">顔写真設定</h3>
+            <button type="button" id="addPhotoBtn" class="btn btn-primary add-button" onclick="openSyainPhotoInput(null);">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="button-icon">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                追加
+            </button>
+        </div>
+
+        <div class="section-content">
+            <!-- 写真テーブル -->
+            <div class="photo-table-wrapper">
+                <table class="photo-table">
+                    <thead>
+                        <tr>
+                            <th class="col-edit">編集</th>
+                            <th class="col-image">画像</th>
+                            <th class="col-status">設定状態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.PhotoInfo.AllPhotos.Count > 0)
+                        {
+                            @foreach (var photo in Model.PhotoInfo.AllPhotos)
+                            {
+                                <tr class="@(photo.IsSelected ? "selected-row" : "")">
+                                    <!-- 編集列 -->
+                                    <td class="col-edit">
+                                        <button type="button" class="btn btn-primary btn-edit" 
+                                                onclick="openSyainPhotoInput(@photo.Id);"
+                                                title="編集">
+                                            編集
+                                        </button>
+                                    </td>
+
+                                    <!-- 画像列 -->
+                                    <td class="col-image">
+                                        <div class="photo-item">
+                                            @if (photo.HasPhotoData)
+                                            {
+                                                <img src="data:image/jpeg;base64,@photo.PhotoBase64" 
+                                                     alt="@photo.PhotoName" class="photo-thumbnail" />
+                                            }
+                                            else
+                                            {
+                                                <div class="photo-placeholder-small">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="placeholder-icon-small">
+                                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                                                    </svg>
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <!-- 設定状態列 -->
+                                    <td class="col-status">
+                                        @if (photo.IsSelected)
+                                        {
+                                            <span class="status-badge status-registered">設定中</span>
+                                        }
+                                        else
+                                        {
+                                            <!-- 隠しフォーム（各ボタンの横） -->
+                                            <form id="hiddenForm_@photo.Id" style="display: none;">
+                                                <input type="hidden" name="photoId" value="@photo.Id" />
+                                                @Html.AntiForgeryToken()
+                                            </form>
+                                            <button type="button" class="btn-set-photo" 
+                                                    onclick="setSyainPhoto(@photo.Id);">
+                                                設定
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="empty-message">
+                                    <p>まだ写真が登録されていません</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- iziModal CSS -->
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+
+@section scripts {
+    <!-- iziModal -->
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <!--iziModalUtil JavaScript -->
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+    <script>
+        // 顔写真入力モーダルを表示します（新規/編集兼用）
+        // id: 編集対象ID。null の場合は新規。
+        function openSyainPhotoInput(id) {
+            const modalId = 'syainPhotoInputModal';
+            const url = '@Url.Page("./Input")';
+            const title = id ? '顔写真編集' : '顔写真新規登録';
+            // モーダルを表示。閉じた後に一覧を再読込。
+            showInputModal(modalId, url, id, title, function () { location.reload(); }, 700, 900, 'var(--iframe-header-color)');
+        }
+
+        // 写真の設定状態を変更
+        function setSyainPhoto(photoId) {
+            commonConfirm('この写真を設定中にします。よろしいですか？', null, function () {
+                // 指定したフォームのデータを取得
+                sendRegisterAjax(toUrl('SelectPhoto'),$('#hiddenForm_' + photoId).serializeArray(),
+                    function(data) {
+                        registerSuccessSwal('設定しました', null, function () { location.reload();});
+                    }
+                );
+            });
+        }
+    </script>
+}

@@ -1,0 +1,296 @@
+@page
+@model Zouryoku.Pages.KinmuNippouKakunin.IndexModel
+@{
+    ViewData["Title"] = "勤務日報確認";
+}
+<partial name="_ZouryokuHeader" />
+
+<div class="app-screen--search">
+    <div class="app-area__search-criteria">
+        @* 全社＞〇〇〇〇〇部：〇〇　一郎 *@
+        <div class="fw-bold mt-3">
+            全社＞
+            <span id="target-syain-hierarchical-busyo-name">@Model.TargetDaysViewModel.TargetSyainJoinedBusyoName</span>
+            ：
+            <span id="target-syain-name">@Model.TargetDaysViewModel.TargetSyainName</span>
+        </div>
+
+        @* 検索条件入力欄 *@
+        <form id="search-form">
+            <div class="d-flex gap-3 mt-3">
+                <label for="target-syain-input" class="app-input__label">対象社員</label>
+
+                @* 対象社員指定と左右ボタン *@
+                <div class="d-flex gap-1">
+                    @* 人送りボタン(左) *@
+                    <button id="prev-syain-btn" class="btn btn-primary app-btn__base" type="button" aria-label="前社員">
+                        <i class="fa-solid fa-angle-left"></i>
+                    </button>
+                    @* 社員選択欄 *@
+                    <div class="input-group app-input">
+                        <input id="target-syain-input" class="form-control app-input__textbox" type="text"
+                               value="@Model.TargetDaysViewModel.TargetSyainName" readonly />
+                        <input asp-for="TargetDaysQuery.TargetSyainId" type="hidden" />
+                        <button id="target-syain-select-btn" class="btn btn-primary app-btn__base" type="button" aria-label="社員選択">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    @* 人送りボタン(右) *@
+                    <button id="next-syain-btn" class="btn btn-primary app-btn__base" type="button" aria-label="次社員">
+                        <i class="fa-solid fa-angle-right"></i>
+                    </button>
+                </div>
+
+                @* 自分を表示ボタン *@
+                <button id="login-info-syain-btn" class="btn btn-primary app-btn__base" type="button">
+                    <i class="fa-sharp fa-solid fa-circle-user"></i>自分を表示
+                </button>
+            </div>
+
+            <div class="d-flex gap-3 mt-3">
+                @* 対象年月指定と左右ボタン *@
+                <div class="d-flex gap-1">
+                    @* 月送りボタン(左) *@
+                    <button id="prev-month-btn" class="btn btn-primary app-btn__base" type="button" aria-label="前月">
+                        <i class="fa-solid fa-angle-left"></i>
+                    </button>
+                    @* 対象年月選択欄 *@
+                    <div class="input-group app-input">
+                        <input id="target-ym-input" class="form-control app-input__textbox" type="text"
+                               value="@Model.TargetDaysQuery.TargetYmText" readonly aria-label="表示年月" />
+                        <input asp-for="TargetDaysQuery.TargetYm" type="hidden" asp-format="{0:yyyy-MM-dd}" />
+                        <input id="target-ym-picker" class="visually-hidden" type="month"
+                               value="@Model.TargetDaysQuery.TargetYmPickerValue" tabindex="-1" />
+                        <button id="target-ym-picker-btn" class="btn btn-primary app-btn__base" type="button" aria-label="月選択">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </button>
+                    </div>
+                    @* 月送りボタン(右) *@
+                    <button id="next-month-btn" class="btn btn-primary app-btn__base" type="button" aria-label="次月">
+                        <i class="fa-solid fa-angle-right"></i>
+                    </button>
+                </div>
+
+                @* 表示切替ボタン *@
+                <div class="btn-group" role="group" aria-label="表示切替">
+                    <input id="simple-view-btn" name="view-mode" class="btn-check" type="radio" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary app-btn__base" for="simple-view-btn">
+                        <i class="fa-solid fa-line-columns"></i>簡易表示
+                    </label>
+
+                    <input id="details-view-btn" name="view-mode" class="btn-check" type="radio" autocomplete="off">
+                    <label class="btn btn-outline-primary app-btn__base" for="details-view-btn">
+                        <i class="fa-solid fa-grid-4"></i>詳細表示
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @* 勤務日報（月初から月末まで）の表 *@
+    <table class="table table-bordered app-table__calendar">
+        <thead class="table-primary">
+            <tr>
+                <th rowspan="2" class="app-th-date">日付</th>
+                <th rowspan="2" class="app-th-syukkin-kubun">出勤区分</th>
+                <th rowspan="2" class="app-th-juchuu-no">受注番号</th>
+                <th rowspan="2" class="app-th-anken-name app-column-details">案件名</th>
+                <th rowspan="2" class="app-th-juc-ymd app-column-details">着工月</th>
+                <th rowspan="2" class="app-th-time">出勤<br />時刻</th>
+                <th rowspan="2" class="app-th-time">退勤<br />時刻</th>
+                <th colspan="3">平日</th>
+                <th colspan="3">土祝祭日</th>
+                <th colspan="3">法定休日</th>
+            </tr>
+            <tr>
+                <th class="app-th-time">残業</th>
+                <th class="app-th-time">割増</th>
+                <th class="app-th-time">深夜</th>
+                <th class="app-th-time">残業</th>
+                <th class="app-th-time">割増</th>
+                <th class="app-th-time">深夜</th>
+                <th class="app-th-time">実働</th>
+                <th class="app-th-time">深夜</th>
+            </tr>
+        </thead>
+        <tbody id="days-partial" class="app-days-tbody">
+            <partial name="_DaysPartial" model="Model.TargetDaysViewModel" />
+        </tbody>
+    </table>
+</div>
+
+@section InputScripts {
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+    <script>
+        $(function () {
+            // 初期表示
+            const $targetSyainHierarchicalBusyoName = $('#target-syain-hierarchical-busyo-name');
+            const $targetSyainName = $('#target-syain-name');
+            const $targetSyainInput = $('#target-syain-input');
+            const $targetSyainId = $('#TargetDaysQuery_TargetSyainId');
+            const $targetYmInput = $('#target-ym-input');
+            const $targetYm = $('#TargetDaysQuery_TargetYm');
+            const $targetYmPicker = $('#target-ym-picker');
+            const $daysPartial = $('#days-partial');
+            const $searchForm = $('#search-form');
+            const $root = $(':root');
+
+            /**
+             * #days-partialをAjaxで更新する。表示更新はこの関数で行う
+             */
+            function updateView() {
+                errorClear();
+                $targetYmInput.val($targetYm.val().slice(0, 7).replace(/-/g, '/')); // 年月表示「YYYY/MM」を更新する
+                sendGetAjax(toUrl('Search'), $searchForm.serializeArray(), function (data) {
+                    $targetSyainHierarchicalBusyoName.text(data.targetSyainHierarchicalBusyoName);
+                    $targetSyainName.text(data.targetSyainName);
+                    $targetSyainInput.val(data.targetSyainName);
+                    $daysPartial.html(data.daysPartial);
+                }, false);
+            }
+
+            /**
+             * 対象年月を指定した月数だけ加減算する
+             */
+            function addTargetYmMonth(deltaMonths) {
+                const [year, oneBasedMonth] = $targetYm.val().split('-').map(Number);
+                const ym = new Date(year, oneBasedMonth - 1 + deltaMonths); // 月は0始まりなので-1する
+                const yyyy = ym.getFullYear();
+                const mm = String(ym.getMonth() + 1).padStart(2, '0'); // 月は2桁の'0'で埋める
+                $targetYm.val(`${yyyy}-${mm}-01`);
+            }
+
+            // 対象年月
+            // ピッカー表示
+            $('#target-ym-input,#target-ym-picker-btn').on('click', function () {
+                $targetYmPicker.val($targetYm.val().slice(0, 7));
+                $targetYmPicker[0].showPicker?.();
+            });
+            // ピッカー選択
+            $targetYmPicker.on('change', function () {
+                $targetYm.val(`${$(this).val()}-01`);
+                updateView();
+            });
+            // 月送りボタン(左)
+            $('#prev-month-btn').on('click', function () {
+                addTargetYmMonth(-1); // 前月 (-1) を設定
+                updateView();
+            });
+            // 月送りボタン(右)
+            $('#next-month-btn').on('click', function () {
+                addTargetYmMonth(1); // 次月 (+1) を設定
+                updateView();
+            });
+
+            // 対象社員
+            // 社員選択モーダル展開
+            $('#target-syain-input,#target-syain-select-btn').on('click', function () {
+                openSyainSelectModal(false, null);
+            });
+            // 社員選択モーダル確定
+            $(window).on('message', function (e) {
+                const contentWindow = $('#syain-sentaku-modal iframe')[0]?.contentWindow;
+                if (!contentWindow) return; // モーダルが開いていない場合は無視
+                if (e.originalEvent.origin !== window.location.origin) return; // セキュリティチェック（オリジン確認）
+                if (e.originalEvent.source !== contentWindow) return; // セキュリティチェック（ウィンドウ確認）
+
+                // セキュリティチェック（メッセージデータの形式と必須項目を検証）
+                const data = e.originalEvent.data;
+                if (!data || data.type !== 'syainSelected' || !data.selectedSyain) return;
+
+                // セキュリティチェック（syainIdの型と正の安全な整数であることを確認）
+                if (typeof data.selectedSyain.syainId !== 'number' && typeof data.selectedSyain.syainId !== 'string') return;
+                const syainId = parseInt(data.selectedSyain.syainId, 10);
+                if (Number.isNaN(syainId)
+                    || !Number.isSafeInteger(syainId)
+                    || syainId <= 0
+                    || Number.MAX_SAFE_INTEGER < syainId) return;
+
+                $targetSyainId.val(syainId);
+                updateView();
+            });
+            // 人送りボタン(左)
+            $('#prev-syain-btn').on('click', function () {
+                sendGetAjax(toUrl('PrevSyain'), $searchForm.serializeArray(), function(prevSyainId) {
+                    $targetSyainId.val(prevSyainId);
+                    updateView();
+                }, false);
+            });
+            // 人送りボタン(右)
+            $('#next-syain-btn').on('click', function () {
+                sendGetAjax(toUrl('NextSyain'), $searchForm.serializeArray(), function(nextSyainId) {
+                    $targetSyainId.val(nextSyainId);
+                    updateView();
+                }, false);
+            });
+            // 自分を表示ボタン
+            $('#login-info-syain-btn').on('click', function () {
+                $targetSyainId.val('@Model.LoginInfo.User.Id');
+                updateView();
+            });
+
+            // 表示切替ボタン
+            $('#simple-view-btn').on('change', function () {
+                if ($(this).prop('checked')) {
+                    $root.css('--app-column-details-display', 'none');
+                }
+            });
+            $('#details-view-btn').on('change', function () {
+                if ($(this).prop('checked')) {
+                    $root.css('--app-column-details-display', 'table-cell');
+                }
+            });
+        });
+    </script>
+}
+
+@section InputStyles {
+    <link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.min.css" asp-append-version="true" />
+    <style>
+        :root {
+            /* 詳細表示時に表示、簡易表示時に非表示 */
+            --app-column-details-display: none;
+        }
+
+        .app-column-details {
+            /* 詳細表示時に表示、簡易表示時に非表示 */
+            display: var(--app-column-details-display);
+        }
+
+        /* テキストボックス */
+        .app-input {
+            width: 10rem;
+        }
+
+        /* tbody の文字を上寄せで表示 */
+        .app-days-tbody td {
+            vertical-align: top;
+        }
+
+        /* 日付 */
+        .app-th-date {
+            width: 1%;
+        }
+        /* 出勤区分 */
+        .app-th-syukkin-kubun {
+            width: 5%;
+        }
+        /* 受注番号 */
+        .app-th-juchuu-no {
+            width: 9%;
+        }
+        /* 案件名 */
+        .app-th-anken-name {
+            width: 7%;
+        }
+        /* 着工月 */
+        .app-th-juc-ymd {
+            width: 1.5%;
+        }
+        /* 時刻 */
+        .app-th-time {
+            width: 1%;
+        }
+    </style>
+}

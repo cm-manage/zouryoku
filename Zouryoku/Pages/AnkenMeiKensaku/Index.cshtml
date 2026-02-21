@@ -1,0 +1,534 @@
+﻿@page
+@using Zouryoku.Pages.Shared.Components
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@using static Zouryoku.Pages.AnkenMeiKensaku.IndexModel.AnkenSearchModel
+@model Zouryoku.Pages.AnkenMeiKensaku.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "案件名検索";
+}
+
+<div class="app-screen--search">
+    <div class="mt-3">
+        <button id="search-history-btn" class="app-btn__base btn btn-secondary d-none">参照履歴</button>
+    </div>
+
+    <form id="search-form" class="app-area__search-criteria">
+        <div class="row mt-3">
+            @* 受注番号 *@
+            <div class="col-12 col-lg-6 row align-content-center">
+                <label class="col-12 col-lg-auto col-form-label app-input__label"
+                       asp-for="SearchConditions.JuchuuNo.ProjectNo">受注番号</label>
+                <div class="col-12 col-lg">
+                    <span class="text-danger" asp-validation-for="SearchConditions.JuchuuNo.JuchuuGyoNo"></span>
+                    <div id="@Html.IdFor(model => model.SearchConditions.JuchuuNo)" class="row gap-0 px-2 px-lg-0">
+                        @* NOTE: formに直接colを付与するとform-controlのwidth: 100%が優先されてしまう *@
+                        <div class="col-5 p-1">
+                            <input asp-for="SearchConditions.JuchuuNo.ProjectNo" class="form-control app-input__textbox" />
+                        </div>
+                        <div class="col-5 p-1">
+                            <input asp-for="SearchConditions.JuchuuNo.JuchuuNo" class="form-control app-input__textbox" />
+                        </div>
+                        <div class="col-2 p-1">
+                            <input class="form-control app-input__textbox" type="text" asp-for="SearchConditions.JuchuuNo.JuchuuGyoNo"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* 着工日（範囲検索） *@
+            <div class="col-12 col-lg-6 row align-content-center">
+                <label class="col-12 col-lg-auto col-form-label app-input__label"
+                       asp-for="SearchConditions.ChaYmd"></label>
+                <div class="col-12 col-lg row">
+                    <div class="input-group col">
+                        <input class="form-control app-input__textbox" asp-for="SearchConditions.ChaYmd.From" />
+                    </div>
+                    <partial name="Components/_Datepicker"
+                             model="@(new DatepickerModel { 
+                                 Id = Html.IdFor(model => model.SearchConditions.ChaYmd.From),
+                                 MinDate = new DateOnly(2001, 1, 1),
+                                 MaxDate = new DateOnly(2099, 12, 31)
+                             })" />
+                    <div class="col-auto align-content-center">～</div>
+                    <div class="input-group col">
+                        <input class="form-control app-input__textbox" asp-for="SearchConditions.ChaYmd.To"  />
+                    </div>
+                    <partial name="Components/_Datepicker"
+                             model="@(new DatepickerModel { 
+                                 Id = Html.IdFor(model => model.SearchConditions.ChaYmd.To),
+                                 MinDate = new DateOnly(2001, 1, 1),
+                                 MaxDate = new DateOnly(2099, 12, 31)
+                             })" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            @* 顧客名 *@
+            <div class="col-12 col-lg-6 row">
+                <label class="col-12 col-lg-auto col-form-label app-input__label" asp-for="SearchConditions.KokyakuName"></label>
+                <input class="col-12 col-lg form-control mx-3 app-input__textbox" type="text" asp-for="SearchConditions.KokyakuName" />
+            </div>
+            @* 案件名 *@
+            <div class="col-12 col-lg-6 row">
+                <label class="col-12 col-lg-auto col-form-label app-input__label" asp-for="SearchConditions.AnkenName"></label>
+                <input class="col-12 col-lg form-control mx-3 app-input__textbox" type="text" asp-for="SearchConditions.AnkenName" />
+            </div>
+        </div>
+
+        <div class="row mt-3 gap-3 gap-lg-0">
+            @* 自部署の案件のみ *@
+            <div class="col-12 col-lg-6 row">
+                <div class="form-check-inline form-check-reverse form-switch w-auto px-1">
+                    <input class="form-check-input app-input__select" type="checkbox" role="switch" asp-for="SearchConditions.IsOwnBusyoOnly" />
+                    <label class="form-check-label app-input__label px-2" asp-for="SearchConditions.IsOwnBusyoOnly"></label>
+                </div>
+            </div>
+            @* 凍結案件を表示 *@
+            <div class="col-12 col-lg-6 row">
+                <div class="form-check-inline form-check-reverse form-switch w-auto px-1">
+                    <input class="form-check-input app-input__select" type="checkbox" role="switch" asp-for="SearchConditions.ShowGenkaToketu" />
+                    <label class="form-check-label app-input__label px-2" asp-for="SearchConditions.ShowGenkaToketu"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            @* 責任者 *@
+            <div class="col-12 col-lg-6 row">
+                <label class="col-12 col-lg-auto col-form-label app-input__label"
+                       asp-for="SearchConditions.SekininSyaName"></label>
+                <div class="col-12 col-lg input-group">
+                    <input id="sekinin-sya-name-input" class="form-control app-input__textbox" asp-for="SearchConditions.SekininSyaName" readonly/>
+                    <input id="sekinin-sya-base-id-input" type="hidden" asp-for="SearchConditions.SekininSyaBaseId"/>
+                    <button type="button" data-js="searchSyain" class="btn btn-primary app-btn__base">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <button id="clear-btn" type="button" class="btn btn-secondary app-btn__base">
+                        <span><i class="fa-solid fa-xmark"></i>取消</span>
+                    </button>
+                </div>
+            </div>
+
+            @* 並び順 *@
+            <div class="col-12 col-lg-6 row mt-3">
+                <label class="col-auto form-label app-input__label " asp-for="SearchConditions.SortKey"></label>
+                <div class="col">
+                    @foreach (var sortKey in Enum.GetValues<IndexModel.AnkenSearchModel.SortKeyList>())
+                    {
+                        var display = sortKey.GetType()
+                        .GetMember(sortKey.ToString())
+                        .Single()
+                        .GetCustomAttribute<DisplayAttribute>()?
+                        .Name ?? sortKey.ToString();
+
+                        // NOTE: asp-forはid属性を列挙体の値によって切り替えられないため一意のidを生成
+                        var id = $"{Html.IdFor(model => model.SearchConditions.SortKey)}-{sortKey}";
+
+                        // asp-forとC#要素は共存できないためチェック状態を生成
+                        // TODO: asp-forが勝手に生成するらしい？
+
+                        <div class="form-check form-check-inline">
+                            <input id="@id"
+                                    class="form-check-input"
+                                    type="radio"
+                                    value="@sortKey"
+                                    asp-for="SearchConditions.SortKey" />
+                            <label class="form-check-label app-input__label" for="@id">@display</label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row mx-0 mt-3">
+            @* NOTE: type="submit"としないと検索欄でEnterを押してもsubmitイベントが発生しない *@
+            <button id="search-btn" class="app-btn__base btn btn-primary col-12 col-lg-auto" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i>検索
+            </button>
+        </div>
+    </form>
+
+    @* ツールボタン部分 *@
+    <div class="app-area__tool-button">
+        @if (Model.CanAdd)
+        {
+            <button type="button" data-js="createAnken" class="app-btn__base btn btn-success">新規作成</button>
+        }
+    </div>
+
+    @* 動的ページ部分 *@
+    <main id="partial-page-div" class="app-search__search-results">
+        <partial name="_AnkenPage" model="Model.PartialPage" />
+    </main>
+</div>
+
+@section InputScripts {
+    <script>
+        $(function () {
+            // ==================================
+            // 定数
+            // ==================================
+
+            // jQueryセレクタ
+            // ----------------------------------
+
+            // 案件選択
+            const SELECTOR_SELECT_ANKEN = '[data-js="ankenSelect"]';
+            // 削除ボタン
+            const SELECTOR_DELETE_BTN = '[data-js="historyDelete"]';
+            // ページ遷移ボタン
+            const SELECTOR_PAGER_BTN = '[data-js="movePage"]';
+            // 案件情報画面ボタン
+            const SELECTOR_INFO_BTN = '[data-js="ankenShowInfo"]';
+            // 新規作成ボタン
+            const SELECTOR_CREATE_ANKEN_BTN = '[data-js="createAnken"]';
+            // 社員検索ボタン
+            const SELECTOR_SEARCH_SYAIN_BTN = '[data-js="searchSyain"]';
+            // 検索フォーム
+            const SELECTOR_SEARCH_FORM = '#search-form';
+
+            // jQueryオブジェクト
+            // ----------------------------------
+
+            // 動的ページ部分
+            const $partialPage = $('#partial-page-div');
+            // 検索フォーム
+            const $searchForm = $(SELECTOR_SEARCH_FORM);
+            // 入力欄
+            const $kokyakuNameInput = $('#@Html.IdFor(model => model.SearchConditions.KokyakuName)');
+            const $ankenNameInput = $('#@Html.IdFor(model => model.SearchConditions.AnkenName)');
+
+            // URL
+            // ----------------------------------
+
+            // オートコンプリート
+            const URL_AUTOCOMPLETE_KOKYAKU_NAME = 'api/KokyakuMeiSuggestions';
+            const URL_AUTOCOMPLETE_ANKEN_NAME = 'api/AnkenMeiSuggestions';
+
+            // 案件情報画面
+            const URL_ANKEN_JOHO_HYOJI = '@Url.Page("../AnkenJohoHyoji/Index")';
+
+            // 案件情報の存在チェック
+            const URL_CHECK_EXISTENCE = toUrl('CheckExistence');
+            // 参照履歴削除
+            const URL_DELETE_HISTORY = toUrl('DeleteHistory');
+            // ページ移動
+            const URL_MOVE_PAGE = toUrl('MovePage');
+            // 履歴参照
+            const URL_REFERENCE_HISTORY = toUrl('ReferenceHistory');
+            // 案件名検索
+            const URL_SEARCH = toUrl('SearchAnkens');
+            // 案件情報カードクリック（参照履歴を追加）
+            const URL_SELECT = toUrl('Select');
+
+            // その他
+            // ----------------------------------
+
+            // モーダルのヘッダーカラー
+            const MODAL_HEADER_COLOR = 'var(--iframe-header-color)';
+
+            // カードクリックが可能かどうかのフラグ
+            const canCardClick = @(Model.CanCardClick.ToString().ToLower());
+
+            // ==================================
+            // イベント
+            // ==================================
+
+            // 検索実行時の条件を保持する変数
+            let searchedParams = [];
+            // 案件新規作成が行われたことを保持するフラグ
+            let isCreatedAnken = false;
+
+            // オートコンプリート設定
+            initAutocomplete($kokyakuNameInput, URL_AUTOCOMPLETE_KOKYAKU_NAME);
+            initAutocomplete($ankenNameInput, URL_AUTOCOMPLETE_ANKEN_NAME);
+
+            // バリデーション設定
+            initValidation(SELECTOR_SEARCH_FORM);
+
+            // カードがクリック可能かどうかをUIに反映（初期遷移時）
+            reflectClickable(SELECTOR_SELECT_ANKEN);
+
+            // submitイベントを破棄する
+            // NOTE: 検索欄でEnter押下して検索実行する
+            $(document).on('submit', SELECTOR_SEARCH_FORM, () => {
+                return false;
+            });
+
+            // 社員名検索ボタンクリック時
+            $(document).on('click', SELECTOR_SEARCH_SYAIN_BTN, () => {
+                // 社員選択モーダルを開く
+                openSyainSelectModal(false, null);
+            });
+
+            // カードクリック時
+            $(document).on('click', SELECTOR_SELECT_ANKEN, async function() {
+                // 参照モードでないなら処理を行わない
+                if(!canCardClick)
+                    return;
+
+                // 参照履歴テーブルに履歴を追加
+                const params = $(this).serializeArray();
+                const promise = postAsync(URL_SELECT, params);
+
+                // 親画面へ渡すパラメータを取得
+                const ankenId = $(this).data('anken-id');
+                const ankenName = $(this).data('anken-name');
+                const juchuNo = $(this).data('juchuu-no');
+                const kokyakuId = $(this).data('kokyaku-id');
+                const kokyakuName = $(this).data('kokyaku-name');
+                const chaYmd = $(this).data('chaYmd');
+
+                // 親画面へメッセージを渡す
+                window.parent.postMessage({
+                    type: 'ankenSelected',
+                    ankenId,
+                    ankenName,
+                    juchuNo,
+                    kokyakuId,
+                    kokyakuName,
+                    chaYmd
+                }, window.location.origin);
+
+                // 参照履歴への追加を待機
+                await promise;
+
+                // この画面を閉じる
+                closeCurrentIziModal();
+            });
+
+            // 検索ボタンクリック時
+            $('#search-btn').on('click', async function() {
+                // 既存のバリデーションエラー表示をクリア
+                clearErrors(SELECTOR_SEARCH_FORM);
+
+                // クライアント側バリデーション
+                if (!$searchForm.valid())
+                    return;
+
+                // 検索条件を保持する
+                searchedParams = $searchForm.serializeArray();
+
+                // 参照履歴ボタンを表示
+                $('#search-history-btn').removeClass('d-none');
+
+                // 検索処理
+                const promise = getAsync(URL_SEARCH, searchedParams);
+
+                // 検索結果を部分ページ部分に反映
+                updatePartialPage(await promise);
+            });
+
+            // 履歴削除ボタンクリック時
+            $(document).on('click', SELECTOR_DELETE_BTN, function() {
+                // パラメータの取得
+                const params = $(this).closest('form').serializeArray();
+
+                // ダイアログ表示
+                deleteConfirmSwal(
+                    '削除してもよろしいでしょうか？',
+                    null,
+                    // OK押下時
+                    async () => {
+                        // 削除処理
+                        await postAsync(URL_DELETE_HISTORY, params);
+
+                        // 更新後のページを取得
+                        const promise = reloadContents();
+
+                        // 成功ダイアログの表示
+                        deleteSuccessSwal('');
+
+                        // ページ更新
+                        updatePartialPage(await promise);
+                    }
+                );
+            });
+
+            // 参照履歴ボタンクリック時
+            $('#search-history-btn').on('click', async function() {
+                // 参照履歴ボタンを非表示
+                $(this).addClass('d-none');
+
+                // 参照履歴を取得
+                const data = await getAsync(URL_REFERENCE_HISTORY);
+
+                // 部分ページに反映
+                updatePartialPage(data);
+            });
+
+            // ページ移動ボタンクリック時
+            $(document).on('click', SELECTOR_PAGER_BTN, async function() {
+                // パラメータ取得
+                const offset = $(this).data('offset');
+
+                // ページ移動後の表示データを取得
+                const data = await movePage(offset);
+
+                // 部分ページに反映
+                updatePartialPage(data);
+            });
+
+            // 案件情報リンククリック
+            $(document).on('click', SELECTOR_INFO_BTN, function() {
+                const ankenId = $(this).data('anken-id');
+
+                // 選択された案件情報が存在するかチェック
+                sendGetAjax(URL_CHECK_EXISTENCE, {ankenId,}, () => {
+                    // パラメーター設定
+                    const modalId = 'anken-info-modal';
+                    const url = `${URL_ANKEN_JOHO_HYOJI}?id=${ankenId}&canAdd=@(Model.CanAdd)`;
+                    const title = '案件情報画面';
+                    const closedFunc = async () => updatePartialPage(await reloadContents());
+
+                    showModal(modalId, url, title, '', closedFunc, 1000, 700, MODAL_HEADER_COLOR);
+                });
+            });
+
+            // 案件新規作成ボタン
+            $(document).on('click', SELECTOR_CREATE_ANKEN_BTN, () => {
+                // パラメーター設定
+                const modalId = 'ankens-input-modal';
+                const url = toQueryUrl('@Url.Page("../Ankens/Input")');
+                const title = '案件情報作成';
+                const closedFunc = async function() {
+                    // 新規登録が行われたとき
+                    if (isCreatedAnken) {
+                        // 参照履歴の1ページ目を表示する
+                        updatePartialPage(await getAsync(URL_REFERENCE_HISTORY));
+                        isCreatedAnken = false;
+                    } else {
+                        // 現在の検索条件で再検索を行う
+                        updatePartialPage(await reloadContents());
+                    }
+                }
+
+                showModal(modalId, url, title, '', closedFunc, 1000, 700, MODAL_HEADER_COLOR);
+            });
+
+            // イベント処理
+            window.addEventListener('message', async function(event) {
+                // 送信元が自ウィンドウかチェック
+                if(event.origin !== window.location.origin)
+                    return;
+
+                // イベントの構成が想定しているものかチェック
+                if (!event.data || !event.data.type) 
+                    return;
+
+                switch (event.data.type) {
+                    // 責任者名選択時
+                    case 'syainSelected':
+                        // 選択した社員名と社員BASE IDを反映
+                        $('#sekinin-sya-name-input').val(event.data.selectedSyain.syainName);
+                        $('#sekinin-sya-base-id-input').val(event.data.selectedSyain.syainBaseId);
+                        break;
+
+                    // 案件新規追加時
+                    case 'ankenRegistered':
+                        // 新規登録が行われたことを保持
+                        isCreatedAnken = true;
+                        break;
+
+                    default:
+                        break;
+                }
+            });
+
+            // 取り消しボタン押下
+            $(document).on('click', '#clear-btn', function() {
+                $('#sekinin-sya-name-input').val('');
+                $('#sekinin-sya-base-id-input').val('');
+            });
+
+            // ======================================
+            // 共通処理
+            // ======================================
+
+            /**
+             * sendGetAjaxをPromise化する
+             * @@param {URL} url リクエスト先のURL
+             * @@param {JSON} [params=null] リクエストボディに含めるパラメータ
+             * @@returns resolveでdataキーに格納されているデータを返すPromise
+             */
+            function getAsync(url, params = null) {
+                return new Promise(resolve => {
+                    sendGetAjax(url, params, data => resolve(data), false);
+                });
+            }
+
+            /**
+             * sendAjaxをPromise化する
+             * @@param {URL} url リクエスト先のURL
+             * @@param {JSON} [params=null] リクエストボディに含めるパラメータ
+             * @@returns resolveでdataキーに格納されているデータを返すPromise
+             */
+            function postAsync(url, params = null) {
+                return new Promise(resolve => {
+                    sendAjax(url, params, data => resolve(data), false, null, true);
+                });
+            }
+
+            /**
+             * ページをオフセット分移動した先の表示データを取得する
+             * @@param {number} offset オフセット
+             */
+            async function movePage(offset) {
+                // パラメータの取得
+                const $pageIndex = $('#page-index');
+                const $isReferHistory = $('#is-refer-history');
+
+                // 送信用のデータ
+                // NOTE: serializeArrayと同じ変換を行う
+                const pageParams = [
+                    {
+                        // NOTE: offsetはvalueを自分で設定したい場面（リロードなど）があるため手動で設定
+                        'name': 'pageOffset',
+                        'value': offset
+                    },
+                    {
+                        'name': $pageIndex.attr('name'),
+                        'value': $pageIndex.val()
+                    },
+                    {
+                        'name': $isReferHistory.attr('name'),
+                        'value': $isReferHistory.val()
+                    }
+                ];
+                const params = pageParams.concat(searchedParams);
+
+                return getAsync(URL_MOVE_PAGE, params);
+            }
+
+            /**
+             * 画面に表示している情報を更新する
+             */
+            async function reloadContents() {
+                // NOTE: 0ページ移動した先の情報を取得 = 現在のページの最新情報を取得
+                return movePage(0);
+            }
+
+            /**
+             * 部分ページを書き換える
+             * @@param {string} data 書き換えるHTML文字列
+             */
+            function updatePartialPage(data) {
+                $partialPage.html(data);
+                // クリック可能かどうかをUIに反映する
+                reflectClickable(SELECTOR_SELECT_ANKEN);
+            }
+
+            /**
+             * クリック可能かどうかをUIに反映する
+             * @@param {string} selector 反映する要素のjQueryセレクタ
+             */
+            function reflectClickable(selector) {
+                if (canCardClick)
+                    $(selector).addClass('app-clickable');
+            }
+        });
+    </script>
+}

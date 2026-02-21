@@ -1,0 +1,24 @@
+﻿@page
+@model Zouryoku.Pages.Logins.IndexModel
+@{
+    Layout = "_Layout_NoSession";
+    ViewData["Title"] = "ログイン";
+}
+
+
+<div class="center-page-area">
+    <div class="box m">
+        <div class="contents">
+            <p class="login_title"><span>増力日誌</span></p>
+            
+            <div class="login-form">
+                <!-- Entra ID認証 -->
+                <partial name="_EntraLoginPartial" />
+                <div class="mt-3">
+                    <a class="btn btn-outline-secondary btn-sm" href="@Url.Page("/Logins/BypassLogin")">メールアドレス直接ログイン(開発用)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

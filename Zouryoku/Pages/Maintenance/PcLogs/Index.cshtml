@@ -1,0 +1,90 @@
+﻿@page
+@model Zouryoku.Pages.Maintenance.PcLogs.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Index";
+}
+
+<!-- iziModal CSS -->
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+
+<h1>Index</h1>
+
+<p>
+    <a href="javascript:void(0);" onclick="openPcLogInput(null);">新規登録</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PcLog[0].Datetime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PcLog[0].PcName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PcLog[0].UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PcLog[0].SyainId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PcLog[0].Operation)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.PcLog) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Datetime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PcName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SyainId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Operation)
+            </td>
+            <td>
+                <a href="javascript:void(0);" onclick="openPcLogInput(@item.Id);">編集</a> |
+                <a href="javascript:void(0);" onclick="openPcLogDetails(@item.Id);">詳細</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@section scripts {
+    <!-- iziModal -->
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <!--iziModalUtil JavaScript -->
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+	<script>
+		// PCログ入力モーダルを表示します（新規/編集兼用）
+		// id: 編集対象ID。null の場合は新規。
+		function openPcLogInput(id) {
+			const modalId = 'pcLogInputModal';
+			const url = '@Url.Page("./Input")';
+			const title = id ? 'PCログ編集' : 'PCログ新規登録';
+			// モーダルを表示。閉じた後に一覧を再読込。
+			showInputModal(modalId, url, id, title, function () { location.reload(); }, 900, 700, 'var(--iframe-header-color)');
+		}
+
+    // 詳細モーダル表示
+    function openPcLogDetails(id) {
+        const modalId = 'pcLogDetailsModal';
+        const url = '@Url.Page("./Details")';
+        const title = 'PCログ詳細';
+        showInputModal(modalId, url, id, title, function () { /* 閉じた後再読込（不要なら削除） */ location.reload(); }, 800, 600, 'var(--iframe-header-color)');
+    }
+
+	</script>
+}

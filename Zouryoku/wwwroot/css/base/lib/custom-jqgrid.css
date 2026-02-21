@@ -1,0 +1,152 @@
+﻿@charset "UTF-8";
+
+.custom-jqgrid {
+    background: #ffffff;
+    font-size: 15px;
+}
+
+    .custom-jqgrid tr {
+        box-sizing: border-box;
+    }
+
+    .custom-jqgrid .ui-jqgrid-labels {
+        background: #E1E1E1;
+        font-weight: bold;
+        font-size: 14px;
+        height: 40px;
+    }
+
+    .custom-jqgrid tr.jqgrow {
+        border-bottom: 1px solid #d3d6de
+    }
+
+        .custom-jqgrid tr.jqgrow td {
+            height: auto;
+        }
+
+    .custom-jqgrid tr.ui-row-ltr td {
+        white-space: unset;
+        font-weight: 500;
+        word-break: break-all;
+    }
+
+    .custom-jqgrid .ui-common-table {
+        min-width: 100% !important;
+    }
+
+    .custom-jqgrid .ui-jqgrid-hbox {
+        padding-right: 0px !important;
+        width: inherit;
+    }
+
+    .custom-jqgrid .ui-jqgrid-htable th div {
+        overflow: unset;
+    }
+
+    .custom-jqgrid .ui-jqgrid-htable th.ui-th-column {
+        overflow-wrap: anywhere;
+        white-space: break-spaces;
+        height: 60px;
+        /*pointer-events: none;*/
+    }
+
+    .custom-jqgrid .ui-jqgrid-htable th.ui-th-column-header {
+        border-right: 2px solid rgb(194, 194, 194);
+        border-bottom: 2px solid rgb(194, 194, 194);
+    }
+
+    .custom-jqgrid .ui-jqgrid-htable .ui-th-div {
+        height: 35px;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+    }
+
+        .custom-jqgrid .ui-jqgrid-htable .ui-th-div.left {
+            justify-content: start;
+            margin-left: 10px;
+        }
+
+    .custom-jqgrid .ui-jqgrid-htable, .custom-jqgrid .ui-jqgrid-btable {
+        table-layout: unset;
+    }
+
+    .custom-jqgrid .ui-pager-control {
+        height: auto !important;
+        margin: 5px 0px !important;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .custom-jqgrid .ui-jqgrid-toppager .page {
+        display: flex;
+        align-items: flex-end;
+        margin-left: auto;
+    }
+
+    .custom-jqgrid .ui-jqgrid-pager {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .custom-jqgrid .ui-jqgrid-pager .ui-pager-control {
+            height: 40px !important;
+        }
+
+    .custom-jqgrid .ui-pg-selbox, .custom-jqgrid .ui-jqgrid-toppager .ui-pg-selbox {
+        height: auto;
+        width: auto;
+        border: solid 1px #d6d6d6;
+        padding: 3px 20px 3px 3px;
+    }
+
+    .custom-jqgrid .custom-pager-button {
+        height: 90%;
+        aspect-ratio: 1;
+        color: #9E9FA0;
+        font-size: 16px;
+        font-weight: 800;
+        background: #FEFEFE;
+        border: 2px solid #E4E4E4;
+    }
+
+        .custom-jqgrid .custom-pager-button:disabled {
+            background: #E4E4E4;
+        }
+
+        .custom-jqgrid .custom-pager-button.first::after {
+            font-family: "Font Awesome 6 Pro";
+            content: "\f100";
+        }
+
+        .custom-jqgrid .custom-pager-button.prev::after {
+            font-family: "Font Awesome 6 Pro";
+            content: "\f104";
+        }
+
+        .custom-jqgrid .custom-pager-button.next::after {
+            font-family: "Font Awesome 6 Pro";
+            content: "\f105";
+        }
+
+        .custom-jqgrid .custom-pager-button.last::after {
+            font-family: "Font Awesome 6 Pro";
+            content: "\f101";
+        }
+
+    .custom-jqgrid .custom-pager-select, .custom-jqgrid .custom-sort-select, .custom-jqgrid .custom-ascdesc-select {
+        height: 100% !important;
+        width: auto;
+        margin-left: 5px;
+        font-size: 16px;
+    }
+
+    .custom-jqgrid .custom-sort-select, .custom-jqgrid .custom-ascdesc-select {
+        font-family: 'Font Awesome 6 Pro';
+    }
+
+    .custom-jqgrid tr.ui-row-ltr td[role~="gridcell"] {
+        padding-left: 10px;
+        padding-right: 10px;
+    }

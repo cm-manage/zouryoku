@@ -1,0 +1,505 @@
+﻿@page
+@using CommonLibrary.Extensions
+@using CommonLibrary.Utils
+@using Zouryoku.Pages.Shared.Components
+@using static Zouryoku.Pages.JissekiNyuryoku.IndexModel
+@model Zouryoku.Pages.JissekiNyuryoku.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "実績入力";
+    ViewData["TitleIcon"] = "fa-solid fa-list-check";
+
+    var DisableInput = ViewData["DisableAllInput"];
+}
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+<partial name="_ZouryokuHeader" model="Model" />
+
+<style>
+    .header-notification {
+        background-color: #ffe6e6;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+    .input-width-custom {
+        width: 100%;
+    }
+
+    .th-kinmujikan {
+        width: 11rem;
+    }
+
+    .th-shuttaikin {
+        width: 12rem;
+    }
+
+    .th-kinmu,
+    .th-jisseki {
+        width: 7rem;
+    }
+
+    .fixed-height {
+        height: 120px;
+        min-height: 120px;
+        max-height: 120px;
+    }
+
+    @@media (min-width: 992px) {
+        .input-width-custom {
+            width: 17rem;
+        }
+
+        .work-category-input {
+            width: 50%;
+            height: 100%;
+        }
+
+        .table-width-lg {
+            width: 95%;
+        }
+    }
+
+    @@media (max-width: 991.98px) {
+        .label-sm-fixed {
+            width: 17rem;
+        }
+    }
+</style>
+
+<div class="container-fluid mt-2">
+
+    <form method="post" id="jisseki-form">
+        @Html.AntiForgeryToken()
+
+        <div class="d-flex justify-content-between">
+           
+            @* 勤務表画面へ遷移
+            勤務日報時間修正画面へ遷移 *@
+            <a class="btn btn-secondary"
+               href="javascript:history.back()">
+               <i class="fa-solid fa-arrow-left"></i>
+                戻る
+            </a>
+            <div>
+                @if (Model.TemporarySaveButton)
+                {
+                    <button type="submit" class="btn btn-secondary btn-temporary-save">
+                        <i class="fa-light fa-file-pen"></i>
+                        一時保存
+                    </button>
+                }
+
+                @if (Model.ConfirmButton)
+                {
+                    <button class="btn btn-primary btn-final-save">
+                        <i class="fa-solid fa-circle-check "></i>
+                        確定</button>
+                }
+                
+                @if (Model.UnconfirmButton)
+                {
+                    <button class="btn btn-danger btn-cancel-confirm" >確定解除</button>
+                }
+                
+            </div>
+        </div>
+
+
+        <p class="mt-2 mb-3 fs-7">
+            @Model.JissekiDate.YMDJp() (@Model.JissekiDate.DayOfWeek.ToJpShortString())
+        </p>
+
+        @if (!string.IsNullOrEmpty(Model.MessageString))
+        {
+            <div class="app-alert__warn mb-3 py-2 px-2 rounded">
+                @Html.DisplayFor(m => m.MessageString)
+            </div>
+        }
+
+        <div class="d-flex flex-column flex-lg-row gap-2 gap-lg-5 ">
+            @* 勤務時間テーブル *@
+            <div class="col-lg-4">
+                <input asp-for="NippouData.SyukkinHm1" class="visually-hidden" />
+                <input asp-for="NippouData.TaisyutsuHm1" class="visually-hidden" />
+                <input asp-for="NippouData.TotalWorkingHoursInMinute" class="visually-hidden" />
+                <input asp-for="NippouData.TotalJissekiJikan" id="totalJissekiJikan" class="visually-hidden" />
+                <input asp-for="NippouData.SyukkinHm2" class="visually-hidden" />
+                <input asp-for="NippouData.TaisyutsuHm2" class="visually-hidden" />
+                <input asp-for="NippouData.SyukkinHm3" class="visually-hidden" />
+                <input asp-for="NippouData.TaisyutsuHm3" class="visually-hidden" />
+
+                <h3 class="mb-1  ">
+                    勤務時間
+                </h3>
+                <div class="table-responsive table-width-lg">
+                    <table class="table table-bordered mb-0 table-sm">
+                
+                        <thead class="table-primary text-center">
+                            <tr>
+                                <th class="th-kinmujikan"></th>
+                                <th class="th-shuttaikin">出退勤時間</th>
+                                <th class="th-kinmu">勤務時間</th>
+                                <th class="th-jisseki">実績時間</th>
+                            </tr>
+                        </thead>
+                        <tbody>             
+                            <tr class="text-center">
+                                 <th rowspan="3" class="table-primary text-center align-middle border-1">勤務時間</th>
+                                <td id="syuttaikin1">
+                                    @Html.DisplayFor(m => m.NippouData.Syuttaikin1)
+                                </td>
+                                <td rowspan="3" class=" align-middle" id="totalWorkingHours">
+                                    @Html.DisplayFor(m => m.NippouData.TotalWorkingHours)
+                                </td>
+                                <td rowspan="3" class=" align-middle">   
+                                    <span id="jissekiHour">0</span>:00
+                                </td>
+                            </tr>
+                            <tr class="text-center">
+                                <td id="syuttaikin2">
+                                    @Html.DisplayFor(m => m.NippouData.Syuttaikin2)
+                                </td>
+                            </tr>
+                            <tr class="text-center">
+                                <td id="syuttaikin3">
+                                    @Html.DisplayFor(m => m.NippouData.Syuttaikin3)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="w-100">
+                <h3 class="mb-1 d-none d-lg-block">
+                    申請状況
+                </h3>
+                <h3 class="mb-1 d-lg-none">
+                    申請
+                </h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered d-none d-lg-table table-sm">
+                        <thead class="table-primary text-center">
+                            <tr>
+                                <th class="col-2">申請日</th>
+                                <th class="col-3">申請内容</th>
+                                <th class="col-2">承認日</th>
+                                <th class="col-4">状況</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="height: 1.8rem">
+                                <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShinseiYmd)</td>
+                                <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShinseiNaiyou)</td>
+                                <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShoninYmd)</td>
+                                <td>@Html.DisplayFor(m => m.UkagaiHeadersData.Status)</td>
+                            </tr>
+                        </tbody>
+                </table>
+                    <table class="table table-bordered d-lg-none">
+                        <tr>
+                            <th rowspan="4" class="table-primary" width="30">
+                            </th>
+                            <th class="table-primary" width="70">申請日</th>
+                            <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShinseiYmd)</td>
+                        </tr>
+                        <tr>
+                            <th class="table-primary">申請内容</th>
+                            <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShinseiNaiyou)</td>
+                        </tr>
+                        <tr>
+                            <th class="table-primary">承認日</th>
+                            <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShoninYmd)</td>
+                        </tr>
+                        <tr>
+                            <th class="table-primary">状況</th>
+                            <td>@Html.DisplayFor(m => m.UkagaiHeadersData.Status)</td>
+                        </tr>
+
+                </table>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="d-flex flex-column justify-content-between flex-lg-row mb-4 align-items-start my-lg-3 gap-2 gap-lg-5 ">
+            <div class="col-lg-4 d-flex gap-2">
+                <div class="d-flex align-items-center text-nowrap rounded px-3 label-sm-fixed justify-content-start justify-content-lg-center"
+                     style="background-color:#cfe2ff;">
+                    出勤区分
+                </div>
+                <div class="d-flex flex-column gap-2 w-100">
+                    <div class="col-12 col-lg-7">
+                        <select class="form-select input-local" id="syukkinKubun1" 
+                                asp-for="NippouData.SyukkinKubunCodeString1"
+                                asp-items="Model.SyukkinKubun1List"
+                                disabled="@DisableInput">
+                            <option value="00" disabled selected hidden>--- 区分選択 ---</option>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-lg-7">
+                        <select class="form-select input-local" id="syukkinKubun2"
+                                asp-for="NippouData.SyukkinKubunCodeString2"
+                                asp-items="Model.SyukkinKubun2List"
+                                disabled="@DisableInput">
+                            <option value="00" disabled selected hidden>--- 区分選択 ---</option>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="d-flex gap-2 justify-content-start align-items-center w-100 ">
+                <div class="d-flex justify-content-center align-items-center rounded px-lg-2 label-sm-fixed text-nowrap"
+                     style="height:35px; background-color:#ffe6e6;">
+                    振替休暇取得予定日
+                </div>
+                <div class="input-group input-local input-width-custom">
+                    <input type="text" asp-for="FuriYoteiDate" class="form-control" disabled="@DisableInput" />
+                </div>
+                <div id="datepickerWrapper" class="d-none">
+                    <partial name="Components/_Datepicker"
+                             model="@(new DatepickerModel { Id = "FuriYoteiDate" })"  />
+                </div>
+            </div>
+        </div>
+
+        <div class="header d-flex flex-row justify-content-between">
+            <h6 class="mb-0">実績入力</h6>
+            <button class="btn btn-outline-success copy-last-date-btn" disabled="@DisableInput">
+                <i class="fa-regular fa-clone-plus"></i>
+                前日コピー
+            </button>
+        </div>
+
+        <div id="anken-container">
+            <div id="anken-container-cards">
+                @await Html.PartialAsync("_IndexPartial", Model.NippouAnkenCards)
+            </div>
+        </div>
+
+
+        <div class="d-flex justify-content-end mb-2">
+            <button type="button" id="add-new-anken-btn" class="btn btn-outline-success" disabled="@DisableInput">
+                <i class="fa-solid fa-plus"></i>追加
+            </button>
+        </div>
+        <div class="d-flex justify-content-end mb-2">
+            @if (Model.TemporarySaveButton)
+            {
+                <button class="btn btn-secondary btn-temporary-save ms-2" type="submit">
+                    <i class="fa-light fa-file-pen"></i>
+                    一時保存
+                </button>
+            }
+
+            @if (Model.ConfirmButton)
+            {
+                <button class="btn btn-primary btn-final-save ms-2">
+                    <i class="fa-solid fa-circle-check"></i>確定
+                </button>
+            }
+
+
+            @if (Model.UnconfirmButton)
+            {
+                <button class="btn btn-danger ms-2 btn-cancel-confirm">
+                    確定解除
+                </button>
+            }
+        </div>
+    </form>
+</div>
+
+
+@section Scripts {
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+    <script src="~/js/sweetAlertUtil.js" asp-append-version="true"></script>
+
+    <script>
+
+        $(document).on('change', '#syukkinKubun1, #syukkinKubun2', function() {
+                if (this.value === "") {
+                    this.value = "00";
+                }
+            });
+
+        // 日報案件追加押下
+        $partialCards = $('#anken-container-cards')
+        $('#add-new-anken-btn').on('click', function(e) {
+            e.preventDefault();
+            const data = $('#jisseki-form').serializeArray();
+            sendAjax(toUrl("AddNippouAnken"), data, function(partialView){
+                $partialCards.html(partialView)
+            }, false, null, false)
+
+        })
+
+        // 日報案件コピー押下
+        $partialCards.on('click', '.copy-nippouanken-btn', function(e) {
+            e.preventDefault();
+            const data = $('#jisseki-form').serializeArray();
+            data.push({ name: 'index', value: $(this).attr('data-index') });
+            sendAjax(toUrl('CopyNippouAnken'), data, function(data) {
+                $partialCards.html(data);
+            }, false, null, false);
+        })
+
+        // 日報案件削除押下
+        $partialCards.on('click', ".delete-nippouanken-btn", function(e) {
+            e.preventDefault();
+            const data = $('#jisseki-form').serializeArray();
+            data.push({ name: 'index', value: $(this).attr('data-index') });
+            sendAjax(toUrl('DeleteNippouAnken'), data, function(partialView) {
+                $partialCards.html(partialView);
+                updateJissekiTime();
+            }, false, null, false);
+        });
+
+        // 前日コピー押下
+        $(".copy-last-date-btn").on("click", function(e){
+            e.preventDefault();
+            let data = $('#jisseki-form').serializeArray();
+            data.push({ name: 'syainId', value: @Model.SyainId });
+            data.push({ name: 'jissekiDate', value: '@Model.JissekiDate.ToString("yyyy-MM-dd")' })
+
+            sendAjax(toUrl("CopyFromLastDate"), data, function(data){
+                if(data != null){
+                    $partialCards.html(data);
+                    updateJissekiTime();
+                }
+            }, false, null, false)
+        })
+
+        // 顧客検索ボタン押下
+        let currentNippouAnkenIndex = null;
+        $partialCards.on('click', '.btn-search-kokyaku', function(e){
+            e.preventDefault();
+            currentNippouAnkenIndex = $(this).attr('data-index');
+            const modalId = 'ankenKokyakuIndexModal';
+            const url = '@Url.Page("../Kokyaku/KokyakuNameSearch/Index")';
+            const title = '顧客検索';
+            showFullModal(modalId, url,  title, '', function() {}, 'var(--iframe-header-color)');
+        });
+
+        // 案件検索ボタン押下
+        $partialCards.on('click', '.btn-search-anken', function(e){
+            e.preventDefault();
+            currentNippouAnkenIndex = $(this).attr('data-index');
+            kokyakuKaisyaId = $('#kokyakuId_' + currentNippouAnkenIndex).val();
+            const modalId = "ankenModal"
+            const url = '@Url.Content("~/AnkenMeiKensaku")' + '?kokyakuKaisyaId=' + kokyakuKaisyaId + '&id=Modal&IsNormal=true&CanAdd=true'
+            const title = "案件検索"
+            const width = 900
+            const height = 700
+            showInputModal(modalId, url, "", title, function() {}, width, height, "var(--iframe-header-color)");
+        })
+
+        // iziModalからの情報取得処理
+        window.addEventListener('message', function(event) {
+            if (!event.data || !event.data.type) return;
+            if (currentNippouAnkenIndex === null) return;
+
+            switch (event.data.type){
+                case 'kokyakuSelected':
+                    // 顧客検索結果
+                    $('#kokyakuName_' + currentNippouAnkenIndex).val(event.data.name);
+                    $('#kokyakuId_' + currentNippouAnkenIndex).val(event.data.id);
+                    break;
+                case 'ankenSelected':
+                    $('#ankenId_' + currentNippouAnkenIndex).val(event.data.ankenId);
+                    $('#ankenName_' + currentNippouAnkenIndex).val(event.data.ankenName);
+                    $('#chaYmd_' + currentNippouAnkenIndex).val(event.data.chaYmd);
+                    $('#juchuNo_' + currentNippouAnkenIndex).val(event.data.juchuNo);
+                    $('#kokyakuId_' + currentNippouAnkenIndex).val(event.data.kokyakuId);
+                    $('#kokyakuName_' + currentNippouAnkenIndex).val(event.data.kokyakuName);
+                    break;
+            }
+        })
+
+        // 実績時間集計
+        updateJissekiTime();
+        function updateJissekiTime(){
+            let totalTime = 0;
+            document.querySelectorAll('.jisseki-time').forEach(select => {
+                totalTime += parseInt(select.value) || 0;
+            });
+            document.getElementById('jissekiHour').innerText = totalTime;
+            
+            $('#totalJissekiJikan').val(totalTime);
+        }
+
+        $partialCards.on('input change', '.jisseki-time', function() {
+            updateJissekiTime();
+        });
+
+
+        // 確定解除ボタン押下
+        $(".btn-cancel-confirm").on("click", function(e){
+            e.preventDefault();
+            const data = $('#jisseki-form').serializeArray();
+            data.push({ name: 'syainId', value: @Model.SyainId });
+            data.push({ name: 'jissekiDate', value: '@Model.JissekiDate.ToString("yyyy-MM-dd")' });
+            data.push({ name: 'isDairiInput', value: @Model.IsDairiInput.ToString().ToLower() });
+            data.push({ name: 'syainBaseId', value: @Model.SyainBaseId });
+            sendGetAjax(toUrl("CancelConfirmValidate"), data, function() {
+                commonConfirm('確定解除してよろしいですか？', null, function() {
+                    sendAjax(toUrl('CancelConfirm'), data, function() {
+                        onRegisterSuccess("確定解除しました。");
+                    }, false, null, false);
+                })
+            }, false);
+        })
+
+            function onRegisterSuccess(actionName) {
+            registerSuccessSwal(actionName, null,
+                function() {
+                    // 親画面へメッセージ送信
+                    window.history.back();
+
+                    // モーダルを閉じる
+                    closeCurrentIziModal();
+                }
+            );
+        }
+
+
+        // 一時保存ボタン押下
+        $(".btn-temporary-save").on("click", function(e){
+            e.preventDefault();
+            
+            commonConfirm('一時保存します。よろしいですか？', null, function() {
+                const data = $('#jisseki-form').serializeArray();
+                data.push({ name: 'syainId', value: @Model.SyainId });
+                data.push({ name: 'jissekiDate', value: '@Model.JissekiDate.ToString("yyyy-MM-dd")' });
+                data.push({ name: 'isDairiInput', value: @Model.IsDairiInput.ToString().ToLower() });
+                sendAjax(toUrl('TemporarySave'), data, function(){
+                    }, true, null, false);
+                })
+        })
+        
+
+        // 確定ボタン押下
+        $(".btn-final-save").on("click", function(e){
+            e.preventDefault();
+            const data = $('#jisseki-form').serializeArray();
+            data.push({ name: 'syainId', value: @Model.SyainId });
+            data.push({ name: 'jissekiDate', value: '@Model.JissekiDate.ToString("yyyy-MM-dd")' });
+            data.push({ name: 'isDairiInput', value: @Model.IsDairiInput.ToString().ToLower() });
+
+             sendAjax(toUrl('FinalConfirmCheck'), data, function(message){
+                 commonConfirm(message, null, function() {
+                    sendAjax(toUrl('FinalConfirm'), data, function() {
+                    }, true, null, false);
+                })
+            }, true, null, false);
+        })
+    </script>
+}

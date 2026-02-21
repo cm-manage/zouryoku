@@ -1,0 +1,61 @@
+@model Zouryoku.Pages.KinmuNippouKakunin.IndexModel.DaysViewModel
+
+@for (var i = 0; i < Model.Days.Count; i++)
+{
+    <tr class="@Model.Days[i].LineClass">
+        <td class="text-center text-nowrap app-day-no">
+            @* 日付 *@
+            @Html.DisplayFor(m => m.Days[i].Date)
+        </td>
+        <td>
+            @* 出勤区分 *@
+            @Model.Days[i].SyukkinKubun1 @(Model.Days[i].SyukkinKubun2 is not null ? "+" : "") @Model.Days[i].SyukkinKubun2
+        </td>
+        <td>
+            @* 受注番号 *@
+            @foreach (var anken in Model.Days[i].Ankens)
+            {
+                @:@anken.ProjectNo - @anken.JuchuuNo - @anken.JuchuuGyoNo<br />
+            }
+        </td>
+        <td class="app-column-details">
+            @* 案件名 *@
+            @foreach (var anken in Model.Days[i].Ankens)
+            {
+                @:@anken.AnkenName<br />
+            }
+        </td>
+        <td class="text-center text-nowrap app-column-details">
+            @* 着工月 *@
+            @for (var j = 0; j < Model.Days[i].Ankens.Count; j++)
+            {
+                @:@Html.DisplayFor(m => m.Days[i].Ankens[j].ChaYmd)<br />
+            }
+        </td>
+        <td class="text-center text-nowrap">
+            @* 出勤時刻 *@
+            @foreach (var syukkinHm in Model.Days[i].SyukkinHms)
+            {
+                @:@Model.DisplayHours(syukkinHm)<br />
+            }
+        </td>
+        <td class="text-center text-nowrap">
+            @* 退勤時刻 *@
+            @foreach (var taisyutsuHm in Model.Days[i].TaisyutsuHms)
+            {
+                @:@Model.DisplayHours(taisyutsuHm)<br />
+            }
+        </td>
+        @* 平日 *@
+        <td class="text-center text-nowrap">@Model.DisplayHours(Model.Days[i].HZangyo)</td> @* 残業 *@
+        <td class="text-center text-nowrap">@Model.DisplayHours(Model.Days[i].HWarimashi)</td> @* 割増 *@
+        <td class="text-center text-nowrap">@Model.DisplayHours(Model.Days[i].HShinyaZangyo)</td> @* 深夜 *@
+        @* 土祝祭日 *@
+        <td class="text-center text-nowrap">@Model.DisplayHours(Model.Days[i].DZangyo)</td> @* 残業 *@
+        <td class="text-center text-nowrap">@Model.DisplayHours(Model.Days[i].DWarimashi)</td> @* 割増 *@
+        <td class="text-center text-nowrap">@Model.DisplayHours(Model.Days[i].DShinyaZangyo)</td> @* 深夜 *@
+        @* 法定休日 *@
+        <td class="text-center text-nowrap">@Model.DisplayHours(Model.Days[i].NJitsudou)</td> @* 実働 *@
+        <td class="text-center text-nowrap">@Model.DisplayHours(Model.Days[i].NShinya)</td> @* 深夜 *@
+    </tr>
+}

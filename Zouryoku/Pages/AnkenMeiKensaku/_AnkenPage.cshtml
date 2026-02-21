@@ -1,0 +1,17 @@
+﻿@model PartialPageModel
+
+<h1 class="fw-bold fs-5">@(Model.IsReferHistory ? "参照履歴" : "検索結果")</h1>
+<hr class="border-primary mb-3" />
+
+@* 顧客情報部分 *@
+<div>
+    @await Html.PartialAsync("_AnkenCards", Model)
+</div>
+
+@* ページャー部分 *@
+<nav>
+    @await Html.PartialAsync("_Pager", Model.Pager)
+</nav>
+
+@* 履歴参照モードかどうか *@
+<input id="is-refer-history" type="hidden" asp-for="IsReferHistory" />

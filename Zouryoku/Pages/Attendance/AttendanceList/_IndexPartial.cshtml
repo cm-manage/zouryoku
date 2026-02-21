@@ -1,0 +1,158 @@
+﻿@model Zouryoku.Pages.Attendance.AttendanceList.ViewModel
+@using CommonLibrary.Extensions
+@using static Zouryoku.Utils.Const
+
+@{
+    var today = DateTime.Now.ToDateOnly();
+}
+
+<input type="hidden" id="warning-message" value="@Model.Message" />
+<thead class="table-primary">
+    <tr>
+        <th rowspan="2" class="th-tantosya align-middle">担当者</th>
+        <th rowspan="2" class="th-hiduke align-middle">日付</th>
+        <th colspan="6">出退記録</th>
+        <th colspan="7">日報</th>
+        @if (Model.LoginUser.IsPcLogOutput)
+        {
+            <th rowspan="2" class="th-pclog align-middle">ＰＣログ</th>
+        }
+        <th rowspan="2" class="th-bikou align-middle">備考</th>
+    </tr>
+    <tr>
+        <th colspan="2" class="th-syukkin-time">出勤時間１</th>
+        <th colspan="2" class="th-syukkin-time">出勤時間２</th>
+        <th colspan="2" class="th-syukkin-time">出勤時間３</th>
+        <th class="th-syukkin-kubun">出勤区分</th>
+        <th colspan="2" class="th-kinmu-time">勤務時間１</th>
+        <th colspan="2" class="th-kinmu-time">勤務時間２</th>
+        <th colspan="2" class="th-kinmu-time">勤務時間３</th>
+    </tr>
+</thead>
+<tbody id="kinmuhyo-body">
+
+@foreach (var item in Model.KinmuDataList)
+{
+    // 出勤記録取得
+    var syuttaiKiroku = item.GetSyuttaiKirokuData(Model.LoginUser);
+
+    // 日報の表示編集
+    var nippouData = item.GetNippouData(Model.LoginUser);
+
+    // PCログの表示編集
+    var pcLogList = item.GetPcLogDataList(Model.LoginUser);
+
+    // 伺い申請の表示編集
+    var shinseiNyuryoku = item.GetUkagaiShinseiList();
+
+    <tr class="@item.GetYoubisyoku()">
+    
+        <td class="d-none">@item.SyainData.Id</td>
+        <td class="d-none">@item.SyainData.Code</td>
+        <td class="text-start">@item.SyainData.Name</td>
+
+        <td class="app-day-no">
+            @if (item.IsDakoku(Model.LoginUser, today))
+            {
+                <a href="#" class="link">@item.GetHiduke</a>
+            }
+            else
+            {
+                @item.GetHiduke
+            }
+        </td>
+
+        <!-- 出勤1 -->
+        @await Html.PartialAsync("_TimeCellPartial", new TimeCellModel {
+            Time = syuttaiKiroku.SyukkinJikan1,
+            Position = syuttaiKiroku.SyukkinPos1,
+            IsHimatagi = syuttaiKiroku.IsHimatagiSyukkin1,
+            Tooltip = AttendanceNightWork,
+            GoogleMap = Model.googlemap,
+            MidnightText = syuttaiKiroku.IsHimatagiSyukkin1 ? "00:00" : "",
+            ExtraClass = "me-2"
+            })
+
+        <!-- 退勤1 -->
+        @await Html.PartialAsync("_TimeCellPartial", new TimeCellModel {
+            Time = syuttaiKiroku.TaikinJikan1,
+            Position = syuttaiKiroku.TaikinPos1,
+            IsHimatagi = syuttaiKiroku.IsHimatagiTaikin1,
+            Tooltip = AttendanceLateNightWork,
+            GoogleMap = Model.googlemap,
+            MidnightText = syuttaiKiroku.IsHimatagiTaikin1 ? "24:00" : ""
+            })
+
+        <!-- 出勤2 -->
+        @await Html.PartialAsync("_TimeCellPartial", new TimeCellModel {
+            Time = syuttaiKiroku.SyukkinJikan2,
+            Position = syuttaiKiroku.SyukkinPos2,
+            GoogleMap = Model.googlemap
+            })
+
+        <!-- 退勤2 -->
+        @await Html.PartialAsync("_TimeCellPartial", new TimeCellModel {
+            Time = syuttaiKiroku.TaikinJikan2,
+            Position = syuttaiKiroku.TaikinPos2,
+            IsHimatagi = syuttaiKiroku.IsHimatagiTaikin2,
+            Tooltip = AttendanceLateNightWork,
+            GoogleMap = Model.googlemap,
+            MidnightText = syuttaiKiroku.IsHimatagiTaikin2 ? "24:00" : ""
+            })
+
+        <!-- 出勤3 -->
+        @await Html.PartialAsync("_TimeCellPartial", new TimeCellModel {
+            Time = syuttaiKiroku.SyukkinJikan3,
+            Position = syuttaiKiroku.SyukkinPos3,
+            GoogleMap = Model.googlemap
+            })
+
+        <!-- 退勤3 -->
+        @await Html.PartialAsync("_TimeCellPartial", new TimeCellModel {
+            Time = syuttaiKiroku.TaikinJikan3,
+            Position = syuttaiKiroku.TaikinPos3,
+            IsHimatagi = syuttaiKiroku.IsHimatagiTaikin3,
+            Tooltip = AttendanceLateNightWork,
+            GoogleMap = Model.googlemap,
+            MidnightText = syuttaiKiroku.IsHimatagiTaikin3 ? "24:00" : ""
+            })
+
+        <td class="text-start">
+            @foreach (var cell in nippouData.SyukkinKubunList)
+            {
+                <div>@cell</div>
+            }
+        </td>
+
+        <td>@(nippouData.Syukkin1)</td>
+        <td>@(nippouData.Taisyutsu1)</td>
+        <td>@(nippouData.Syukkin2)</td>
+        <td>@(nippouData.Taisyutsu2)</td>
+        <td>@(nippouData.Syukkin3)</td>
+        <td>@(nippouData.Taisyutsu3)</td>
+
+        @if (Model.LoginUser.IsPcLogOutput)
+        {
+            <td class="text-start">
+                @foreach (var cell in pcLogList)
+                {
+                    <div>
+                        <span>【@cell.PcName】</span>
+                        <span class="pc-log-time">@cell.StartTime</span>
+                        -
+                        <span class="pc-log-time">@cell.EndTime</span>
+                    </div>
+                }
+            </td>
+        }
+
+        <td class="text-start">
+            @foreach (var cell in shinseiNyuryoku)
+            {
+                <div>@cell</div>
+            }
+        </td>
+    </tr>
+}
+</tbody>
+

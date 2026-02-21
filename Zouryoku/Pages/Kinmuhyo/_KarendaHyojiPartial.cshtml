@@ -1,0 +1,155 @@
+@* 勤務表表示（日付別 予定・申請・勤務時間・日報）*@
+@model IList<Zouryoku.Pages.Kinmuhyo.KarendaHyojiRowViewModel>
+
+@using static Model.Enums.ApprovalStatus
+
+@foreach (var r in Model)
+{
+    <tr class="@r.LineClass" data-weekday="@r.DayOfWeekValue">
+        <td class="app-day-no">
+            @r.DateLabel
+        </td>
+        <td>
+            @if (r.IsLink)
+            {
+                <button type="button"
+                        data-date="@r.DateIso"
+                        data-work="@(r.PlannedWork ? "true" : "false")"
+                        class="planned-work-btn @(r.PlannedWork ? "app-apply-btn-planned-work-on" : "app-apply-btn-planned-work-off")">
+                    @(r.PlannedWork ? "出" : "休")
+                </button>
+            }
+            else
+            {
+                <span>@(r.PlannedWork ? "出" : "休")</span>
+            }
+        </td>
+        <td>
+            @if (r.IsLink)
+            {
+                <div class="overtime-input-wrapper d-inline-flex align-items-center gap-3">
+                    <button type="button"
+                            class="btn btn-primary btn-sm d-none d-lg-inline-block btn-planned-overtime-dec"
+                            id="planned-overtime-dec-@r.DateIso"
+                            data-date="@r.DateIso"
+                            aria-label="残業を減らす">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span class="planned-overtime-value">@r.PlannedOvertimeRaw</span>
+                    <button type="button"
+                            class="btn btn-primary btn-sm d-none d-lg-inline-block btn-planned-overtime-inc"
+                            id="planned-overtime-inc-@r.DateIso"
+                            data-date="@r.DateIso"
+                            aria-label="残業を増やす">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            }
+            else
+            {
+                <span>@r.PlannedOvertimeRaw</span>
+            }
+        </td>
+
+        <td class="th-leave d-none d-lg-table-cell">
+            @r.PlannedLeave
+        </td>
+        <td class="text-start">
+            @if (r.ShowApplyButton)
+            {
+                <a asp-page="/ShinseiNyuryoku/Index"
+                   asp-route-syainId="@r.SyainId"
+                   asp-route-shinseiYmd="@r.DateIso"
+                   class="app-apply-btn">
+                    @r.ApplicationLabel
+                </a>
+            }
+
+            @if (r.ShowTypeButton)
+            {
+                var color = r.ApplicationStatus switch
+                {
+                    承認 => "border border-primary text-primary",
+                    承認待 => "border border-warning text-warning",
+                    差戻 => "border border-danger text-danger",
+                    _ => "",
+                };
+                var icons = r.ApplicationStatus switch
+                {
+                    承認 => "fa-solid fa-circle-check",
+                    承認待 => "fa-solid fa-clock",
+                    差戻 => "fa-light fa-triangle-exclamation",
+                    _ => "",
+                };
+                <a asp-page="/ShinseiNyuryoku/ShinseiList"
+                   asp-route-syainId="@r.SyainId"
+                   class="status-badge @color text-decoration-none">
+                    <i class="@icons"></i>
+                    <span class="ms-1">@r.ApplicationType</span>
+                </a>
+            }
+        </td>
+        <td>
+            @if (!string.IsNullOrEmpty(r.WorkTime))
+            {
+                if (r.IsWorkTimeConfirmed)
+                {
+                    <span class="work-time-label" style="white-space: pre-line;">@r.WorkTime</span>
+                }
+                else
+                {
+                    <a asp-page="/DakokuJikanSyusei/Index"
+                       asp-route-syukkinHm1="@r.SyukkinTime"
+                       class="punch-time-link"
+                       data-date="@r.DateIso">
+                        @r.WorkTime
+                    </a>
+                }
+            }
+        </td>
+        <td class="d-none d-lg-table-cell">
+            @if (!string.IsNullOrEmpty(r.ActualWorked))
+            {
+                <span class="actual-worked-label">@r.ActualWorked</span>
+            }
+        </td>
+        <td>
+            @if (!string.IsNullOrEmpty(r.ReportStatus))
+            {
+                if (r.ReportStatusType == "一時保存" || r.ReportStatusType == "未入力")
+                {
+                    <a asp-page="/JissekiNyuryoku/Index"
+                       asp-route-syainBaseId="@r.SyainBaseId"
+                       asp-route-jissekiDate="@r.DateIso"
+                       asp-route-isDairiInput="@r.HasProxyInput"
+                       class="text-danger d-inline-block"
+                       data-date="@r.DateIso"
+                       data-status-type="@r.ReportStatusType">
+                        @r.ReportStatus
+                    </a>
+                }
+                else
+                {
+                    <a asp-page="/JissekiNyuryoku/Index"
+                       asp-route-syainBaseId="@r.SyainBaseId"
+                       asp-route-jissekiDate="@r.DateIso"
+                       asp-route-isDairiInput="@r.HasProxyInput"
+                       class="d-inline-block"
+                       data-date="@r.DateIso"
+                       data-status-type="@r.ReportStatusType">
+                        @r.ReportStatus
+                    </a>
+                }
+            }
+            @if (r.HasProxyInput)
+            {
+                <span class="d-inline-flex align-items-center justify-content-center
+                                     ms-1 border border-3 border-warning
+                                     rounded-1 bg-warning-subtle fw-bold"
+                      title="代理入力">
+                    代
+                </span>
+            }
+        </td>
+    </tr>
+}

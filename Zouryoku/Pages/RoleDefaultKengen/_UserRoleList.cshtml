@@ -1,0 +1,33 @@
+﻿@using Model.Enums
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@model Zouryoku.Pages.RoleDefaultKengen.IndexModel.RoleViewModel
+<table class="table app-table__base table-bordered table-striped table-hover text-nowrap align-middle w-100">
+    <thead>
+        <tr>
+            <th class="w-100" scope="col">社員権限</th>
+            <th class="w-auto" scope="col">有効/無効</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var role in Enum.GetValues<EmployeeAuthority>())
+        {
+            @* Noneは表示しない *@
+            if (role == EmployeeAuthority.None)
+                continue;
+
+            var display = role.GetType()
+            .GetMember(role.ToString())
+            .First()
+            .GetCustomAttribute<DisplayAttribute>()?
+            .Name ?? role.ToString();
+
+            <tr>
+                <td class="">@display</td>
+                <td class="" align="center">
+                    <input class="form-check" name="kengen" type="checkbox" @(Model.Kengen.HasFlag(role) ? "checked" : null) />
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,309 @@
+﻿{
+   "CodeGenerationMode": 6,
+   "ContextClassName": "ZouContext",
+   "ContextNamespace": "",
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "IrregularWords": null,
+   "MinimumProductVersion": "2.6.1248",
+   "ModelNamespace": null,
+   "OutputContextPath": "Data",
+   "OutputPath": "Model",
+   "PluralRules": null,
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Model",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "SingularRules": null,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "public.anken_sansyou_rirekis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.ankens",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.application_configs",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.bumon_process",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.busyo_bases",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.busyos",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "type"
+         ],
+         "Name": "public.continuous_works",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "nippou_sousa"
+         ],
+         "Name": "public.dairi_nyuryoku_rirekis",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "syutoku_state"
+         ],
+         "Name": "public.furikyuu_zans",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.gyoumu_types",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.gyousyus",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "syukusaijitsu_flag",
+            "refresh_day"
+         ],
+         "Name": "public.hikadoubis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.jisseki_kakutei_simebis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.jyutyu_syuruis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.kaisya_process",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.kings_juchu_sansyou_rirekis",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "keiyaku_joutai_kbn"
+         ],
+         "Name": "public.kings_juchus",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "code"
+         ],
+         "Name": "public.kintai_zokuseis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.kokyaku_kaishas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.kokyaku_kaisya_sansyou_rirekis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.kyuuka_kanris",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "function_type"
+         ],
+         "Name": "public.message_contents",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.mikakutei_tsuchi_rirekis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.nippou_ankens",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.nippou_yoteis",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "kaisya_code",
+            "touroku_kubun"
+         ],
+         "Name": "public.nippous",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "kubun"
+         ],
+         "Name": "public.overtime_alerts",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.overtime_excess_limits",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "operation"
+         ],
+         "Name": "public.pc_logs",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.photo_after_process_tn_datas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.photo_datas",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "type",
+            "status"
+         ],
+         "Name": "public.service_execute_histories",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "type"
+         ],
+         "Name": "public.service_executes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.syain_bases",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.syain_photos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.syain_tsuchi_rireki_rels",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "syucyo_syokui",
+            "kengen"
+         ],
+         "Name": "public.syains",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "code"
+         ],
+         "Name": "public.syukkin_kubuns",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "status"
+         ],
+         "Name": "public.ukagai_headers",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "ukagai_syubetsu"
+         ],
+         "Name": "public.ukagai_shinseis",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "type"
+         ],
+         "Name": "public.unpaid_leave_alerts",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "kengen"
+         ],
+         "Name": "public.user_roles",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "item_code"
+         ],
+         "Name": "public.work_status_summaries",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.working_hours",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.yukyu_keikaku_meisais",
+         "ObjectType": 0
+      },
+      {
+         "ExcludedColumns": [
+            "status"
+         ],
+         "Name": "public.yukyu_keikakus",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.yukyu_nendos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.yukyu_rirekis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.yuukyuu_zans",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": false,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": true,
+   "UseNoDefaultConstructor": true,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": true,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false
+}

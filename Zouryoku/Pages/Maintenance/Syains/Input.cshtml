@@ -1,0 +1,508 @@
+﻿@page
+@using Model.Enums
+@model Zouryoku.Pages.Maintenance.Syains.InputModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "顔写真新規登録";
+}
+
+<div class="input-container">
+    <form method="post" id="photoForm">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="upload-section">
+            @if (Model.SyainPhoto.IsEditMode)
+            {
+                <!-- 編集モード：現在の写真を表示 -->
+                <label class="upload-label">現在の顔写真</label>
+                <div class="edit-mode-container">
+                    <div class="current-photo-box">
+                        @if (!string.IsNullOrEmpty(Model.SyainPhoto.CurrentPhotoBase64))
+                        {
+                            <div class="photo-display-area">
+                                <img src="data:image/jpeg;base64,@Model.SyainPhoto.CurrentPhotoBase64" 
+                                     alt="@Model.SyainPhoto.PhotoName" class="photo-display-image" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="photo-placeholder-display">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="placeholder-icon">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                                </svg>
+                            </div>
+                        }
+                    </div>
+                    <p class="photo-info">
+                        <span class="label">写真名:</span>
+                        <span class="value">@Model.SyainPhoto.PhotoName</span>
+                    </p>
+                </div>
+
+                <!-- 非表示フィールド -->
+                <input type="hidden" name="SyainPhoto.Id" value="@Model.SyainPhoto.Id" />
+                <input type="hidden" name="SyainPhoto.PhotoName" value="@Model.SyainPhoto.PhotoName" />
+                <input type="hidden" name="SyainPhoto.IsEditMode" value="true" />
+            }
+            else
+            {
+                <!-- 新規モード：アップロード機能を表示 -->
+                <label class="upload-label">顔写真</label>
+                
+                <!-- アップロードエリア -->
+                <div id="uploadSection" class="upload-area">
+                    <div class="upload-icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="upload-icon">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                    </div>
+                    <p class="upload-text">ここに画像をドラッグ&ドロップ</p>
+                    <p class="upload-text-or">または</p>
+                    <button type="button" id="selectPhotoBtn" class="btn btn-select-file">
+                        ファイルを選択
+                    </button>
+                    <input type="file" id="photoFileInput" name="photoFile" accept=".jpg,.jpeg,.png,.gif" 
+                           style="display: none;" />
+                </div>
+
+                <!-- プレビューセクション -->
+                <div id="previewSection" class="preview-section" style="display: none;">
+                    <p class="preview-label">選択した画像</p>
+                    <div class="preview-box">
+                        <img id="previewImage" src="" alt="プレビュー" class="preview-image" />
+                    </div>
+                    <button type="button" id="changePhotoBtn" class="btn btn-change-file">
+                        別の画像を選択
+                    </button>
+                </div>
+            }
+        </div>
+
+        <!-- ボタングループ -->
+        <div class="button-group">
+            @if (Model.SyainPhoto.IsEditMode)
+            {
+                <button type="button" id="deleteBtn" class="btn btn-danger">
+                    削除
+                </button>
+            }
+            <button type="button" id="registerBtn" class="btn btn-success">
+                @(Model.SyainPhoto.IsEditMode ? "閉じる" : "登録")
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .input-container {
+        padding: 2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .upload-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 2rem;
+    }
+
+    .upload-label {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+
+    /* ===== 編集モード：現在の写真表示 ===== */
+    .edit-mode-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .current-photo-box {
+        width: 100%;
+        max-width: 500px;
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid #cbd5e1;
+    }
+
+    .photo-display-area {
+        width: 100%;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .photo-display-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 4px;
+    }
+
+    .photo-placeholder-display {
+        width: 100%;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .placeholder-icon {
+        width: 80px;
+        height: 80px;
+        color: #cbd5e1;
+    }
+
+    .photo-info {
+        width: 100%;
+        text-align: center;
+        margin: 0;
+        padding: 1rem;
+        background: white;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+
+    .photo-info .label {
+        font-weight: 600;
+        color: #64748b;
+        margin-right: 0.5rem;
+    }
+
+    .photo-info .value {
+        color: #1e293b;
+    }
+
+    /* ===== アップロードエリア ===== */
+    .upload-area {
+        background: #f8fafc;
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 300px;
+    }
+
+    .upload-area:hover {
+        background: #f1f5f9;
+        border-color: #667eea;
+    }
+
+    .upload-area.dragover {
+        background: #e0e7ff;
+        border-color: #667eea;
+    }
+
+    .upload-icon-wrapper {
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .upload-icon {
+        width: 56px;
+        height: 56px;
+        color: #667eea;
+    }
+
+    .upload-text {
+        font-size: 0.95rem;
+        color: #64748b;
+        margin: 0.5rem 0;
+        font-weight: 600;
+    }
+
+    .upload-text-or {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        margin: 1rem 0;
+    }
+
+    /* ===== プレビューセクション ===== */
+    .preview-section {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .preview-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+    }
+
+    .preview-box {
+        display: inline-block;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        padding: 1rem;
+        background: white;
+        margin-bottom: 1rem;
+    }
+
+    .preview-image {
+        max-width: 400px;
+        max-height: 400px;
+        border-radius: 4px;
+        object-fit: contain;
+    }
+
+    /* ===== ボタン ===== */
+    .button-group {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .btn {
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        min-height: 36px;
+    }
+
+    .btn-success {
+        background: #3b7dd6;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #2d5ba3;
+        transform: translateY(-2px);
+    }
+
+    .btn-success:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-select-file {
+        padding: 0.6rem 1.8rem;
+        font-weight: 600;
+        border-radius: 4px;
+        margin: 0.5rem 0;
+        font-size: 0.9rem;
+        background: #3b7dd6;
+        color: white;
+    }
+
+    .btn-select-file:hover {
+        background: #2d5ba3;
+    }
+
+    .btn-change-file {
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        background: #94a3b8;
+        color: white;
+    }
+
+    .btn-change-file:hover {
+        background: #64748b;
+    }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        let selectedFile = null;
+        const isEditMode = @(Model.SyainPhoto.IsEditMode ? "true" : "false");
+        const photoId = @Model.SyainPhoto.Id;
+
+        $(function() {
+            // ===== 新規モード専用：ファイル選択ボタン =====
+            if (!isEditMode) {
+                $('#selectPhotoBtn').on('click', function (e) {
+                    e.preventDefault();
+                    $('#photoFileInput').click();
+                });
+            }
+
+            // ===== 新規モード専用：ファイル入力変更 =====
+            if (!isEditMode) {
+                $('#photoFileInput').on('change', function (e) {
+                    handleFileSelect(e.target.files[0]);
+                });
+            }
+
+            // ===== 新規モード専用：ドラッグ&ドロップ =====
+            if (!isEditMode) {
+                const $uploadArea = $('#uploadSection');
+                if ($uploadArea.length) {
+                    $uploadArea.on('dragover', function(e) {
+                        e.preventDefault();
+                        $uploadArea.addClass('dragover');
+                    });
+
+                    $uploadArea.on('dragleave', function() {
+                        $uploadArea.removeClass('dragover');
+                    });
+
+                    $uploadArea.on('drop', function(e) {
+                        e.preventDefault();
+                        $uploadArea.removeClass('dragover');
+                        const files = e.originalEvent.dataTransfer.files;
+                        if (files.length > 0) {
+                            handleFileSelect(files[0]);
+                        }
+                    });
+                }
+            }
+
+            // ===== 別の画像を選択 =====
+            if (!isEditMode) {
+                $('#changePhotoBtn').on('click', function (e) {
+                    e.preventDefault();
+                    selectedFile = null;
+                    $('#previewSection').hide();
+                    $('#uploadSection').css('display', 'flex');
+                    $('#photoFileInput').val('');
+                });
+            }
+
+            // ===== 登録ボタン =====
+            $('#registerBtn').on('click', function () {
+                if (isEditMode) {
+                    // 編集モード：モーダルを閉じるだけ
+                    closeCurrentIziModal();
+                } else {
+                    // 新規モード：写真をアップロード
+                    if (!selectedFile) {
+                        alert('写真を選択してください。');
+                        return;
+                    }
+                    register('登録', 'Register');
+                }
+            });
+
+            // ===== 削除ボタン =====
+            if (isEditMode) {
+                $('#deleteBtn').on('click', function () {
+                    register('削除', 'Delete');
+                });
+            }
+        });
+
+        // ===== ファイル選択処理 =====
+        function handleFileSelect(file) {
+            if (!file) return;
+
+            // ファイルタイプ検証
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('JPG、PNG、GIF形式の画像のみアップロード可能です。');
+                return;
+            }
+
+            // ファイルサイズ検証
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                alert('ファイルサイズは5MB以下である必要があります。');
+                return;
+            }
+
+            selectedFile = file;
+
+            // プレビュー表示
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#uploadSection').hide();
+                $('#previewSection').show();
+                $('#previewImage').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /** 登録 / 削除 */
+        function register(actionName, handler) {
+            if (handler === 'Register') {
+                // 新規登録：ファイル付きで送信
+                commonConfirm(actionName + 'します。よろしいですか？', null, function() {
+                    const formData = new FormData(document.getElementById('photoForm'));
+                    formData.append('photoFile', selectedFile);
+
+                    fileSendRegisterAjax(
+                        toUrl('Register'),
+                        formData,
+                        function () {
+                            registerSuccessSwal('登録しました', null, function () {
+                                closeCurrentIziModal();
+                            });
+                        },
+                        function () {
+                            // エラーコールバック
+                        },
+                        true
+                    );
+                });
+            } else if (handler === 'Delete') {
+                // 削除：ID パラメータを送信
+                commonConfirm(actionName + 'します。よろしいですか？', null, function() {
+                    const formData = new FormData();
+                    formData.append('id', photoId);
+
+                    // CSRF トークンも追加
+                    const token = $('input[name="__RequestVerificationToken"]').val();
+                    if (token) {
+                        formData.append('__RequestVerificationToken', token);
+                    }
+
+                    fileSendRegisterAjax(
+                        toUrl('Delete'),
+                        formData,
+                        function () {
+                            registerSuccessSwal('削除しました', null, function () {
+                                closeCurrentIziModal();
+                            });
+                        },
+                        function () {
+                            // エラーコールバック
+                        },
+                        true
+                    );
+                });
+            }
+        }
+    </script>
+}

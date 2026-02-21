@@ -1,0 +1,140 @@
+@page
+@using Zouryoku.Pages.Shared.Components
+@using CommonLibrary.Extensions
+@model TestDriverModel
+@{
+    if (!System.Diagnostics.Debugger.IsAttached) throw new InvalidOperationException("本番環境にテストドライバが混入しています");
+
+    ViewData["Title"] = "TestDriver";
+}
+
+<div>TestDriver</div>
+<table>
+    <tr>
+        <th>ログイン社員ID</th>
+        <td>：</td>
+        <td>
+            <input id="syain-id" type="text" value="250" />
+        </td>
+    </tr>
+    <tr>
+        <th>対象日時</th>
+        <td>：</td>
+        <td>
+            <div class="input-group">
+                <input class="form-control app-input__textbox" id="date" value="@DateTime.Now.ToDateOnly().YMDSlash()" />
+            </div>
+            <partial name="Components/_Datepicker"
+             model="@(new DatepickerModel { 
+                 Id = "date",
+                 MinDate = new DateOnly(2001, 1, 1),
+                 MaxDate = new DateOnly(2099, 12, 31)
+             })" />
+        </td>
+    </tr>
+    <tr>
+        <th>代理入力フラグ</th>
+        <td>：</td>
+        <td>
+            <form id="is-dairi-input">
+                <input type="radio" name="is-dairi-input" value="true" />
+                <label>True</label>
+                <input type="radio" name="is-dairi-input" value="false" checked />
+                <label>False</label>
+            </form>
+        </td>
+    </tr>
+</table>
+<p>
+    <a href="javascript:void(0);" id="kinmu-nippou-jikan-nyuryoku">勤務日報時間入力</a>
+</p>
+
+<!-- 選択結果表示 -->
+<h3>選択された内容:</h3>
+<div id="kinmu-nippou-jikan-container" class="mb-3">
+</div>
+
+@section InputScripts {
+    <script>
+        $(function () {
+            // 手動UI動作確認専用ページ（自動テスト対象外）
+            const testDriverConfig = {
+
+                // 存在しないサンプル社員ID（ダミー値）
+                // -1 にすることで、DBに存在しない社員IDとして扱う
+                getSyainId: () => $('#syain-id').val(),
+
+                // サンプル実績日（ダミー値）
+                getJissekiDate: () => $('#date').val(),
+
+                // サンプル代理入力フラグ
+                getIsDairiInput: () => $('input[name="is-dairi-input"]:checked').val()
+            };
+            $('#kinmu-nippou-jikan-nyuryoku').on('click', function(){
+                openKinmuNippouJikanNyuryoku(
+                    testDriverConfig.getSyainId(), 
+                    testDriverConfig.getJissekiDate(), 
+                    testDriverConfig.getIsDairiInput()
+                );
+            });
+
+            // 子ページから選択情報を受け取り表示
+            $(window).on("message", function(event) {
+                const e = event.originalEvent;
+                // セキュリティチェック（オリジン確認）
+                if (e.origin !== window.location.origin) return;
+
+                // データをログに出力
+                console.log(e.data);
+
+                const data = e.data;
+                if (!data || data.type !== "kinmu-nippou-jikan-nyuryoku") return;
+
+                const inputData = data.data;
+                const $container = $('#kinmu-nippou-jikan-container').empty();
+
+                console.log(inputData);
+
+                const text =[
+                        `社員ID: ${inputData.syainId}`,
+                        `実績日: ${inputData.jissekiDate}`,
+                        `出退勤時間1: ${inputData.syukkinTime1}～${inputData.taikinTime1}`,
+                        `出退勤時間2: ${inputData.syukkinTime2}～${inputData.taikinTime2}`,
+                        `出退勤時間3: ${inputData.syukkinTime3}～${inputData.taikinTime3}`,
+                        `代理入力フラグ: ${inputData.isDairiInput}`,
+                ].join('\n');
+
+                $('<div>').css('white-space','pre-wrap')
+                    .text(text)
+                    .appendTo($container);
+            });
+
+            //-------------------------------------------
+            // 勤務日報時間入力モーダルを表示
+            //-------------------------------------------
+            function openKinmuNippouJikanNyuryoku(syainId, jissekiDate, isDairiInput) {
+                const modalId = 'parent-modal';
+                // 呼び出し元パラメータ
+                const params = new URLSearchParams({
+                    syainId,                // 社員ID
+                    jissekiDate,            // 実績日
+                    isDairiInput,           // 代理フラグ
+                });
+                
+                const url = `${'@Url.Page("./Index")'}?${params.toString()}`;
+                const title = '勤務日報時間入力';
+
+                showInputModal(
+                    modalId,
+                    url,
+                    null,
+                    title,
+                    null,
+                    992,
+                    550,
+                    'var(--iframe-header-color)'
+                );
+            }
+        });
+    </script>
+}

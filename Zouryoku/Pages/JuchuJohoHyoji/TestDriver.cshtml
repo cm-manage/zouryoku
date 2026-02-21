@@ -1,0 +1,72 @@
+@page
+@model Zouryoku.Pages.JuchuJohoHyoji.TestDriverModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "受注表示";
+}
+<!-- iziModal CSS -->
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+@* 共通パーシャルを呼び出し（Model を渡す） *@
+<partial name="_ZouryokuHeader" model="Model" />
+
+<div class="mt-5 m-auto">
+    入力値：<input id="edit-number" type="text" value="1" />
+</div>
+
+<div class="row mt-5 m-auto">
+    <button class="app-btn__base app-btn--lg app-btn__color--blue w-25 open-juchujoho edit-number" data-juchu-id="2" type="button">受注情報（ID = 入力値）</button>
+</div>
+
+<div class="row mt-5 m-auto">
+    <button class="app-btn__base app-btn--lg app-btn__color--blue w-25 open-juchujoho" data-juchu-id="9" type="button">受注情報（ID = 9）</button>
+</div>
+
+<div class="row mt-5 m-auto">
+    <button class="app-btn__base app-btn--lg app-btn__color--blue w-25 open-juchujoho" data-juchu-id="10" type="button">受注情報（ID = 10）</button>
+</div>
+
+<div class="row mt-5 m-auto">
+    <button class="app-btn__base app-btn--lg app-btn__color--blue w-25 open-juchujoho" data-juchu-id="11" type="button">受注情報（ID = 11）</button>
+</div>
+
+<div class="row mt-5 m-auto">
+    <button class="app-btn__base app-btn--lg app-btn__color--blue w-25 open-juchujoho" data-juchu-id="1" type="button">受注情報（ID = 1）</button>
+</div>
+
+@section InputScripts {
+    <!-- iziModal -->
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <!--iziModalUtil JavaScript -->
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+    <script>
+
+        /// ===================================
+        /// ボタン押下時
+        /// ===================================
+        // モーダル表示
+        $('.open-juchujoho').on('click', function (e) {
+            var id;
+            if(e.target.classList.contains("edit-number")){
+                id=$('#edit-number').val();
+            }else{
+                id = $(this).data('juchu-id');
+            }
+            e.preventDefault();
+            openJuchuDetail(id);
+        });
+
+        /// ===================================
+        /// メソッド
+        /// ===================================
+        function openJuchuDetail(id) {
+
+            const modalId = 'juchu-detail-modal';
+            const url = toQueryUrl('@Url.Page("./Index")');
+            const title = '受注情報';
+
+            showInputModal(modalId, url, id, title, null, 1000, 500);
+
+        }
+
+    </script>
+}

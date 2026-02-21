@@ -1,0 +1,187 @@
+@page
+@model Zouryoku.Pages.YukyuKeikakuJigyobuShonin.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "計画有給休暇事業部承認";
+}
+<partial name="_ZouryokuHeader" />
+
+<div class="container w-75">
+    <div class="app-screen--search">
+        <div class="app-area__tool-button">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex flex-column gap-1">
+                    <div class="app-text-normal-ymd">日付黒色：有給休暇</div>
+                    <div class="app-text-tokukyu-ymd">日付青色：特別休暇</div>
+                </div>
+                @if (Model.LoginUserJigyoubuShoninViewModel.ButtonsAreVisible)
+                {
+                    <button id="send-back-btn" class="btn btn-danger app-btn__base" type="button"
+                            aria-label="選択した計画有給休暇を差し戻す">
+                        <i class="fa-solid fa-circle-xmark"></i>差し戻し
+                    </button>
+                    <button id="approve-btn" class="btn btn-success app-btn__base" type="button"
+                            aria-label="選択した計画有給休暇を承認する">
+                        <i class="fa-solid fa-circle-check"></i>承認
+                    </button>
+                }
+            </div>
+        </div>
+
+        <main id="partial-yukyu-keikaku-list" class="app-area__search-results mt-2">
+            <partial name="_YukyuKeikakuList" model="Model.LoginUserJigyoubuShoninViewModel" />
+        </main>
+    </div>
+</div>
+
+@section InputScripts {
+    <script>
+        $(function () {
+            const $partialYukyuKeikakuList = $('#partial-yukyu-keikaku-list');
+
+            // 初期表示
+            initializeValidation();
+
+            function commonSendRegisterAjax(url, data = $('form').serializeArray()) {
+                return new Promise(resolve => {
+                    sendRegisterAjax(url, data, function(result) {
+                        // sendRegisterAjax の成功コールバック
+                        switch (result.status) {
+                            case responseStatusSuccess: // 成功
+                                resolve(result);
+                                break;
+                            case responseStatusWarning: // 警告
+                                commonConfirm(result.message, null, function () {
+                                    resolve(result);
+                                });
+                                break;
+                            case responseStatusError: // エラー
+                            default: // 不正なステータス
+                                errorMessage(result.message);
+                                scrollTo(0, 0);
+                                resolve(null);
+                                break;
+                        }
+                    }, function () {
+                        // sendRegisterAjax の失敗コールバック
+                        resolve(null); // sendRegisterAjax の機能によりエラー表示済みのため何もしない
+                    });
+                });
+            }
+
+            /**
+             * バリデーションの初期化
+             * 表示または再表示直後に、この関数を呼び出す必要があります。
+             */
+            function initializeValidation() {
+                initValidation('form');
+            }
+
+            /**
+             * 画面上のすべてのエラーメッセージをクリアする。
+             */
+            function clearAllErrors() {
+                // validationHelper.js: フォーム項目のクライアント側バリデーションエラーをクリア
+                clearErrors('form');
+                // common.js: 画面上部の共通エラーメッセージ表示エリア（サーバー側エラーメッセージの通知エリア）をクリア
+                errorClear();
+            }
+
+            /**
+             * ビューの更新
+             * 渡された HTML で部分ビューを更新し、その後バリデーションを再初期化する。
+             * @@param {string} html - 更新する部分ビューのHTML文字列。
+             */
+            function updateView(html) {
+                $partialYukyuKeikakuList.html(html);
+                initializeValidation();
+            }
+
+            /**
+             * 指定されたアクションのサブミット処理を実行する。
+             * エラークリア、バリデーション、確認ダイアログ表示、Ajax送信、成功メッセージ表示、画面更新を行う。
+             * @@param {string} actionUrl - サブミット先のURL。
+             * @@param {string} actionName - 実行するアクション名（メッセージ表示用）。
+             */
+            function onClickSubmitButton(actionUrl, actionName) {
+                clearAllErrors();
+                if (!$('form').valid()) return; // クライアント側の検証でエラーがない場合のみ、登録処理を行う
+
+                commonConfirm(`${actionName}を行います。`, null, async function() { // 確認メッセージを表示
+                    const result = await commonSendRegisterAjax(actionUrl);
+                    if (!result) return;
+
+                    registerSuccessSwal(`${actionName}が完了しました。`); // 完了メッセージを表示
+                    updateView(result.data); // 画面を再表示
+                });
+            }
+
+            // 一括変更チェックボックス
+            $partialYukyuKeikakuList.on('change', '#toggle-all-checkbox', function() {
+                // 明細行のチェックボックスについて全選択／全解除を行う。
+                // click を発火し、hidden フィールドも含めて確実に更新する
+                if ($(this).prop('checked')) {
+                    $('[data-js="is-checked"]:not(:checked)').trigger('click');
+                } else {
+                    $('[data-js="is-checked"]:checked').trigger('click');
+                }
+            });
+            $partialYukyuKeikakuList.on('change', '[data-js="is-checked"]', function() {
+                // 全選択／全解除されたら一括チェックボックスも変更
+                const all = $('[data-js="is-checked"]').length;
+                const checked = $('[data-js="is-checked"]:checked').length;
+                $('#toggle-all-checkbox').prop('checked', all === checked);
+            });
+
+            // 差し戻しボタン
+            $('#send-back-btn').on('click', function() {
+                onClickSubmitButton(toUrl('SendBack'), '差し戻し');
+            });
+
+            // 承認ボタン
+            $('#approve-btn').on('click', function() {
+                onClickSubmitButton(toUrl('Approve'), '承認');
+            });
+        });
+    </script>
+}
+
+@section InputStyles {
+    <style>
+        /* ステータスとチェックボックス列, 氏名/部署列 */
+        .th-status-and-checkbox,
+        .th-name {
+            width: @(Model.LoginUserJigyoubuShoninViewModel.SingleColumnWidthPercentage);
+        }
+
+        /* 予定日列 */
+        .th-meisai {
+            width: @(Model.LoginUserJigyoubuShoninViewModel.MeisaiColumnWidthPercentage);
+        }
+
+        /* 未入力 */
+        .app-text-not-entered {
+            color: var(--bs-danger);
+        }
+
+        /* 未申請 */
+        .app-text-not-registered {
+            color: var(--bs-primary);
+        }
+
+        /* 事業部承認待ち or 人財承認待ち or 承認済 */
+        .app-text-processed {
+            color: var(--bs-body-color);
+        }
+
+        /* 特別休暇の日付 */
+        .app-text-tokukyu-ymd {
+            color: var(--bs-primary);
+        }
+
+        /* 特別休暇ではない日付 */
+        .app-text-normal-ymd {
+            color: var(--bs-body-color);
+        }
+    </style>
+}

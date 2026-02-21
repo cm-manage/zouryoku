@@ -1,0 +1,50 @@
+﻿
+<!--blockUI -->
+<script src="~/assets/modules/blockUI/jquery.blockUI.js" asp-append-version="true"></script>
+<script type="text/javascript">
+    let blockUITimer = null;
+    $(document)
+        .ajaxStart(function (e) {
+            // BlockUIのfadein、delayまでの秒数を変更したい場合、
+            // ajaxを発火する要素に`block-fadein`、`block-delay`属性を追加し、ミリ秒単位で指定してください。
+            // デフォルト：0ミリ秒、0ミリ秒
+            var trrigerElem = $(e.delegateTarget.activeElement);
+            var trrigerFadeIn = defaultArgument(trrigerElem.attr('block-fadein'), 0);
+            var trrigerDelay = defaultArgument(trrigerElem.attr('block-delay'), 0);
+            blockUITimer = setTimeout(() => {
+                $.blockUI(blockUISetting(trrigerFadeIn));
+            }, trrigerDelay);
+        })
+        .ajaxStop(() =>{
+            clearTimeout(blockUITimer);
+            $.unblockUI();
+        })
+        .ajaxError(function (e, jqXHR) {
+            // セッションタイムアウト時、ajaxリクエストを行うとステータスコード401が返る(SessionTimeoutMiddleware.csを参照) -> ログインページに戻す
+            if (jqXHR.status === 401) {
+                if (!window.top || !Object.keys(window.top).length) {
+                    location.href = '@Url.Content("~/Logins")';
+                } else {
+                    window.top.location.href = '@Url.Content("~/Logins")';
+                }
+            }
+        });
+</script>
+<script type="text/javascript">
+    function blockUISetting(fadeinInterval) {
+        return {
+            css: {
+                border: 'none',
+                padding: '15px',
+                backgroundColor: 'transparent',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: .5,
+                color: '#fff',
+                'z-index': 9999,
+            },
+            message: '<img src="@Url.Content("~/assets/images/loading.gif")">',
+            fadeIn: fadeinInterval
+        };
+    }
+</script>

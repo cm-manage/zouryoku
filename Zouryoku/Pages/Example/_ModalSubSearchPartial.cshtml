@@ -1,0 +1,75 @@
+﻿@model Zouryoku.Pages.Example.ModalSubSearchModel.ViewModel
+
+<form>
+    <div class="d-flex flex-column mt-1">
+        <div class="row align-items-center">
+            @* 名前 *@
+            <div class="col-12 col-sm-2">
+                <label asp-for="Name" class="">@Html.DisplayNameFor(m => m.Name)</label>
+            </div>
+            <div class="col-12 col-sm-4">
+                <div>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                    <input type="text" asp-for="Name" class="form-control" />
+                </div>
+            </div>
+
+            @* 住所 *@
+            <div class="col-12 col-sm-2 mt-1">
+                <label asp-for="Address" class="">@Html.DisplayNameFor(m => m.Address)</label>
+            </div>
+            <div class="col-12 col-sm-4 mt-1">
+                <div>
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                    <input type="text" asp-for="Address" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            @* 電話番号 *@
+            <div class="col-12 col-sm-2 mt-1">
+                <label asp-for="Tel" class="">@Html.DisplayNameFor(m => m.Tel)</label>
+            </div>
+            <div class="col-12 col-sm-4 mt-1">
+                <div>
+                    <span asp-validation-for="Tel" class="text-danger"></span>
+                    <input type="text" asp-for="Tel" class="form-control" />
+                </div>
+            </div>
+
+            @* メモ *@
+            <div class="col-12 col-sm-2 mt-1">
+                <label asp-for="Memo" class="">@Html.DisplayNameFor(m => m.Memo)</label>
+            </div>
+            <div class="col-12 col-sm-4 mt-1">
+                <div>
+                    <span asp-validation-for="Memo" class="text-danger"></span>
+                    <input type="text" asp-for="Memo" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            @* 検索ボタン *@
+            <div class="col mt-3">
+                <button type="button" id="search-btn" class="btn btn-primary responsive-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    検索
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+@* CSS *********************************************************************************@
+<style>
+    .responsive-btn {
+        width: 100%;
+
+        /* 576px（sm）以上 */
+        @@media (min-width: 576px) {
+            width: auto; /* 固定表示時の幅 */
+        }
+    }
+</style>

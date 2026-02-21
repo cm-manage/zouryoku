@@ -1,0 +1,215 @@
+@page
+@using Zouryoku.Pages.Shared.Components
+@using static Model.Enums.LeavePlanStatus
+@model Zouryoku.Pages.YukyuKeikakuToroku.IndexModel
+@{
+    ViewData["Title"] = "計画有給休暇登録";
+    var tokukyuCount = IndexModel.RequiredTokukyuCount;
+    var notTokukyuCount = IndexModel.RequiredYukyuKeikakuMeisaiCount - tokukyuCount;
+    var checkboxTitle = $"特別休暇の予定日にはチェックを入れてください({tokukyuCount}日分)";
+}
+<partial name="_ZouryokuHeader" />
+
+<div id="partial-container" class="app-screen--entry">
+    @* 【表示項目】ステータスとテキスト *************************************************************************@
+    <div class="app-area__header">
+        @if (Model.LoginUsersYukyuKeikaku.YukyuKeikakuStatusIsVisible)
+        {
+            <div class="fw-bold @Model.LoginUsersYukyuKeikaku.YukyuKeikakuStatusClass mt-3">
+                ステータス：@Html.DisplayFor(m => m.LoginUsersYukyuKeikaku.YukyuKeikakuStatus)
+            </div>
+        }
+        <div class="mt-3">
+            有給休暇を@(notTokukyuCount)日、特別休暇を@(tokukyuCount)日 入力してください。
+        </div>
+    </div>
+
+    @* 【表示項目】計画有給休暇の予定日入力欄 *********************************************************************@
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="LoginUsersYukyuKeikaku.Version" />
+        <div class="app-area__body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row mt-3">
+                @* 入力欄 *@
+                <div class="col-auto app-col-form">
+                    <div class="row gy-1">
+                        @for (int i = 0; i < Model.LoginUsersYukyuKeikaku.Meisais.Count; i++)
+                        {
+                            <input type="hidden" asp-for="LoginUsersYukyuKeikaku.Meisais[i].Id" />
+                            <input type="hidden" asp-for="LoginUsersYukyuKeikaku.Meisais[i].Version" />
+
+                            @* ラベル（休暇予定日1～7） *@
+                            <label asp-for="LoginUsersYukyuKeikaku.Meisais[i].Ymd" class="col-auto app-input__label">
+                                休暇予定日@(i + 1)
+                            </label>
+
+                            <div class="col-auto">
+                                <span asp-validation-for="LoginUsersYukyuKeikaku.Meisais[i].Ymd" class="text-danger"></span>
+
+                                <div class="row">
+                                    @* 予定日入力欄 *@
+                                    <div class="col-auto app-ymd-form">
+                                        <div class="input-group">
+                                            <input type="text" asp-for="LoginUsersYukyuKeikaku.Meisais[i].Ymd"
+                                                   disabled="@Model.LoginUsersYukyuKeikaku.IsDisabled"
+                                                   class="form-control" />
+                                        </div>
+                                        <partial name="Components/_Datepicker"
+                                                 model="@(new DatepickerModel
+                                                 {
+                                                     Id = $"LoginUsersYukyuKeikaku.Meisais[{i}].Ymd",
+                                                     MinDate = Model.LoginUsersYukyuKeikaku.YukyuNendoStartDate,
+                                                     MaxDate = Model.LoginUsersYukyuKeikaku.YukyuNendoEndDate,
+                                                     NumberOfMonthsWidth = 4,
+                                                     NumberOfMonthsHeight = 3,
+                                                     AllowSelectWeekendAndHoliday = false
+                                                 })" />
+                                    </div>
+
+                                    @* 特別休暇チェックボックス *@
+                                    <div class="col-auto col-form-label">
+                                        <div class="form-check">
+                                            <input type="checkbox" asp-for="LoginUsersYukyuKeikaku.Meisais[i].IsTokukyu"
+                                                   disabled="@Model.LoginUsersYukyuKeikaku.IsDisabled"
+                                                   title="@checkboxTitle"
+                                                   class="form-check-input" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-100"></div>
+                        }
+                    </div>
+                </div>
+
+                @* チェックボックス右の注釈 *@
+                <div class="col-auto col-form-label">@checkboxTitle</div>
+            </div>
+            <div class="d-flex justify-content-end">
+                @* 送信ボタン *@
+                @* ステータスによってボタン名を変更 *@
+                @if (Model.LoginUsersYukyuKeikaku.YukyuKeikakuStatus is null ||
+                    Model.LoginUsersYukyuKeikaku.YukyuKeikakuStatus == 未申請)
+                {
+                    <button type="button" id="register-btn" class="btn btn-primary app-btn__base">
+                        <i class="fa-light fa-paper-plane"></i>
+                        申請
+                    </button>
+                }
+                else if (Model.LoginUsersYukyuKeikaku.YukyuKeikakuStatus == 事業部承認待ち ||
+                    Model.LoginUsersYukyuKeikaku.YukyuKeikakuStatus == 人財承認待ち)
+                {
+                    <button type="button" id="revoke-btn" class="btn btn-danger app-btn__base">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        取下げ
+                    </button>
+                }
+                else if (Model.LoginUsersYukyuKeikaku.YukyuKeikakuStatus == 承認済)
+                {
+                    <button type="button" id="register-btn" class="btn btn-primary app-btn__base">
+                        <i class="fa-light fa-paper-plane"></i>
+                        再申請
+                    </button>
+                }
+            </div>
+        </div>
+    </form>
+</div>
+
+@* JavaScript ****************************************************************************************************@
+@section InputScripts {
+    <script>
+        $(function() {
+            function commonSendRegisterAjax(url, data = $('form').serializeArray()) {
+                return new Promise(resolve => {
+                    sendRegisterAjax(url, data, function(result) {
+                        // sendRegisterAjax の成功コールバック
+                        switch (result.status) {
+                            case responseStatusSuccess: // 成功
+                                resolve(result);
+                                break;
+                            case responseStatusWarning: // 警告
+                                commonConfirm(result.message, null, function () {
+                                    resolve(result);
+                                });
+                                break;
+                            case responseStatusError: // エラー
+                            default: // 不正なステータス
+                                errorMessage(result.message);
+                                scrollTo(0, 0);
+                                resolve(null);
+                                break;
+                        }
+                    }, function () {
+                        // sendRegisterAjax の失敗コールバック
+                        resolve(null); // sendRegisterAjax の機能によりエラー表示済みのため何もしない
+                    });
+                });
+            }
+
+            // 初期表示
+            initValidation('form');
+
+            // 申請・再申請ボタン
+            $('#register-btn').on('click', function() {
+                clearErrors('form'); // フォーム項目のクライアント側バリデーションエラーをクリア
+                errorClear(); //  画面上部の共通エラーメッセージ表示エリア（サーバー側エラーメッセージの通知エリア）をクリア
+                if (!$('form').valid()) return; // クライアント側の検証でエラーがない場合のみ、登録処理を行う
+
+                commonConfirm('申請します。よろしいですか？', null, async function() {
+                    const result = await commonSendRegisterAjax(toUrl('Register'));
+                    if (!result) return;
+
+                    registerSuccessSwal('申請しました', null, function() { // 完了メッセージを表示
+                        location.reload(); // 画面を表示
+                    });
+                });
+            });
+
+            // 取り下げボタン
+            $('#revoke-btn').on('click', function() {
+                commonConfirm('取下げます。よろしいですか？', null, async function() {
+                    const result = await commonSendRegisterAjax(toUrl('Revoke'));
+                    if (!result) return;
+
+                    registerSuccessSwal('取下げました', null, function() { // 完了メッセージを表示
+                        location.reload(); // 画面を表示
+                    });
+                });
+            });
+        });
+    </script>
+}
+
+@* CSS **********************************************************************************************************@
+@section InputStyles {
+    <style>
+        /* フォーム列 */
+        .app-col-form {
+            width: 23.5rem;
+        }
+
+        /* 予定日入力欄 */
+        .app-ymd-form {
+            width: 13rem;
+        }
+
+        /* 未申請 */
+        .app-text-not-registered {
+            color: var(--bs-primary);
+        }
+
+        /* 事業部承認待ち or 人財承認待ち */
+        .app-text-waiting {
+            color: var(--bs-body-color);
+        }
+
+        /* 承認済 */
+        .app-text-approved {
+            color: var(--bs-body-color);
+        }
+    </style>
+}

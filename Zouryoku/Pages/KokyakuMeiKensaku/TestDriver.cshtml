@@ -1,0 +1,88 @@
+﻿@page
+@* iziModal用 *@
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+
+<table class="table">
+    <tr>
+        <th>サイズ＼カード選択</th>
+        <th>可</th>
+        <th>不可</th>
+    </tr>
+    <tr>
+        <th>PC</th>
+        <td><button class="app-btn__base btn btn-outline-primary" type="button" data-js-size="pc" data-js-can-card-click="true">開く</button></td>
+        <td><button class="app-btn__base btn btn-outline-primary" type="button" data-js-size="pc" data-js-can-card-click="false">開く</button></td>
+    </tr>
+    <tr>
+        <th>携帯</th>
+        <td><button class="app-btn__base btn btn-outline-primary" type="button" data-js-size="phone" data-js-can-card-click="true">開く</button></td>
+        <td><button class="app-btn__base btn btn-outline-primary" type="button" data-js-size="phone" data-js-can-card-click="false">開く</button></td>
+    </tr>
+</table>
+
+@section Scripts {
+    @* iziModal用 *@
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+
+    <script>
+        $(function(){
+
+            // 表示するモーダルのサイズ
+            // PC
+            const SIZE_PC = {
+                width: 1000,
+                height: 700,
+            }
+            // 携帯（フルスクリーン前提）
+            const SIZE_PHONE = {
+                width: 390,
+                height: 844,
+            }
+
+            // モーダルから渡された情報をログに表示するイベント
+            window.addEventListener('message', (event) => {
+                console.log('受け取ったデータ：');
+                console.log('id: ', event.data.id);
+                console.log('name: ', event.data.name);
+                return false;
+            });
+
+            // モーダルを開くイベント
+            $(document).on('click', 'button', function() {
+                // 表示サイズ
+                let size;
+
+                // サイズ定数を代入
+                switch ($(this).data('js-size')) {
+                    case 'pc':
+                        size = SIZE_PC;
+                        break;
+                    case 'phone':
+                        size = SIZE_PHONE;
+                        break;
+                    default:
+                        return false;
+                }
+
+                // URLパラメータの設定
+                const params = {
+                    canCardClick: $(this).data('js-can-card-click'),
+                }
+                const url = `@Url.Page("./Index")?${new URLSearchParams(params).toString()}`;
+
+                // モーダルを表示
+                showParentModal(
+                    'kokyaku-mei-kensaku-modal',
+                    url,
+                    '顧客名検索画面',
+                    '',
+                    null,
+                    size.width ,
+                    size.height,
+                    'var(--iframe-header-color)'
+                );
+            });
+        })
+    </script>
+}

@@ -1,0 +1,74 @@
+﻿@page
+@using Zouryoku.Pages.Shared.Components
+@using CommonLibrary.Extensions
+@model TestDriverModel
+@{
+    ViewData["Title"] = "打刻時間修正 TestDriver";
+}
+
+<div>TestDriver</div>
+<table>
+    <tr>
+        <th>ログイン社員ID</th>
+        <td>：</td>
+        <td>
+            <input id="syain-id" type="text" value="22" />
+        </td>
+    </tr>
+    <tr>
+        <th>対象日時</th>
+        <td>：</td>
+        <td>
+            <div class="input-group">
+                <input class="form-control app-input__textbox" id="date" value="@(new DateOnly(2026, 2, 14))" />
+            </div>
+            <partial name="Components/_Datepicker"
+             model="@(new DatepickerModel { 
+                 Id = "date",
+                 MinDate = new DateOnly(2001, 1, 1),
+                 MaxDate = new DateOnly(2099, 12, 31)
+             })" />
+        </td>
+    </tr>
+</table>
+<p>
+    <a href="javascript:void(0);" id="dakoku-jikan-syusei">打刻時間修正</a>
+</p>
+@section scripts {
+    <script>
+
+        $(function () {
+            // 手動UI動作確認専用ページ（自動テスト対象外）
+            $('#dakoku-jikan-syusei').on('click', function(){
+                openDakokuJikanSyusei(
+                    $('#syain-id').val(),
+                    $('#date').val(),
+                );
+            });
+
+            function openDakokuJikanSyusei(syainId, jissekiDate) {
+                const modalId = 'parent-modal';
+                // 呼び出し元パラメータ
+                const params = new URLSearchParams({
+                    syainId,                // 社員ID
+                    jissekiDate,            // 実績日
+                });
+                
+                const url = `${'@Url.Page("./Index")'}?${params.toString()}`;
+                const title = '打刻時間修正';
+
+                showInputModal(
+                    modalId,
+                    url,
+                    null,
+                    title,
+                    null,
+                    992,
+                    550,
+                    'var(--iframe-header-color)'
+                );
+            }
+        });
+
+    </script>
+}

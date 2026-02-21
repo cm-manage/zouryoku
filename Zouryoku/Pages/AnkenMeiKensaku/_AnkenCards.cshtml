@@ -1,0 +1,81 @@
+﻿@model PartialPageModel
+
+<article class="row row-cols-1 row-cols-lg-2 g-3">
+    @foreach (var item in Model.Ankens)
+    {
+        <div class="col">
+            @* 顧客情報カード *@
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        @* 顧客選択 *@
+                        @* カード選択時に親画面に送信するデータをdata属性に保持 *@
+                        <form class="col"
+                              data-js="ankenSelect"
+                              data-anken-id="@item.AnkenId"
+                              data-anken-name="@item.AnkenName"
+                              data-juchuu-no="@item.JuchuuNo"
+                              data-kokyaku-id="@item.KokyakuId"
+                              data-kokyaku-name="@item.KokyakuName"
+                              data-cha-ymd="@item.ChaYmd">
+                            @Html.AntiForgeryToken()
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.KokyakuName)</span>
+                                <span class="col text-nowrap">@Html.DisplayFor(model => item.KokyakuName)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.AnkenName)</span>
+                                <span class="col text-nowrap">@Html.DisplayFor(model => item.AnkenName)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.ShouhinName)</span>
+                                <span class="col text-nowrap">@Html.DisplayFor(model => item.ShouhinName)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.JuchuuNo)</span>
+                                <span class="col text-nowrap">@Html.DisplayFor(model => item.JuchuuNo)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.JucKin)</span>
+                                <span class="col text-nowrap">@Html.DisplayFor(model => item.JucKin)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.ChaYmd)</span>
+                                <span class="col text-nowrap">@Html.DisplayFor(model => item.ChaYmd)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.NsyYmd)</span>
+                                <span class="col text-nowrap">@Html.DisplayFor(model => item.NsyYmd)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.SyainName)</span>
+                                <span class="col text-nowrap">@Html.DisplayFor(model => item.SyainName)</span>
+                            </div>
+                            <input type="hidden" name="ankenId" value="@item.AnkenId" />
+                        </form>
+                        @* 案件情報画面のモーダル表示 *@
+                        <div class="col-2 d-flex flex-row align-items-center">
+                            <div class="text-primary fs-4" role="button" data-js="ankenShowInfo" data-anken-id="@item.AnkenId">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.IsReferHistory)
+                    {
+                        @* 顧客会社参照履歴削除ボタン *@
+                        <form class="d-flex justify-content-end">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="ankenId" value="@item.AnkenId" />
+                            <input type="hidden" name="version" value="@item.Version" />
+                            <button class="app-btn__base btn btn-outline-danger" type="button" data-js="historyDelete">
+                                <i class="fa-solid fa-trash"></i>
+                                履歴削除
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+
+        </div>
+    }
+</article>

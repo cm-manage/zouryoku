@@ -1,0 +1,28 @@
+﻿@page
+@model Zouryoku.Pages.Example.ModalSubDetailsModel
+
+<div id="partial"></div>
+
+@* JavaScript ****************************************************************************************************@
+@section Scripts {
+    <script>
+        // 初期表示
+        $partial = $('#partial');
+        function renderPartial() {
+            sendGetAjax(toUrl('Search'), null, function(partialView) {
+                $partial.html(partialView);
+            }, false);
+        }
+        renderPartial();
+
+        // 戻るボタン押下
+        $partial.on('click', '#back-btn', function() {
+            history.back();
+        });
+
+        // 修正ボタン押下
+        $partial.on('click', '#update-btn', function() {
+            infoMessage('修正ボタンがクリックされました。');
+        });
+    </script>
+}

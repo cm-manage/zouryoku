@@ -1,0 +1,217 @@
+﻿@page
+@using System.Text.Json
+@model IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "部署選択";
+}
+
+@section InputStyles {
+    <!-- Fancytree -->
+    <link rel="stylesheet" href="~/js/fancytree/skin-win8/ui.fancytree.min.css" asp-append-version="true">
+
+    <style>
+        /* ======================================================
+           部署選択画面（画面専用）
+        ====================================================== */
+
+        /* 本体 */
+        .app-busyo-body {
+            /* 画面全体高さ - margin・footer・errorMessage 高さ */
+            height: calc(100vh - 8.5rem);
+            overflow-y: auto;
+        }
+
+        /* ツリー */
+        .app-busyo-tree {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+            /* fancytree */
+            .app-busyo-tree .fancytree-container {
+                padding: 0.25rem 0;
+                background: transparent;
+                font-family: inherit;
+                font-size: 1rem;
+                border: none !important;
+            }
+    </style>
+}
+
+<!-- 送信用フォーム -->
+<form id="busyo-select-form" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="MultiFlag" value="@Model.MultiFlag" />
+</form>
+
+<div class="app-screen--others">
+
+    <div class="app-area__header">
+    </div>
+
+    <main class="app-area__body app-busyo-body">
+        <div class="text-end p-2" id="multi-buttons">
+            <button type="button" class="btn btn-success app-btn__base" id="select-all">
+                <i class="fa-regular fa-square-check"></i>全選択
+            </button>
+            <button type="button" class="btn btn-danger app-btn__base" id="clear-all">
+                <i class="fa-regular fa-square"></i>全解除
+            </button>
+        </div>
+
+        <div class="app-busyo-tree">
+            <div id="busyo-tree"></div>
+        </div>
+    </main>
+
+    <footer class="app-area__footer">
+        <div class="text-end p-2">
+            <button type="button" class="btn btn-primary app-btn__base" id="confirm-selection">
+                <i class="fa-solid fa-circle-check"></i>確定
+            </button>
+        </div>
+    </footer>
+
+</div>
+
+@section InputScripts {
+    <script src="~/js/fancytree/jquery.fancytree-all-deps.min.js" asp-append-version="true"></script>
+    <script>
+        $(function() {
+            // -----------------------------
+            // 初期データ
+            // -----------------------------
+            const multiFlag = @Json.Serialize(Model.MultiFlag);
+            const preSelectedIds = @Json.Serialize(Model.PreSelectedIds ?? new List<long>());
+            const antiForgeryToken = $('#busyo-select-form input[name="__RequestVerificationToken"]').val();
+
+            const treeUrl = toUrl("Tree");
+            const validateUrl = toUrl("ValidateSelection");
+
+            // -----------------------------
+            // 初期化
+            // -----------------------------
+            const tree = initTree();
+
+            if (!multiFlag) {
+                $("#multi-buttons").hide();
+                $(".app-area__footer").hide();
+            } else {
+                bindMultiSelectButtons(tree);
+            }
+
+            // -----------------------------
+            // Fancytree 初期化
+            // -----------------------------
+            function initTree() {
+                $("#busyo-tree").fancytree({
+                    checkbox: multiFlag,
+                    selectMode: multiFlag ? 2 : 1,
+                    icon: nodeIcon,
+                    source: { url: treeUrl, cache: false },
+                    init: onTreeInit,
+                    click: onTreeClick
+                });
+
+                return $.ui.fancytree.getTree("#busyo-tree");
+            }
+
+            // -----------------------------
+            // アイコン設定
+            // -----------------------------
+            function nodeIcon(event, data) {
+                const level = data.node.getLevel();
+                return level === 1
+                    ? "fa-regular fa-building"
+                    : level === 2
+                        ? "fa-sharp fa-light fa-people-group"
+                        : "fa-light fa-user-group";
+            }
+
+            // -----------------------------
+            // 初期処理
+            // -----------------------------
+            function onTreeInit(event, data) {
+
+                data.tree.expandAll(true);
+
+                if (!multiFlag) return;
+
+                preSelectedIds.forEach(id => {
+                    const node = data.tree.getNodeByKey(id);
+                    if (node) node.setSelected(true);
+                });
+            }
+
+            // -----------------------------
+            // 部署名テキストクリック
+            // -----------------------------
+            function onTreeClick(event, data) {
+                // ---------- 単一選択 ----------
+                if (!multiFlag && data.targetType === "title") {
+                    emitSelection([data.node]);
+                    return false;
+                }
+
+                // ---------- 複数選択 ----------
+                if (multiFlag && data.targetType === "title") {
+                    data.node.toggleSelected();
+                    return false;
+                }
+            }
+
+            // -----------------------------
+            // 複数選択モードのボタン
+            // -----------------------------
+            function bindMultiSelectButtons(tree) {
+
+                $("#select-all").on("click", () => tree.selectAll(true));
+                $("#clear-all").on("click", () => tree.selectAll(false));
+
+                $("#confirm-selection").on("click", () => {
+                    const selectedNodes = tree.getSelectedNodes();
+                    const ids = selectedNodes.map(n => n.key);
+
+                    sendAjax(
+                        validateUrl,
+                        {
+                            "__RequestVerificationToken": antiForgeryToken,
+                            "Input.SelectedIds": ids
+                        },
+                        () => emitSelection(selectedNodes),
+                        false
+                    );
+                });
+            }
+
+            // -----------------------------
+            // 親画面へ返却
+            // -----------------------------
+            function emitSelection(nodes) {
+                if (!nodes || nodes.length === 0) return;
+
+                const toObj = n => ({
+                    id: n.key,
+                    name: n.title,
+                    jyunjyo: n.data.jyunjyo,
+                    code: n.data.code,
+                    oyaId: n.data.oyaId
+                });
+
+                const payload = multiFlag
+                    ? nodes.map(toObj)
+                    : toObj(nodes[0]);
+
+                window.parent.postMessage({
+                    type: "busyoSelected",
+                    payload: payload
+                }, window.location.origin);
+
+                closeCurrentIziModal();
+            }
+
+        });
+    </script>
+}

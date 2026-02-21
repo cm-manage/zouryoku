@@ -1,0 +1,130 @@
+﻿@page
+@model Zouryoku.Pages.Maintenance.PhotoList.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "顔写真一覧";
+}
+
+<!-- iziModal CSS -->
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+
+<style>
+    .photo-list-container {
+        padding: 20px 0;
+    }
+
+    .busyo-section {
+        margin-bottom: 40px;
+    }
+
+    .busyo-title {
+        font-weight: bold;
+        font-size: 18px;
+        padding: 15px;
+        background-color: #f5f5f5;
+        border-bottom: 2px solid #ddd;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .photo-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .photo-container {
+        width: 100px;
+        height: 120px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-container a {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+    .photo-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #999;
+        font-size: 12px;
+    }
+
+    .syain-name {
+        font-size: 14px;
+        word-break: break-word;
+        max-width: 120px;
+        line-height: 1.4;
+        color: #333;
+    }
+</style>
+
+<div class="photo-list-container">
+    <h2>顔写真一覧</h2>
+
+    @* 各部署をループ *@
+    @foreach (var busyoGroup in Model.BusyoPhotoGroups)
+    {
+        <div class="busyo-section">
+            <div class="busyo-title">@busyoGroup.BusyoName</div>
+
+            @* 後端で分割済みのPhotoChunksをループ 1行に表示する写真数のグループ*@
+            @foreach (var chunk in busyoGroup.PhotoChunks)
+            {
+                <div class="photo-grid">
+                    @foreach (var photo in chunk)
+                    {
+                        <div class="photo-item">
+                            <div class="photo-container">
+                                @if (photo.HasPhoto)
+                                {
+                                    <a href="javascript:void(0);"
+                                       style="cursor: pointer;">
+                                        <img src="/maintenance/photolist/downloadthumbnail?baseid=@photo.SyainBaseId&t=@photo.UploadTime.Ticks"
+                                             alt="@photo.SyainName"
+                                             loading="lazy" />
+                                    </a>
+                                }
+                                else
+                                {
+                                    <div class="photo-placeholder" role="img" aria-label="@photo.SyainName の写真はありません">写真なし</div>
+                                }
+                            </div>
+                            <div class="syain-name">@photo.SyainName</div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

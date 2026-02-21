@@ -1,0 +1,44 @@
+﻿@using Zouryoku.Pages
+@model PagerModel
+
+<form method="get" class="d-flex justify-content-center align-content-center m-3 gap-1">
+    @* 先頭へ *@
+    <button type="button"
+            class="app-btn__base btn btn-outline-info"
+            data-js="movePage"
+            data-offset="@(-Model.PageIndex)"
+            @(Model.PageIndex < 1 ? "disabled" : null)>
+        <i class="fa-solid fa-chevrons-left"></i>
+    </button>
+    @* 1ページ前へ *@
+    <button type="button"
+            class="app-btn__base btn btn-info"
+            data-js="movePage"
+            data-offset="-1"
+            @(Model.PageIndex < 1 ? "disabled" : null)>
+        <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    @* ページ表示 *@
+    <span id="page-num" class="fs-6 align-self-center">
+        @(Model.PageIndex + 1)/@Model.PagesNum
+    </span>
+    @* 1ページ後へ *@
+    <button type="button"
+            class="app-btn__base btn btn-info"
+            data-js="movePage"
+            data-offset="1"
+            @(Model.PagesNum - 2 < Model.PageIndex ? "disabled" : null)>
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    @* 最後へ *@
+    <button type="button"
+            class="app-btn__base btn btn-outline-info"
+            data-js="movePage"
+            data-offset="@(Model.PagesNum - 1 - Model.PageIndex)"
+            @(Model.PagesNum - 1 <= Model.PageIndex ? "disabled" : null)>
+        <i class="fa-solid fa-chevrons-right"></i>
+    </button>
+    @* ページ移動用の隠しフィールド *@
+    <input id="page-total" type="hidden" name="total" value="@Model.Total" />
+    <input id="page-index" type="hidden" name="pageIndex" value="@Model.PageIndex"/>
+</form>

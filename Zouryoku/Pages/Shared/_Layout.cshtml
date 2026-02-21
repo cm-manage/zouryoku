@@ -1,0 +1,98 @@
+﻿@using CommonLibrary.Utils
+@using Zouryoku.Extensions;
+@using Model.Enums;
+@inject IConfiguration Configuration
+
+<!DOCTYPE html>
+<html lang="ja" class="bg-light"> @* <body>の.bg-lightの背景色はコンテンツ下端で途切れるため<html>にもクラス付与（<body>に100vhを指定するとiziModalでスクロールバーが表示される） *@
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/assets/images/favicon.ico" asp-append-version="true">
+    <title>増力日誌 @ViewData["Title"]</title>
+
+    <!--  スコープ付きCSS（Scoped CSS） -->
+    <link rel="stylesheet" href="~/Zouryoku.styles.css" asp-append-version="true" />
+    <!-- FontAwesome CSS -->
+    <link type="text/css" rel="stylesheet" href="~/assets/icons/font-awesome/css/all.min.css" asp-append-version="true" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <!-- Bootstrap v5.3.8 CSS -->
+    <link type="text/css" rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
+    <link type="text/css" rel="stylesheet" href="~/lib/jqueryui/themes/base/jquery-ui.min.css" asp-append-version="true" />
+    <link type="text/css" rel="stylesheet" href="~/js/jquery_holiday_20210627/js/jquery.holiday.css" asp-append-version="true" />
+    <!-- ??? CSS -->
+    <link type="text/css" rel="stylesheet" href="~/css/reset.css" asp-append-version="true" />
+    <link type="text/css" rel="stylesheet" href="~/css/modules.css" asp-append-version="true" />
+    <!--kyotec.css -->
+    <link type="text/css" rel="stylesheet" href="~/css/base/common.css" asp-append-version="true">
+    <link type="text/css" rel="stylesheet" href="~/css/base/main.css" asp-append-version="true">
+	@* 入力画面専用スタイル *@
+	@{
+		var useInputAssets = (bool?)Model?.GetType().GetProperty("UseInputAssets")?.GetValue(Model);
+		if (useInputAssets == true)
+		{
+			await Html.RenderPartialAsync("_InputStylesPartial");
+		}
+	}
+	@RenderSection("InputStyles", required: false)
+</head>
+
+<body class="bg-light">
+
+    <div id="message-notification" class="fix_area"></div>
+    <!-- ============================================================== -->
+    <!-- header Content -->
+    <!-- ============================================================== -->
+    <div class="container-fluid">
+        <div class="contents">
+            @RenderBody()
+        </div>
+
+        <footer>
+        </footer>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- JavaScript -->
+    <!-- ============================================================== -->
+    <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
+    <!--messageUtil JavaScript -->
+    <script src="~/js/messageUtil.js" asp-append-version="true"></script>
+    <!-- Bootstrap v5.3.8-->
+    <script src="~/lib/bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
+    <!-- jQuery UI（Air Datepickerより先に宣言しないと衝突する） -->
+    <script src="~/lib/jqueryui/jquery-ui.min.js" asp-append-version="true"></script>
+    <script src="~/lib/jqueryui/ui/i18n/datepicker-ja.js" asp-append-version="true"></script>
+    <script src="~/js/jquery_holiday_20210627/js/jquery.holiday.js" asp-append-version="true"></script>
+    <script src="~/js/jquery_holiday_20210627/js/jquery.holiday_ja-JP.js" asp-append-version="true"></script>
+    <!--kyotec.js-->
+    <script src="~/js/base/common.js" asp-append-version="true"></script>
+
+	@* 入力画面共通スクリプト *@
+	@{
+		var useInputAssets2 = (bool?)Model?.GetType().GetProperty("UseInputAssets")?.GetValue(Model);
+		if (useInputAssets2 == true)
+		{
+			await Html.RenderPartialAsync("_InputScriptsPartial");
+		}
+	}
+	@RenderSection("InputScripts", required: false)
+
+    @RenderSection("Scripts", required: false)
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    @{
+        await Html.RenderPartialAsync("_AjaxBlockUiScriptsPartial");
+    }
+    <!--Validation設定用-->
+    <script src="~/js/validationHelper.js" asp-append-version="true"></script>
+    <!--増力日誌共通-->
+    <script src="~/js/zouryokuCommon.js" asp-append-version="true"></script>
+</body>
+</html>

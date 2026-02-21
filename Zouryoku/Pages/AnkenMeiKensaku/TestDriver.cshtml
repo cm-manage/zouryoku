@@ -1,0 +1,95 @@
+﻿@page
+@* iziModal用 *@
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+
+<table class="table w-50">
+    <tr>
+        <th>新規登録＼カード選択</th>
+        <th>可</th>
+        <th>不可</th>
+    </tr>
+    <tr>
+        <th>可</th>
+        <td><button class="app-btn__base btn btn-outline-primary" type="button" data-js-can-add="true" data-js-can-card-click="true">開く</button></td>
+        <td><button class="app-btn__base btn btn-outline-primary" type="button" data-js-can-add="true" data-js-can-card-click="false">開く</button></td>
+    </tr>
+    <tr>
+        <th>不可</th>
+        <td><button class="app-btn__base btn btn-outline-primary" type="button" data-js-can-add="false" data-js-can-card-click="true">開く</button></td>
+        <td><button class="app-btn__base btn btn-outline-primary" type="button" data-js-can-add="false" data-js-can-card-click="false">開く</button></td>
+    </tr>
+</table>
+
+<div>
+    <label class="form-label" for="kokyaku-id-input">顧客ID</label>
+    <input id="kokyaku-id-input" class="form-control" />
+</div>
+<div class="form-check">
+    <input id="phone-check" class="form-check-input" type="checkbox" />
+    <label class="form-check-label">携帯サイズ表示</label>
+</div>
+
+@section Scripts {
+    @* iziModal用 *@
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+
+    <script>
+        $(function(){
+
+            // 表示するモーダルのサイズ
+            // PC
+            const SIZE_PC = {
+                width: 1050,
+                height: 700,
+            }
+            // 携帯（フルスクリーン前提）
+            const SIZE_PHONE = {
+                width: 390,
+                height: 844,
+            }
+
+            // モーダルから渡された情報をログに表示するイベント
+            window.addEventListener('message', (event) => {
+                console.log('受け取ったデータ：');
+                console.log('ankenId: ', event.data.ankenId);
+                console.log('ankenName: ', event.data.ankenName);
+                console.log('juchuNo: ', event.data.juchuNo);
+                console.log('kokyakuId: ', event.data.kokyakuId);
+                console.log('kokyakuName: ', event.data.kokyakuName);
+                console.log('chaYmd: ', event.data.chaYmd);
+                return false;
+            });
+
+            // モーダルを開くイベント
+            $(document).on('click', 'button', function() {
+                // 表示サイズ
+                let size = SIZE_PC;
+
+                // サイズ定数を代入
+                if ($('#phone-check').prop('checked'))
+                    size = SIZE_PHONE;
+
+                // URLパラメータの設定
+                const params = {
+                    canCardClick: $(this).data('js-can-card-click'),
+                    canAdd: $(this).data('js-can-add'),
+                    kokyakuId: $('#kokyaku-id-input').val(),
+                }
+                const url = `@Url.Page("./Index")?${new URLSearchParams(params).toString()}`;
+
+                // モーダルを表示
+                showParentModal(
+                    'anken-mei-kensaku-modal',
+                    url,
+                    '案件名検索画面',
+                    '',
+                    null,
+                    size.width ,
+                    size.height,
+                    'var(--iframe-header-color)'
+                );
+            });
+        })
+    </script>
+}

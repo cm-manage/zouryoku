@@ -1,0 +1,30 @@
+﻿@page
+@model Zouryoku.Pages.Example.ModalSubSearchModel
+
+<div id="partial"></div>
+
+@* JavaScript ****************************************************************************************************@
+@section Scripts {
+    <script>
+        // 初期表示
+        $partial = $('#partial');
+        function renderPartial(data) {
+            sendGetAjax(toUrl('Search'), data, function(partialView) {
+                $partial.html(partialView);
+            }, false);
+        }
+
+        // モーダル呼び出し元からインプットを取得
+        $(window).on('message', function(e) {
+            if (e.originalEvent.data.type !== 'modalinput') return;
+
+            // インプットを画面に表示する
+            renderPartial(e.originalEvent.data.input);
+        })
+
+        // 検索ボタン押下
+        $partial.on('click', '#search-btn', function() {
+            location.href = '@Url.Page("/Example/ModalSubDetails")'; // 詳細画面へ移動
+        });
+    </script>
+}

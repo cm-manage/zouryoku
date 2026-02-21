@@ -1,0 +1,184 @@
+﻿@page
+@model Zouryoku.Pages.KokyakuJohoHyoji.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "顧客表示";
+}
+@if (!Model.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-errors d-flex">
+        <div><i class="fas fa-exclamation-triangle fa-fw"></i></div>
+        <div id="validation-summary" asp-validation-summary="ModelOnly" class="app-validation-summary-errors"></div>
+    </div>
+}
+
+<div class="app-screen--single-form">
+
+    <div class="app-area__header"></div>
+
+    <div class="app-area__body">
+
+        <div class="row m-0">
+
+            @* コード *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Code)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.Code)
+                </div>
+            </div>
+
+            @* 名前 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Name)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.Name)
+                </div>
+            </div>
+
+            @* 名前カナ *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.NameKana)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.NameKana)
+                </div>
+            </div>
+
+            @* 略称 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Ryakusyou)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.Ryakusyou)
+                </div>
+            </div>
+
+            @* 支店 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Shiten)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.Shiten)
+                </div>
+            </div>
+
+            @* 郵便番号 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.YuubinnBangou)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.YuubinnBangou)
+                </div>
+            </div>
+
+            @* 住所1 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Jyuusyo1)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.Jyuusyo1)
+                </div>
+            </div>
+
+            @* 住所2 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Jyuusyo2)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.Jyuusyo2)
+                </div>
+            </div>
+
+            @* 電話番号 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Tel)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.Tel)
+                </div>
+            </div>
+
+            @* Fax番号 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Fax)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.Fax)
+                </div>
+            </div>
+
+            @* 業種名 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.GyousyuName)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.KokyakuView.GyousyuName)
+                </div>
+            </div>
+
+            @* メモ *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Memo)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    <pre>@Html.DisplayFor(x => x.KokyakuView.Memo)</pre>
+                </div>
+            </div>
+
+            @* URL *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.Url)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    <a href="@Model.KokyakuView.Url" class="link-primary" target="_blank">
+                        @Html.DisplayFor(x => x.KokyakuView.Url)
+                    </a>
+                </div>
+            </div>
+
+            @* 営業社員 *@
+            <div class="row app-square border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.KokyakuView.EigyouSyainName)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    <span>@Html.DisplayFor(x => x.EigyouSyainBusyoName)</span>
+                    <span>@Html.DisplayFor(x => x.KokyakuView.EigyouSyainName)</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

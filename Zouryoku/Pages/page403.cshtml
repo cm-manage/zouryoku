@@ -1,0 +1,26 @@
+﻿@page
+@model Zouryoku.Pages.Page403Model
+@{
+    Layout = "_Layout_NoSession";
+    ViewData["Title"] = "アクセスしようとしたページは表示できませんでした";
+}
+<!-- page css -->
+<link href="~/css/error-pages.css" rel="stylesheet" asp-append-version="true">
+<div class="center-page-area">
+    <div class="box m">
+        <div class="contents">
+            <section id="wrapper" class="error-page">
+                <div class="error-box">
+                    <div class="error-body text-center">
+                        <h1>403</h1>
+                        <h3 class="text-uppercase" style="margin-bottom:20px">アクセスしようとしたページは表示できませんでした。</h3>
+                        <p class="text-muted m-t-30 m-b-30" style="margin-bottom:20px">このエラーは、表示するページへのアクセス許可がなかったことを意味します。</p>
+                        <div class="form-group  btn_area text_center">
+                            <button class="btn btn-blue kng-style" type="button" onclick="location.href='@Url.Content("~/Logins/Index")'">ログインに戻る</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,276 @@
+@page
+@model Zouryoku.Pages.JuchuJohoHyoji.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "受注表示";
+}
+
+@if (!Model.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-errors d-flex">
+        <div><i class="fas fa-exclamation-triangle fa-fw"></i></div>
+        <div id="validation-summary" asp-validation-summary="ModelOnly" class="app-validation-summary-errors"></div>
+    </div>
+}
+
+<div class="app-screen--single-form">
+
+    <div class="app-area__header"></div>
+
+    <div class="app-area__body">
+
+        <div class="row m-0">
+
+            @* プロジェクト番号 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.ProjectNo)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.ProjectNo)
+                </div>
+            </div>
+
+            @* 受注番号 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.JuchuNo)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.JuchuNo)
+                </div>
+            </div>
+
+            @* 行番号 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.JuchuGyoBangou)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.JuchuGyoBangou)
+                </div>
+            </div>
+
+            @* 契約状態 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.KeiyakuJotai)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.KeiyakuJotai)
+                </div>
+            </div>
+
+            @* 施工部門 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.SekoBumon)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.SekoBumon)
+                </div>
+            </div>
+
+            @* 受注日 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.JuchuYmd)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.JuchuYmd)
+                </div>
+            </div>
+
+            @* 契約先 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.KeiNm)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.KeiNm)
+                </div>
+            </div>
+
+            @* 受注先 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.JuchuNm)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.JuchuNm)
+                </div>
+            </div>
+
+            @* 物件名 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.Bukken)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.Bukken)
+                </div>
+            </div>
+
+            @* 商品名 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.ShohinName)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.ShohinName)
+                </div>
+            </div>
+
+            @* 費用種別 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.HiyoShubetuName)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.HiyoShubetuName)
+                </div>
+            </div>
+
+            @* 受注金額 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.JuchuKin)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.JuchuKin)
+                </div>
+            </div>
+
+            @using static Model.Enums.ContractClassification
+            @* 送担当者 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                @if(Model.JuchuView.KeiyakuJoutaiKbn == 受注_共同 || Model.JuchuView.KeiyakuJoutaiKbn == 受注_社内取引)
+                {
+                    <div class="app-item-heading col-lg-3">
+                        @Html.DisplayNameFor(x => x.JuchuView.OkrTanName)
+                    </div>
+
+                    <div class="app-field-value col-lg-9">
+                        @Html.DisplayFor(x => x.JuchuView.OkrTanName)
+                    </div>
+                }
+                else
+                {
+                    <div class="app-item-heading col-lg-3">
+                        @Html.DisplayNameFor(x => x.JuchuView.TanName)
+                    </div>
+
+                    <div class="app-field-value col-lg-9">
+                        @Html.DisplayFor(x => x.JuchuView.TanName)
+                    </div>
+                }
+            </div>
+            
+            @* 受担当者 *@
+            @if(Model.JuchuView.KeiyakuJoutaiKbn == 受注_自営 || Model.JuchuView.KeiyakuJoutaiKbn == 受注_社内取引)
+            {
+                <div class="row app-square-no-bottom border-primary-subtle">
+                    <div class="app-item-heading col-lg-3">
+                        @Html.DisplayNameFor(x => x.JuchuView.UkTanName)
+                    </div>
+
+                    <div class="app-field-value col-lg-9">
+                        @Html.DisplayFor(x => x.JuchuView.UkTanName)
+                    </div>
+                </div>
+            }
+
+            @* 着工日 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.ChaYmd)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.ChaYmd)
+                </div>
+            </div>
+
+            @* 納期竣工 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.NsyYmd)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.NsyYmd)
+                </div>
+            </div>
+
+            @* 売上計画日 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.KurYmd)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.KurYmd)
+                </div>
+            </div>
+
+            @* 入金計画日 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.KnyYmd)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.KnyYmd)
+                </div>
+            </div>
+
+            @* 原価凍結 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.GenkaToketu)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.GenkaToketu)
+                </div>
+            </div>
+
+            @* 原価凍結日 *@
+            <div class="row app-square-no-bottom border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.ToketuYmd)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    @Html.DisplayFor(x => x.JuchuView.ToketuYmd)
+                </div>
+            </div>
+
+            @* 備考 *@
+            <div class="row app-square border-primary-subtle">
+                <div class="app-item-heading col-lg-3">
+                    @Html.DisplayNameFor(x => x.JuchuView.Biko)
+                </div>
+
+                <div class="app-field-value col-lg-9">
+                    <pre>@Html.DisplayFor(x => x.JuchuView.Biko)</pre>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

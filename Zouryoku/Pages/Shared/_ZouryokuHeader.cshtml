@@ -1,0 +1,184 @@
+﻿@{
+    var title = (string?)ViewData["Title"] ?? "タイトル未設定";
+    var titleIcon = (string?)ViewData["TitleIcon"] ?? "fa-solid fa-list-check";
+    var loginInfo = Model?.LoginInfo ?? Model;
+    var userName = loginInfo?.User?.Name ?? "未ログイン";
+    var busyoName = loginInfo?.User?.Busyo?.Name ?? "未設定";
+    var badgeCount = 0;
+}
+<link rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+
+<header class="header-bar d-flex align-items-center justify-content-between">
+
+    @* 左エリア：システム名＋画面名 *@
+    <div>
+        <div class="system-name">増力日誌</div>
+        <div class="screen-name">
+            <i class="@titleIcon"></i> @title
+        </div>
+    </div>
+
+    @* 右エリア *@
+    <div class="d-flex align-items-center gap-4">
+
+        <div class="user-info">
+            <div class="user-texts">
+                <div>@busyoName</div>
+                <div>@userName</div>
+            </div>
+        </div>
+
+        @* よく使うアイコン群 *@
+        <div class="icon-group">
+
+            <a class="icon-item" title="トップページに戻る" href="/">
+                <i class="fa-solid fa-house"></i>
+            </a>
+
+            @* 画面作成待ちのため href 属性は空にしています *@
+            <a class="icon-item" title="勤務表">
+                <i class="fa-solid fa-calendar-check"></i>
+            </a>
+
+            @* 画面作成待ちのため href 属性は空にしています *@
+            <a class="icon-item" title="申請入力">
+                <i class="fa-solid fa-file-pen"></i>
+            </a>
+
+            @* 申請確認 + バッジ *@
+            @* 画面作成待ちのため href 属性は空にしています *@
+            <a class="icon-item position-relative" title="申請確認">
+                <i class="fa-solid fa-file-lines"></i>
+
+                @* 承認必要件数バッジ *@
+                @if (1 <= badgeCount) @* バッジが1個以上のとき *@
+                {
+                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle p-1 px-2 rounded-pill">
+                        @badgeCount
+                    </span>
+                }
+            </a>
+
+        </div>
+
+        @* ハンバーガーメニュー *@
+        <a id="menu-button" class="hamburger-container" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-menu"
+           aria-controls="offcanvasMenu" title="メニュー">
+            <i class="fa-solid fa-bars"></i>
+        </a>
+        @await Component.InvokeAsync("Menu")
+
+    </div>
+</header>
+
+<style>
+    :root {
+        --zouryoku-header-height: 60px;
+    }
+
+    body {
+        padding-top: var(--zouryoku-header-height); /* ヘッダーの縦幅だけコンテンツを下に寄せる */
+    }
+
+    .header-bar {
+        background: linear-gradient(90deg, rgba(45, 65, 118, 1) 0%, rgba(29, 85, 143, 1) 100%);
+        color: #fff;
+        padding: 6px 16px; /* ← 余白を狭くしたまま */
+        position: fixed; /* ヘッダーを画面に固定 */
+        top: 0;
+        left: 0;
+        width: 100%; /* ビューポート幅いっぱいに */
+        height: var(--zouryoku-header-height);
+        z-index: 200; /* 他のコンテンツより前面に表示 */
+    }
+
+    .system-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .screen-name {
+        font-size: 1rem;
+        opacity: 0.9;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .user-info {
+        text-align: right;
+        font-size: 0.9rem;
+        line-height: 1.2;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .user-texts {
+        display: flex;
+        flex-direction: column;
+        text-align: right;
+        line-height: 1.2;
+        gap: 0.2rem;
+    }
+
+    .icon-group {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 1.6rem;
+        color: #fff;
+    }
+
+    .icon-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #fff;
+        position: relative; /* バッジ表示用 */
+        text-decoration: none;
+    }
+
+        .icon-item:hover {
+            color: #cce0ff;
+        }
+
+    .icon-label {
+        display: none;
+    }
+
+    .hamburger-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .hamburger-label {
+        display: none;
+    }
+
+    .hamburger-container:hover {
+        color: #cce0ff;
+    }
+
+    .badge {
+        font-size: 0.55rem;
+    }
+
+    /* ===== スマホ対応 ===== */
+    @@media (max-width: 768px) {
+        .icon-group {
+            display: none !important;
+        }
+        /* 部署名を非表示 */
+        .user-texts > div:first-child {
+            display: none;
+        }
+    }
+</style>
+<script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+<script src="~/js/zouryoku-header.js" asp-append-version="true"></script>

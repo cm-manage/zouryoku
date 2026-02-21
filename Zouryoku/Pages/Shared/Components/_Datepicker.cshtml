@@ -1,0 +1,100 @@
+﻿@using System.Text.RegularExpressions
+@model Zouryoku.Pages.Shared.Components.DatepickerModel
+@{
+    Func<string, string> id2Selector = id => "#" + Regex.Replace(id, @"[.\[\]]", "_");
+    Func<DateOnly?, string> dateOnly2datepickerDate = date => date != null ? $"new Date({date:yyyy, MM - 1, dd})" : "null";
+}
+
+@* JavaScript ************************************************************************************************@
+<script>
+    async function setDatepicker() {
+        const id2Selector = id => '#' + id.replace(/[.\[\]]/g, '_');
+        const targetInputSelector = id2Selector('@Model.Id');
+        const $targetInput = $(targetInputSelector);
+        if ($targetInput.length === 0) console.error(`セレクタ '${targetInputSelector}' は見つかりません。`);
+
+        // カレンダーボタンを追加
+        const disabled = $targetInput.prop("readonly") || $targetInput.prop("disabled");
+        $.datepicker.setDefaults($.datepicker.regional['ja']);
+        $targetInput.datepicker({
+            disabled: disabled,
+            minDate: @dateOnly2datepickerDate(Model.MinDate),
+            maxDate: @dateOnly2datepickerDate(Model.MaxDate),
+            numberOfMonths: [@Model.NumberOfMonthsHeight, @Model.NumberOfMonthsWidth],
+            showOn: 'both',
+            appendTo: 'body',
+            beforeShow: function(input, inst) { // カレンダーを縦横に並べると<input>の上に被るように表示されるため、appendToとbeforeShowで移動させる
+                var offset = $(input).offset();
+                var height = $(input).outerHeight();
+                setTimeout(function() {
+                    inst.dpDiv.css({
+                        top: offset.top + height, // 表示されたカレンダーを入力欄の下に移動
+                        left: offset.left,
+                        zIndex: 10 // デフォルトで zIndex: 1 に上書きされるためクラス指定不可
+                    })
+                });
+            }
+        }).holiday(); // jquery.holiday.js プラグインを使用し、日本の祝日をカレンダー上でハイライト表示する
+
+        // _DatePicker の土日祝日を選択不可にする設定
+        // jquery.holiday.js プラグインを上書きするためこの位置に記述する
+        if (@(Model.AllowSelectWeekendAndHoliday ? "false" : "true"))
+        {
+            $targetInput.datepicker('option', 'beforeShowDay', function(day) {
+                // jquery_holiday_20210627 80～96行目の改変 (土日祝日を選択不可) ここから
+                // jquery_holiday_20210627 81～95行目の引数値の再現
+                const css = {
+                    0: 'day-sunday', //日曜日
+                    6: 'day-saturday', //土曜日
+                    'holiday': 'day-holiday', //祝祭日
+                    'anniversary': 'day-anniversary' //記念日
+                };
+                var $self = $.fn.holiday;
+                var attr = $self("attr", day);
+                var dow = day.getDay();
+                var title = "";
+                if (typeof attr['name']!="undefined") {
+                    title = attr['name'];
+                }
+                var style = "";
+                var selectable = true;
+                if (title && typeof attr['class']!="undefined") {
+                    style = attr['class']; //祝祭日、記念日のスタイル
+                    selectable = false;
+                } else if (dow === 0 || dow === 6) { // 0:Sunday, 6:Saturday
+                    style = css[dow]; //曜日のスタイル
+                    selectable = false;
+                } else if (typeof css[dow]!="undefined") {
+                    style = css[dow]; //曜日のスタイル
+                }
+
+                return [selectable, style, title];
+                // jquery_holiday_20210627 80～96行目の改変 (土日祝日を選択不可) ここまで
+            });
+        }
+
+        // カレンダーボタンのスタイルを設定
+        $targetInput.next('.ui-datepicker-trigger')
+            .prop('disabled', disabled) // テキストボックスと同様の disabled を設定
+            .addClass('btn btn-primary app-btn__base') // 見た目をボタンにする
+            .attr('title', 'カレンダーを開く') // ツールチップを設定
+            .html('<i class="fa-solid fa-calendar-days"></i>'); // カレンダーアイコンを表示
+
+        // <input>を読み取り専用に変更
+        $targetInput.prop('readonly', true);
+    }
+    if (document.readyState === 'complete') {
+        setDatepicker(); // 動的挿入に対応するため、ロード完了済みなら即実行
+    } else {
+        window.addEventListener('DOMContentLoaded', setDatepicker);
+    }
+    setDatepicker = undefined; // グローバル汚染を回避（jQuery Validateで8進数が認識されるため type="module" は使えない）
+</script>
+
+@* CSS ******************************************************************************************************@
+<style>
+    /* カレンダーボタン */
+    @id2Selector(Model.Id) + .ui-datepicker-trigger {
+        width: 2.7rem;
+    }
+</style>

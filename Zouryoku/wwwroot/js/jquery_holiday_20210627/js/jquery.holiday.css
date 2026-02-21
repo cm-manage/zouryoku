@@ -1,0 +1,43 @@
+@charset "UTF-8";
+/*
+ jquery ui datepicker 用 日本の祝祭日表示
+*/
+
+.ui-datepicker {
+	z-index: 2000 !important; //フォームのリストメニューより手前に表示
+	//font-size: 13px;
+	//font-family: Arial, sans-serif;
+}
+/* ダイアログ */
+.ui-widget-content {
+	//border: 1px none #FFFFFF;
+}
+
+/* 日曜日 */
+.day-sunday .ui-state-default, .day-sunday .ui-state-active {
+	background-image: none;
+	background-color: #FFC0CB;
+}
+/* 土曜日 */
+.day-saturday .ui-state-default, .day-saturday .ui-state-active {
+	background-image: none;
+	background-color: #AFEEEE;
+}
+/* 祝祭日 */
+.day-holiday .ui-state-default, .day-holiday .ui-state-active {
+	background-image: none;
+	background-color: #FFC0CB;
+}
+/* 記念日 */
+.day-anniversary .ui-state-default, .day-anniversary .ui-state-active {
+	background-image: none;
+	background-color: #98FB98;
+}
+/* 今日 */
+.ui-datepicker-today{}
+/* 選択日 */
+.ui-datepicker-current-day {}
+/* 年月のリストメニュー */
+.ui-datepicker select.ui-datepicker-month, .ui-datepicker select.ui-datepicker-year {
+	width:auto ;
+}

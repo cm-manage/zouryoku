@@ -1,0 +1,171 @@
+﻿@page
+@model Zouryoku.Pages.BusyoMasterMaintenanceKensaku.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "部署マスタメンテナンス";
+}
+
+@section InputStyles {
+    <style>
+        /* 検索結果一覧テーブル（画面固有） */
+        .app-table__base th.app-table__busyo-code {
+            width: 7%;
+        }
+
+        .app-table__base th.app-table__busyo-name {
+            width: 33%;
+        }
+
+        .app-table__base th.app-table__bumoncyo {
+            width: 23%;
+        }
+
+        .app-table__base th.app-table__shonin-busyo {
+            width: 22%;
+        }
+
+        .app-table__base th.app-table__invalid {
+            width: 5%;
+        }
+    </style>
+}
+
+<partial name="_ZouryokuHeader" model="Model" />
+
+<div class="app-screen--search">
+    <form id="busyo-search-form" method="get">
+
+        <!-- 検索条件エリア -->
+        <div class="app-area__search-criteria">
+
+            <!-- 1行目 -->
+            <div class="row align-items-center mt-3">
+                <div class="col-auto d-flex">
+                    <label asp-for="Condition.BusyoName" class="me-2 app-input__label"></label>
+                </div>
+                <div class="col-md-4 col-sm-8">
+                    <input asp-for="Condition.BusyoName" class="form-control"/>
+                    <span asp-validation-for="Condition.BusyoName" class="text-danger"></span>
+                </div>
+                <div class="col-auto d-flex">
+                    <label asp-for="Condition.IncludeInactive" class="me-2 app-input__label"></label>
+                    <div class="form-check form-switch m-0">
+                        <input asp-for="Condition.IncludeInactive" class="form-check-input" type="checkbox" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2行目 -->
+            <div class="row mt-3">
+                <div class="col-auto">
+                    <button type="button" class="btn btn-primary app-btn__base" id="search-btn">
+                        <i class="fa-solid fa-magnifying-glass"></i>検索
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ツールボタンエリア -->
+        <div class="app-area__tool-button text-end mb-3">
+            <button type="button" class="btn btn-success app-btn__base me-2" id="create-btn">
+                <i class="fa fa-plus"></i>新規作成
+            </button>
+            <button type="button" class="btn btn-secondary app-btn__base" id="sort-btn">
+                <i class="fa-solid fa-arrow-up-arrow-down"></i>順序変更
+            </button>
+        </div>
+    </form>
+
+    <!-- 検索結果エリア -->
+    <div class="app-area__search-results" id="busyo-search-results">
+        <partial name="_BusyoSearchResults" model="Model" />
+    </div>
+</div>
+
+@section InputScripts {
+    <script>
+        $(function() {
+            // -----------------------------
+            // 初期データ
+            // -----------------------------
+            const $searchForm = $('#busyo-search-form');
+            const $partialPage = $('#busyo-search-results');
+
+            // -----------------------------
+            // モーダル定数
+            // -----------------------------
+            const modalWidth = 1100;
+            const modalHeight = 480;
+            const headerColor = 'var(--iframe-header-color)';
+
+            // -----------------------------
+            // submitイベント上書き
+            // -----------------------------
+            $(document).on('submit', '#busyo-search-form', () => {
+                $('#search-btn').click();
+                return false;
+            });
+
+            // -----------------------------
+            // 登録/編集モーダルを開く
+            // -----------------------------
+            function openInsert(id) {
+                const modalId = 'busyo-insert-modal';
+                const url = '@Url.Page("/BusyoMasterMaintenanceTouroku/Index")';
+                const title = id ? '部署編集' : '部署マスタ登録';
+
+                showInputModal(modalId, url, id, title, null, modalWidth, modalHeight, headerColor);
+            }
+
+            // -----------------------------
+            // 並び替えモーダルを開く
+            // -----------------------------
+            function openBusyoSort() {
+                const modalId = 'busyo-sort-modal';
+                const url = '@Url.Page("/BusyoMasterMaintenanceJyunjyoNarabikae/Index")';
+                const title = '部署順序並び替え';
+
+                showInputModal(modalId, url, null, title, null, modalWidth, modalHeight, headerColor);
+            }
+
+            // -----------------------------
+            // 検索
+            // -----------------------------
+            async function searchBusyo(form) {
+                return new Promise(resolve => {
+                    sendGetAjax(toUrl('Search'), form.serializeArray(), data => resolve(data), false);
+                });
+            }
+
+            // -----------------------------
+            // 検索ボタン押下
+            // -----------------------------
+            $('#search-btn').on('click', async function () {
+                const html = await searchBusyo($searchForm);
+                $partialPage.html(html);
+            });
+
+            // -----------------------------
+            // 新規登録ボタン押下
+            // -----------------------------
+            $('#create-btn').on('click', function () {
+                openInsert(null);
+            });
+
+            // -----------------------------
+            // 順序変更ボタン押下
+            // -----------------------------
+            $('#sort-btn').on('click', function () {
+                openBusyoSort();
+            });
+
+            // -----------------------------
+            // 部署名リンク押下
+            // -----------------------------
+            $partialPage.on('click', '.busyo-link', function () {
+                const id = $(this).data('id');
+                openInsert(id);
+            });
+        });
+    </script>
+}

@@ -1,0 +1,229 @@
+﻿@page
+@using CommonLibrary.Extensions
+@using static Zouryoku.Utils.Const
+@model Zouryoku.Pages.DakokuJikanSyusei.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "打刻時間修正";
+}
+
+<!-- 画面固有CSS -->
+@section InputStyles {
+    <style>
+        .app-area__header {
+            margin: 1%;
+        }
+
+        .text-end {
+            margin-top: 1%;
+        }
+
+        .hour-width {
+            width: 20%;
+        }
+
+        .minute-width {
+            width: 20%;
+        }
+
+        span {
+            padding-left: 0.4rem;
+            padding-right: 0.4rem;
+        }
+    </style>
+}
+<div>
+    <form id="dakoku-jikan-syusei" method="post">
+        @Html.AntiForgeryToken()
+
+        <!-- 社員ID -->
+        <input type="hidden" asp-for="ViewModel.SyainId" />
+
+        <!-- 伺い入力ヘッダのID -->
+        <input type="hidden" asp-for="ViewModel.UkagaiHeaderId" />
+
+        <!-- 伺い入力ヘッダのバージョン -->
+        <input type="hidden" asp-for="ViewModel.UkagaiHeaderVersion" />
+
+        <!-- 伺い申請のバージョン -->
+        @for (int i = 0; i < (Model.ViewModel.UkagaiShinseiVersions?.Count ?? 0); i++)
+        {
+            @if (Model.ViewModel.UkagaiShinseiVersions != null && Model.ViewModel.UkagaiShinseiVersions[i] != null)
+            {
+                <input type="hidden" asp-for="ViewModel.UkagaiShinseiVersions[@i]" />
+            }
+        }
+
+        <!-- 削除済みの勤怠打刻のバージョン -->
+        @for (int i = 0; i < (Model.ViewModel.DeletedTimeSets?.Count ?? 0); i++)
+        {
+            @if (Model.ViewModel.DeletedTimeSets != null && Model.ViewModel.DeletedTimeSets[i].Version != null)
+            {
+                <input type="hidden" asp-for="ViewModel.DeletedTimeSets[@i].Version" />
+            }
+        }
+
+        <!-- 日報の登録状況区分 -->
+        <input type="hidden" asp-for="ViewModel.TorokuKubun" />
+
+        <div class="card-body">
+            <div class="app-screen--entry">
+                <div class="app-area__header">
+                    <!-- 実績日（YMDJpWeek 拡張メソッドにより「yyyy/MM/dd（曜）」形式で表示／週情報を含む） -->
+                    <span>@Model.ViewModel.JissekiDate.YMDJpWeek()</span>
+                    <input type="hidden" asp-for="ViewModel.JissekiDate" />
+                </div>
+                <div class="app-area__body">
+                    <div class="text-end">
+                        <button type="button" class="btn btn-outline-primary" id="btn-time-set">
+                            <i class="fa-solid"></i>定時設定
+                        </button>
+                    </div>
+                    @for (int i = 0; i < (Model.ViewModel.TimeSets?.Count ?? 2); i++)
+                    {
+                        <!-- 出退勤１～３ -->
+                        <div class="row mt-3">
+                            <div class="col-sm-2 app-input__label">
+                                <span>@IndexModel.DakokuJikanSyuseiViewModel.LabelTitle[i]</span>
+                            </div>
+                            <div class="col-sm-7 d-flex align-items-center">
+                                <!-- 出勤時間 -->
+                                <select asp-for="ViewModel.TimeSets[i].Start.Hour" class="form-select form-select-sm hour-width"
+                                        asp-items="IndexModel.TimeSelectListHelper.GetHourListItems()"
+                                        id="syukkin-hour-@i"
+                                        aria-label="@IndexModel.DakokuJikanSyuseiViewModel.LabelTitle[i] 出勤 時">
+                                    <option value=""></option>
+                                </select>
+                                <span>：</span>
+                                <select asp-for="ViewModel.TimeSets[i].Start.Minute" class="form-select form-select-sm minute-width"
+                                        asp-items="IndexModel.TimeSelectListHelper.GetMinuteListItems()"
+                                        id="syukkin-minute-@i"
+                                        aria-label="@IndexModel.DakokuJikanSyuseiViewModel.LabelTitle[i] 出勤 分">
+                                    <option value=""></option>
+                                </select>
+
+                                <span>～</span>
+
+                                <!-- 退勤時間 -->
+                                <select asp-for="ViewModel.TimeSets[i].End.Hour" class="form-select form-select-sm hour-width"
+                                        asp-items="IndexModel.TimeSelectListHelper.GetHourListItems()"
+                                        id="taikin-hour-@i"
+                                        aria-label="@IndexModel.DakokuJikanSyuseiViewModel.LabelTitle[i] 退勤 時">
+                                    <option value=""></option>
+                                </select>
+                                <span>：</span>
+                                <select asp-for="ViewModel.TimeSets[i].End.Minute" class="form-select form-select-sm minute-width"
+                                        asp-items="IndexModel.TimeSelectListHelper.GetMinuteListItems()"
+                                        id="taikin-minute-@i"
+                                        aria-label="@IndexModel.DakokuJikanSyuseiViewModel.LabelTitle[i] 退勤 分">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        @if (Model.ViewModel.TimeSets != null && i < Model.ViewModel.TimeSets.Count && Model.ViewModel.TimeSets[i].Version != null)
+                        {
+                            <!-- 表示用の勤怠打刻のバージョン -->
+                            <input type="hidden" asp-for="ViewModel.TimeSets[@i].Version" />
+                        }
+                    }
+                    <div class="row mt-3">
+                        <!-- 修正理由 -->
+                        <div class="col-sm-2 app-input__label">
+                            @Html.DisplayNameFor(m => m.ViewModel.SyuseiReason)
+                        </div>
+                        <div class="col-sm-7">
+                            <textarea class="form-control app-input__textarea" rows="5" cols="50" asp-for="ViewModel.SyuseiReason"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="py-5 my-5"></div>
+            <div class="fixed-bottom bg-body app-area__footer">
+                <hr />
+                <div class="text-end p-2">
+                    <button type="button" class="btn btn-primary app-btn__base" id="btn-register">
+                        <i class="fa-solid fa-check"></i>修正
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Modal / 共通 JS -->
+@section InputScripts {
+    <script>
+        $(function() {
+            var teijiStartHour = @BusinessHoursAmStart.Hour
+            var teijiStartMinute = @BusinessHoursAmStart.Minute
+            var teijiEndHour = @BusinessHoursPmEnd.Hour
+            var teijiEndMinute = @BusinessHoursPmEnd.Minute
+
+            console.log(teijiStartHour);
+
+            const registerUrl = toUrl("Register");
+
+            // 定時設定
+            $("#btn-time-set").on("click", function() {
+                for (let i = 0; i < 3; i++) {
+                    $(`#syukkin-hour-${i}, #syukkin-minute-${i}, #taikin-hour-${i}, #taikin-minute-${i}`).val("");
+                }
+                $("#syukkin-hour-0").val(teijiStartHour);
+                $("#syukkin-minute-0").val(teijiStartMinute);
+                $("#taikin-hour-0").val(teijiEndHour);
+                $("#taikin-minute-0").val(teijiEndMinute);
+            });
+
+            // 各セットの出退勤select群
+            // 1セット目のみ例外的に無効化されない
+            const timeSets = [$('select[name^="ViewModel.TimeSets[0].End."]')];
+            const timeSetCount = @Model.ViewModel.TimeSets.Count;
+            for (let i = 1; i < timeSetCount; i++) {
+                timeSets.push($(`select[name^="ViewModel.TimeSets[${i}].Start."]`));
+                timeSets.push($(`select[name^="ViewModel.TimeSets[${i}].End."]`));
+            }
+
+            /**
+             * 退勤[i]が入力済みの場合のみ、出勤[i+1]を有効化。
+             * それ以外は無効化し、値をクリア。
+             */
+            function updateTimeSets() {
+                for (let i = 0; i < timeSets.length - 1; i++) {
+                    const allFilled = timeSets[i].filter(function() { return !$(this).val(); }).length === 0;
+                    if (allFilled) {
+                        timeSets[i + 1].prop('disabled', false);
+                    } else {
+                        // i+1以降はすべて無効化＆クリア
+                        timeSets.slice(i + 1).forEach(function ($timeSet) {
+                            $timeSet.prop('disabled', true).val('');
+                        });
+                        break;
+                    }
+                }
+            }
+
+            // 初期状態
+            updateTimeSets();
+
+            // 値変更時に状態更新
+            $('select[name^="ViewModel.TimeSets"]').on('change', function () {
+                updateTimeSets();
+            });
+
+            // 登録
+            $("#btn-register").on("click", function () {
+                let data = $("#dakoku-jikan-syusei").serializeArray();
+
+                //登録処理
+                sendAjax(
+                    registerUrl,
+                    data,
+                    function () {
+                       closeCurrentIziModal();
+                    },
+                    false
+                );
+            });
+        });
+    </script>
+}

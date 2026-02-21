@@ -1,0 +1,654 @@
+﻿@page
+@using Microsoft.AspNetCore.Html
+@using System.Text.Encodings.Web;
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@model IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "社員選択";
+}
+
+@section InputStyles {
+    <!-- FancytreeCSS -->
+    <link rel="stylesheet" href="~/js/fancytree/skin-win8/ui.fancytree.min.css" asp-append-version="true">
+    <style>
+        #app-area-height-busyo-tree {
+            height: 35rem;
+            text-align: left !important;
+        }
+
+        #app-area-height-busyo-tree.closed {
+            opacity: 1;
+        }
+
+        .app-area-height-syain-names-list {
+            height: 35rem;
+        }
+
+        .syain-names-list-border-off {
+            border: none;
+        }
+
+        ul.fancytree-container {
+            border: none !important;
+        }
+
+        .app-view-place {
+            align-items: stretch;
+            flex-wrap: nowrap;
+            overflow: hidden;
+            height: 35rem;
+        }
+
+        .app-tree-place {
+            transition: opacity 0s ease, width 0s ease;
+        }
+
+        .app-tree-place.closed {
+            opacity: 0;
+            width: 0;
+            padding: 0;
+        }
+
+        .app-syain-place {
+            transition: width 0s ease;
+        }
+
+        .app-syain-place.expand {
+            width: 100%;
+        }
+    </style>
+}
+
+<form id="busyo-select-form" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="selectCounts" id="select-counts" value="0" />
+    <input type="hidden" name="busyoId" id="select-busyo-id" value="" />
+</form>
+
+<div class="app-screen--others2">
+    <div class="app-area__header">
+        <!-- 社員名検索欄 -->
+        <form method="get" class="syain-name-form">
+            <div class="row align-items-center mb-3">
+                <div class="col-12 col-lg-auto">
+                    <label asp-for="SyainName" class="d-flex align-items-center mb-2 mb-md-0 me-md-3 app-input__label"></label>
+                </div>
+                <div class="col-12 col-lg-5 d-flex flex-column justify-content-center">
+                    <span asp-validation-for="SyainName" class="text-danger small mb-1"></span>
+                    <div class="input-group">
+                        <input asp-for="SyainName" type="text" class="form-control app-input__textbox input-syain-name" autocomplete="off" />
+                        <button type="submit" class="btn btn-primary text-nowrap app-btn__base search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <main class="app-area__body">
+        <!-- 社員名ナビバー -->
+        <div class="container-fluid d-flex align-items-center justify-content-start app-square">
+            <button class="btn humberger-btn ms-2 app-btn__base" type="button">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <span class="ms-2">社員選択</span>
+        </div>
+        <div class="row g-0 mb-2 app-view-place">
+            <div class="col-12 col-lg-6 app-tree-place">
+                <!-- 部署ツリー -->
+                <div class="card card-body overflow-auto pe-2" id="app-area-height-busyo-tree">
+                    <span class="d-flex align-items-center gap-2">
+                        <i class="belong-busyo-icon ms-4"></i>
+                        <span class="app-belong-busyo app-clickable mb-0 ms-1"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 app-syain-place card card-body overflow-auto app-area-height-syain-names-list">
+                @if (Model.IsMultipleSelection)
+                {
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                        <div class="d-flex gap-2 ms-auto">
+                            <button type="button" class="btn btn-success app-btn__base select-all-btn">
+                                <i class="fa-regular fa-square-check">全選択</i>
+                            </button>
+                            <button type="button" class="btn btn-danger app-btn__base un-select-all-btn">
+                                <i class="fa-regular fa-square">全解除</i>
+                            </button>
+                        </div>
+                    </div>
+                }
+                <!-- 社員表示 -->
+                <div id="syainlist-container"></div>
+            </div>
+        </div>
+    </main>
+    <footer class="app-area__footer">
+        <!-- 複数選択時、確定ボタン -->
+        @if (Model.IsMultipleSelection)
+        {
+            <div class="col-12 d-flex justify-content-end">
+                <button type="button" class="btn btn-primary confirm app-btn__base">
+                    <i class="fa-solid fa-circle-check"></i> 確定
+                </button>
+            </div>
+        }
+    </footer>
+</div>
+
+@section InputScripts {
+    <!-- FancytreeJs -->
+    <script src="~/js/fancytree/jquery.fancytree-all-deps.min.js" asp-append-version="true"></script>
+    <script>
+        $(function(){
+            // 複数選択フラグ
+            const isMultipleSelection = @Json.Serialize(Model.IsMultipleSelection);
+
+            // 最終選択社員情報
+            const initialSelectedSyain = @Json.Serialize(Model.PreSelectedSyain);
+
+            // 最終選択部署数
+            const initialBusyoCounts = @Json.Serialize(Model.PreSelectedBusyoCounts);
+
+            // ログインユーザー所属部署ID
+            const userBusyoId = @Json.Serialize(Model.UserBusyoId);
+
+            // 増減量
+            const step = 1
+
+            const TREE = '#app-area-height-busyo-tree';
+
+            const SYAINLIST_CONTAINER = '#syainlist-container';
+
+            const BELONG_BUSYO = '.app-belong-busyo';
+
+            const SYAIN_CHECK_BOX = '.syain-check';
+
+            const HUMBERGER = '.humberger-btn';
+
+            const SYAIN_BASE_ID = 'syainbase-id';
+
+            const SYAIN_ID = 'syain-id';
+
+            const SYAIN_NAME = 'syain-name';
+
+            const BUSYO_ID = 'busyo-id';
+
+            const CODE = 'code';
+
+            // ツリービュー表示領域
+            const $treePlace = $(".app-tree-place");
+
+            // ツリービュー
+            const $tree = $(TREE);
+
+            // 社員表示欄
+            const $syainPlace = $('.app-syain-place');
+
+            // ルートの部署アイコン
+            const rootDepthIcon = 'fa-regular fa-building';
+
+            // 1階層目の部署アイコン
+            const firstDepthIcon = 'fa-sharp fa-light fa-people-group';
+
+            // 2階層目の部署アイコン
+            const otherDepthIcon = 'fa-light fa-user-group';
+
+            // ツリー取得URL
+            const getTreeUrl = toUrl('Tree');
+
+            // 社員取得URL
+            const getSyainUrl = toUrl('Syain');
+
+            // 社員名検索結果取得URL
+            const getSearchUrl = toUrl('Search');
+
+            // 社員名検索候補取得URL
+            const autoCompUrl = toUrl('SyainNameAutoComp');
+
+            // 社員名検索入力欄
+            const $syainInput = $('.input-syain-name');
+
+            // 社員検索フォーム
+            const $syainForm = $('.syain-name-form');
+
+            // 未選択エラーチェック、最終選択部署セッション保存URL
+            const validationUrl = toUrl('ValidateSelection');
+
+            // 部署別のチェック数
+            let busyoCounts = {};
+
+            // 選択社員リスト
+            let selectedSyain = {};
+
+            // 初期表示部署
+            let selectBusyoId = @Json.Serialize(Model.SelectionBusyoId);
+
+            // 社員選択数
+            let selectCounts;
+
+            // 最終選択社員情報、部署選択数復元
+            function setFinalState() {
+                if (initialSelectedSyain && Object.keys(initialSelectedSyain).length > 0) {
+                    // initialSelectedSyain(最終選択社員)をselectedSyain(選択社員)に追加
+                    Object.keys(initialSelectedSyain).forEach(key => {
+                        const value = initialSelectedSyain[key];
+                        const syainId = value.id;
+                        const syainName = value.name;
+                        const busyoId = value.busyoId;
+                        const syainBaseId = value.syainBaseId;
+                        const code = value.code;
+
+                        if (!syainBaseId)
+                            return;
+
+                        selectedSyain[String(syainBaseId)] = {
+                            syainId: syainId,
+                            syainName: syainName,
+                            busyoId: busyoId,
+                            syainBaseId: syainBaseId,
+                            code: code
+                        };
+                    });
+                }
+
+                // busyoCounts初期化
+                if (initialBusyoCounts && Object.keys(initialBusyoCounts).length > 0) {
+                    Object.keys(initialBusyoCounts).forEach(key => {
+                        busyoCounts[String(key)] = Number(initialBusyoCounts[key]) || 0;
+                    });
+                }
+            }
+
+            // チェック状態復元関数
+            function restoreCheckedState() {
+                Object.values(selectedSyain).forEach(syain => {
+                    const id = syain.syainBaseId;
+                    if (!id)
+                        return;
+                    const checkbox = $('#flexCheck_' + id);
+                    if (checkbox.length)
+                        checkbox.prop('checked', true);
+                });
+
+                Object.keys(busyoCounts).forEach(id => {
+                    updateBusyoBadge(Number(id));
+                });
+            }
+
+            // 部署バッジ更新関数
+            function updateBusyoBadge(busyoId) {
+                const count = busyoCounts[String(busyoId)] || 0;
+                const treeObj = $.ui.fancytree.getTree(TREE);
+                if (!treeObj)
+                    return;
+                const targetNode = treeObj.findFirst(function(node) {
+                    return node.data?.id == busyoId;
+                });
+                if (!targetNode || !targetNode.data)
+                    return;
+                targetNode.data.badgeCount = count;
+                targetNode.render();
+            }
+
+            // ツリービューアイコン付与関数
+            function nodeIcon(event, data){
+                const node = data.node;
+                const depth = node.getLevel() - 1;
+                const iconClass = depth === 0 ? rootDepthIcon
+                                : depth === 1 ? firstDepthIcon
+                                : otherDepthIcon;
+                node.data.icon = iconClass;
+                return iconClass;
+            }
+
+            // ツリービューバッチ付与関数
+            function showBadge(event, data){
+                const targetNode = data.node;
+                if (!targetNode || !targetNode.span)
+                    return;
+
+                let titleHtml = targetNode.data?.titleText ?? targetNode.title;
+                if (isMultipleSelection && targetNode.data && targetNode.data.badgeCount > 0) {
+                    titleHtml += ` <span class="badge text-bg-primary count-badge" data-id="${targetNode.data?.id}">${targetNode.data.badgeCount}</span>`;
+                }
+                $(targetNode.span).find('.fancytree-title').html(titleHtml);
+            }
+
+            // ツリービューノード押下時所属社員検索
+            function getSyain(event, data){
+                const targetNode = data.node;
+                const busyoId = targetNode.data?.id;
+                if (busyoId == null)
+                    return;
+
+                // 部署選択時、最終選択部署に設定
+                selectBusyoId = busyoId;
+                const selectedSyainIds = Object.keys(selectedSyain).map(key => Number(key));
+
+                 // 部署IDから社員検索
+                 sendGetAjax(
+                    getSyainUrl,
+                    {
+                        busyoId: busyoId,
+                        isMultipleFlg: isMultipleSelection,
+                        selectedSyainIds: JSON.stringify(selectedSyainIds)
+                    },
+                    function(html) {
+                        $(SYAINLIST_CONTAINER).html(html);
+
+                        // 社員名再表示時にチェック状態復元
+                        if (isMultipleSelection === true)
+                            restoreCheckedState();
+
+                        // 社員表示欄部署アイコン付与
+                        applyIconsFromDepth();
+                    },
+                    false,
+                    true
+                 );
+            }
+
+            // 部署初期選択状態化、ログインユーザー所属部署ボタン設定関数
+            function onTreeInit(event, data){
+                const treeObj = $.ui.fancytree.getTree(TREE);
+                if (!treeObj)
+                    return
+
+                // ログインユーザー所属部署ボタン化
+                const userBusyo = treeObj.findFirst(node =>  node.data?.id == userBusyoId);
+                if (!userBusyo) 
+                    return;
+
+                if (!userBusyo.data.icon) {
+                    const iconClass = nodeIcon(null, { node: userBusyo });
+                    userBusyo.data.icon = iconClass;
+                }
+                $('.belong-busyo-icon').addClass(userBusyo.data.icon);
+                $(BELONG_BUSYO).text(userBusyo.title).attr(BUSYO_ID, userBusyoId);
+
+                // ノード選択状態化
+                const selectNode = treeObj.findFirst(node =>  node.data?.id  == selectBusyoId);
+                if (!selectNode) 
+                    return;
+
+                $.when(selectNode.makeVisible()).done(function(){
+                    selectNode.setActive();
+                });
+            }
+
+            // ツリービュー生成関数
+            function initFancytree() {
+                $(TREE).fancytree({
+                    source: {url: getTreeUrl, cache: false},
+                    icon: nodeIcon,
+                    renderNode: showBadge,
+                    activate: getSyain,
+                    init: onTreeInit
+                });
+            }
+
+            function toggleTreeView() {
+              // ツリービュー欄開閉
+              $treePlace.toggleClass('closed');
+              // 社員表示欄幅調整
+              $syainPlace.toggleClass('expand');
+              // ツリービュー内表示、非表示化
+              $tree.toggleClass('closed');
+            }
+
+            // 初期表示実行関数
+            $(function() {
+                // ツリービュー生成関数
+                initFancytree();
+
+                // 複数選択時に最終選択社員、最終部署選択数を設定
+                if(isMultipleSelection)
+                    setFinalState();
+
+                IsMobile();
+            });
+
+            function IsMobile(){
+                const screenWidth = window.screen.width;
+
+                if (screenWidth < 992)
+                    toggleTreeView();
+            }
+
+            // 社員表示欄の部署アイコン付与関数
+            function applyIconsFromDepth() {
+                $('.busyo-block').each(function() {
+                    const block = $(this);
+                    const depth = Number(block.data('depth'));
+                    const icon = block.find('.busyo-icon');
+                    let iconClass = depth === 0 ? rootDepthIcon
+                                  : depth === 1 ? firstDepthIcon
+                                  : otherDepthIcon;
+                    icon.attr('class', iconClass + ' busyo-icon me-2');
+                });
+            }
+
+            // 所属部署ボタン押下時、社員検索関数
+            $(document).on('click', BELONG_BUSYO, function(e){
+                const busyoId = $(this).attr(BUSYO_ID);
+                if (!busyoId)
+                    return;
+
+                // ツリーオブジェクト取得
+                const treeObj = $.ui.fancytree.getTree(TREE);
+                if (!treeObj)
+                    return;
+
+                // node検索
+                const node = treeObj.findFirst(node => String(node.data.id) === String(busyoId));
+                if (!node)
+                    return;
+
+                // 部署選択時、最終選択部署に設定
+                selectBusyoId = busyoId;
+
+                // getSyain関数呼び出し
+                getSyain(e, { node: node });
+            });
+
+            // チェック時、選択社員リストに追加
+            $(document).on('change', SYAIN_CHECK_BOX , function () {
+                const checked = $(this).is(':checked');
+                const syainBaseId = String($(this).data(SYAIN_BASE_ID));
+                const syainId = $(this).data(SYAIN_ID);
+                const syainName = $(this).data(SYAIN_NAME) || "";
+                const busyoId = String($(this).data(BUSYO_ID));
+                const code = $(this).data(CODE) || "";
+
+                if (checked) {
+                    // 選択リスト追加
+                    selectedSyain[syainBaseId] = {
+                        syainId: syainId,
+                        syainName: syainName,
+                        busyoId: Number(busyoId),
+                        syainBaseId: syainBaseId,
+                        code: code
+                    };
+                    busyoCounts[busyoId] = (busyoCounts[busyoId] || 0) + step;
+                } else {
+                    // 選択リスト削除
+                    if (selectedSyain.hasOwnProperty(syainBaseId))
+                        delete selectedSyain[syainBaseId];
+                    busyoCounts[busyoId] = Math.max(0, (busyoCounts[busyoId] || 0) - step);
+                }
+                // バッジ更新
+                updateBusyoBadge(busyoId);
+            });
+
+
+            // ハンバーガーメニュー挙動
+            $(document).on('click', HUMBERGER, function(){
+                toggleTreeView();
+            });
+
+            // 全選択、全解除ボタン処理関数
+            function toggleAllChecks(shouldCheck) {
+                $(SYAIN_CHECK_BOX).each(function () {
+                    const syainBaseId = $(this).data(SYAIN_BASE_ID);
+                    const busyoId = $(this).data(BUSYO_ID);
+
+                    if (shouldCheck) {
+                        // 未チェックのものだけチェックして処理
+                        if (!$(this).is(':checked')) {
+                            $(this).prop('checked', true);
+                            // listに登録
+                            selectedSyain[syainBaseId] = {
+                                syainId: $(this).data(SYAIN_ID),
+                                syainName: $(this).data(SYAIN_NAME),
+                                busyoId: busyoId,
+                                syainBaseId: syainBaseId,
+                                code: $(this).data(CODE)
+                            };
+                            // 部署カウント増加
+                            busyoCounts[busyoId] = (busyoCounts[busyoId] || 0) + step;
+                            // バッジ更新
+                            updateBusyoBadge(busyoId);
+                        }
+                    } else {
+                        // チェック済みのものだけチェック外して処理
+                        if ($(this).is(':checked')) {
+                            $(this).prop('checked', false);
+                            // listから削除
+                            delete selectedSyain[syainBaseId];
+                            // 部署カウント減少
+                            if (busyoCounts[busyoId])
+                                busyoCounts[busyoId] = Math.max(0, (busyoCounts[busyoId] || 0) - step);
+                            // バッジ更新
+                            updateBusyoBadge(busyoId);
+                        }
+                    }
+                });
+            }
+
+            // 全選択ボタン押下イベント
+            $(document).on('click', '.select-all-btn' , function () {
+                toggleAllChecks(true);
+            });
+
+            // 全解除ボタン押下イベント
+            $(document).on('click', '.un-select-all-btn' , function () {
+                toggleAllChecks(false);
+            });
+
+            // 社員名のオートコンプリート
+            $(function SyainNameAutoComplete() {
+                initAutocomplete($syainInput, autoCompUrl);
+            });
+
+            // 社員名検索関数
+            function syainNameSearch() {
+                clearErrors($syainForm);
+
+                // 検索欄未入力時、returnしエラーメッセージ表示
+                if (!$syainForm.valid())
+                    return;
+
+                // 社員検索欄から入力値取得
+                const name = $syainInput.val();
+                // 社員名から社員検索
+                sendGetAjax(
+                    getSearchUrl,
+                    {
+                        syainName : name,
+                        isMultipleFlg : isMultipleSelection
+                    },
+                    function(html){
+                        $(SYAINLIST_CONTAINER).html(html);
+
+                        // // 社員名再表示時にチェック状態復元
+                        if(isMultipleSelection == true)
+                            restoreCheckedState();
+
+                        // 社員表示欄部署アイコン付与
+                        applyIconsFromDepth()
+                    },
+                    false,
+                    true
+                );
+            };
+
+            // 検索ボタン押下時、社員名検索
+            $(document).on('click', '.search', function () {
+                syainNameSearch();
+            });
+
+            // 入力フォームEnter押下時、社員名検索
+            $('form').on('submit', function(e) {
+                e.preventDefault();
+                syainNameSearch();
+            });
+
+            // 配列<object>に変更関数
+            function changeObjectList() {
+                const list = Object.values(selectedSyain).map(syain => ({
+                    syainId: syain.syainId,
+                    syainName: syain.syainName,
+                    busyoId: syain.busyoId,
+                    syainBaseId: syain.syainBaseId,
+                    code: syain.code
+                }))
+                return list;
+            }
+
+            // 未選択エラーチェック、セッション保存
+            function sendValidation(selectCounts, list){
+                $('#select-counts').val(selectCounts);
+                $('#select-busyo-id').val(selectBusyoId);
+                let formData =  $('#busyo-select-form').serialize();
+
+                let typeMsg = "syainSelected";
+                sendAjax(
+                    validationUrl,
+                    formData,
+                    function(){
+                        // 親画面へ送信
+                        window.parent.postMessage({
+                            type: typeMsg,
+                            selectedSyain: list
+                        }, window.location.origin);
+                        closeCurrentIziModal();
+                    },
+                    false
+                );
+            }
+
+            // 社員名リンク押下時に親画面へ選択情報譲渡
+            $(document).on('click', '.syain-link', function () {
+                selectedSyain = {
+                    syainId: $(this).data(SYAIN_ID),
+                    syainName: $(this).data(SYAIN_NAME),
+                    busyoId: $(this).data(BUSYO_ID),
+                    syainBaseId: $(this).data(SYAIN_BASE_ID),
+                    code: $(this).data(CODE)
+                };
+                // 選択社員数取得
+                selectCounts = 1;
+
+                // 未選択エラーチェック、セッション保存
+                sendValidation(selectCounts, selectedSyain);
+            });
+
+            // 確定ボタン押下時に親画面へ選択情報譲渡
+            $(document).on('click', '.confirm', function () {
+                // アラート非表示
+                errorMessageClear();
+
+                // List<Object>に変換
+                const syainList = changeObjectList();
+
+                // 選択社員数取得
+                selectCounts = Object.keys(selectedSyain).length;
+
+                // 未選択エラーチェック、セッション保存
+                sendValidation(selectCounts, syainList);
+            });
+        });
+    </script>
+}

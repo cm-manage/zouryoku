@@ -1,0 +1,70 @@
+﻿@page
+@model Zouryoku.Pages.Maintenance.PcLogs.DetailsModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>PcLog</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PcLog.Datetime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PcLog.Datetime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PcLog.PcName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PcLog.PcName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PcLog.UserName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PcLog.UserName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PcLog.SyainId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PcLog.SyainId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PcLog.Operation)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PcLog.Operation)
+        </dd>
+    </dl>
+</div>
+<div class="mt-3">
+    <button type="button" class="btn btn-secondary" onclick="closeDetailsModal()">閉じる</button>
+</div>
+
+<script>
+
+    // モーダルID取得して閉じる
+    function closeDetailsModal() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const modalId = params.get('modalId');
+            if (modalId) {
+                parent.closeIziModal(modalId);
+            } else {
+                parent.closeIziModal();
+            }
+        } catch (e) {
+            失敗時は親にフォールバック
+            if (parent && typeof parent.closeIziModal === 'function') {
+                parent.closeIziModal();
+            }
+        }
+    }
+</script>

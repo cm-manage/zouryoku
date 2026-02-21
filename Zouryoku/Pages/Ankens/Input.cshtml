@@ -1,0 +1,334 @@
+@page
+@model Zouryoku.Pages.Ankens.InputModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.IsEdit ? "案件編集" : "案件新規登録";
+}
+
+@if (!Model.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-errors d-flex">
+        <div><i class="fas fa-exclamation-triangle fa-fw"></i></div>
+        <div id="validation-summary" asp-validation-summary="ModelOnly" class="app-validation-summary-errors"></div>
+    </div>
+}
+
+<div class="app-screen--entry">
+    <!-- ヘッダーエリア -->
+    <div class="app-area__header"></div>
+
+    <!-- ボディエリア -->
+    <div class="app-area__body">
+        <form method="post" id="anken-input-form">
+            @Html.AntiForgeryToken()
+            @if (Model.IsEdit)
+            {
+                <input type="hidden" asp-for="Anken.Id" />
+            }
+
+            <!-- 受注工番（3分割 + 検索）-->
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="Anken.ProjectNo" class="col-lg-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Anken.ProjectNo)
+                    <span class="text-danger">＊</span>
+                </label>
+                <div class="col-lg-10">
+                    <span asp-validation-for="Anken.ProjectNo" class="text-danger"></span>
+                    <div class="row g-2">
+                        <div class="col-5">
+                            <input asp-for="Anken.ProjectNo"
+                                   class="form-control app-input__textbox"
+                                   data-valid-group-target="kingsjuchuno"
+                                   readonly />
+                        </div>
+                        <div class="col-4">
+                            <input asp-for="Anken.JuchuuNo"
+                                   class="form-control app-input__textbox"
+                                   data-valid-group="kingsjuchuno"
+                                   readonly />
+                        </div>
+                        <div class="col-2">
+                            <input asp-for="Anken.JuchuuGyoNo"
+                                   class="form-control app-input__textbox"
+                                   data-valid-group="kingsjuchuno"
+                                   readonly />
+                        </div>
+                        <div class="col-1">
+                            <button type="button" class="btn btn-primary h-100 w-100 app-btn__base" id="btn-search-juchu" title="検索">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 受注件名 -->
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="Anken.Bukken" class="col-lg-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Anken.Bukken)
+                    <span class="text-danger">＊</span>
+                </label>
+                <div class="col-lg-10">
+                    <span asp-validation-for="Anken.Bukken" class="text-danger"></span>
+                    <input asp-for="Anken.Bukken" class="form-control app-input__textbox" readonly />
+                    <input asp-for="Anken.KingsJuchuId" class="visually-hidden" readonly />
+                </div>
+            </div>
+
+            <!-- 案件名 -->
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="Anken.AnkenName" class="col-lg-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Anken.AnkenName)
+                    <span class="text-danger">＊</span>
+                </label>
+                <div class="col-lg-10">
+                    <span asp-validation-for="Anken.AnkenName" class="text-danger"></span>
+                    <input asp-for="Anken.AnkenName" class="form-control app-input__textbox" maxlength="128" />
+                </div>
+            </div>
+
+            <!-- 受注種類 -->
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="Anken.JyutyuSyuruiId" class="col-lg-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Anken.JyutyuSyuruiId)
+                    <span class="invisible">＊</span>
+                </label>
+                <div class="col-lg-10">
+                    <select asp-for="Anken.JyutyuSyuruiId" class="form-select app-input__select" asp-items="Model.JyutyuSyuruiOptions">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 顧客情報（検索） -->
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="Anken.KokyakuName" class="col-lg-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Anken.KokyakuName)
+                    <span class="text-danger">＊</span>
+                </label>
+                <div class="col-lg-10">
+                    <span asp-validation-for="Anken.KokyakuName" class="text-danger"></span>
+                    <div class="input-group">
+                        <input asp-for="Anken.KokyakuName" class="form-control app-input__textbox" readonly />
+                        <button type="button" class="btn btn-primary app-btn__base" id="btn-search-kokyaku" title="顧客検索">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    <input asp-for="Anken.KokyakuKaisyaId" class="visually-hidden" readonly />
+                </div>
+            </div>
+
+            <!-- 弊社責任者（検索 + 取消） -->
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="Anken.SyainName" class="col-lg-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Anken.SyainName)
+                    <span class="invisible">＊</span>
+                </label>
+                <div class="col-lg-10">
+                    <span asp-validation-for="Anken.SyainName" class="text-danger"></span>
+                    <div class="input-group">
+                        <input asp-for="Anken.SyainName" class="form-control app-input__textbox" readonly />
+                        <button type="button" class="btn btn-primary app-btn__base" id="btn-search-syain" title="社員検索">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary app-btn__base" id="btn-clear-syain">
+                            <i class="fa-solid fa-xmark"></i>取消
+                        </button>
+                    </div>
+                    <input asp-for="Anken.SyainBaseId" class="visually-hidden" readonly />
+                </div>
+            </div>
+
+            <!-- 案件内容 -->
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="Anken.Naiyou" class="col-lg-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Anken.Naiyou)
+                    <span class="invisible">＊</span>
+                </label>
+                <div class="col-lg-10">
+                    <span asp-validation-for="Anken.Naiyou" class="text-danger"></span>
+                    <textarea asp-for="Anken.Naiyou" class="form-control app-input__textarea" rows="5" maxlength="2000"></textarea>
+                </div>
+            </div>
+            <input asp-for="Anken.Version" type="hidden" />
+        </form>
+    </div>
+    <div class="py-3 my-3"></div>
+    <!-- フッターエリア -->
+    <div class="app-area__footer">
+        <hr />
+        <div class="text-end p-2">
+            @if (Model.ModelState.IsValid)
+            {
+                <button type="button" class="btn btn-primary app-btn__base" id="btn-register">
+                    <i class="fa-solid fa-check"></i>登録
+                </button>
+                @if (Model.IsEdit)
+                {
+                    <button type="button" class="btn btn-danger app-btn__base" id="btn-delete">
+                        <i class="fa-solid fa-trash"></i>削除
+                    </button>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section InputScripts {
+    <script>
+        $(function() {
+            'use strict';
+
+            const isEdit = (@Model.IsEdit.ToString().ToLower());
+            const $form = $('form');
+
+            // ---------------------------------------------
+            // モーダル表示関数
+            // ---------------------------------------------
+
+            // 受注情報検索
+            function openAnkenJuchuIndex() {
+                const modalId = 'anken-juchu-index-modal';
+                const url = '@Url.Page("../JuchuJohoKensaku/Index")';
+                const title = '受注情報検索';
+                showFullModal(modalId, url, title, '', function() {});
+            }
+
+            // 顧客情報検索
+            function openAnkenKokyakuIndex() {
+                const modalId = 'anken-kokyaku-index-modal';
+                const url = toQueryUrl('@Url.Page("../KokyakuMeiKensaku/Index")') + 'CanCardClick=true';
+                const title = '顧客検索';
+                showFullModal(modalId, url, title, '', function() {});
+            }
+
+            // 社員情報検索
+            function openAnkenSyainIndex() {
+                const modalId = 'anken-syain-index-modal';
+                const url = toQueryUrl('@Url.Page("../SyainSentaku/Index")') + 'IsMultipleSelection=false';
+                const title = '社員検索';
+                showFullModal(modalId, url, title, '', function() {});
+            }
+
+            // 社員情報クリア
+            function clearSyain() {
+                $('#Anken_SyainName').val('');
+                $('#Anken_SyainBaseId').val('');
+            }
+
+            // ---------------------------------------------
+            // 登録・削除処理
+            // ---------------------------------------------
+
+            // 登録/更新/削除共通処理
+            async function register(actionName, handler, messageType) {
+                // 既存Validationエラーメッセージクリア
+                clearErrors('#anken-input-form');
+
+                // クライアント側バリデーション
+                if (!$form.valid()) {
+                    return;
+                }
+
+                // 確認ダイアログ表示
+                commonConfirm(actionName + 'します。よろしいですか？', null,
+                    async function() {
+                        await executeRegister(handler, actionName, messageType);
+                    }
+                );
+            }
+
+            // 登録処理実行
+            async function executeRegister(handler, actionName, messageType) {
+                return await new Promise((resolve) => {
+                    sendRegisterAjax(toUrl(handler), $form.serializeArray(),
+                        function(result) {
+                            switch(result.status){
+                                case responseStatusSuccess:
+                                    onRegisterSuccess(result, actionName, messageType);
+                                    resolve(result);
+                                    break;
+                                case responseStatusError:
+                                    errorMessage(result.message);
+                                    resolve(null);
+                                    break;
+                            }
+                        }
+                    );
+                })
+            }
+
+            // 登録成功時処理
+            function onRegisterSuccess(data, actionName, messageType) {
+                registerSuccessSwal(actionName + 'しました', null,
+                    function() {
+                        // 親画面へメッセージ送信
+                        window.parent.postMessage({ type: messageType }, window.location.origin);
+
+                        // モーダルを閉じる
+                        closeCurrentIziModal();
+                    }
+                );
+            }
+
+            // ---------------------------------------------
+            // バリデーション設定
+            // ---------------------------------------------
+
+            // Validation共通初期化関数を呼ぶ
+            initValidation('#anken-input-form');
+
+            // ---------------------------------------------
+            // イベントリスナー登録
+            // ---------------------------------------------
+
+            // 検索ボタン
+            $('#btn-search-juchu').on('click', openAnkenJuchuIndex);
+            $('#btn-search-kokyaku').on('click', openAnkenKokyakuIndex);
+            $('#btn-search-syain').on('click', openAnkenSyainIndex);
+            $('#btn-clear-syain').on('click', clearSyain);
+
+            // 登録ボタン
+            $('#btn-register').on('click', function() {
+                register('登録', 'Register', 'ankenRegistered');
+            });
+
+            // 削除ボタン
+            $('#btn-delete').on('click', function() {
+                register('削除', 'Delete', 'ankenDeleted');
+            });
+
+            // iziModalからの情報取得処理
+            window.addEventListener('message', function(event) {
+
+                // セキュリティチェック（オリジン確認）
+                if (event.origin !== window.location.origin) return;
+
+                if (!event.data || !event.data.type) return;
+
+                switch (event.data.type) {
+                    case 'kingsJuchuSelected':
+                        // 受注情報検索結果
+                        $('#Anken_ProjectNo').val(event.data.project_no);
+                        $('#Anken_JuchuuNo').val(event.data.juchuu_no);
+                        $('#Anken_JuchuuGyoNo').val(event.data.juchuu_gyo_no);
+                        $('#Anken_Bukken').val(event.data.bukken);
+                        $('#Anken_KingsJuchuId').val(event.data.id);
+                        break;
+
+                    case 'kokyakuSelected':
+                        // 顧客検索結果
+                        $('#Anken_KokyakuName').val(event.data.name);
+                        $('#Anken_KokyakuKaisyaId').val(event.data.id);
+                        break;
+
+                    case 'syainSelected':
+                        // 社員検索結果
+                        $('#Anken_SyainName').val(event.data.selectedSyain.syainName);
+                        $('#Anken_SyainBaseId').val(event.data.selectedSyain.syainBaseId);
+                        break;
+                }
+            });
+        });
+    </script>
+}

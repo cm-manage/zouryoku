@@ -1,0 +1,94 @@
+﻿@page
+@model TestDriverModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "社員選択 TestDriver";
+}
+
+<h1 class="mb-3 mt-3">社員選択 TestDriver</h1>
+<table class="table">
+    <tbody>
+        <tr>
+            <th scope="row">単一選択(リンク)</th>
+            <td><a href="javascript:void(0);" class="open-syainSentaku-single">社員選択</a></td>
+        </tr>
+        <tr>
+            <th scope="row">複数選択(チェックボックス)</th>
+            <td><a href="javascript:void(0);" class="open-syainSentaku-multiple">社員選択</a></td>
+        </tr>
+    </tbody>
+</table>
+<h1 class="mb-3">選択社員データ</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">社員ID</th>
+            <th scope="col">社員名</th>
+            <th scope="col">部署ID</th>
+            <th scope="col">社員BaseID</th>
+            <th scope="col">code</th>
+        </tr>
+    </thead>
+    <tbody id="selected-data"></tbody>
+</table>
+
+@section scripts {
+    <script>
+        $(function () {
+            const OPEN_SYAINSENTAKU_MULTIPLE = ".open-syainSentaku-multiple";
+
+            const OPEN_SYAINSENTAKU_SINGLE = ".open-syainSentaku-single";
+
+            const SELECTED_SYAIN = "syainSelected";
+
+            const SELECTED_SYAIN_DATA = "#selected-data";
+
+            // 選択されている社員BaseIDリスト（再オープン用）
+            let selectedSyainBaseIds = [];
+            // 最終表示社員選択モード
+            let currentMultiFlg = false;
+
+            $(window).on("message", function (event) {
+                const e = event.originalEvent;
+                // セキュリティチェック（オリジン確認）
+                if (e.origin !== window.location.origin) return;
+                const data = e.data;
+                if (!data || data.type !== SELECTED_SYAIN) return;
+                updateSelectedSyain(data.selectedSyain);
+            });
+
+            // 社員選択結果表示
+            function updateSelectedSyain(selectedSyain) {
+                const list = currentMultiFlg ? selectedSyain : [selectedSyain];
+                if (currentMultiFlg) selectedSyainBaseIds = list.map(s => s.syainBaseId);
+                // テーブルに描画
+                const $tbody = $(SELECTED_SYAIN_DATA);
+                $tbody.empty();
+                list.forEach(s => {
+                  const $tr = $("<tr>");
+                    $("<td>").text(s.syainId).appendTo($tr);
+                    $("<td>").text(s.syainName).appendTo($tr);
+                    $("<td>").text(s.busyoId).appendTo($tr);
+                    $("<td>").text(s.syainBaseId).appendTo($tr);
+                    $("<td>").text(s.code).appendTo($tr);
+                    $tbody.append($tr);
+                });
+            }
+
+            // 単一社員選択画面表示
+            $(OPEN_SYAINSENTAKU_SINGLE).on('click', function (e) {
+                e.preventDefault();
+                currentMultiFlg = false;
+                openSyainSelectModal(currentMultiFlg, null);
+            });
+
+            // 複数社員選択画面表示
+             $(OPEN_SYAINSENTAKU_MULTIPLE).on('click', function (e) {
+                e.preventDefault();
+                currentMultiFlg = true;
+                openSyainSelectModal(currentMultiFlg, selectedSyainBaseIds);
+            });
+        });
+    </script>
+}
+

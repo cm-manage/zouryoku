@@ -1,0 +1,10 @@
+@model Zouryoku.Pages.Kinmuhyo.IndexViewModel
+
+@{
+    @if (!string.IsNullOrEmpty(Model.AlertBanner()))
+    {
+        <div class="app-alert__info border mb-2 py-2 px-2">
+            @Model.AlertBanner()
+        </div>
+    }
+}

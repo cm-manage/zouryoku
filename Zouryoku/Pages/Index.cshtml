@@ -1,0 +1,651 @@
+﻿@page
+@model Zouryoku.Pages.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "ホーム";
+}
+<div class="home-container">
+    @if (Model.LoginInfo != null)
+    {
+        <!-- ウェルカムヘッダー -->
+        <div class="welcome-header">
+            <div class="welcome-content">
+                <div class="user-avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                    </svg>
+                </div>
+                <div class="welcome-text">
+                    <h1 class="welcome-title">ようこそ、@Model.LoginInfo.User.Name さん</h1>
+                    <p class="welcome-subtitle">Zouryoku 増力日誌へ</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ユーザー情報カード -->
+        <div class="info-cards">
+            <!-- 基本情報カード -->
+            <div class="info-card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="card-icon">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                    <h3 class="card-title">基本情報</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-item">
+                        <span class="info-label">社員名</span>
+                        <span class="info-value">@Model.LoginInfo.User.Name</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">社員番号</span>
+                        <span class="info-value">@Model.LoginInfo.User.Code</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">部署</span>
+                        <span class="info-value">@(Model.LoginInfo.User.Busyo?.Name ?? "未設定")</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 認証情報カード -->
+            <div class="info-card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="card-icon">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
+                    </svg>
+                    <h3 class="card-title">認証情報</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-item">
+                        <span class="info-label">メールアドレス</span>
+                        <span class="info-value email-value">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="inline-icon">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                            </svg>
+                            @Model.LoginInfo.EntraEmail
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">表示名</span>
+                        <span class="info-value">@Model.LoginInfo.EntraDisplayName</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">認証方式</span>
+                        <span class="info-value">
+                            <span class="auth-badge">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" width="16" height="16" class="ms-logo-small">
+                                    <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+                                    <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+                                    <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+                                    <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+                                </svg>
+                                Entra ID 認証
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- アクションセクション -->
+        <div class="action-section">
+            <a href="@Url.Page("/Explanation/Description")" class="action-button maintenance-button">勤務状況確認の項目説明</a>
+            <a href="@Url.Page("/Explanation/Laws")" class="action-button maintenance-button">勤怠に関する法令・規則</a>
+            <a href="@Url.Page("/Maintenance/AppSettings/Index")" class="action-button maintenance-button">アプリケーション設定</a>
+            <a href="@Url.Page("/Maintenance/PcLogs/Index")" class="action-button maintenance-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="button-icon">
+                    <path d="M9 21h6v-1H9v1zm3-20C8.14 1 5 4.14 5 8c0 3.25 2.25 5.97 5.25 6.74L10 19h4l-.25-4.26C16.75 13.97 19 11.25 19 8c0-3.86-3.14-7-7-7zm0 2c2.76 0 5 2.24 5 5 0 2.39-1.68 4.47-4 4.91V17h-2v-4.09C7.68 12.47 6 10.39 6 8c0-2.76 2.24-5 5-5z" />
+                </svg>
+                PCログメンテナンス
+            </a>
+            <a href="@Url.Page("/SignOut")" class="action-button logout-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="button-icon">
+                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+                </svg>
+                ログアウト
+            </a>
+        </div>
+
+        <!-- 画面リンクセクション -->
+        <!-- 下記、divタグごと削除すること！！ -->
+        <div>　</div>
+        <div>
+            <table class="table table-bordered text-nowrap">
+                <thead class="table-primary align-middle">
+                    <tr>
+                        <th class="align-middle">画面リンク</th>
+                        <th class="align-middle">タイプ</th>
+                        <th class="align-middle">パラメータ</th>
+                        <th class="align-middle">移動</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr data-target="/Attendance/AttendanceList">
+                        <td class="align-middle">出退勤一覧</td>
+                        <td class="align-middle">画面</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="BusyoSentaku/TestDriver">
+                        <td class="align-middle">部署選択(表示用モック)</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="/SyainSentaku/TestDriver">
+                        <td class="align-middle">社員選択(表示用モック)</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="KokyakuJohoHyoji/TestDriver">
+                        <td class="align-middle">顧客情報表示(表示用モック)</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="/KokyakuMeiKensaku/TestDriver">
+                        <td class="align-middle">顧客名検索(表示用モック)</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="/Ankens/TestDriver">
+                        <td class="align-middle">案件新規登録(表示用モック)／受注情報検索</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="/AnkenJohoHyoji/TestDriver">
+                        <td class="align-middle">案件情報表示(表示用モック)</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="/AnkenMeiKensaku/TestDriver">
+                        <td class="align-middle">案件名検索（表示用モック）</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="YukyuKeikakuToroku">
+                        <td class="align-middle">計画有給休暇登録</td>
+                        <td class="align-middle">画面</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="YukyuKeikakuJigyobuShonin">
+                        <td class="align-middle">計画有給休暇事業部承認</td>
+                        <td class="align-middle">画面</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="KinmuNippouJikanNyuryoku/TestDriver">
+                        <td class="align-middle">勤務時間入力(表示用モック)</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="DakokuJikanSyusei/TestDriver">
+                        <td class="align-middle">打刻時間修正(表示用モック)</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="/BusyoMasterMaintenanceKensaku/Index">
+                        <td class="align-middle">部署マスタメンテナンス(検索)／部署マスタメンテナンス(登録)</td>
+                        <td class="align-middle">画面／モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="BusyoMasterMaintenanceJyunjyoNarabikae/TestDriver">
+                        <td class="align-middle">部署マスタメンテナンス(並び替え)(表示用モック)</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="/Kinmuhyo">
+                        <td class="align-middle">勤務表</td>
+                        <td class="align-middle">画面</td>
+                        <td>
+                            <input type="text" class="form-control js-param" value="SyainId=18&nippouYmd=2026-01-16" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="RoleDefaultKengen">
+                        <td class="align-middle">ロールデフォルト権限設定</td>
+                        <td class="align-middle">画面</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="JuchuJohoHyoji/TestDriver">
+                        <td class="align-middle">受注情報表示</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+                    
+                    <tr data-target="/JissekiNyuryoku">
+                        <td class="align-middle">実績入力</td>
+                        <td class="align-middle">画面</td>
+                        <td>
+                            <input type="text" class="form-control js-param" value="SyainBaseId=13&jissekiDate=2026-02-14&isDairiInput=false" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="/KinmuJokyoKakunin">
+                        <td class="align-middle">勤務状況確認</td>
+                        <td class="align-middle">画面</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <!-- 勤務日報未確定チェック画面（勤務日報未確定通知画面） -->
+                    <!-- パラメータ無し -->
+                    <tr data-target="KinmuNippouMiKakuteiCheck">
+                        <td>勤務日報未確定チェック画面（勤務日報未確定通知画面）</td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="KinmuNippouJikanNyuryoku/TestDriver">
+                        <td class="align-middle">勤務日報時間入力</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="DakokuJikanSyusei/TestDriver">
+                        <td class="align-middle">打刻時間修正</td>
+                        <td class="align-middle">モーダル</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                    <tr data-target="/kinmunippoukakunin/Index">
+                        <td class="align-middle">勤務日報確認</td>
+                        <td class="align-middle">画面</td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-primary js-move">移動</button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+<script>
+    //
+    //  画面リンクセクション用スクリプト
+    //  scriptタグごと削除すること！！
+    //
+    (() => {
+      "use strict";
+
+      // クエリを最低限正規化してURLに付与する
+      function buildUrl(baseUrl, rawQuery) {
+        const url = (baseUrl ?? "").trim();
+        if (!url) return null;
+
+        const query = (rawQuery ?? "").trim();
+        if (!query) return url;
+
+        // 先頭の ?, &, 空白などを除去（ユーザー入力揺れ対策）
+        const normalized = query.replace(/^[?&\s]+/, "");
+        if (!normalized) return url;
+
+        // baseUrlに既に?がある場合は & で連結
+        const joiner = url.includes("?") ? "&" : "?";
+        return url + joiner + normalized;
+      }
+
+      // テーブル全体でイベント委譲（25行でも軽い）
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".js-move");
+        if (!btn) return;
+
+        const row = btn.closest("tr");
+        if (!row) return;
+
+        const target = row.dataset.target; // data-target
+        const paramInput = row.querySelector(".js-param");
+        const paramValue = paramInput ? paramInput.value : "";
+
+        const finalUrl = buildUrl(target, paramValue);
+
+        if (!finalUrl) {
+          // 遷移先未設定など、開発時に気づけるようにする
+          console.warn("遷移先URLが未設定です。該当行の data-target を確認してください。", row);
+          return;
+        }
+
+        // 実際に遷移
+        window.location.href = finalUrl;
+      });
+    })();
+</script>
+<style>
+    .home-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    /* ウェルカムヘッダー */
+    .welcome-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .welcome-content {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .user-avatar {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .user-avatar svg {
+            width: 48px;
+            height: 48px;
+            color: white;
+        }
+
+    .welcome-text {
+        flex: 1;
+    }
+
+    .welcome-title {
+        color: white;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .welcome-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.125rem;
+        margin: 0;
+    }
+
+    /* 情報カード */
+    .info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+    .card-header {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-bottom: 2px solid #e0e7ff;
+    }
+
+    .card-icon {
+        width: 24px;
+        height: 24px;
+        color: #667eea;
+    }
+
+    .card-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .card-content {
+        padding: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        text-align: right;
+    }
+
+    .email-value {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .inline-icon {
+        width: 16px;
+        height: 16px;
+        color: #667eea;
+    }
+
+    .auth-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.375rem 0.875rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .ms-logo-small {
+        flex-shrink: 0;
+    }
+
+    /* アクションセクション */
+    .action-section {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 2rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.2s;
+    }
+
+    .maintenance-button {
+        background: linear-gradient(135deg, #1f6bff 0%, #1a9eef 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(31, 107, 255, 0.3);
+    }
+
+        .maintenance-button:hover {
+            background: linear-gradient(135deg, #1a9eef 0%, #1f6bff 100%);
+            box-shadow: 0 6px 16px rgba(31, 107, 255, 0.4);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+    .logout-button {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+    }
+
+        .logout-button:hover {
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+            box-shadow: 0 6px 16px rgba(245, 87, 108, 0.4);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+    .action-button:active {
+        transform: translateY(0);
+    }
+
+    .button-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* レスポンシブ対応 */
+    @@media (max-width: 768px) {
+        .home-container {
+            padding: 1rem;
+        }
+
+        .welcome-header {
+            padding: 1.5rem;
+        }
+
+        .welcome-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 1.5rem;
+        }
+
+        .welcome-subtitle {
+            font-size: 1rem;
+        }
+
+        .info-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+
+        .info-value {
+            text-align: left;
+        }
+
+        .action-section {
+            flex-direction: column;
+        }
+
+        .action-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>

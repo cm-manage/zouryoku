@@ -1,0 +1,685 @@
+@page
+@model Zouryoku.Pages.Kinmuhyo.IndexModel
+@using Model.Enums;
+@using CommonLibrary.Utils;
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "勤務表";
+    ViewData["TitleIcon"] = "fa-solid fa-list-check";
+}
+
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+@* 共通パーシャルを呼び出し（Model を渡す） *@
+<partial name="_ZouryokuHeader" model="Model" />
+
+<div class="mt-3">
+    <div class="d-flex justify-content-end mb-2">
+        <a asp-page="/Explanation/Laws"
+           class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover link-primary text-decoration-none text-decoration-underline-hover">
+            勤怠に関する法令・規則
+        </a>
+    </div>
+
+    <partial name="_AlertPartial" model="@Model.ViewModel" />
+
+    <form id="attendance-form" method="post">
+        @Html.AntiForgeryToken()
+
+        <input asp-for="SyainId" type="hidden" />
+        <input asp-for="NippouYmd" type="hidden" />
+        <input asp-for="YoteiYmd" type="hidden" />
+        <input asp-for="ShukkinFlg" type="hidden" />
+        <input asp-for="ZangyouJikan" type="hidden" />
+    </form>
+
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center py-2 gap-2">
+        <h3 class="font_bold mb-2 mb-md-0">
+            <label for="selected-user-display">対象社員</label>
+        </h3>
+        <div class="d-flex align-items-center gap-1">
+            <button id="prev-employee"
+                    class="btn btn-primary"
+                    type="button"
+                    aria-label="前へ"
+                    disabled>
+                <i class="fa-solid fa-angle-left"></i>
+            </button>
+            <div class="input-group input-long-local">
+                <input id="selected-user-display" type="text" value="@Model.ViewModel.SelectedUserName" class="form-control form-select app_input__textbox" readonly />
+                <button type="button" class="btn btn-primary" id="open-employee-select-modal">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+            <button id="next-employee"
+                    class="btn btn-primary"
+                    type="button"
+                    aria-label="次へ"
+                    disabled>
+                <i class="fa-solid fa-angle-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="kinmu-jokyo-wrapper" class="mb-2">
+        <partial name="_KinmuJokyoPartial" model="Model.ViewModel.KinmuJokyoRows" />
+    </div>
+
+    <div class="d-flex align-items-center gap-1 px-0 mb-2">
+        <button id="prev-month-btn" class="btn btn-primary" type="button" aria-label="前月">
+            <i class="fa-solid fa-angle-left"></i>
+        </button>
+        <div class="month-wrapper">
+            <input type="month"
+                   id="month-native"
+                   class="form-control month-search"
+                   aria-label="表示年月"
+                   value="@Model.ViewModel.DisplayYearMonthDate.ToString("yyyy-MM")" />
+
+            <button type="button"
+                    id="openMonth"
+                    aria-label="月選択"
+                    class="btn btn-primary btn-lg position-absolute top-0 end-0 d-flex align-items-center justify-content-center rounded-start-0 month-selector">
+                <i class="fa-solid fa-calendar-days"></i>
+            </button>
+        </div>
+        <button id="next-month-btn" class="btn btn-primary" type="button" aria-label="次月">
+            <i class="fa-solid fa-angle-right"></i>
+        </button>
+    </div>
+
+    <div>
+        <table class="table app-table__calendar table-bordered text-nowrap text-center align-middle">
+            <thead class="table-primary text-center">
+                <tr>
+                    <th rowspan="2" class="th-hiduke align-middle">日付</th>
+                    <th colspan="3"
+                        class="th-yotei-group align-middle d-none d-lg-table-cell">
+                        予定
+                    </th>
+                    <th colspan="2"
+                        class="th-yotei-group align-middle d-lg-none">
+                        予定
+                    </th>
+                    <th rowspan="2" class="th-shinsei align-middle">申請</th>
+                    <th rowspan="2" class="th-kinmu align-middle">勤務時間</th>
+                    <th rowspan="2" class="th-jitsudo align-middle d-none d-lg-table-cell">実働</th>
+                    <th rowspan="2" class="th-nippo align-middle">日報</th>
+                </tr>
+                <tr>
+                    <th class="th-shukkin">出勤</th>
+                    <th class="th-zangyou">残業</th>
+                    <th class="th-kyuuka th-leave d-none d-lg-table-cell">休暇</th>
+                </tr>
+
+            </thead>
+            <tbody id="karenda-hyoji-table">
+                <partial name="_KarendaHyojiPartial" model="Model.ViewModel.KarendaHyojiRows" />
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+
+    .input-long-local {
+        width: 16rem;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.6rem;
+        border-radius: 4px;
+        border: 1px solid;
+        background-color: transparent;
+        font-weight: 500;
+    }
+
+    /* button base */
+    .planned-overtime-value {
+        color: #333;
+        min-width: 24px;
+        text-align: center;
+    }
+
+    .kinmu-jokyo-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .kinmu-jokyo-table td {
+            border: 1px solid #ddd;
+            padding: 4px;
+        }
+
+            .kinmu-jokyo-table td:nth-child(2) {
+                text-align: right;
+            }
+
+    .th-hiduke {
+        width: 2%;
+    }
+
+    .th-yotei-group {
+        width: 20%;
+    }
+
+    .th-zangyou {
+        width: 4%;
+    }
+
+    .th-shukkin {
+        width: 3%;
+    }
+
+    .th-kyuuka {
+        width: 3%;
+    }
+
+    .th-shinsei {
+        width: 10%;
+    }
+
+    .th-kinmu {
+        width: 3%;
+    }
+
+    .th-jitsudo {
+        width: 2%;
+    }
+
+    .th-nippo {
+        width: 2%;
+    }
+
+    .row-sat {
+        --bs-table-bg: #e6f2ff;
+    }
+
+    .row-sun {
+        --bs-table-bg: #ffe6e6 !important;
+    }
+
+    .text-sun {
+        color: red !important;
+    }
+
+    .table > :not(caption) > * > * {
+        background-color: var(--bs-table-bg);
+    }
+
+    .table-bordered > :not(caption) > * > * {
+        border: 1px solid var(--bs-border-color);
+    }
+
+    .table-primary {
+        --bs-table-bg: #cfe2ff !important;
+        --bs-border-color: #9fbbe5;
+    }
+
+    .app-table__calendar {
+        user-select: none;
+    }
+
+    .text-sat {
+        color: blue !important;
+    }
+
+    .text-week-day {
+        font-weight: bold;
+    }
+
+    .row-future {
+        background-color: #f0f0f0;
+    }
+
+    .row-current {
+        background-color: #f7fbff;
+    }
+
+    .app-apply-btn-planned-work-off {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: #ff8800;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .app-apply-btn-planned-work-on {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .month-wrapper {
+        position: relative;
+        width: 15rem;
+    }
+
+    .app-apply-btn {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+    }
+
+        .app-apply-btn:hover {
+            opacity: 0.9;
+            text-decoration: none;
+        }
+
+</style>
+
+@section scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+
+    <script>
+        // 初期データ: 部署社員リスト
+        let deptEmployees = @Json.Serialize(Model.ViewModel.DepartmentEmployees);
+        let currentYear = @Model.ViewModel.DisplayYearMonthDate.Year;
+        let currentMonth = @Model.ViewModel.DisplayYearMonthDate.Month;
+        // 選択中の社員ID
+        let currentSelectedId = @Model.ViewModel.SelectedUserId;
+        let breakTimeHours = @Model.ViewModel.BreakTimeHours; // C# 側で算出した休憩時間（時間単位）
+
+        // ヘルパー: URL の SyainId と NippouYmd を更新（ブラウザ履歴は置換）
+        function updateBrowserUrl(syainId, year, month, day) {
+            const d = day || 1;
+            const mm = String(month).padStart(2, '0');
+            const dd = String(d).padStart(2, '0');
+            const nippou = `${year}-${mm}-${dd}`;
+
+            const params = new URLSearchParams(window.location.search);
+            const keysToRemove = [];
+            for (const key of Array.from(params.keys())) {
+                const lower = key.toLowerCase();
+                if (lower === 'syainid' || lower === 'nippouymd') {
+                    keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(k => params.delete(k));
+
+            if (syainId !== undefined && syainId !== null) params.set('SyainId', String(syainId));
+            params.set('NippouYmd', nippou);
+            const newUrl = window.location.pathname + '?' + params.toString();
+            history.replaceState(null, '', newUrl);
+        }
+
+        // カスタム: 部署社員リスト用の取得関数（empIdベース）
+        function extractEmpId(emp) {
+            if (!emp) return null;
+            return emp.id ?? emp.syainId ?? null;
+        }
+
+        function findIndexById(id) {
+            if (!deptEmployees || deptEmployees.length === 0) return -1;
+            return deptEmployees.findIndex(e => String(extractEmpId(e)) === String(id));
+        }
+
+        function getEmpIdByIndex(idx) {
+            const e = deptEmployees[idx];
+            if (!e) return null;
+            return extractEmpId(e);
+        }
+
+        // 社員一覧インデックスで読み込み
+        function loadEmployeeByIndex(idx) {
+            if (idx < 0 || idx >= (deptEmployees?.length || 0)) return;
+            const emp = deptEmployees[idx];
+            const empId = emp.id ?? null;
+            if (!empId) return;
+            $('#SyainId').val(empId);
+            const nippou = String(currentYear).padStart(4, '0') + '-' + String(currentMonth).padStart(2, '0') + '-01';
+            $('#NippouYmd').val(nippou);
+
+            const data = $('#attendance-form').serialize();
+
+            sendAjax(toUrl("RefreshCalendar"), data, function (data) {
+                    if (!data) return;
+                    // 勤務状況と勤務表表示を更新
+                    if (data.kinmuJokyo) $('#kinmu-jokyo-wrapper').html(data.kinmuJokyo);
+                    if (data.karendaHyoji) $('#karenda-hyoji-table').html(data.karendaHyoji);
+
+                    if(data.departmentEmployees && Array.isArray(data.departmentEmployees)){
+                        deptEmployees = data.departmentEmployees;
+                    }
+
+                    // 選択更新
+                    if (data.selectedUserId) currentSelectedId = data.selectedUserId;
+                    else if (emp.id) currentSelectedId = emp.id;
+
+                    const displayName = data.selectedUserName ?? emp.name ?? '';
+                    $('#selected-user-display').val(displayName);
+                    $('#SyainId').val(currentSelectedId);
+                    updateEmployeeNavButtons();
+
+                    // サーバーからの breakTimeHours があれば更新
+                    if (data.breakTimeHours !== undefined && data.breakTimeHours !== null) {
+                        breakTimeHours = parseFloat(data.breakTimeHours) || breakTimeHours;
+                    }
+
+                    // ブラウザURLを更新（SyainId と 表示年月日）
+                    updateBrowserUrl(currentSelectedId, currentYear, currentMonth, 1);
+            }, false, null, false);
+        }
+
+        // 同一部署のユーザーを empId で検索して読み込む
+        function loadSameBusyoUsers(empId) {
+            if (!empId) return;
+            try {
+                currentSelectedId = empId;
+                const idx = findIndexById(currentSelectedId);
+                if (idx !== -1 && deptEmployees[idx]) {
+                    const displayName = deptEmployees[idx].name ?? deptEmployees[idx].syainName ?? '';
+                    $('#selected-user-display').val(displayName);
+                }
+                $('#SyainId').val(currentSelectedId);
+                updateEmployeeNavButtons();
+                updateBrowserUrl(currentSelectedId, currentYear, currentMonth, 1);
+            } catch (e) {
+                console.warn('Optimistic update failed', e);
+            }
+
+            $('#SyainId').val(empId);
+            const nippou = String(currentYear).padStart(4, '0') + '-' + String(currentMonth).padStart(2, '0') + '-01';
+            $('#NippouYmd').val(nippou);
+
+            const data = $('#attendance-form').serialize();
+
+            sendAjax(toUrl("RefreshCalendar"), data, function (data) {
+                    if (!data) return;
+                    if (data.kinmuJokyo) $('#kinmu-jokyo-wrapper').html(data.kinmuJokyo);
+                    if (data.karendaHyoji) $('#karenda-hyoji-table').html(data.karendaHyoji);
+                    if (data.selectedUserId) currentSelectedId = data.selectedUserId;
+                    if (data.selectedUserName) $('#selected-user-display').val(data.selectedUserName);
+                    $('#SyainId').val(currentSelectedId);
+                    if(data.departmentEmployees && Array.isArray(data.departmentEmployees)){
+                        deptEmployees = data.departmentEmployees;
+                    }
+                    updateEmployeeNavButtons();
+
+                    if (data.breakTimeHours !== undefined && data.breakTimeHours !== null) {
+                        breakTimeHours = parseFloat(data.breakTimeHours) || breakTimeHours;
+                    }
+                    updateBrowserUrl(currentSelectedId, currentYear, currentMonth, 1);
+            }, false, null, false);
+        }
+
+        // 表示データを empId ベースで読み込む
+        function loadDisplayDataForEmp(empId, year, month) {
+            if (!empId) {
+                console.warn('No empId for calendar load');
+                return;
+            }
+
+            $('#SyainId').val(empId);
+            const nippou = String(year).padStart(4, '0') + '-' + String(month).padStart(2, '0') + '-01';
+            $('#NippouYmd').val(nippou);
+
+            const data = $('#attendance-form').serialize();
+
+            sendAjax(toUrl("RefreshCalendar"), data, function (data) {
+                if (!data) return;
+                if (data.kinmuJokyo) $('#kinmu-jokyo-wrapper').html(data.kinmuJokyo);
+                if (data.karendaHyoji) $('#karenda-hyoji-table').html(data.karendaHyoji);
+                if (data.selectedUserId) currentSelectedId = data.selectedUserId;
+                if (data.selectedUserName) $('#selected-user-display').val(data.selectedUserName);
+                $('#SyainId').val(currentSelectedId);
+
+                if (data.breakTimeHours !== undefined && data.breakTimeHours !== null) {
+                    breakTimeHours = parseFloat(data.breakTimeHours) || breakTimeHours;
+                }
+                updateEmployeeNavButtons();
+
+                updateBrowserUrl(currentSelectedId, year, month, 1);
+        }, false, null, false);
+        }
+
+        function updateEmployeeNavButtons() {
+            const idx = findIndexById(currentSelectedId);
+            const prevBtn = $('#prev-employee');
+            const nextBtn = $('#next-employee');
+
+            if (!deptEmployees || deptEmployees.length === 0 || idx === -1) {
+                prevBtn.prop('disabled', true).attr('aria-disabled', 'true').addClass('disabled');
+                nextBtn.prop('disabled', true).attr('aria-disabled', 'true').addClass('disabled');
+                return;
+            }
+
+            if (idx <= 0) {
+                prevBtn.prop('disabled', true).attr('aria-disabled', 'true').addClass('disabled');
+            } else {
+                prevBtn.prop('disabled', false).attr('aria-disabled', 'false').removeClass('disabled');
+            }
+
+            if (idx >= deptEmployees.length - 1) {
+                nextBtn.prop('disabled', true).attr('aria-disabled', 'true').addClass('disabled');
+            } else {
+                nextBtn.prop('disabled', false).attr('aria-disabled', 'false').removeClass('disabled');
+            }
+        }
+
+        $(function () {
+            // 初期ボタン状態の更新
+            updateEmployeeNavButtons();
+
+            // 予定ボタン切替（出/休） - use boolean data-work
+            $(document).on('click', '.planned-work-btn', function () {
+                const $btn = $(this);
+                const $row = $btn.closest('tr');
+
+                const date = $btn.data('date');
+                let worked = $btn.data('work');
+                worked = !!worked;
+                worked = !worked;
+
+                //  属性と表示テキストを更新
+                $btn.data('work', worked);
+                $btn.attr('data-work', worked);
+                $btn.text(worked ? '出' : '休');
+
+                if (worked) {
+                    $btn
+                        .removeClass('app-apply-btn-planned-work-off')
+                        .addClass('app-apply-btn-planned-work-on');
+                } else {
+                    $btn
+                        .removeClass('app-apply-btn-planned-work-on')
+                        .addClass('app-apply-btn-planned-work-off');
+                }
+
+                const $dateCell = $row.find('td:first');
+
+                // 元の曜日情報を data 属性から取得 (日曜日=0, 土曜日=6)
+                const weekdayAttr = $row.attr('data-weekday');
+                const weekday = weekdayAttr !== undefined ? parseInt(weekdayAttr, 10) : null;
+
+                if (!worked) {
+                    // 休に設定：常に日曜日スタイルを適用
+                    $row.removeClass('app-line--saturday app-line--sunday app-line--today');
+                    $row.addClass('app-line--sunday');
+                } else {
+                    // 出に設定：元の曜日に応じてスタイルを復元
+                    $row.removeClass('app-line--sunday app-line--saturday app-line--today');
+
+                    if (weekday === 6) {
+                        // 土曜日
+                        $row.addClass('app-line--saturday');
+                    } else if (weekday === 0) {
+                        // 日曜日
+                        $row.addClass('app-line--sunday');
+                    } else {
+                        // 平日 (本日の判定は簡易化)
+                        const today = new Date();
+                        const btnDate = new Date(date);
+                        if (today.toDateString() === btnDate.toDateString()) {
+                            $row.addClass('app-line--today');
+                        }
+                    }
+                }
+
+                $('#YoteiYmd').val(date);
+                $('#ShukkinFlg').val(worked);
+                const data = $('#attendance-form').serialize();
+                sendAjax(toUrl("UpdatePlannedWork"), data, function (data) {
+                }, false, null, false);
+            });
+
+            // 残業減少
+            $(document).on('click', '.btn-planned-overtime-dec', function (e) {
+                e.preventDefault();
+                const $link = $(this);
+                const $wrapper = $link.closest('.overtime-input-wrapper');
+                const $valueSpan = $wrapper.children('span').not('.overtime-buttons').first();
+                const date = $link.data('date');
+
+                let currentValue = parseInt($valueSpan.text().trim()) || 0;
+                if (currentValue <= 0) return;
+                const newValue = currentValue - 1;
+                $valueSpan.text(newValue);
+
+                $('#YoteiYmd').val(date);
+                $('#ZangyouJikan').val(newValue);
+
+                const data = $('#attendance-form').serialize();
+
+                sendAjax(toUrl("UpdatePlannedOvertime"), data, function (data) {
+                }, false, null, false);
+            });
+
+            // 残業増加（breakTimeHours をサーバー駆動で利用）
+            $(document).on('click', '.btn-planned-overtime-inc', function (e) {
+                e.preventDefault();
+                const $link = $(this);
+                const $wrapper = $link.closest('.overtime-input-wrapper');
+                const $valueSpan = $wrapper.children('span').not('.overtime-buttons').first();
+                const date = $link.data('date');
+
+                let currentValue = parseInt($valueSpan.text().trim()) || 0;
+                // breakTimeHours はサーバーで計算し、loadDisplayDataForEmp / 勤務表表示 のレスポンスで更新される
+                // 小数は切り捨て（例: 13.5 -> 13）して上限計算に利用
+                const hoursPerDay = 24;
+                const regularWorkHoursPerDay = 8;
+                const maxOvertime = Math.floor(hoursPerDay - regularWorkHoursPerDay - breakTimeHours);
+                if (currentValue >= maxOvertime) return;
+                const newValue = currentValue + 1;
+                $valueSpan.text(newValue);
+                
+                $('#YoteiYmd').val(date);
+                $('#ZangyouJikan').val(newValue);
+
+                const data = $('#attendance-form').serialize();
+
+                sendAjax(toUrl("UpdatePlannedOvertime"), data, function (data) {
+                }, false, null, false);
+            });
+
+            // 社員前へ/次へ
+            $(document).on('click', '#prev-employee', function () {
+                if ($(this).prop('disabled')) return;
+                const idx = findIndexById(currentSelectedId);
+                if (idx <= 0) return;
+                const newIdx = idx - 1;
+                const newEmpId = getEmpIdByIndex(newIdx);
+
+                if (newEmpId) {
+                    currentSelectedId = newEmpId;
+                    const newName = (deptEmployees[newIdx] && deptEmployees[newIdx].name) || '';
+                    $('#selected-user-display').val(newName);
+                    $('#SyainId').val(currentSelectedId);
+                    updateBrowserUrl(currentSelectedId, currentYear, currentMonth, 1);
+                }
+                loadEmployeeByIndex(newIdx);
+            });
+
+            $(document).on('click', '#next-employee', function () {
+                if ($(this).prop('disabled')) return;
+                const idx = findIndexById(currentSelectedId);
+                if (idx < 0) return;
+                if (idx >= deptEmployees.length - 1) return;
+                const newIdx = idx + 1;
+                const newEmpId = getEmpIdByIndex(newIdx);
+                if (newEmpId) {
+                    currentSelectedId = newEmpId;
+                    const newName = (deptEmployees[newIdx] && deptEmployees[newIdx].name) || '';
+                    $('#selected-user-display').val(newName);
+                    $('#SyainId').val(currentSelectedId);
+                    updateBrowserUrl(currentSelectedId, currentYear, currentMonth, 1);
+                }
+                loadEmployeeByIndex(newIdx);
+            });
+
+            // 月移動
+            $(document).on('click', '#prev-month-btn', function () {
+                let y = currentYear;
+                let m = currentMonth - 1;
+                if (m < 1) { m = 12; y -= 1; }
+                currentYear = y; currentMonth = m;
+
+                const nativeVal = ('' + y) + '-' + (m.toString().padStart(2, '0'));
+                $('#month-native').val(nativeVal).trigger('change');
+            });
+
+            $(document).on('click', '#next-month-btn', function () {
+                let y = currentYear;
+                let m = currentMonth + 1;
+                if (m > 12) { m = 1; y += 1; }
+                currentYear = y; currentMonth = m;
+
+                const nativeVal = ('' + y) + '-' + (m.toString().padStart(2, '0'));
+                $('#month-native').val(nativeVal).trigger('change');
+            });
+
+            $(document).on('change', '#month-native', function () {
+                const val = $(this).val();
+                if (!val) return;
+                const parts = ('' + val).split('-');
+                if (parts.length !== 2) return;
+
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10);
+                if (isNaN(y) || isNaN(m)) return;
+                currentYear = y; currentMonth = m;
+                const empId = $('#SyainId').val() || getEmpIdByIndex(findIndexById(currentSelectedId));
+                loadDisplayDataForEmp(empId, currentYear, currentMonth);
+            });
+
+            $(document).on('click', '#openMonth', function () {
+                $('#month-native').focus();
+                $('#month-native')[0].showPicker?.();
+            });
+
+            // 社員検索モーダルを開く
+            $(document).on('click', '#open-employee-select-modal', function (e) {
+                e.preventDefault();
+                let currentMultiFlg = false;
+                openSyainSelectModal(currentMultiFlg, null);
+            });
+
+            window.addEventListener('message', function (event) {
+                const data = event.data;
+                if (!data || data.type !== 'syainSelected') return;
+
+                const syain = data.selectedSyain;
+                if (!syain) return;
+
+                 $('#selected-user-display').val(syain.syainName);
+
+                // syain.syainID を empId として使用
+                loadSameBusyoUsers(syain.syainId);
+            });
+        });
+    </script>
+
+}

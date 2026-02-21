@@ -1,0 +1,57 @@
+﻿@model CustomerNameSearchPageModel
+
+<article class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 g-3">
+    @foreach (var item in Model.Customers)
+    {
+        <div class="col">
+            @* 顧客情報カード *@
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        @* 顧客選択 *@
+                        <form class="col" data-js="customerSelect" data-customer-id="@item.KokyakuKaishaId" data-customer-name="@item.Name">
+                            @Html.AntiForgeryToken()
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.Name)</span>
+                                <span class="col">@Html.DisplayFor(model => item.Name)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.Address)</span>
+                                <span class="col">@Html.DisplayFor(model => item.Address)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.Tel)</span>
+                                <span class="col">@Html.DisplayFor(model => item.Tel)</span>
+                            </div>
+                            <div class="row">
+                                <span class="text-secondary text-nowrap col-3">@Html.DisplayNameFor(model => item.SalesPersonName)</span>
+                                <span class="col">@Html.DisplayFor(model => item.SalesPersonName)</span>
+                            </div>
+                            <input type="hidden" name="customerId" value="@item.KokyakuKaishaId" />
+                        </form>
+                        @* 顧客情報画面のモーダル表示 *@
+                        <div class="col-2 d-flex flex-row align-items-center">
+                            <div class="text-primary fs-4" role="button" data-js="customerShowInfo" data-customer-id="@item.KokyakuKaishaId">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.IsReferHistory)
+                    {
+                        @* 顧客会社参照履歴削除ボタン *@
+                        <form class="d-flex justify-content-end">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="customerId" value="@item.KokyakuKaishaId" />
+                            <input type="hidden" name="version" value="@item.Version" />
+                            <button class="app-btn__base btn btn-outline-danger" type="button" data-js="historyDelete">
+                                <i class="fa-solid fa-trash"></i>
+                                履歴削除
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+
+        </div>
+    }
+</article>

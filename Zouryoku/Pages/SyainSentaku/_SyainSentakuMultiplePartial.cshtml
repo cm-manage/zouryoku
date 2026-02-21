@@ -1,0 +1,76 @@
+﻿@model PartialModel
+
+@* 複数選択ビュー *@
+
+<div id="syain-group-container">
+    @foreach (var busyo in Model.BusyoList)
+    {
+        // 社員がいない部署はスキップする
+        if (busyo.Syains == null) continue;
+
+        <div class="busyo-block mb-3 d-flex flex-column" data-busyo="@busyo.Id" data-depth="@busyo.Depth">
+            <div class="busyo-header d-flex align-items-center mb-2">
+                <i class="busyo-icon me-2"></i>
+                <span class="busyo-name">@busyo.Name</span>
+            </div>
+
+            @{
+                var syains = busyo.Syains;
+                var half = (int)Math.Ceiling(syains.Count / 2.0);
+                var firstHalf = syains.Take(half);
+                var secondHalf = syains.Skip(half);
+            }
+
+            <div class="d-flex flex-grow-1 align-items-stretch">
+                <ul class="list-group flex-fill w-100 h-100 d-flex flex-column justify-content-center">
+                    @foreach (var s in firstHalf)
+                    {
+                        <li class="list-group-item d-flex justify-content-center align-items-center border-0">
+                            <div class="d-flex align-items-center w-100">
+                                <label class="form-check d-flex align-items-center gap-2 w-100 mb-0">
+                                    <input type="checkbox"
+                                           class="form-check-input syain-check"
+                                           id="flexCheck_@s.SyainBaseId"
+                                           data-syain-id="@s.Id"
+                                           data-syain-name="@s.Name"
+                                           data-busyo-id="@s.BusyoId"
+                                           data-syainbase-id="@s.SyainBaseId"
+                                           data-code="@s.Code"
+                                           data-retired="@s.Retired" />
+                                    <span class="form-check-label flex-grow-1 text-start">
+                                        @s.Name @(s.Retired ? "（退職）" : "")
+                                    </span>
+                                </label>
+                            </div>
+                        </li>
+                    }
+                </ul>
+
+                <ul class="list-group flex-fill w-100 h-100 d-flex flex-column justify-content-center">
+                    @foreach (var s in secondHalf)
+                    {
+                        <li class="list-group-item d-flex justify-content-center align-items-center border-0">
+                            <div class="d-flex align-items-center w-100">
+                                <label class="form-check d-flex align-items-center gap-2 w-100 mb-0">
+                                    <input type="checkbox"
+                                           class="form-check-input syain-check"
+                                           id="flexCheck_@s.SyainBaseId"
+                                           data-syain-id="@s.Id"
+                                           data-syain-name="@s.Name"
+                                           data-busyo-id="@s.BusyoId"
+                                           data-syainbase-id="@s.SyainBaseId"
+                                           data-code="@s.Code"
+                                           data-retired="@s.Retired"/>
+                                    <span class="form-check-label flex-grow-1 text-start">
+                                        @s.Name @(s.Retired ? "（退職）" : "")
+                                    </span>
+                                </label>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <br>
+        </div>
+    }
+</div>

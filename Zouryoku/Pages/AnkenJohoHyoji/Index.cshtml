@@ -1,0 +1,150 @@
+@page
+@model Zouryoku.Pages.AnkenJohoHyoji.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "案件情報表示";
+}
+
+@if (!Model.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-errors d-flex">
+        <div><i class="fas fa-exclamation-triangle fa-fw"></i></div>
+        <div id="validation-summary" asp-validation-summary="ModelOnly" class="app-validation-summary-errors"></div>
+    </div>
+}
+
+<!-- 表示エリア -->
+<div id="anken-detail-partial" class="app-screen--single-form"
+    data-anken-id="@Model.IndexViewModel.Id"
+    data-can-add="@Model.IndexViewModel.CanAdd">
+    <partial name="_IndexPartial" model="Model.IndexViewModel" />
+</div>
+
+<form method="post">
+    @* Ajax 用ダミーフォーム *@
+    @Html.AntiForgeryToken()
+</form>
+@section scripts {
+    <script>
+        $(function(){
+            'use strict';
+
+            const $partial =  $('#anken-detail-partial');
+
+            // 案件ID
+            const ankenId = $partial.data('anken-id');
+            // 追加可能か？
+            const canAdd = $partial.data('can-add');
+
+            // モーダル設定
+            const modalSettings = {
+                edit: {
+                    id: 'anken-edit-modal',
+                    url: '@Url.Page("../Ankens/Input")',
+                    title: '案件情報作成'
+                },
+                juchu: {
+                    id: 'anken-juchu-details-modal',
+                    url: '@Url.Page("../JuchuJohoHyoji/Index")',
+                    title: '受注情報表示'
+                },
+                kokyaku: {
+                    id: 'anken-kokyaku-details-modal',
+                    url: '@Url.Page("../KokyakuJohoHyoji/Index")',
+                    title: '顧客情報表示'
+                }
+            };
+
+            // イベント登録
+            bindEvents();
+
+            // ---------------------------------------------
+            // イベント
+            // ---------------------------------------------
+            function bindEvents() {
+                // 修正ボタン押下
+                $partial.on('click', '#btn-anken-edit', onClickEdit);
+
+                // 受注リンク押下
+                $partial.on('click', '#link-detail-juchu', onClickJuchuLink);
+
+                // 顧客リンク押下
+                $partial.on('click', '#link-detail-kokyaku', onClickKokyakuLink);
+
+                // 案件情報作成画面から情報を取得時
+                window.addEventListener('message', onMessageReceived);
+            }
+
+            // 修正ボタン押下時処理
+            function onClickEdit(e) {
+                e.preventDefault();
+                openModal(modalSettings.edit, ankenId);
+            }
+
+            // 受注リンク押下時処理
+            function onClickJuchuLink(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                sendGetAjax(toUrl('CheckExistsJuchu'), { juchuId: id }, () => openModal(modalSettings.juchu, id), false);
+            }
+
+            // 顧客リンク押下時処理
+            function onClickKokyakuLink(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                sendGetAjax(toUrl('CheckExistsKokyaku'), { kokyakuId: id }, () => openModal(modalSettings.kokyaku, id), false);
+            }
+
+            // 案件情報作成画面からのメッセージ受信時処理
+            function onMessageReceived(event) {
+                // 自身からの送信データは無視
+                if (event.source === window)
+                    return;
+
+                // セキュリティチェック（オリジン確認）
+                if (event.origin !== window.location.origin)
+                    return;
+
+                // event.data が呼出画面から送られたデータ
+                if (!event.data || !event.data.type)
+                    return;
+
+                switch (event.data.type) {
+                    case "ankenRegistered":
+                        // 案件更新後処理
+                        window.parent.postMessage({ type: event.data.type }, window.location.origin);
+                        // 画面の再描画
+                        renderPartial(function(html) {
+                            $partial.html(html);
+                        });
+                        break;
+
+                    case "ankenDeleted":
+                        // 案件削除後処理
+                        closeCurrentIziModal();
+                        break;
+                }
+            }
+
+            // ---------------------------------------------
+            // 関数
+            // ---------------------------------------------
+
+            // 画面描画処理
+            function renderPartial(callback) {
+                sendGetAjax(
+                    toUrl('Search'),
+                    { id : ankenId, canAdd : canAdd },
+                    callback,
+                    false
+                );
+            }
+
+            // モーダル表示処理
+            function openModal(setting, id) {
+                showInputModal(setting.id, setting.url, id, setting.title, () => { }, 1000, 700);
+            }
+        });
+    </script>
+}

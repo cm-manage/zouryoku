@@ -1,0 +1,29 @@
+@model Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae.IndexModel.BusyoOrderRenderContext
+
+<li data-js="busyo" class="list-group-item bg-primary-subtle border border-info app-my-border-collapse">
+
+    <input type="hidden" name="@($"{Model.InputNamePrefix}.Id")" value="@Model.BusyoOrder.Id" />
+    <input type="hidden" name="@($"{Model.InputNamePrefix}.Version")" value="@Model.BusyoOrder.Version" />
+    <input type="hidden" name="@($"{Model.InputNamePrefix}.Jyunjyo")" />
+
+    <div class="d-flex align-items-center gap-2">
+        <div data-js="handle" draggable="true" class="app-handle">&#9776;</div>
+        <div class="fw-bold">@Model.BusyoOrder.Name</div>
+    </div>
+
+    @if (Model.BusyoOrder.Children?.Any() == true)
+    {
+        <ul data-js="sections" class="list-group ps-4 mt-2">
+            @for (int i = 0; i < Model.BusyoOrder.Children.Count; i++)
+            {
+                var child = Model.BusyoOrder.Children[i];
+                var prefix = $"{Model.InputNamePrefix}.Children[{i}]";
+
+                @await Html.PartialAsync(
+                "_BusyoOrderNode",
+                new Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae.IndexModel.BusyoOrderRenderContext(child, prefix)
+                )
+                }
+    </ul>
+        }
+</li>

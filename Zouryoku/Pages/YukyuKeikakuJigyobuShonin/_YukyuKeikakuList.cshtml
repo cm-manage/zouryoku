@@ -1,0 +1,71 @@
+@model Zouryoku.Pages.YukyuKeikakuJigyobuShonin.IndexModel.JigyoubuShoninViewModel
+@* チェックボックスで自動生成される hidden 項目も合わせて再表示されるように、部分ビュー内に <form> を記述する必要がある *@
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <table class="app-table__base w-100 text-center">
+        <thead>
+            <tr>
+                <th class="th-status-and-checkbox">
+                    @* 一括変更チェックボックス *@
+                    @* これは操作補助項目であり送信してはならないため name 属性を持たない *@
+                    <input id="toggle-all-checkbox" class="form-check-input" type="checkbox"
+                           aria-label="すべての計画有給休暇を選択または選択解除" />
+                </th>
+
+                @if (Model.BusyoColumnIsVisible)
+                {
+                    <th class="th-name">部署</th>
+                }
+                <th class="th-name">氏名</th>
+                @* 予定日（IndexModel.MeisaiPerYukyuKeikaku定数 = 7日分） *@
+                @* 2以上の colspan が入るため scope="col" ではなく scope="colgroup" にします。 *@
+                <th class="th-meisai" colspan="@IndexModel.MeisaiPerYukyuKeikaku" scope="colgroup">予定日</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Keikakus.Count; i++)
+            {
+                <tr>
+                    <td class="@Model.Keikakus[i].YukyuKeikakuStatusColorClass">
+                        <input asp-for="Keikakus[i].Id" type="hidden" />
+                        <input asp-for="Keikakus[i].Version" type="hidden" />
+
+                        @* ステータス／チェックボックス *@
+                        @if (Model.GetCheckboxIsVisible(i))
+                        {
+                            <input asp-for="Keikakus[i].IsChecked"
+                                   class="form-check-input"
+                                   data-js="is-checked"
+                                   type="checkbox"
+                                   aria-label="@Model.Keikakus[i].SyainName の計画有給休暇を選択" />
+                        }
+                        else
+                        {
+                            @Model.Keikakus[i].YukyuKeikakuStatusText
+                        }
+                    </td>
+                    @if (Model.BusyoColumnIsVisible)
+                    {
+                        <td>
+                            @* 部署 *@
+                            @Model.Keikakus[i].BusyoName
+                        </td>
+                    }
+                    <td>
+                        @* 氏名 *@
+                        @Model.Keikakus[i].SyainName
+                    </td>
+                    @foreach (var m in Model.Keikakus[i].Meisais)
+                    {
+                        <td class="@m.ColorClass">
+                            @* 予定日 *@
+                            @Html.DisplayFor(_ => m.Ymd)
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>

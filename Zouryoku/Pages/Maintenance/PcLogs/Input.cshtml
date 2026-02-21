@@ -1,0 +1,91 @@
+﻿@page
+@using Model.Enums
+@model Zouryoku.Pages.Maintenance.PcLogs.InputModel
+@{
+    Layout = "_Layout";
+    // ページタイトル（新規 / 編集）
+    ViewData["Title"] = Model.IsEdit ? "PCログ編集" : "PCログ新規登録";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>PcLog</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @if (Model.IsEdit)
+            {
+                <input type="hidden" asp-for="PcLog.Id" />
+            }
+            <div class="form-group">
+                <label asp-for="PcLog.Datetime" class="control-label"></label>
+                <input asp-for="PcLog.Datetime" class="form-control" />
+                <span asp-validation-for="PcLog.Datetime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PcLog.PcName" class="control-label"></label>
+                <input asp-for="PcLog.PcName" class="form-control" />
+                <span asp-validation-for="PcLog.PcName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PcLog.UserName" class="control-label"></label>
+                <input asp-for="PcLog.UserName" class="form-control" />
+                <span asp-validation-for="PcLog.UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PcLog.SyainId" class="control-label"></label>
+                <input asp-for="PcLog.SyainId" class="form-control" />
+                <span asp-validation-for="PcLog.SyainId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PcLog.Operation" class="control-label"></label>
+                <select asp-for="PcLog.Operation" class="form-control" asp-items="Html.GetEnumSelectList<PcOperationType>()"></select>
+                <span asp-validation-for="PcLog.Operation" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="button" value="@(Model.IsEdit ? "更新" : "登録")" class="btn btn-primary" id="registerBtn"/>
+                @if (Model.IsEdit)
+                {
+                    <button type="button"  class="btn btn-danger"  id="deleteBtn">削除</button>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+@* モーダル内表示用のため戻るリンクは不要 *@
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+
+        // 登録ボタン
+        $('#registerBtn').on('click', function () {
+            register('登録', 'Register');
+        });
+
+        // 削除ボタン
+        $('#deleteBtn').on('click', function () {
+            register('削除', 'Delete');
+        });
+
+        /** 登録 */
+        function register(actionName, handler) {
+            // クライアント側の検証でエラーがない場合のみ、登録処理を行う
+            if (!$('form').valid()) {
+                return
+            };
+
+            commonConfirm(actionName + 'します。よろしいですか？', null, function() {
+                // 登録処理
+                sendRegisterAjax(toUrl(handler), $('form').serializeArray(), function(data) {
+                    registerSuccessSwal(actionName + 'しました', null, function() {
+                        closeCurrentIziModal();
+                    });
+                });
+            });
+        }
+    </script>
+}

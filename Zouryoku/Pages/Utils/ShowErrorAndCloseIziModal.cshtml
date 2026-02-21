@@ -1,0 +1,16 @@
+﻿@page
+@model Zouryoku.Pages.Utils.ShowErrorAndCloseIziModalModel
+@{
+    Layout = "_Layout_iframe";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            errorSwal('@Model.Title', '@Model.Message', function () {
+                // メッセージ表示後は、この画面を閉じる
+                parent.closeIziModal();
+            });
+        });
+    </script>
+}

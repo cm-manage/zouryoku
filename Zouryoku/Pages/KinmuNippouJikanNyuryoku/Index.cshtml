@@ -1,0 +1,182 @@
+@page
+@using CommonLibrary.Extensions
+@model Zouryoku.Pages.KinmuNippouJikanNyuryoku.IndexModel
+@{
+    ViewData["Title"] = "勤務日報時間入力";
+}
+
+<div>
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <!-- 社員ID -->
+        <input type="hidden" asp-for="ViewModel.SyainId" />
+        <!-- 代理入力フラグ -->
+        <input type="hidden" asp-for="ViewModel.IsDairiInput" />
+        <!-- 確定区分（確定フラグはサーバー側で計算） -->
+        <input type="hidden" asp-for="ViewModel.TourokuKubun" />
+        <div class="card-body">
+            <div class="app-screen--entry">
+                <div class="app-area__header">
+                    <!-- 実績日（YMDJpWeek 拡張メソッドにより「yyyy/MM/dd（曜）」形式で表示／週情報を含む） -->
+                    <span>@Model.ViewModel.JissekiDate.YMDJpWeek()</span>
+                    <input type="hidden" asp-for="ViewModel.JissekiDate" />
+                </div>
+                <div class="app-area__body">
+                    @for (int i = 0; i < Model.ViewModel.TimeSets.Count; i++)
+                    {
+                        <!-- 出退勤１～３ -->
+                        <div class="row mt-3">
+                            <div class="col-sm-2 app-input__label">
+                                <span>@IndexModel.KinmuNippouNyuryokuViewModel.LabelTitle[i]</span>
+                            </div>
+                            <div class="col-sm-7 d-flex align-items-center">
+                                <!-- 出勤時間 -->
+                                <select asp-for="ViewModel.TimeSets[i].Start.Hour" class="form-select form-select-sm hour-width"
+                                        asp-items="IndexModel.TimeSelectListHelper.GetHourListItems()"
+                                        aria-label="@IndexModel.KinmuNippouNyuryokuViewModel.LabelTitle[i] 出勤 時">
+                                    <option value=""></option>
+                                </select>
+                                <span>：</span>
+                                <select asp-for="ViewModel.TimeSets[i].Start.Minute" class="form-select form-select-sm minute-width"
+                                        asp-items="IndexModel.TimeSelectListHelper.GetMinuteListItems()"
+                                        aria-label="@IndexModel.KinmuNippouNyuryokuViewModel.LabelTitle[i] 出勤 分">
+                                    <option value=""></option>
+                                </select>
+
+                                <span>～</span>
+
+                                <!-- 退勤時間 -->
+                                <select asp-for="ViewModel.TimeSets[i].End.Hour" class="form-select form-select-sm hour-width"
+                                        asp-items="IndexModel.TimeSelectListHelper.GetHourListItems()"
+                                        aria-label="@IndexModel.KinmuNippouNyuryokuViewModel.LabelTitle[i] 退勤 時">
+                                    <option value=""></option>
+                                </select>
+                                <span>：</span>
+                                <select asp-for="ViewModel.TimeSets[i].End.Minute" class="form-select form-select-sm minute-width"
+                                        asp-items="IndexModel.TimeSelectListHelper.GetMinuteListItems()"
+                                        aria-label="@IndexModel.KinmuNippouNyuryokuViewModel.LabelTitle[i] 退勤 分">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row mt-3">
+                        <div class="col-sm-2 app-input__label">
+                            @Html.LabelFor(m => m.ViewModel.ShinseiInput)
+                        </div>
+                        <div class="col-sm-7">
+                            @* app-input__textarea により読み取り専用表示となる *@
+                            <textarea class="app-input__textarea" rows="5" cols="50" asp-for="ViewModel.ShinseiInput"
+                                  readonly
+                                  aria-readonly="true"
+                                  aria-label="@Html.DisplayNameFor(m => m.ViewModel.ShinseiInput)">
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="py-5 my-5"></div>
+            <div class="fixed-bottom bg-body app-area__footer">
+                <hr />
+                <div class="text-end p-2">
+                    <button type="button" class="btn btn-primary app-btn__base" id="btn-register">
+                        <i class="fa-solid fa-check"></i>登録
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- 画面固有CSS -->
+@section InputStyles{
+    <style>
+        .app-screen--entry span {
+            padding-left: 0.4rem;
+            padding-right: 0.4rem;
+        }
+    </style>
+}
+
+<!-- Modal / 共通 JS -->
+@section InputScripts {
+    <script>
+        $(function() {
+            // 各セットの出退勤select群
+            // 1セット目のみ例外的に無効化されない
+            const timeSets = [$('select[name^="ViewModel.TimeSets[0].End."]')];
+            const timeSetCount = @Model.ViewModel.TimeSets.Count;
+            for (let i = 1; i < timeSetCount; i++) {
+                timeSets.push($(`select[name^="ViewModel.TimeSets[${i}].Start."]`));
+                timeSets.push($(`select[name^="ViewModel.TimeSets[${i}].End."]`));
+            }
+
+            /**
+             * timeSets[i]がすべて入力済みの場合のみ、timeSets[i+1]を有効化。
+             * それ以外は無効化し、値をクリア。
+             */
+            function updateTimeSets() {
+                for (let i = 0; i < timeSets.length - 1; i++) {
+                    const allFilled = timeSets[i].filter(function() { return !$(this).val(); }).length === 0;
+                    if (allFilled) {
+                        timeSets[i + 1].prop('disabled', false);
+                    } else {
+                        // i+1以降はすべて無効化＆クリア
+                        timeSets.slice(i + 1).forEach(function ($timeSet) {
+                            $timeSet.prop('disabled', true).val('');
+                        });
+                        break;
+                    }
+                }
+            }
+
+            // 初期状態
+            updateTimeSets();
+
+            // 値変更時に状態更新
+            $('select[name^="ViewModel.TimeSets"]').on('change', function () {
+                updateTimeSets();
+            });
+
+            // 登録
+            $("#btn-register").on("click", function () {
+                const data = $('form').serializeArray();
+
+                //登録処理
+                sendAjax(
+                    toUrl("Register"),
+                    data,
+                    function (resultData) {
+                        emitInput(resultData);
+                    },
+                    false
+                );
+            });
+
+            // 親画面へ返却
+            function emitInput(resultData) {
+                // object 変換
+                const toKintaiObject = 
+                {
+                    syainId: resultData.syainId,                            // 社員ID
+                    jissekiDate: resultData.jissekiDate,                    // 実績日
+                    syukkinTime1: resultData.syukkinTime1,                  // 出勤１
+                    taikinTime1: resultData.taikinTime1,                    // 退勤１
+                    syukkinTime2: resultData.syukkinTime2,                  // 出勤２
+                    taikinTime2: resultData.taikinTime2,                    // 退勤２
+                    syukkinTime3: resultData.syukkinTime3,                  // 出勤３
+                    taikinTime3: resultData.taikinTime3,                    // 退勤３
+                    isDairiInput: resultData.isDairiInput,                  // 代理入力かどうか
+                };
+
+                window.parent.postMessage({
+                    type: "kinmu-nippou-jikan-nyuryoku",
+                    data: toKintaiObject,
+                }, window.location.origin);
+
+                closeCurrentIziModal();
+            }
+        });
+    </script>
+}

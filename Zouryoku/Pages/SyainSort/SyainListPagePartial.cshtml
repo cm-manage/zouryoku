@@ -1,0 +1,16 @@
+﻿@using Zouryoku.Pages.SyainSort
+@model SyainListPageModel
+
+<div class="mb-2 fw-bold">@Model.BusyoName</div>
+<ul id="syainList" class="list-group">
+    @for (int i = 0; i < Model.Syains.Count; i++)
+    {
+        var s = Model.Syains[i];
+        <li class="list-group-item position-relative bg-light" data-id="@s.Id" draggable="true">
+            <input type="hidden" name="Syains[@i].Id" value="@s.Id" />
+            <input type="hidden" name="Syains[@i].Jyunjyo" value="" class="syain-order" />
+            <span class="handle me-2" draggable="true">&#9776;</span>
+            <span class="fw-bold">@s.Name</span>
+        </li>
+    }
+</ul>

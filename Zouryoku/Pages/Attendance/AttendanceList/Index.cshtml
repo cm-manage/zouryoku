@@ -1,0 +1,255 @@
+﻿@page
+@model Zouryoku.Pages.Attendance.AttendanceList.IndexModel
+@using CommonLibrary.Extensions
+@using Zouryoku.Pages.Shared.Components
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "出退勤一覧";
+    ViewData["TitleIcon"] = "fa-solid fa-list-check";
+}
+
+@section InputStyles {
+    <style>
+        .pc-log-time {
+            display: inline-block;
+            min-width: 5ch;
+        }
+
+        .sort-list {
+            min-width: 90px;
+        }
+
+        table {
+            /* 担当者 */
+            .th-tantosya {
+                width: 6%;
+            }
+            /* 日付 */
+            .th-hiduke {
+                width: 4%;
+            }
+            /* ＰＣログ */
+            .th-pclog {
+                width: 11%;
+            }
+            /* 備考 */
+            .th-bikou {
+                width: 8%;
+            }
+            /* 出勤区分 */
+            .th-syukkin-kubun {
+                width: 6%;
+            }
+            /* 出勤時間1～3 */
+            .th-syukkin-time {
+                width: 6%;
+                min-width: 13ch;
+            }
+            /* 勤務時間1～3 */
+            .th-kinmu-time {
+                width: 4%;
+                min-width: 10ch;
+            }
+        }
+    </style>
+}
+
+@* 共通パーシャルを呼び出し（Model を渡す） *@
+<partial name="_ZouryokuHeader" model="Model" />
+
+<div class="app-screen--search">
+    <form method="post" id="attendance-form">
+        <div class="app-area__search-criteria">
+            @if (Model.SyainView.IsSelectDepartment)
+            {
+                <div class="d-flex flex-wrap mt-lg-2 gap-lg-2 align-items-center">
+                    <label asp-for="Search.BusyoName" class="col-1 col-form-label app-input__label ps-2">@Html.DisplayNameFor(m => m.Search.BusyoName)</label>
+                    <div class="d-flex col-lg-3">
+                        <span asp-validation-for="Search.BusyoName" class="text-danger"></span>
+                        <input type="text" asp-for="Search.BusyoName" class="form-control app-input__textbox" readonly />
+                        <button type="button" class="btn btn-primary app-btn__base" id="btn-busyo-search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </div>
+            }
+            <input type="hidden" asp-for="Search.BusyoId" />
+            <div class="d-flex flex-wrap mt-lg-2 gap-lg-2 align-items-center">
+                <label for="Search_Kikan_From" class="col-1 col-form-label app-input__label ps-2">@Html.DisplayNameFor(m => m.Search.Kikan)</label>
+                <div class="col-lg-auto gap-lg-1">
+                    <span asp-validation-for="Search.Kikan.From" class="text-danger"></span>
+                    <span asp-validation-for="Search.Kikan.To" class="text-danger"></span>
+                    <span asp-validation-for="Search.Kikan.SelectedOption" class="text-danger"></span>
+                    <div class="d-flex align-items-center gap-lg-3">
+                        <div class="input-group input-local">
+                            <input type="text" asp-for="Search.Kikan.From"
+                                   title="@Html.DisplayNameFor(m => m.Search.Kikan.From)"
+                                   class="form-control app-input__textbox" />
+                        </div>
+                        <div>～</div>
+                        <div class="input-group input-local">
+                            <input type="text" asp-for="Search.Kikan.To"
+                                   title="@Html.DisplayNameFor(m => m.Search.Kikan.To)"
+                                   class="form-control app-input__textbox" />
+                        </div>
+                        <select asp-for="Search.Kikan.SelectedOption"
+                                asp-items="@DatepickerRangeModel.ItemsFrom(Model.Search.KikanRangeOptions)"
+                                title="@Html.DisplayNameFor(m => m.Search.Kikan.SelectedOption)"
+                                class="form-select app-input__select">
+                        </select>
+                    </div>
+                    <partial name="Components/_DatepickerRange"
+                             model="@(new DatepickerRangeModel
+                             {
+                                 FromId = "Search.Kikan.From",
+                                 ToId = "Search.Kikan.To",
+                                 SelectId = "Search.Kikan.SelectedOption",
+                                 NumberOfMonthsWidth = 3,
+                                 NumberOfMonthsHeight = 1,
+                             })" />
+                </div>
+            </div>
+
+            <div class="d-flex mt-lg-2 gap-lg-2 align-items-center">
+                <label asp-for="SyainView.SelectedId" class="col-1 col-form-label app-input__label ps-2">@Html.DisplayNameFor(m => m.SyainView.SelectedId)</label>
+                <div class="col-lg-2">
+                    <select asp-for="SyainView.SelectedId" asp-items="@Model.SyainView.Items" class="form-control form-select app-input__select"></select>
+                </div>
+            </div>
+
+            <div class="d-flex mt-lg-2 col-lg-1">
+                <button type="button" class="btn btn-primary app-btn__base" id="btn-kinmu-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    検索
+                </button>
+            </div>
+        </div>
+        <div class="app-area__tool-button"></div>
+        <div class="app-area__search-results">
+            <div class="d-flex mt-lg-2 align-items-center gap-lg-1">
+                <div class="sort-list">
+                    <select asp-for="Search.SortSelected" asp-items="@Model.Search.SortSelectItems" class="form-control form-select app-input__select"></select>
+                </div>
+                <div class="sort-list">
+                    <select asp-for="Search.SortOrderType" asp-items="@Model.Search.SortOrderItems" class="form-control form-select app-input__select"></select>
+                </div>
+            </div>
+            <table id="kinmuhyo" class="table app-table__calendar table-bordered text-nowrap text-center align-middle">
+            </table>
+        </div>
+    </form>
+</div>
+
+@section InputScripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(function(){
+            // 初期表示時にドロップダウンリストの変更イベントを発火させて、期間の表示を初期化
+            $('#Search_Kikan_SelectedOption').change();
+
+            // -----------------------------
+            // 部署選択画面状態管理
+            // -----------------------------
+            let currentMultiFlag = false;
+
+            // -----------------------------
+            // 部署選択画面からのメッセージ受信
+            // -----------------------------
+            $(window).on("message", function (event) {
+                const e = event.originalEvent;
+
+                // セキュリティチェック（オリジン確認）
+                if (e.origin !== window.location.origin) return;
+
+                const data = e.data;
+                if (!data || data.type !== "busyoSelected") return;
+
+                updateSelectedBusyo(data.payload);
+            });
+
+            // -----------------------------
+            // 部署選択結果の描画
+            // -----------------------------
+            function updateSelectedBusyo(payload) {
+                const $container = $('#selected-busyo-container').empty();
+
+                const list = currentMultiFlag ? payload : [payload];
+                selectedBusyoIds = list.map(b => b.id);
+
+                // 画面表示更新
+                $("#Search_BusyoId").val(list[0].id);
+                $("#Search_BusyoName").val(list[0].name);
+
+                // 社員リスト再検索
+                sendAjax(toUrl("Busyo"), $('form').serializeArray(), function(data) {
+                    $("#SyainView_SelectedId").empty();
+                    $.each(data, function(i, item){
+                        $("#SyainView_SelectedId").append(
+                            $("<option>").val(item.value).text(item.text)
+                        );
+                        if (item.selected){
+                             $("#SyainView_SelectedId").val(item.value);
+                        }
+                    });
+                }, false, null, false);
+            }
+
+            // ツールチップ初期化
+            function initTooltip(){
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+
+            // 部署検索ボタン
+            $("#btn-busyo-search").on("click", function(){
+                var selectedBusyoIds = [];
+                var selectedid = $("#Search_BusyoId").val();
+                if (selectedid != "") selectedBusyoIds.push(selectedid);
+                openBusyoSelectModal(
+                    false,
+                    selectedBusyoIds
+                );
+            });
+
+            // 検索ボタン
+            $("#btn-kinmu-search").on("click", function() {
+                // エラークリア
+                errorClear();
+
+                sendAjax(toUrl("Search"), $('form').serializeArray(), function(data) {
+                    $("#kinmuhyo").html(data);
+                    var message = $("#warning-message").val();
+                    if (message) warningMessage(message);
+                }, false, null, false);
+            });
+
+            // 日付リンククリック時イベント
+            $("#kinmuhyo-body").on("click", ".link", function(e) {
+                var tds = $(this).closest("tr").find("td").map(function(){
+                    return $(this).text().trim();
+                }).get();
+                e.preventDefault(); // デフォルトのリンク移動を止める
+                alert("打刻修正は未実装\r\nクリックした行\r\n" + tds);
+            });
+
+            // ドロップダウン変更時イベント
+                $("#Search_SortSelected, #Search_SortOrderType, #Search_Kikan_SelectedOption, #SyainView_SelectedId").on("change", function() {
+                setTimeout(() => $("#btn-kinmu-search").trigger('click'));    // 期間の表示更新待ちで検索ボタンを遅延トリガー
+            });
+
+            // Validation共通初期化関数を呼ぶ
+            initValidation('#attendance-form');
+
+
+            // DOM読み込み完了後に初期検索を実行
+            $("#btn-kinmu-search").trigger('click');    // 初期検索を行う
+
+            // ツールチップ初期化
+            initTooltip();
+
+        })
+    </script>
+}

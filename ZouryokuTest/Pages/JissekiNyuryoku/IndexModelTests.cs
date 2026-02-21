@@ -1182,7 +1182,8 @@ expected,
         /// When: OnPostCancelConfirmAsync を実行する
         /// Then: 該当 UkagaiHeader.Invalid が false に戻る
         /// </summary>
-        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 月末日の確定解除で、無効化済みの時間外労働時間制限拡張申請が当月内に存在する場合は無効化が解除される")]
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 月末日の確定解除で、無効化済みの時間外労働時間制限拡張申請が" +
+            "当月内に存在する場合は無効化が解除される")]
         public async Task OnPostCancelConfirmAsync_月末日の確定解除で無効化済みの時間外労働時間制限拡張申請が当月内に存在する場合は無効化が解除される()
         {
             // 準備 (Arrange)
@@ -3075,8 +3076,9 @@ expected,
         /// When: NotProxyAndLoginBaseMismatch
         /// Then: ConfirmButtonIsFalse
         /// </summary>
-        [TestMethod(DisplayName = "CheckConfirmButtonAsync: 代理入力でなく、ログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合、ConfirmButtonがfalseになる")]
-        public async Task CheckConfirmButtonAsync_代理入力でなくログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合ConfirmButtonがfalseになる()
+        [TestMethod(DisplayName = "CheckConfirmButtonAsync: 代理入力でなく、ログインユーザーが日報作成者と異なる場合、" +
+            "ConfirmButtonがfalseになる")]
+        public async Task CheckConfirmButtonAsync_代理入力でなくログインユーザーが日報作成者と異なる場合ConfirmButtonがfalseになる()
         {
             var jissekiDate = D("20250120");
             var target = new SyainBuilder()
@@ -3124,8 +3126,9 @@ expected,
         /// When: NotProxyAndLoginBaseMismatch
         /// Then: UnconfirmButtonIsFalse
         /// </summary>
-        [TestMethod(DisplayName = "CheckUnconfirmButtonAsync: 代理入力でなく、ログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合、UnconfirmButtonがfalseになる")]
-        public async Task CheckUnconfirmButtonAsync_代理入力でなくログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合UnconfirmButtonがfalseになる()
+        [TestMethod(DisplayName = "CheckUnconfirmButtonAsync: 代理入力でなく、ログインユーザーが日報作成者と異なる場合、" +
+            "UnconfirmButtonがfalseになる")]
+        public async Task CheckUnconfirmButtonAsync_代理入力でなくログインユーザーが日報作成者と異なる場合UnconfirmButtonがfalseになる()
         {
             var loginUser = new SyainBuilder()
                 .WithId(99)
@@ -3160,8 +3163,9 @@ expected,
         /// When: NotProxyAndLoginBaseMismatch
         /// Then: TemporarySaveButtonIsFalse
         /// </summary>
-        [TestMethod(DisplayName = "CheckTemporarySaveButtonAsync: 代理入力でなく、ログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合、TemporarySaveButtonがfalseになる")]
-        public async Task CheckTemporarySaveButtonAsync_代理入力でなくログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合TemporarySaveButtonがfalseになる()
+        [TestMethod(DisplayName = "CheckTemporarySaveButtonAsync: 代理入力でなく、ログインユーザーが日報作成者と異なる場合、" +
+            "TemporarySaveButtonがfalseになる")]
+        public async Task CheckTemporarySaveButtonAsync_代理入力でなくログインユーザーが日報作成者と異なる場合TemporarySaveButtonがfalseになる()
         {
             var loginUser = new SyainBuilder()
                 .WithId(99)
@@ -3194,7 +3198,8 @@ expected,
         /// When: NoWorkAndCompensatoryIsHalfAndPaidAtLeastHalf
         /// Then: HalfSubstituteAndHalfPaid
         /// </summary>
-        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が半日で有給が半日以上の場合、勤務区分1が半日振休、勤務区分2が半日有給になる")]
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が半日で有給が半日以上の場合、勤務区分1が半日振休、" +
+            "勤務区分2が半日有給になる")]
         public async Task GetKubunDataAsync_勤務なしかつ振休が半日で有給が半日以上の場合勤務区分1が半日振休勤務区分2が半日有給になる()
         {
             var jissekiDate = D("20250120");
@@ -6822,7 +6827,8 @@ expected,
         /// When: 振替休暇の確定処理を実行
         /// Then: 1件目は1日化され、2件目で半日が取得される
         /// </summary>
-        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 1日振休残が半日取得済みで別の未取得残がある場合、1件目は1日化され2件目で半日が取得される")]
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 1日振休残が半日取得済みで別の未取得残がある場合、" +
+            "1件目は1日化され2件目で半日が取得される")]
         public async Task UpdateConfirmLeaveAsync_1日振休残が半日取得済みで別の未取得残がある場合1件目は1日化され2件目で半日が取得される()
         {
             // 準備 (Arrange)
@@ -7391,7 +7397,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 作成済み振休残が削除される
         /// </summary>
-        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 日曜日の休日出勤取消で作成済み振休残ありかつ管理職の場合、作成済み振休残が削除される")]
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 日曜日の休日出勤取消で作成済み振休残ありかつ管理職の場合、" +
+            "作成済み振休残が削除される")]
         public async Task UpdateCancelConfirmLeaveAsync_日曜日の休日出勤取消で作成済み振休残ありかつ管理職の場合作成済み振休残が削除される()
         {
             // 準備 (Arrange)
@@ -7597,7 +7604,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 計画特別休暇回数が減算される
         /// </summary>
-        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 計画特別休暇取消対象データが存在し取消確定時の休暇更新を実行した場合、計画特別休暇回数が減算される")]
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 計画特別休暇取消対象データが存在し取消確定時の休暇更新を実行した場合、" +
+            "計画特別休暇回数が減算される")]
         public async Task UpdateCancelConfirmLeaveAsync_計画特別休暇取消対象データが存在し取消確定時の休暇更新を実行した場合計画特別休暇回数が減算される()
         {
             // 準備 (Arrange)
@@ -7730,7 +7738,8 @@ expected,
         /// When: 取消処理を実行
         /// Then: 消化数と半日回数が減算される
         /// </summary>
-        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 半日有給取消対象データが存在し区分1が半日勤務の場合、消化数と半日回数が減算される")]
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 半日有給取消対象データが存在し区分1が半日勤務の場合、" +
+            "消化数と半日回数が減算される")]
         public async Task UpdateCancelConfirmLeaveAsync_半日有給取消対象データが存在し区分1が半日勤務の場合消化数と半日回数が減算される()
         {
             // 準備 (Arrange)
@@ -7768,7 +7777,8 @@ expected,
         /// When: 取消処理を実行
         /// Then: 計画特別休暇回数が減算される
         /// </summary>
-        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 計画特別休暇取消対象データが存在し取消処理を実行した場合、計画特別休暇回数が減算される")]
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 計画特別休暇取消対象データが存在し取消処理を実行した場合、" +
+            "計画特別休暇回数が減算される")]
         public async Task UpdateCancelConfirmLeaveAsync_計画特別休暇取消対象データが存在し取消処理を実行した場合計画特別休暇回数が減算される()
         {
             // 準備 (Arrange)
@@ -7803,7 +7813,8 @@ expected,
         /// When: 振休取消処理を実行
         /// Then: 対象・関連レコードの双方が未取得状態に戻る
         /// </summary>
-        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 振休取消対象と同日取得の別レコード(取得日1)が存在する場合、対象・関連レコード双方が未取得状態に戻る")]
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 振休取消対象と同日取得の別レコード(取得日1)が存在する場合、" +
+            "対象・関連レコード双方が未取得状態に戻る")]
         public async Task UpdateCancelConfirmLeaveAsync_振休取消対象と同日取得の別レコード取得日1が存在する場合対象関連レコード双方が未取得状態に戻る()
         {
             // 準備 (Arrange)
@@ -7860,7 +7871,8 @@ expected,
         /// When: 振休取消処理を実行
         /// Then: 関連レコードは半日状態に戻る
         /// </summary>
-        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 振休取消対象と同日取得の別レコード(取得日2)が存在する場合、関連レコードは半日状態に戻る")]
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 振休取消対象と同日取得の別レコード(取得日2)が存在する場合、" +
+            "関連レコードは半日状態に戻る")]
         public async Task UpdateCancelConfirmLeaveAsync_振休取消対象と同日取得の別レコード取得日2が存在する場合関連レコードは半日状態に戻る()
         {
             // 準備 (Arrange)
@@ -7914,7 +7926,8 @@ expected,
         /// When: 半日振休取消を実行
         /// Then: 取得日2がクリアされ、半日状態に戻る
         /// </summary>
-        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 半日振休取消対象が取得日2に設定されている場合、取得日2がクリアされ半日状態に戻る")]
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 半日振休取消対象が取得日2に設定されている場合、" +
+            "取得日2がクリアされ半日状態に戻る")]
         public async Task UpdateCancelConfirmLeaveAsync_半日振休取消対象が取得日2に設定されている場合取得日2がクリアされ半日状態に戻る()
         {
             // 準備 (Arrange)
@@ -8071,7 +8084,8 @@ expected,
         /// When: 振休残通知判定を実行
         /// Then: 通知メッセージが作成される
         /// </summary>
-        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 振休残が閾値以上で部門長メールありの場合、通知メッセージが作成される")]
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 振休残が閾値以上で部門長メールありの場合、" +
+            "通知メッセージが作成される")]
         public async Task SendCompensatoryLeaveNotificationIfNeededAsync_振休残が閾値以上で部門長メールありの場合通知メッセージが作成される()
         {
             // 準備 (Arrange)
@@ -8146,7 +8160,8 @@ expected,
         /// When: 振休残通知判定を実行
         /// Then: 通知メッセージは作成されない
         /// </summary>
-        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 振休残が閾値以上だが部門長メールなしの場合、通知メッセージは作成されない")]
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 振休残が閾値以上だが部門長メールなしの場合、" +
+            "通知メッセージは作成されない")]
         public async Task SendCompensatoryLeaveNotificationIfNeededAsync_振休残が閾値以上だが部門長メールなしの場合通知メッセージは作成されない()
         {
             // 準備 (Arrange)
@@ -8345,7 +8360,8 @@ expected,
         /// When: ThresholdReachedAndNoBumoncho
         /// Then: NoNotification
         /// </summary>
-        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 閾値に達したが部門長が未設定の場合、通知は作成されない")]
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 閾値に達したが部門長が未設定の場合、" +
+            "通知は作成されない")]
         public async Task SendCompensatoryLeaveNotificationIfNeededAsync_閾値に達したが部門長が未設定の場合通知は作成されない()
         {
             var jissekiDate = D("20250120");
@@ -8399,7 +8415,8 @@ expected,
         /// When: HalfDayUnusedMixedStates
         /// Then: UseExpectedTotalDays
         /// </summary>
-        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 半日未取得で状態が混在している場合、期待される合計日数を使用する")]
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 半日未取得で状態が混在している場合、" +
+            "期待される合計日数を使用する")]
         public async Task SendCompensatoryLeaveNotificationIfNeededAsync_半日未取得で状態が混在している場合期待される合計日数を使用する()
         {
             var today = DateTime.Today.ToDateOnly();
@@ -8469,7 +8486,8 @@ expected,
         /// When: BumonchoHasNoActiveSyain
         /// Then: NotificationNotCreated
         /// </summary>
-        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 閾値に達したが部門長に有効な社員がいない場合、通知は作成されない")]
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 閾値に達したが部門長に有効な社員がいない場合、" +
+            "通知は作成されない")]
         public async Task SendCompensatoryLeaveNotificationIfNeededAsync_閾値に達したが部門長に有効な社員がいない場合通知は作成されない()
         {
             var today = DateTime.Today.ToDateOnly();
@@ -10050,7 +10068,8 @@ expected,
         /// When: WorkingKubunAndNonPartWithKubun2
         /// Then: InvalidAttendanceClassification
         /// </summary>
-        [TestMethod(DisplayName = "CommonValidationAsync: 勤務区分が通常勤務かつ非パートでKubun2が存在する場合、InvalidAttendanceClassificationを返す")]
+        [TestMethod(DisplayName = "CommonValidationAsync: 勤務区分が通常勤務かつ非パートでKubun2が存在する場合、" +
+            "InvalidAttendanceClassificationを返す")]
         public async Task
         CommonValidationAsync_勤務区分が通常勤務かつ非パートでKubun2が存在する場合InvalidAttendanceClassificationを返す()
         {
@@ -10219,7 +10238,8 @@ expected,
         /// When: HalfDayPaidAndOneDayPaidAsKubun2
         /// Then: InvalidAttendanceClassification
         /// </summary>
-        [TestMethod(DisplayName = "TemporarySaveValidationAsync: 半日有給かつ1日有給としてKubun2が設定されている場合、InvalidAttendanceClassificationを返す")]
+        [TestMethod(DisplayName = "TemporarySaveValidationAsync: 半日有給かつ1日有給としてKubun2が設定されている場合、" +
+            "InvalidAttendanceClassificationを返す")]
         public async Task TemporarySaveValidationAsync_半日有給かつ1日有給としてKubun2が設定されている場合InvalidAttendanceClassificationを返す()
         {
             var syain = SeedConfirmValidationSyain();
@@ -10596,8 +10616,9 @@ expected,
         /// When: 半日振替休暇が取得している場合ByOneDayHalfAndSecondYmd1Match
         /// Then: SecondIsCleared
         /// </summary>
-        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得している場合かつ関連レコードの取得日1が一致する場合、関連レコードの取得日1がクリアされ状態が未になる")]
-        public async Task CancelFurikyuuAsync_半日振替休暇が取得している場合かつ関連レコードの取得日1が一致する場合関連レコードの取得日1がクリアされ状態が未になる()
+        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得して関連レコードの取得日1が一致する場合、" +
+            "関連レコードの取得日1がクリアされ状態が未になる")]
+        public async Task CancelFurikyuuAsync_半日振替休暇が取得して関連レコードの取得日1が一致する場合関連レコードの取得日1がクリアされ状態が未になる()
         {
             var jissekiDate = D("20250120");
             var first = new FurikyuuZan
@@ -10650,8 +10671,9 @@ expected,
         /// When: 半日振替休暇が取得している場合AndSecondYmd2Match
         /// Then: SecondYmd2ClearedAndStateHalf
         /// </summary>
-        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得している場合かつ関連レコードの取得日2が一致する場合、関連レコードの取得日2がクリアされ状態が半日になる")]
-        public async Task CancelFurikyuuAsync_半日振替休暇が取得している場合かつ関連レコードの取得日2が一致する場合関連レコードの取得日2がクリアされ状態が半日になる()
+        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得して関連レコードの取得日2が一致する場合、" +
+            "関連レコードの取得日2がクリアされ状態が半日になる")]
+        public async Task CancelFurikyuuAsync_半日振替休暇が取得して関連レコードの取得日2が一致する場合関連レコードの取得日2がクリアされ状態が半日になる()
         {
             var jissekiDate = D("20250120");
             var first = new FurikyuuZan
@@ -10704,8 +10726,8 @@ expected,
         /// When: 半日振替休暇が取得している場合AndSecondNotFound
         /// Then: OnlyPrimaryUpdated
         /// </summary>
-        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得している場合かつ関連レコードが見つからない場合、主レコードのみ更新される")]
-        public async Task CancelFurikyuuAsync_半日振替休暇が取得している場合かつ関連レコードが見つからない場合主レコードのみ更新される()
+        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得して関連レコードが見つからない場合、主レコードのみ更新される")]
+        public async Task CancelFurikyuuAsync_半日振替休暇が取得して関連レコードが見つからない場合主レコードのみ更新される()
         {
             var jissekiDate = D("20250120");
             var first = new FurikyuuZan

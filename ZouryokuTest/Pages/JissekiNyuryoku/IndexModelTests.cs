@@ -701,32 +701,7 @@ expected,
         public async Task OnPostFinalConfirmAsync_一時保存済みデータが確定保存される()
         {
             // 準備 (Arrange)
-            var syainBase = new SyainBasisBuilder().WithId(1).Build();
-            db.SyainBases.Add(syainBase);
-
-            var kintaiZokusei = new KintaiZokusei
-            {
-                Id = 5,
-                Code = 標準社員外,
-                Name = "標準社員外"
-            };
-            db.KintaiZokuseis.Add(kintaiZokusei);
-
-            var syain = new SyainBuilder()
-                .WithId(1)
-                .WithSyainBaseId(syainBase.Id)
-                .WithStartYmd(D("20250101"))
-                .WithEndYmd(D("20251231"))
-                .WithKintaiZokuseiId(5)
-                .Build();
-            db.Syains.Add(syain);
-
-            var syukkinKubun = new SyukkinKubunBuilder()
-                .WithId(1)
-                .WithCode("02")
-                .WithName("通常勤務")
-                .Build();
-            db.SyukkinKubuns.Add(syukkinKubun);
+            var (syain, syukkinKubun, anken) = SeedFinalConfirmMinimumData();
 
             var jissekiDate = D("20250115");
             var nippou = new Nippou
@@ -755,18 +730,6 @@ expected,
             };
             db.Nippous.Add(previousNippou);
 
-            var appConfig = new ApplicationConfig
-            {
-                Id = 1,
-                NippoStopDate = D("20250101"),
-                MsClientId = "test-client-id",
-                MsClientSecret = "test-client-secret",
-                MsTenantId = "test-tenant-id",
-                SmtpUser = "test@example.com",
-                SmtpPassword = "test-password"
-            };
-            db.ApplicationConfigs.Add(appConfig);
-
             await db.SaveChangesAsync();
 
             var model = CreateModel(syain);
@@ -777,9 +740,24 @@ expected,
                 Id = nippou.Id,
                 SyukkinHm1 = new TimeOnly(9, 0),
                 TaisyutsuHm1 = new TimeOnly(18, 0),
-                SyukkinKubunCodeString1 = "02"
+                SyukkinKubun1 = 通常勤務,
+                SyukkinKubun2 = None
             };
-            model.NippouAnkenCards = new IndexModel.CardsViewModel();
+            model.NippouAnkenCards = new IndexModel.CardsViewModel
+            {
+                NippouAnkens = new List<IndexModel.NippouAnkenViewModel>
+                {
+                    new IndexModel.NippouAnkenViewModel
+                    {
+                        IsLinked = true,
+                        AnkensId = anken.Id,
+                        KokyakuKaisyaId = 1,
+                        KokyakuName = "顧客A",
+                        AnkenName = "案件A",
+                        JissekiJikan = 480
+                    }
+                }
+            };
 
             // 実行 (Act)
             var result = await model.OnPostFinalConfirmAsync(

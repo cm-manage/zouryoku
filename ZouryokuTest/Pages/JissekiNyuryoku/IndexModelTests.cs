@@ -19,7 +19,6 @@ using ZouryokuCommonLibrary.Utils;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
 
-
 namespace ZouryokuTest.Pages.JissekiNyuryoku
 {
     /// <summary>
@@ -329,8 +328,8 @@ expected,
         /// When: 日報実績が存在しない日付で初期表示
         /// Then: 新規入力画面が正常に表示される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenNippoujissekigasonzaishinai_ThenShinkinyuuryokugamengahyoujisareru()
+        [TestMethod(DisplayName = "OnGetAsync: 日報実績が存在しない場合は新規入力画面が表示される")]
+        public async Task OnGetAsync_日報実績が存在しない場合は新規入力画面が表示される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -397,8 +396,8 @@ expected,
         /// When: 既存日報の日付で初期表示
         /// Then: 既存データが正しくViewModelに設定される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenKizonnippoudeetagaaru_ThenKizondeetagahyoujisareru()
+        [TestMethod(DisplayName = "OnGetAsync: 既存日報実績が存在する場合は既存データが表示される")]
+        public async Task OnGetAsync_既存日報実績が存在する場合は既存データが表示される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -482,8 +481,8 @@ expected,
         /// When: 初期表示を試みる
         /// Then: ログイン画面にリダイレクトされる
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_When未ログイン_Thenログイン画面にリダイレクトされる()
+        [TestMethod(DisplayName = "OnGetAsync: 未ログインの場合はログイン画面にリダイレクトされる")]
+        public async Task OnGetAsync_未ログインの場合はログイン画面にリダイレクトされる()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -530,8 +529,8 @@ expected,
         /// When: 初期表示を試みる
         /// Then: NotFoundが返される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenShaingasonzaishinai_ThenNotFoundGakaesareru()
+        [TestMethod(DisplayName = "OnGetAsync: 存在しない社員BaseIDの場合はNotFoundが返される")]
+        public async Task OnGetAsync_存在しない社員BaseIDの場合はNotFoundが返される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -598,8 +597,8 @@ expected,
         /// When: 一時保存を実行
         /// Then: データが正常に保存される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostTemporarySaveAsync_WhenYuukounadeeta_ThenSeijounihozonsareru()
+        [TestMethod(DisplayName = "OnPostTemporarySaveAsync: 有効な入力データの場合はデータが正常に保存される")]
+        public async Task OnPostTemporarySaveAsync_有効な入力データの場合はデータが正常に保存される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -679,14 +678,14 @@ expected,
             );
 
             // 検証 (Assert)
-            var afterCount = await db.Nippous.CountAsync();
-            Assert.AreEqual(beforeCount + 1, afterCount, "日報データが1件追加されるべきです。");
+            var afterSavedCount = await db.Nippous.CountAsync();
+            Assert.AreEqual(beforeCount + 1, afterSavedCount, "日報データが1件追加されるべきです。");
 
-            var saved = await db.Nippous.FirstAsync();
-            Assert.AreEqual(syain.Id, saved.SyainId, "社員IDが一致しません。");
-            Assert.AreEqual(new TimeOnly(9, 0), saved.SyukkinHm1, "出勤時刻1が一致しません。");
-            Assert.AreEqual(new TimeOnly(18, 0), saved.TaisyutsuHm1, "退出時刻1が一致しません。");
-            Assert.AreEqual(一時保存, saved.TourokuKubun, "登録区分が一時保存であるべきです。");
+            var savedNippou = await db.Nippous.FirstAsync();
+            Assert.AreEqual(syain.Id, savedNippou.SyainId, "社員IDが一致しません。");
+            Assert.AreEqual(new TimeOnly(9, 0), savedNippou.SyukkinHm1, "出勤時刻1が一致しません。");
+            Assert.AreEqual(new TimeOnly(18, 0), savedNippou.TaisyutsuHm1, "退出時刻1が一致しません。");
+            Assert.AreEqual(一時保存, savedNippou.TourokuKubun, "登録区分が一時保存であるべきです。");
         }
 
         #endregion
@@ -698,8 +697,8 @@ expected,
         /// When: 確定処理を実行
         /// Then: データが確定保存される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenIchijihozondeetagaaru_ThenKakuteihozonsareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 一時保存済みデータが確定保存される")]
+        public async Task OnPostFinalConfirmAsync_一時保存済みデータが確定保存される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -790,8 +789,9 @@ expected,
             );
 
             // 検証 (Assert)
-            var updated = await db.Nippous.FindAsync(nippou.Id);
-            Assert.IsNotNull(updated, "日報データが存在するべきです。");
+            var updatedNippou = await db.Nippous.FindAsync(nippou.Id);
+            Assert.IsNotNull(updatedNippou, "日報データが存在するべきです。");
+            Assert.AreEqual(確定保存, updatedNippou.TourokuKubun, "登録区分が確定保存であるべきです。");
         }
 
         /// <summary>
@@ -799,8 +799,8 @@ expected,
         /// When: 社員が見つからない
         /// Then: エラーJsonが返る
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenShaingamitsukaranai_ThenEraaJsonGakaeru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 社員が見つからない場合はエラーJsonが返される")]
+        public async Task OnPostFinalConfirmAsync_社員が見つからない場合はエラーJsonが返される()
         {
             var loginUser = new SyainBuilder().WithId(999).Build();
             var model = CreateModel(loginUser);
@@ -827,8 +827,8 @@ expected,
         /// When: バリデーションエラー
         /// Then: エラーJsonが返る
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenBarideeshonEraa_ThenEraaJsonGakaeru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: バリデーションエラーの場合はエラーJsonが返される")]
+        public async Task OnPostFinalConfirmAsync_バリデーションエラーの場合はエラーJsonが返される()
         {
             var (syain, _, _) = SeedFinalConfirmMinimumData();
             await db.SaveChangesAsync();
@@ -853,8 +853,8 @@ expected,
         /// When: 新規確定
         /// Then: 日報と案件行が作成される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenShinkikakutei_ThenNippoutoankengyougasakuseisareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 新規確定の場合は日報と案件行が作成される")]
+        public async Task OnPostFinalConfirmAsync_新規確定の場合は日報と案件行が作成される()
         {
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
             await db.SaveChangesAsync();
@@ -889,13 +889,13 @@ expected,
 
             AssertFinalConfirmSuccess(result);
 
-            var saved = await db.Nippous.SingleAsync(n => n.SyainId == syain.Id && n.NippouYmd == jissekiDate);
-            Assert.AreEqual(確定保存, saved.TourokuKubun, "登録区分が確定保存になるべきです。");
-            Assert.AreEqual(2, saved.SyukkinKubunId1, "出勤区分1が保存されるべきです。");
+            var savedNippou = await db.Nippous.SingleAsync(n => n.SyainId == syain.Id && n.NippouYmd == jissekiDate);
+            Assert.AreEqual(確定保存, savedNippou.TourokuKubun, "登録区分が確定保存になるべきです。");
+            Assert.AreEqual(2, savedNippou.SyukkinKubunId1, "出勤区分1が保存されるべきです。");
 
-            var savedRows = await db.NippouAnkens.Where(x => x.NippouId == saved.Id).ToListAsync();
-            Assert.HasCount(1, savedRows, "案件行が1件作成されるべきです。");
-            Assert.AreEqual(anken.Id, savedRows[0].AnkensId, "案件IDが保存されるべきです。");
+            var savedNippouAnkens = await db.NippouAnkens.Where(x => x.NippouId == savedNippou.Id).ToListAsync();
+            Assert.HasCount(1, savedNippouAnkens, "案件行が1件作成されるべきです。");
+            Assert.AreEqual(anken.Id, savedNippouAnkens[0].AnkensId, "案件IDが保存されるべきです。");
         }
 
         /// <summary>
@@ -903,8 +903,8 @@ expected,
         /// When: 既存日報あり InMemoryExecuteDelete例外
         /// Then: エラーを返す
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenKizonnippouari_InMemoryExecuteDeleteReigai_ThenEraawokaesu()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 既存日報ありInMemoryExecuteDelete例外の場合はエラーJsonが返される")]
+        public async Task OnPostFinalConfirmAsync_既存日報ありInMemoryExecuteDelete例外の場合はエラーJsonが返される()
         {
             var (syain, kubun, anken) = SeedFinalConfirmMinimumData();
             var jissekiDate = D("20250115");
@@ -971,8 +971,8 @@ expected,
         /// When: 時間外拡張伺いが存在し条件一致
         /// Then: 伺いが無効化される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_When時間外拡張伺いが存在し条件一致_Then伺いが無効化される()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 時間外拡張伺いが存在し条件一致の場合は伺いが無効化される")]
+        public async Task OnPostFinalConfirmAsync_時間外拡張伺いが存在し条件一致の場合は伺いが無効化される()
         {
             var (syain, _, anken) = SeedFinalConfirmMinimumData(kengen: EmployeeAuthority.勤怠データ出力);
             var jissekiDate = D("20250115");
@@ -1029,8 +1029,8 @@ expected,
         /// When: 代理入力
         /// Then: 代理入力履歴を追加する
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenDairinyuuryoku_ThenDairinyuuryokurirekiwotsuikasuru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 代理入力の場合は代理入力履歴が追加される")]
+        public async Task OnPostFinalConfirmAsync_代理入力の場合は代理入力履歴が追加される()
         {
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
             var proxyUser = new SyainBuilder()
@@ -1085,8 +1085,8 @@ expected,
         /// When: 通常入力で既存代理履歴あり
         /// Then: 代理履歴を無効化する
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenTsuujounyuuryokudekizondairirirekia_ThenDairirirekiwomukoukasuru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 通常入力で既存代理履歴ありの場合は代理履歴が無効化される")]
+        public async Task OnPostFinalConfirmAsync_通常入力で既存代理履歴ありの場合は代理履歴が無効化される()
         {
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
             var jissekiDate = D("20250115");
@@ -1140,8 +1140,8 @@ expected,
         /// When: 保存中に例外発生
         /// Then: 内部エラーを返す
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenHozonnakanireigaihassei_ThenNaibueraawokaesu()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 保存中に例外発生の場合は内部エラーが返される")]
+        public async Task OnPostFinalConfirmAsync_保存中に例外発生の場合は内部エラーが返される()
         {
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
             await db.SaveChangesAsync();
@@ -1182,9 +1182,8 @@ expected,
         /// When: OnPostCancelConfirmAsync を実行する
         /// Then: 該当 UkagaiHeader.Invalid が false に戻る
         /// </summary>
-        [TestMethod]
-        public async Task
-        OnPostCancelConfirmAsync_WhenMonthEndAndOvertimeExpansionUkagaiExists_ThenInvalidIsResetFalse()
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 月末日の確定解除で、無効化済みの時間外労働時間制限拡張申請が当月内に存在する場合は無効化が解除される")]
+        public async Task OnPostCancelConfirmAsync_月末日の確定解除で無効化済みの時間外労働時間制限拡張申請が当月内に存在する場合は無効化が解除される()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -1257,8 +1256,8 @@ expected,
         /// When: OnPostCancelConfirmAsync を実行する
         /// Then: 内部エラー応答が返る
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCancelConfirmAsync_WhenExceptionOccurs_ThenInternalServerErrorIsReturned()
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 確定解除処理中に例外が発生した場合は内部エラー応答が返される")]
+        public async Task OnPostCancelConfirmAsync_確定解除処理中に例外が発生した場合は内部エラー応答が返される()
         {
             // 準備 (Arrange)
             var loginUser = new SyainBuilder()
@@ -1290,8 +1289,8 @@ expected,
         /// When: 確定解除を実行
         /// Then: 一時保存に戻される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCancelConfirmAsync_WhenToujitsukakuteideeta_ThenIchijihozonnimodosareru()
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 当日確定の日報を確定解除すると一時保存に戻される")]
+        public async Task OnPostCancelConfirmAsync_当日確定の日報を確定解除すると一時保存に戻される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -1363,9 +1362,9 @@ expected,
             );
 
             // 検証 (Assert)
-            var updated = await db.Nippous.FindAsync(nippou.Id);
-            Assert.IsNotNull(updated, "日報データが存在するべきです。");
-            Assert.AreEqual(一時保存, updated.TourokuKubun, "登録区分が一時保存に戻されるべきです。");
+            var updatedNippou = await db.Nippous.FindAsync(nippou.Id);
+            Assert.IsNotNull(updatedNippou, "日報データが存在するべきです。");
+            Assert.AreEqual(一時保存, updatedNippou.TourokuKubun, "登録区分が一時保存に戻されるべきです。");
         }
 
         #endregion
@@ -1377,8 +1376,8 @@ expected,
         /// When: 前回コピーを実行
         /// Then: コピー対象なしとしてdata=nullが返る
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCopyFromLastDateAsync_WhenKinmukubunnippouganai_ThennullDeetagakaeru()
+        [TestMethod(DisplayName = "OnPostCopyFromLastDateAsync: 勤務区分が非勤務の過去日報がある場合、コピー対象なしとしてdata=nullが返される")]
+        public async Task OnPostCopyFromLastDateAsync_勤務区分が非勤務の過去日報がある場合コピー対象なしとしてdatanullが返される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -1428,8 +1427,8 @@ expected,
         /// When: 前回コピーを実行
         /// Then: 勤務日報のうち原価凍結でない案件のみコピーされる
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCopyFromLastDateAsync_When過去日報に勤務日報があり案件に原価凍結ありなしが混在する_Then勤務日報のうち原価凍結でない案件のみコピーされる()
+        [TestMethod(DisplayName = "OnPostCopyFromLastDateAsync: 過去日報に勤務日報があり、案件に原価凍結あり/なしが混在する場合、原価凍結でない案件のみコピーされる")]
+        public async Task OnPostCopyFromLastDateAsync_過去日報に勤務日報があり案件に原価凍結ありなしが混在する場合原価凍結でない案件のみコピーされる()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -1581,8 +1580,8 @@ expected,
         /// When: TotalWorkingHoursInMinuteを取得
         /// Then: 正しい労働時間（分）が計算される
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenShuttaikinjikokusettei_ThenRoudoujikangatadashikukeisansareru()
+        [TestMethod(DisplayName = "NippouViewModel: 出退勤時刻を設定した場合、労働時間（分）が正しく計算される")]
+        public void NippouViewModel_出退勤時刻を設定した場合労働時間分が正しく計算される()
         {
             // 準備 (Arrange)
             var viewModel = new IndexModel.NippouViewModel
@@ -1603,8 +1602,8 @@ expected,
         /// When: FurikyuYoteiDateIsSet
         /// Then: ValueIsReturned
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenFurikyuYoteiDateIsSet_ThenValueIsReturned()
+        [TestMethod(DisplayName = "NippouViewModel: 期日を設定した場合、期日が正しく返される")]
+        public void NippouViewModel_期日を設定した場合期日が正しく返される()
         {
             var vm = new IndexModel.NippouViewModel
             {
@@ -1619,8 +1618,8 @@ expected,
         /// When: TotalWorkingHoursCalculated
         /// Then: FormattedAsH mm
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenTotalWorkingHoursCalculated_ThenFormattedAsH_mm()
+        [TestMethod(DisplayName = "NippouViewModel: 労働時間計算後、H:mm形式でフォーマットされる")]
+        public void NippouViewModel_労働時間計算後Hmm形式でフォーマットされる()
         {
             var vm = new IndexModel.NippouViewModel
             {
@@ -1636,8 +1635,8 @@ expected,
         /// When: TotalWorkingHoursIsZero
         /// Then: FormattedAndFurikyuYoteiDateAccessible
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenTotalWorkingHoursIsZero_ThenFormattedAndFurikyuYoteiDateAccessible()
+        [TestMethod(DisplayName = "NippouViewModel: 労働時間0の場合、H:mm形式でフォーマットされ、期日がアクセス可能")]
+        public void NippouViewModel_労働時間0の場合Hmm形式でフォーマットされ期日がアクセス可能()
         {
             var vm = new IndexModel.NippouViewModel
             {
@@ -1653,13 +1652,14 @@ expected,
             Assert.AreEqual("0:00", vm.TotalWorkingHours);
             Assert.AreEqual(D("20250201"), vm.FurikyuYoteiDate);
         }
+
         /// <summary>
         /// Given: NippouViewModelに出勤区分コードを設定
         /// When: SyukkinKubun1プロパティを取得
         /// Then: 正しい列挙値が返される
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenShukkinkubunkoodosettei_ThenRekkyoataigatadashikuhenkansareru()
+        [TestMethod(DisplayName = "NippouViewModel: 出勤区分コードを設定した場合、出勤区分列挙値が正しく変換される")]
+        public void NippouViewModel_出勤区分コードを設定した場合出勤区分列挙値が正しく変換される()
         {
             // 準備 (Arrange)
             var viewModel = new IndexModel.NippouViewModel
@@ -1679,8 +1679,8 @@ expected,
         /// When: FromEntityメソッドでViewModelに変換
         /// Then: データが正しくマッピングされる
         /// </summary>
-        [TestMethod]
-        public void NippouAnkenViewModel_WhenFromEntityJikkou_ThenDeetagatadashikumappingusareru()
+        [TestMethod(DisplayName = "NippouAnkenViewModel: FromEntityで変換した場合、データが正しくマッピングされる")]
+        public void NippouAnkenViewModel_FromEntityで変換した場合データが正しくマッピングされる()
         {
             // 準備 (Arrange)
             var anken = new Anken
@@ -1735,8 +1735,8 @@ expected,
         /// When: UkagaiSyubetsuIsEmpty
         /// Then: ShinseiNaiyouIsEmpty
         /// </summary>
-        [TestMethod]
-        public void UkagaiHeadersViewModel_WhenUkagaiSyubetsuIsEmpty_ThenShinseiNaiyouIsEmpty()
+        [TestMethod(DisplayName = "UkagaiHeadersViewModel: UkagaiSyubetsuが空の場合、ShinseiNaiyouは空文字列になる")]
+        public void UkagaiHeadersViewModel_UkagaiSyubetsuが空の場合ShinseiNaiyouは空文字列になる()
         {
             var viewModel = new IndexModel.UkagaiHeadersViewModel
             {
@@ -1751,8 +1751,8 @@ expected,
         /// When: FromEntityIsCalled
         /// Then: MappedCorrectly
         /// </summary>
-        [TestMethod]
-        public void UkagaiHeadersViewModel_WhenFromEntityIsCalled_ThenMappedCorrectly()
+        [TestMethod(DisplayName = "UkagaiHeadersViewModel: FromEntityが呼び出された場合、データが正しくマッピングされる")]
+        public void UkagaiHeadersViewModel_FromEntityが呼び出された場合データが正しくマッピングされる()
         {
             var inquiryType1 = 夜間作業;
             var inquiryType2 = 早朝作業;
@@ -1811,8 +1811,8 @@ expected,
         /// When: 一時保存を実行
         /// Then: 出退勤時刻がnullで保存される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostTemporarySaveAsync_WhenShuttaikinminyuuryoku_ThennullDehozonsareru()
+        [TestMethod(DisplayName = "OnPostTemporarySaveAsync: 出退勤時刻が未入力の場合、出退勤時刻がnullで保存される")]
+        public async Task OnPostTemporarySaveAsync_出退勤時刻が未入力の場合出退勤時刻がnullで保存される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -1876,9 +1876,9 @@ expected,
             );
 
             // 検証 (Assert)
-            var saved = await db.Nippous.FirstAsync();
-            Assert.IsNull(saved.SyukkinHm1, "出勤時刻1がnullであるべきです。");
-            Assert.IsNull(saved.TaisyutsuHm1, "退出時刻1がnullであるべきです。");
+            var savedNippou = await db.Nippous.FirstAsync();
+            Assert.IsNull(savedNippou.SyukkinHm1, "出勤時刻1がnullであるべきです。");
+            Assert.IsNull(savedNippou.TaisyutsuHm1, "退出時刻1がnullであるべきです。");
         }
 
         /// <summary>
@@ -1886,8 +1886,8 @@ expected,
         /// When: 一時保存を実行
         /// Then: 全ての出退勤時刻が正しく保存される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostTemporarySaveAsync_When3Kaishuttaikin_ThenSubetehozonsareru()
+        [TestMethod(DisplayName = "OnPostTemporarySaveAsync: 3回分の出退勤時刻を設定した場合、全ての出退勤時刻が正しく保存される")]
+        public async Task OnPostTemporarySaveAsync_3回分の出退勤時刻を設定した場合全ての出退勤時刻が正しく保存される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -1955,13 +1955,13 @@ expected,
             );
 
             // 検証 (Assert)
-            var saved = await db.Nippous.FirstAsync();
-            Assert.AreEqual(new TimeOnly(9, 0), saved.SyukkinHm1, "出勤時刻1が一致しません。");
-            Assert.AreEqual(new TimeOnly(12, 0), saved.TaisyutsuHm1, "退出時刻1が一致しません。");
-            Assert.AreEqual(new TimeOnly(13, 0), saved.SyukkinHm2, "出勤時刻2が一致しません。");
-            Assert.AreEqual(new TimeOnly(18, 0), saved.TaisyutsuHm2, "退出時刻2が一致しません。");
-            Assert.AreEqual(new TimeOnly(19, 0), saved.SyukkinHm3, "出勤時刻3が一致しません。");
-            Assert.AreEqual(new TimeOnly(22, 0), saved.TaisyutsuHm3, "退出時刻3が一致しません。");
+            var savedNippou = await db.Nippous.FirstAsync();
+            Assert.AreEqual(new TimeOnly(9, 0), savedNippou.SyukkinHm1, "出勤時刻1が一致しません。");
+            Assert.AreEqual(new TimeOnly(12, 0), savedNippou.TaisyutsuHm1, "退出時刻1が一致しません。");
+            Assert.AreEqual(new TimeOnly(13, 0), savedNippou.SyukkinHm2, "出勤時刻2が一致しません。");
+            Assert.AreEqual(new TimeOnly(18, 0), savedNippou.TaisyutsuHm2, "退出時刻2が一致しません。");
+            Assert.AreEqual(new TimeOnly(19, 0), savedNippou.SyukkinHm3, "出勤時刻3が一致しません。");
+            Assert.AreEqual(new TimeOnly(22, 0), savedNippou.TaisyutsuHm3, "退出時刻3が一致しません。");
         }
 
         #endregion
@@ -1973,8 +1973,8 @@ expected,
         /// When: 初期表示
         /// Then: ConfirmButtonがFalseで停止メッセージが表示される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_When日報停止日が実績日以前_ThenConfirmButtonがFalseで停止メッセージが表示される()
+        [TestMethod(DisplayName = "OnGetAsync: 日報停止日が実績日以前の場合、ConfirmButtonがFalseで停止メッセージが表示される")]
+        public async Task OnGetAsync_日報停止日が実績日以前の場合ConfirmButtonがFalseで停止メッセージが表示される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2025,8 +2025,8 @@ expected,
         /// When: 初期表示
         /// Then: 打刻漏れメッセージが表示される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenShukkinnomitaishutsunashi_ThenDakokumoremesseejigahyoujisareru()
+        [TestMethod(DisplayName = "OnGetAsync: 出勤時刻のみ設定、退出時刻なしの場合、打刻漏れメッセージが表示される")]
+        public async Task OnGetAsync_出勤時刻のみ設定退出時刻なしの場合打刻漏れメッセージが表示される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2093,8 +2093,8 @@ expected,
         /// When: 初期表示
         /// Then: ConfirmButtonがFalseになる
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenKakuteihozonsumi_ThenConfirmButtonGaFalse()
+        [TestMethod(DisplayName = "OnGetAsync: 確定保存済みの日報データの場合、ConfirmButtonがFalseになる")]
+        public async Task OnGetAsync_確定保存済みの日報データの場合ConfirmButtonがFalseになる()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2171,8 +2171,8 @@ expected,
         /// When: 初期表示
         /// Then: ConfirmButtonがFalseになる
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenZenjitsukakuteinashi_ThenConfirmButtonGaFalse()
+        [TestMethod(DisplayName = "OnGetAsync: 前日の確定データが存在しない場合、ConfirmButtonがFalseになる")]
+        public async Task OnGetAsync_前日の確定データが存在しない場合ConfirmButtonがFalseになる()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2221,8 +2221,8 @@ expected,
         /// When: 初期表示
         /// Then: UnconfirmButtonがFalseになる
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenIchijihozon_ThenUnconfirmButtonGaFalse()
+        [TestMethod(DisplayName = "OnGetAsync: 一時保存のデータの場合、UnconfirmButtonがFalseになる")]
+        public async Task OnGetAsync_一時保存のデータの場合UnconfirmButtonがFalseになる()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2286,8 +2286,8 @@ expected,
         /// When: 初期表示
         /// Then: TemporarySaveButtonがFalseになる
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenKakuteihozon_ThenTemporarySaveButtonGaFalse()
+        [TestMethod(DisplayName = "OnGetAsync: 確定保存済みのデータの場合、TemporarySaveButtonがFalseになる")]
+        public async Task OnGetAsync_確定保存済みのデータの場合TemporarySaveButtonがFalseになる()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2352,8 +2352,8 @@ expected,
         /// When: 初期表示
         /// Then: SyukkinKubun1が休日に設定される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenHikadounichidekinmujikannashi_ThenKyuujitsugasetteisareru()
+        [TestMethod(DisplayName = "OnGetAsync: 非稼働日（土曜）で勤務時間なし、日報なしの場合、勤務区分1が休日に設定される")]
+        public async Task OnGetAsync_非稼働日土曜で勤務時間なし日報なしの場合勤務区分1が休日に設定される()
         {
             // 準備 (Arrange) - 2025/01/18は土曜日
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2405,8 +2405,8 @@ expected,
         /// When: 初期表示
         /// Then: パラメータの出退勤が正しくNippouDataに反映される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenDairinyuuryoku_ThenShuttaikinparameetagahanEisareru()
+        [TestMethod(DisplayName = "OnGetAsync: 代理入力モードで出退勤時刻パラメータがある場合、NippouDataに正しく反映される")]
+        public async Task OnGetAsync_代理入力モードで出退勤時刻パラメータがある場合NippouDataに正しく反映される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2458,8 +2458,8 @@ expected,
         /// When: 初期表示
         /// Then: その他特別休暇判定クエリ（row.Code参照）が実行され、InMemory環境では変換例外となる
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenTashahyoujideseirikyuuka_ThenSonohokatokubetsukyuukahanteikueridereigai()
+        [TestMethod(DisplayName = "OnGetAsync: 指示情報が存在し、本人以外が生理休暇を含む日報を表示する場合、その他特別休暇判定クエリが実行されInMemory環境では変換例外となる")]
+        public async Task OnGetAsync_指示情報が存在し本人以外が生理休暇を含む日報を表示する場合その他特別休暇判定クエリが実行されInMemory環境では変換例外となる()
         {
             var targetBase = new SyainBasisBuilder().WithId(1).Build();
             var loginBase = new SyainBasisBuilder().WithId(2).Build();
@@ -2558,8 +2558,8 @@ expected,
         /// When: 初期表示
         /// Then: DisableAllInputがtrueに設定される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenKakuteihozonsumi_ThenDisableAllInputGaTrue()
+        [TestMethod(DisplayName = "OnGetAsync: 確定保存済み日報の場合、DisableAllInputがtrueに設定される")]
+        public async Task OnGetAsync_確定保存済み日報の場合DisableAllInputがtrueに設定される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2625,8 +2625,8 @@ expected,
         /// When: 初期表示
         /// Then: DisableAllInputがfalseに設定される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenIchijihozon_ThenDisableAllInputGaFalse()
+        [TestMethod(DisplayName = "OnGetAsync: 一時保存の日報の場合、DisableAllInputがfalseに設定される")]
+        public async Task OnGetAsync_一時保存の日報の場合DisableAllInputがfalseに設定される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -2691,8 +2691,8 @@ expected,
         /// When: DifferentLoginUserAndNotProxy
         /// Then: DisableAllInputIsTrue
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenDifferentLoginUserAndNotProxy_ThenDisableAllInputIsTrue()
+        [TestMethod(DisplayName = "OnGetAsync: ログインユーザーと日報作成者が異なる場合、DisableAllInputがtrueに設定される")]
+        public async Task OnGetAsync_ログインユーザーと日報作成者が異なる場合DisableAllInputがtrueに設定される()
         {
             var jissekiDate = D("20250115");
 
@@ -2768,8 +2768,8 @@ expected,
         /// When: UkagaiAndNippouExist
         /// Then: KubunAnkenAndUkagaiAreMapped
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenUkagaiAndNippouExist_ThenKubunAnkenAndUkagaiAreMapped()
+        [TestMethod(DisplayName = "OnGetAsync: 有休申請と日報が存在する場合、勤務区分と案件が正しくマッピングされる")]
+        public async Task OnGetAsync_有休申請と日報が存在する場合勤務区分と案件が正しくマッピングされる()
         {
             var jissekiDate = D("20250115");
 
@@ -2891,8 +2891,8 @@ expected,
         /// When: UkagaiListIsEmptyButWorkingHourReferencesUkagai
         /// Then: UkagaiHeadersDataIsSet
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenUkagaiListIsEmptyButWorkingHourReferencesUkagai_ThenUkagaiHeadersDataIsSet()
+        [TestMethod(DisplayName = "OnGetAsync: 有休申請リストが空だが、勤務時間に有休申請が関連付けられている場合、UkagaiHeadersDataが設定される")]
+        public async Task OnGetAsync_有休申請リストが空だが勤務時間に有休申請が関連付けられている場合UkagaiHeadersDataが設定される()
         {
             var jissekiDate = D("20250115");
 
@@ -2975,8 +2975,8 @@ expected,
         /// When: OtherUserAndKubun2IsPhysiological
         /// Then: ConversionQueryForKubun2Throws
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenOtherUserAndKubun2IsPhysiological_ThenConversionQueryForKubun2Throws()
+        [TestMethod(DisplayName = "OnGetAsync: 他のユーザーかつ勤務区分2が生理休暇の場合、勤務区分2の変換クエリが例外を投げる")]
+        public async Task OnGetAsync_他のユーザーかつ勤務区分2が生理休暇の場合勤務区分2の変換クエリが例外を投げる()
         {
             var jissekiDate = D("20250115");
 
@@ -3075,8 +3075,8 @@ expected,
         /// When: NotProxyAndLoginBaseMismatch
         /// Then: ConfirmButtonIsFalse
         /// </summary>
-        [TestMethod]
-        public async Task CheckConfirmButtonAsync_WhenNotProxyAndLoginBaseMismatch_ThenConfirmButtonIsFalse()
+        [TestMethod(DisplayName = "CheckConfirmButtonAsync: 代理入力でなく、ログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合、ConfirmButtonがfalseになる")]
+        public async Task CheckConfirmButtonAsync_代理入力でなくログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合ConfirmButtonがfalseになる()
         {
             var jissekiDate = D("20250120");
             var target = new SyainBuilder()
@@ -3124,8 +3124,8 @@ expected,
         /// When: NotProxyAndLoginBaseMismatch
         /// Then: UnconfirmButtonIsFalse
         /// </summary>
-        [TestMethod]
-        public async Task CheckUnconfirmButtonAsync_WhenNotProxyAndLoginBaseMismatch_ThenUnconfirmButtonIsFalse()
+        [TestMethod(DisplayName = "CheckUnconfirmButtonAsync: 代理入力でなく、ログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合、UnconfirmButtonがfalseになる")]
+        public async Task CheckUnconfirmButtonAsync_代理入力でなくログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合UnconfirmButtonがfalseになる()
         {
             var loginUser = new SyainBuilder()
                 .WithId(99)
@@ -3160,9 +3160,8 @@ expected,
         /// When: NotProxyAndLoginBaseMismatch
         /// Then: TemporarySaveButtonIsFalse
         /// </summary>
-        [TestMethod]
-        public async Task
-        CheckTemporarySaveButtonAsync_WhenNotProxyAndLoginBaseMismatch_ThenTemporarySaveButtonIsFalse()
+        [TestMethod(DisplayName = "CheckTemporarySaveButtonAsync: 代理入力でなく、ログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合、TemporarySaveButtonがfalseになる")]
+        public async Task CheckTemporarySaveButtonAsync_代理入力でなくログインユーザーの社員基本情報が日報作成者の社員基本情報と異なる場合TemporarySaveButtonがfalseになる()
         {
             var loginUser = new SyainBuilder()
                 .WithId(99)
@@ -3195,9 +3194,8 @@ expected,
         /// When: NoWorkAndCompensatoryIsHalfAndPaidAtLeastHalf
         /// Then: HalfSubstituteAndHalfPaid
         /// </summary>
-        [TestMethod]
-        public async Task
-        GetKubunDataAsync_WhenNoWorkAndCompensatoryIsHalfAndPaidAtLeastHalf_ThenHalfSubstituteAndHalfPaid()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が半日で有給が半日以上の場合、勤務区分1が半日振休、勤務区分2が半日有給になる")]
+        public async Task GetKubunDataAsync_勤務なしかつ振休が半日で有給が半日以上の場合勤務区分1が半日振休勤務区分2が半日有給になる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3237,8 +3235,8 @@ expected,
         /// When: NoWorkAndCompensatoryIsHalfAndPaidIsZero
         /// Then: HalfSubstituteAndAbsence
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenNoWorkAndCompensatoryIsHalfAndPaidIsZero_ThenHalfSubstituteAndAbsence()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が半日で有給が0の場合、勤務区分1が半日振休、勤務区分2が欠勤になる")]
+        public async Task GetKubunDataAsync_勤務なしかつ振休が半日で有給が0の場合勤務区分1が半日振休勤務区分2が欠勤になる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3278,8 +3276,8 @@ expected,
         /// When: NoWorkAndCompensatoryIsHalfAndPaidIsOther
         /// Then: NoneNone
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenNoWorkAndCompensatoryIsHalfAndPaidIsOther_ThenNoneNone()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が半日で有給が0以外の場合、勤務区分1も勤務区分2もなしになる")]
+        public async Task GetKubunDataAsync_勤務なしかつ振休が半日で有給が0以外の場合勤務区分1も勤務区分2もなしになる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3319,8 +3317,8 @@ expected,
         /// When: NoWorkAndCompensatoryIsZeroAndPaidIsMoreThanHalf
         /// Then: OneDayPaid
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenNoWorkAndCompensatoryIsZeroAndPaidIsMoreThanHalf_ThenOneDayPaid()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が0で有給が半日以上の場合、勤務区分1が年次有給休暇、勤務区分2がなしになる")]
+        public async Task GetKubunDataAsync_勤務なしかつ振休が0で有給が半日以上の場合勤務区分1が年次有給休暇勤務区分2がなしになる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3351,8 +3349,8 @@ expected,
         /// When: NoWorkAndCompensatoryIsZeroAndPaidIsHalf
         /// Then: HalfPaidAndAbsence
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenNoWorkAndCompensatoryIsZeroAndPaidIsHalf_ThenHalfPaidAndAbsence()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が0で有給が半日の場合、勤務区分1が半日有給、勤務区分2が欠勤になる")]
+        public async Task GetKubunDataAsync_勤務なしかつ振休が0で有給が半日の場合勤務区分1が半日有給勤務区分2が欠勤になる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3383,8 +3381,8 @@ expected,
         /// When: NoWorkAndCompensatoryIsZeroAndPaidIsZero
         /// Then: Absence
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenNoWorkAndCompensatoryIsZeroAndPaidIsZero_ThenAbsence()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が0で有給が0の場合、勤務区分1が欠勤、勤務区分2がなしになる")]
+        public async Task GetKubunDataAsync_勤務なしかつ振休が0で有給が0の場合勤務区分1が欠勤勤務区分2がなしになる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3415,8 +3413,8 @@ expected,
         /// When: NoWorkAndCompensatoryIsZeroAndPaidIsOther
         /// Then: NoneNone
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenNoWorkAndCompensatoryIsZeroAndPaidIsOther_ThenNoneNone()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が0で有給が0以外の場合、勤務区分1も勤務区分2もなしになる")]
+        public async Task GetKubunDataAsync_勤務なしかつ振休が0で有給が0以外の場合勤務区分1も勤務区分2もなしになる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3447,8 +3445,8 @@ expected,
         /// When: NoWorkAndCompensatoryIsOther
         /// Then: NoneNone
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenNoWorkAndCompensatoryIsOther_ThenNoneNone()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務なしかつ振休が0以外の場合、勤務区分1も勤務区分2もなしになる")]
+        public async Task GetKubunDataAsync_勤務なしかつ振休が0以外の場合勤務区分1も勤務区分2もなしになる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3488,8 +3486,8 @@ expected,
         /// When: WorkdayAndPartEmployee
         /// Then: PartWork
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenWorkdayAndPartEmployee_ThenPartWork()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 勤務日かつパート勤務の場合、勤務区分1がパート勤務になる")]
+        public async Task GetKubunDataAsync_勤務日かつパート勤務の場合勤務区分1がパート勤務になる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3515,9 +3513,9 @@ expected,
         /// When: HalfDayWorkAndPaidMoreThanHalfAndHalfCountAtLeast10
         /// Then: Kubun2IsOneDayPaid
         /// </summary>
-        [TestMethod]
+        [TestMethod(DisplayName = "GetKubunDataAsync: 半日勤務かつ有給が半日以上かつ半日数が10以上の場合、勤務区分2が1日有給になる")]
         public async Task
-        GetKubunDataAsync_WhenHalfDayWorkAndPaidMoreThanHalfAndHalfCountAtLeast10_ThenKubun2IsOneDayPaid()
+        GetKubunDataAsync_半日勤務かつ有給が半日以上かつ半日数が10以上の場合勤務区分2が1日有給になる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3571,8 +3569,8 @@ expected,
         /// When: HalfDayWorkAndPaidMoreThanHalfAndHalfCountBelow10
         /// Then: Kubun2IsHalfPaid
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenHalfDayWorkAndPaidMoreThanHalfAndHalfCountBelow10_ThenKubun2IsHalfPaid()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 半日勤務かつ有給が半日以上かつ半日数が10未満の場合、勤務区分2が半日有給になる")]
+        public async Task GetKubunDataAsync_半日勤務かつ有給が半日以上かつ半日数が10未満の場合勤務区分2が半日有給になる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3626,8 +3624,8 @@ expected,
         /// When: HalfDayWorkAndPaidHalfAndHalfCountBelow10
         /// Then: Kubun2IsHalfPaid
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenHalfDayWorkAndPaidHalfAndHalfCountBelow10_ThenKubun2IsHalfPaid()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 半日勤務かつ有給が半日かつ半日数が0の場合、勤務区分2が半日有給になる")]
+        public async Task GetKubunDataAsync_半日勤務かつ有給が半日かつ半日数が0の場合勤務区分2が半日有給になる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3681,8 +3679,8 @@ expected,
         /// When: HalfDayWorkAndPaidHalfAndHalfCountAtLeast10
         /// Then: Kubun2IsAbsence
         /// </summary>
-        [TestMethod]
-        public async Task GetKubunDataAsync_WhenHalfDayWorkAndPaidHalfAndHalfCountAtLeast10_ThenKubun2IsAbsence()
+        [TestMethod(DisplayName = "GetKubunDataAsync: 半日勤務かつ有給が半日以上かつ半日数が10以上の場合、勤務区分2が欠勤になる")]
+        public async Task GetKubunDataAsync_半日勤務かつ有給が半日以上かつ半日数が10以上の場合勤務区分2が欠勤になる()
         {
             var jissekiDate = D("20250120");
             var syain = new SyainBuilder()
@@ -3740,8 +3738,8 @@ expected,
         /// When: GetKubunDataAsyncを実行（暗黙的にOnGetAsyncから呼ばれる）
         /// Then: 出勤区分1が「通常勤務」に設定される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenEigyoubide4Jikanchoukintsutomu_ThenTsuujoukinmugasetteisareru()
+        [TestMethod(DisplayName = "OnGetAsync: 営業日かつ実働時間が4時間超えの場合、出勤区分1が通常勤務になる")]
+        public async Task OnGetAsync_営業日かつ実働時間が4時間超えの場合出勤区分1が通常勤務になる()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -3796,8 +3794,8 @@ expected,
         /// When: OnGetAsyncを実行
         /// Then: 出勤区分1が「半日勤務」、出勤区分2が「半日振休」に設定される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_When営業日で実働時間が4時間以下かつ振休残あり_Then出勤区分1が半日勤務で出勤区分2が半日振休に設定される()
+        [TestMethod(DisplayName = "OnGetAsync: 営業日で実働時間が4時間以下かつ振休残ありの場合、出勤区分1が半日勤務で出勤区分2が半日振休に設定される")]
+        public async Task OnGetAsync_営業日で実働時間が4時間以下かつ振休残ありの場合出勤区分1が半日勤務で出勤区分2が半日振休に設定される()
         {
             // 準備 (Arrange)
             var jissekiDate = D("20250115"); // 水曜日
@@ -3858,8 +3856,8 @@ expected,
         /// When: OnGetAsyncを実行
         /// Then: 出勤区分1が「休日出勤」に設定される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenHikadounichidekinmujikanari_ThenKyuujitsushukkingasetteisareru()
+        [TestMethod(DisplayName = "OnGetAsync: 非稼働日かつ勤務時間ありの場合、出勤区分1が休日出勤になる")]
+        public async Task OnGetAsync_非稼働日かつ勤務時間ありの場合出勤区分1が休日出勤になる()
         {
             // 2025/01/18は土曜日
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -3908,8 +3906,8 @@ expected,
         /// When: 早朝申請が承認済み
         /// Then: Some指定で補正され3件反映される
         /// </summary>
-        [TestMethod]
-        public void GetNippouData_WhenSouchoushinseigashouninsumi_ThenSomeShiteidehoseisare3KenhanEisareru()
+        [TestMethod(DisplayName = "GetNippouData: 早朝申請が承認済みの場合、Some指定で補正され3件反映される")]
+        public void GetNippouData_早朝申請が承認済みの場合Some指定で補正され3件反映される()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4021,8 +4019,8 @@ expected,
         /// When: フリー社員で日報なし
         /// Then: 入力時刻がそのまま設定される
         /// </summary>
-        [TestMethod]
-        public void GetNippouData_WhenFuriishaindenippounashi_ThenNyuuryokujikokugasonomamasetteisareru()
+        [TestMethod(DisplayName = "GetNippouData: フリー社員で日報なしの場合、入力時刻がそのまま設定される")]
+        public void GetNippouData_フリー社員で日報なしの場合入力時刻がそのまま設定される()
         {
             EnsureKintaiZokusei(3);
             var syain = new SyainBuilder()
@@ -4069,8 +4067,8 @@ expected,
         /// When: 標準社員外で日報なし
         /// Then: 入力時刻がそのまま設定される
         /// </summary>
-        [TestMethod]
-        public void GetNippouData_WhenHyoujunshainsotodenippounashi_ThenNyuuryokujikokugasonomamasetteisareru()
+        [TestMethod(DisplayName = "GetNippouData: 標準社員外で日報なしの場合、入力時刻がそのまま設定される")]
+        public void GetNippouData_標準社員外で日報なしの場合入力時刻がそのまま設定される()
         {
             EnsureKintaiZokusei(5);
             var syain = new SyainBuilder()
@@ -4119,8 +4117,8 @@ expected,
         /// When: パートで日報なし
         /// Then: 入力時刻がそのまま設定される
         /// </summary>
-        [TestMethod]
-        public void GetNippouData_WhenPaatodenippounashi_ThenNyuuryokujikokugasonomamasetteisareru()
+        [TestMethod(DisplayName = "GetNippouData: パートで日報なしの場合、入力時刻がそのまま設定される")]
+        public void GetNippouData_パートで日報なしの場合入力時刻がそのまま設定される()
         {
             EnsureKintaiZokusei(6);
             var syain = new SyainBuilder()
@@ -4165,8 +4163,8 @@ expected,
         /// When: 金曜日で承認申請なし
         /// Then: RefreshDayTrueでNone指定補正が使われる
         /// </summary>
-        [TestMethod]
-        public void GetNippouData_WhenKinyoubideshouninshinseinashi_ThenRefreshDayTrueDeNoneShiteihoseigatsukawareru()
+        [TestMethod(DisplayName = "GetNippouData: 金曜日で承認申請なしの場合、RefreshDayTrueでNone指定補正が使われる")]
+        public void GetNippouData_金曜日で承認申請なしの場合RefreshDayTrueでNone指定補正が使われる()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4220,8 +4218,8 @@ expected,
         /// When: 水曜日で承認申請なし
         /// Then: RefreshDayTrueでNone指定補正が使われる
         /// </summary>
-        [TestMethod]
-        public void GetNippouData_WhenSuiyoubideshouninshinseinashi_ThenRefreshDayTrueDeNoneShiteihoseigatsukawareru()
+        [TestMethod(DisplayName = "GetNippouData: 水曜日で承認申請なしの場合、RefreshDayTrueでNone指定補正が使われる")]
+        public void GetNippouData_水曜日で承認申請なしの場合RefreshDayTrueでNone指定補正が使われる()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4275,8 +4273,8 @@ expected,
         /// When: 休業日リフレッシュデーかつ早朝承認あり
         /// Then: Some指定補正が使われる
         /// </summary>
-        [TestMethod]
-        public void GetNippouData_WhenKyuugyounichirifuresshudeekatsusouchoushouninar_ThenSomeShiteihoseigatsukawareru()
+        [TestMethod(DisplayName = "GetNippouData: 休業日リフレッシュデーかつ早朝承認ありの場合、Some指定補正が使われる")]
+        public void GetNippouData_休業日リフレッシュデーかつ早朝承認ありの場合Some指定補正が使われる()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4352,8 +4350,8 @@ expected,
         /// When: 早朝申請が承認済みでない
         /// Then: None指定で補正され4件目は無視される
         /// </summary>
-        [TestMethod]
-        public void GetNippouData_WhenSouchoushinseigashouninsumidenai_ThenNoneShiteidehoseisare4Kenmehamushisareru()
+        [TestMethod(DisplayName = "GetNippouData: 早朝申請が承認済みでない場合、None指定で補正され4件目は無視される")]
+        public void GetNippouData_早朝申請が承認済みでない場合None指定で補正され4件目は無視される()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4483,8 +4481,8 @@ expected,
         /// When: OnGetAsyncを実行
         /// Then: 休日出勤の警告メッセージが返される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_When休日勤務時間ありかつ承認済み休日出勤申請なし_Then休日出勤警告メッセージが返される()
+        [TestMethod(DisplayName = "OnGetAsync: 休日勤務時間ありかつ承認済み休日出勤申請なしの場合、休日出勤警告メッセージが返される")]
+        public async Task OnGetAsync_休日勤務時間ありかつ承認済み休日出勤申請なしの場合休日出勤警告メッセージが返される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -4533,8 +4531,8 @@ expected,
         /// When: OnGetAsyncを実行
         /// Then: 夜間作業の警告メッセージが返される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetAsync_WhenYakansagyoushinseinashideyakankinmu_ThenYakansagyoukeikokugahyoujisareru()
+        [TestMethod(DisplayName = "OnGetAsync: 夜間作業があるが承認済みの申請なしの場合、夜間作業警告メッセージが返される")]
+        public async Task OnGetAsync_夜間作業があるが承認済みの申請なしの場合夜間作業警告メッセージが返される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -4584,8 +4582,8 @@ expected,
         /// When: 日報停止日到達
         /// Then: 停止メッセージが返る
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_WhenNippouteishinichitoutatsu_ThenTeishimesseejigakaeru()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: 日報停止日到達の場合、停止メッセージが返る")]
+        public async Task CheckForNotificationMessageAsync_日報停止日到達の場合停止メッセージが返る()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4624,8 +4622,8 @@ expected,
         /// When: 打刻漏れあり
         /// Then: 打刻漏れメッセージが返る
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_WhenDakokumoreari_ThenDakokumoremesseejigakaeru()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: 打刻漏れありの場合、打刻漏れメッセージが返る")]
+        public async Task CheckForNotificationMessageAsync_打刻漏れありの場合打刻漏れメッセージが返る()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4664,8 +4662,8 @@ expected,
         /// When: 休日夜間早朝深夜が未承認
         /// Then: 複合警告が返る
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_When休日夜間早朝深夜が未承認_Then複合警告が返る()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: 休日夜間早朝深夜が未承認の場合、複合警告が返る")]
+        public async Task CheckForNotificationMessageAsync_休日夜間早朝深夜が未承認の場合複合警告が返る()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4707,8 +4705,8 @@ expected,
         /// When: フリー社員で最終承認なし
         /// Then: 状態4メッセージが返る
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_Whenフリー社員で最終承認なし_Then状態4メッセージが返る()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: フリー社員で最終承認なしの場合、状態4メッセージが返る")]
+        public async Task CheckForNotificationMessageAsync_フリー社員で最終承認なしの場合状態4メッセージが返る()
         {
             EnsureKintaiZokusei(3);
             var syain = new SyainBuilder()
@@ -4751,8 +4749,8 @@ expected,
         /// When: フリー社員で伺いなし
         /// Then: メッセージなし
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_WhenFuriishaindeukagainashi_ThenMesseejinashi()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: フリー社員で伺いなしの場合、メッセージなし")]
+        public async Task CheckForNotificationMessageAsync_フリー社員で伺いなしの場合メッセージなし()
         {
             EnsureKintaiZokusei(3);
             var syain = new SyainBuilder()
@@ -4783,8 +4781,8 @@ expected,
         /// When: 打刻時間修正未承認かつEditedあり
         /// Then: 修正メッセージが返る
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_When打刻時間修正未承認かつEditedあり_Then修正メッセージが返る()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: 打刻時間修正未承認かつEditedありの場合、修正メッセージが返る")]
+        public async Task CheckForNotificationMessageAsync_打刻時間修正未承認かつEditedありの場合修正メッセージが返る()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4837,8 +4835,8 @@ expected,
         /// When: 月末超過かつ時間外拡張未承認
         /// Then: 残業制限メッセージが返る
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_When月末超過かつ時間外拡張未承認_Then残業制限メッセージが返る()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: 月末超過かつ時間外拡張未承認_Then残業制限メッセージが返る")]
+        public async Task CheckForNotificationMessageAsync_月末超過かつ時間外拡張未承認の場合残業制限メッセージが返る()
         {
             var kintai = new KintaiZokusei
             {
@@ -4899,8 +4897,8 @@ expected,
         /// When: 該当条件なし
         /// Then: メッセージなし
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_WhenGaitoujoukennashi_ThenMesseejinashi()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: 該当条件なしの場合、メッセージなし")]
+        public async Task CheckForNotificationMessageAsync_該当条件なしの場合メッセージなし()
         {
             EnsureKintaiZokusei(4);
             var syain = new SyainBuilder()
@@ -4941,8 +4939,8 @@ expected,
         /// When: 一時保存
         /// Then: エラーが返される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostTemporarySaveAsync_WhenShaingasonzaishinai_ThenEraagakaesareru()
+        [TestMethod(DisplayName = "OnPostTemporarySaveAsync: 社員が存在しない場合、エラーが返される")]
+        public async Task OnPostTemporarySaveAsync_社員が存在しない場合エラーが返される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -4985,8 +4983,8 @@ expected,
         /// When: 一時保存
         /// Then: 既存データが更新される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostTemporarySaveAsync_WhenKizonnippougaaru_ThenKoushinsareru()
+        [TestMethod(DisplayName = "OnPostTemporarySaveAsync: 既存日報がある場合、既存データが更新される")]
+        public async Task OnPostTemporarySaveAsync_既存日報がある場合既存データが更新される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -5059,8 +5057,8 @@ expected,
         /// When: ValidationFails
         /// Then: ErrorJsonReturned
         /// </summary>
-        [TestMethod]
-        public async Task OnPostTemporarySaveAsync_WhenValidationFails_ThenErrorJsonReturned()
+        [TestMethod(DisplayName = "OnPostTemporarySaveAsync: Validationエラーの場合、エラーメッセージが返る")]
+        public async Task OnPostTemporarySaveAsync_Validationエラーの場合エラーメッセージが返る()
         {
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
             db.SyainBases.Add(syainBase);
@@ -5106,8 +5104,8 @@ expected,
         /// When: ExistingNippouWithAnkens
         /// Then: DeletesOldAndInsertsNew
         /// </summary>
-        [TestMethod]
-        public async Task OnPostTemporarySaveAsync_WhenExistingNippouWithAnkens_ThenDeletesOldAndInsertsNew()
+        [TestMethod(DisplayName = "OnPostTemporarySaveAsync: 既存日報に案件がある場合、古いデータを削除し新しいデータを挿入する")]
+        public async Task OnPostTemporarySaveAsync_既存日報に案件がある場合古いデータを削除し新しいデータを挿入する()
         {
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
             db.SyainBases.Add(syainBase);
@@ -5207,8 +5205,8 @@ expected,
         /// When: 確定解除
         /// Then: エラーが返される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCancelConfirmAsync_WhenNippougasonzaishinai_ThenEraagakaesareru()
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 日報データが存在しない場合、エラーが返される")]
+        public async Task OnPostCancelConfirmAsync_日報データが存在しない場合エラーが返される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -5248,8 +5246,8 @@ expected,
         /// When: 確定解除
         /// Then: 確定解除され、代理入力の確定解除履歴が登録される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCancelConfirmAsync_WhenDairinyuuryoku_ThenRirekigatourokusareru()
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 代理入力で確定済みの日報データ、確定解除され代理入力の確定解除履歴が登録される")]
+        public async Task OnPostCancelConfirmAsync_代理入力で確定済みの日報データ確定解除され代理入力の確定解除履歴が登録される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -5319,8 +5317,8 @@ expected,
         /// When: 確定解除バリデーション
         /// Then: エラーが返される
         /// </summary>
-        [TestMethod]
-        public async Task OnGetCancelConfirmValidateAsync_WhenNippougasonzaishinai_ThenEraa()
+        [TestMethod(DisplayName = "OnGetCancelConfirmValidateAsync: 日報が存在しない場合、エラーが返される")]
+        public async Task OnGetCancelConfirmValidateAsync_日報が存在しない場合エラーが返される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -5358,8 +5356,8 @@ expected,
         /// When: 確定解除バリデーション
         /// Then: 「以降確定あり」エラー
         /// </summary>
-        [TestMethod]
-        public async Task OnGetCancelConfirmValidateAsync_WhenIkoukakuteiari_ThenEraa()
+        [TestMethod(DisplayName = "OnGetCancelConfirmValidateAsync: 確定済みだが翌日も確定済みの場合、以降確定ありエラーが返される")]
+        public async Task OnGetCancelConfirmValidateAsync_確定済みだが翌日も確定済みの場合以降確定ありエラーが返される()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -5423,8 +5421,8 @@ expected,
         /// When: 確定解除バリデーション
         /// Then: 正常成功
         /// </summary>
-        [TestMethod]
-        public async Task OnGetCancelConfirmValidateAsync_WhenSeijou_ThenSeikou()
+        [TestMethod(DisplayName = "OnGetCancelConfirmValidateAsync: 確定済み、翌日なしの場合、正常成功")]
+        public async Task OnGetCancelConfirmValidateAsync_確定済み翌日なしの場合正常成功()
         {
             // 準備 (Arrange)
             var syainBase = new SyainBasisBuilder().WithId(1).Build();
@@ -5480,8 +5478,8 @@ expected,
         /// When: TotalWorkingHoursInMinuteを参照
         /// Then: 0が返される
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenShuttaikinjikokusubetenull_ThenTotalWorkingHoursGa0()
+        [TestMethod(DisplayName = "NippouViewModel: 出退勤時刻が全てnullの場合、労働時間（分）は0を返す")]
+        public void NippouViewModel_出退勤時刻が全てnullの場合労働時間分は0を返す()
         {
             // 準備 (Arrange)
             var vm = new IndexModel.NippouViewModel();
@@ -5499,8 +5497,8 @@ expected,
         /// When: SyukkinKubun1を参照
         /// Then: Noneが返される
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenSyukkinKubunCodeStringSora_ThenNoneGakaesareru()
+        [TestMethod(DisplayName = "NippouViewModel: SyukkinKubunCodeStringが空文字の場合、出勤区分1はNoneを返す")]
+        public void NippouViewModel_SyukkinKubunCodeStringが空文字の場合出勤区分1はNoneを返す()
         {
             // 準備 (Arrange)
             var vm = new IndexModel.NippouViewModel
@@ -5521,8 +5519,8 @@ expected,
         /// When: SyukkinKubun2を参照
         /// Then: Noneが返される
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenSyukkinKubunCodeStringGasuuchihenkanfuka_ThenNoneGakaesareru()
+        [TestMethod(DisplayName = "NippouViewModel: SyukkinKubunCodeStringが数値変換不可の場合、出勤区分2はNoneを返す")]
+        public void NippouViewModel_SyukkinKubunCodeStringが数値変換不可の場合出勤区分2はNoneを返す()
         {
             // 準備 (Arrange)
             var vm = new IndexModel.NippouViewModel
@@ -5543,8 +5541,8 @@ expected,
         /// When: Syuttaikin1を参照
         /// Then: ダッシュ「-」が返される
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_FormatRange_WhenShuttaikindouchi_ThenDasshugakaesareru()
+        [TestMethod(DisplayName = "NippouViewModel: 出退勤時刻が同値の場合、出退勤表示1はダッシュを返す")]
+        public void NippouViewModel_出退勤時刻が同値の場合出退勤表示1はダッシュを返す()
         {
             // 準備 (Arrange)
             var vm = new IndexModel.NippouViewModel
@@ -5566,8 +5564,8 @@ expected,
         /// When: Syuttaikin1を参照
         /// Then: 「H:mm ~ H:mm」形式で返される
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_FormatRange_WhenSeijouatai_ThenJikokuhanIgakaesareru()
+        [TestMethod(DisplayName = "NippouViewModel: 正常な出退勤時刻の場合、出退勤表示1はH:mm ~ H:mm形式で返される")]
+        public void NippouViewModel_正常な出退勤時刻の場合出退勤表示1はHmm形式で返される()
         {
             // 準備 (Arrange)
             var vm = new IndexModel.NippouViewModel
@@ -5589,8 +5587,8 @@ expected,
         /// When: SyukkinKubunCodeString1を参照
         /// Then: 2桁整数文字列が返される
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenSyukkinKubun1Woset_ThenCodeStringGa2Ketamojiretsu()
+        [TestMethod(DisplayName = "NippouViewModel: 出勤区分1にenumを設定した場合、出勤区分コード文字列1は2桁整数文字列を返す")]
+        public void NippouViewModel_出勤区分1にenumを設定した場合出勤区分コード文字列1は2桁整数文字列を返す()
         {
             // 準備 (Arrange)
             var vm = new IndexModel.NippouViewModel();
@@ -5608,8 +5606,8 @@ expected,
         /// When: Syuttaikin2, Syuttaikin3を参照
         /// Then: いずれもダッシュ「-」が返される
         /// </summary>
-        [TestMethod]
-        public void NippouViewModel_WhenShuttaikin23Ganull_ThenDasshugakaesareru()
+        [TestMethod(DisplayName = "NippouViewModel: 出退勤2, 3がnullの場合、出退勤表示2, 3はダッシュを返す")]
+        public void NippouViewModel_出退勤23がnullの場合出退勤表示23はダッシュを返す()
         {
             // 準備 (Arrange)
             var vm = new IndexModel.NippouViewModel();
@@ -5630,8 +5628,8 @@ expected,
         /// When: OnPostAddNippouAnkenAsyncを実行
         /// Then: カードが1つ追加され、JsonResultが返される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostAddNippouAnkenAsync_WhenJikkou_ThenKaadogatsuikasareru()
+        [TestMethod(DisplayName = "OnPostAddNippouAnkenAsync: 日報案件カードが存在する場合、カードが1つ追加されJsonResultが返される")]
+        public async Task OnPostAddNippouAnkenAsync_日報案件カードが存在する場合カードが1つ追加されJsonResultが返される()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).Build();
@@ -5651,8 +5649,8 @@ expected,
         /// When: Index 0 を指定して OnPostCopyNippouAnkenAsync を実行
         /// Then: カードがコピーされ、合計2つになる
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCopyNippouAnkenAsync_WhenJikkou_ThenKaadogakopiisareru()
+        [TestMethod(DisplayName = "OnPostCopyNippouAnkenAsync: 1つの日報案件カードが存在する場合、カードがコピーされ合計2つになる")]
+        public async Task OnPostCopyNippouAnkenAsync_1つの日報案件カードが存在する場合カードがコピーされ合計2つになる()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).Build();
@@ -5677,8 +5675,8 @@ expected,
         /// When: Index 0 を指定して OnPostDeleteNippouAnkenAsync を実行
         /// Then: カードが削除され、0になる
         /// </summary>
-        [TestMethod]
-        public async Task OnPostDeleteNippouAnkenAsync_WhenJikkou_ThenKaadogasakujosareru()
+        [TestMethod(DisplayName = "OnPostDeleteNippouAnkenAsync: 1つの日報案件カードが存在する場合、カードが削除され0になる")]
+        public async Task OnPostDeleteNippouAnkenAsync_1つの日報案件カードが存在する場合カードが削除され0になる()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).Build();
@@ -5702,8 +5700,8 @@ expected,
         /// When: 平日半日勤務条件で第3条件trueかつ第4条件false
         /// Then: 加算ロジックが反映される
         /// </summary>
-        [TestMethod]
-        public async Task GetNippouDetailWorkHoursAsync_WhenHeijitsuhannichiki_ThenKasanrojikkugahanE()
+        [TestMethod(DisplayName = "GetNippouDetailWorkHoursAsync: 平日半日勤務条件で第3条件trueかつ第4条件falseの場合、加算ロジックが反映される")]
+        public async Task GetNippouDetailWorkHoursAsync_平日半日勤務条件で第3条件trueかつ第4条件falseの場合加算ロジックが反映される()
         {
             var syain = new SyainBuilder().WithId(1).Build();
             var model = CreateModel(syain);
@@ -5744,8 +5742,8 @@ expected,
         /// When: 平日パート勤務条件で第4条件true
         /// Then: 第4条件加算が反映される
         /// </summary>
-        [TestMethod]
-        public async Task GetNippouDetailWorkHoursAsync_WhenHeijitsupaatokinmu_ThenDai4Joukenkasangah()
+        [TestMethod(DisplayName = "GetNippouDetailWorkHoursAsync: 平日パート勤務条件で第4条件trueの場合、第4条件加算が反映される")]
+        public async Task GetNippouDetailWorkHoursAsync_平日パート勤務条件で第4条件trueの場合第4条件加算が反映される()
         {
             var syain = new SyainBuilder().WithId(1).Build();
             var model = CreateModel(syain);
@@ -5779,8 +5777,8 @@ expected,
         /// When: 土曜日
         /// Then: 土祝祭日項目が設定される
         /// </summary>
-        [TestMethod]
-        public async Task GetNippouDetailWorkHoursAsync_WhenDoyoubi_ThenDoshukusaijitsukoumokugasetteisareru()
+        [TestMethod(DisplayName = "GetNippouDetailWorkHoursAsync: 土曜日の場合、土祝祭日項目が設定される")]
+        public async Task GetNippouDetailWorkHoursAsync_土曜日の場合土祝祭日項目が設定される()
         {
             var syain = new SyainBuilder().WithId(1).Build();
             var model = CreateModel(syain);
@@ -5820,8 +5818,8 @@ expected,
         /// When: 日曜日
         /// Then: 法定休日項目が設定される
         /// </summary>
-        [TestMethod]
-        public async Task GetNippouDetailWorkHoursAsync_WhenNichiyoubi_ThenHouteikyuujitsukoumokugasetteisareru()
+        [TestMethod(DisplayName = "GetNippouDetailWorkHoursAsync: 日曜日の場合、法定休日項目が設定される")]
+        public async Task GetNippouDetailWorkHoursAsync_日曜日の場合法定休日項目が設定される()
         {
             var syain = new SyainBuilder().WithId(1).Build();
             var model = CreateModel(syain);
@@ -5857,8 +5855,8 @@ expected,
         /// When: OnPostFinalConfirmCheckAsyncを実行
         /// Then: 時間差に関する警告メッセージが返される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmCheckAsync_WhenJikansaari_ThenKeikokumesseejigakaesareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmCheckAsync: 勤務時間と実績時間の合計に差がある場合、警告メッセージが返される")]
+        public async Task OnPostFinalConfirmCheckAsync_勤務時間と実績時間の合計に差がある場合警告メッセージが返される()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).Build();
@@ -5900,8 +5898,8 @@ expected,
         /// When: OnPostFinalConfirmCheckAsyncを実行
         /// Then: 必須エラーを結合したErrorJsonが返る
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmCheckAsync_WhenHissukoumokuminyuuryoku_ThenErrorJsonGakaeru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmCheckAsync: 実績時間が0、受注番号が未入力の案件がある場合、必須エラーを結合したErrorJsonが返る")]
+        public async Task OnPostFinalConfirmCheckAsync_実績時間が0受注番号が未入力の案件がある場合必須エラーを結合したErrorJsonが返る()
         {
             // 準備 (Arrange)
             var model = CreateModel(new SyainBuilder().WithId(1).Build());
@@ -5933,8 +5931,8 @@ expected,
         /// When: OnPostFinalConfirmCheckAsyncを実行
         /// Then: 他部署受注番号の確認メッセージが返る
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmCheckAsync_WhenTabushojuchuubangouwosentaku_ThenKakuninmesseejigakaeru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmCheckAsync: 原価連動対象の案件が他部署受注番号である場合、他部署受注番号の確認メッセージが返る")]
+        public async Task OnPostFinalConfirmCheckAsync_原価連動対象の案件が他部署受注番号である場合他部署受注番号の確認メッセージが返る()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder()
@@ -5996,8 +5994,8 @@ expected,
         /// When: OnPostFinalConfirmCheckAsyncを実行
         /// Then: リフレッシュデー補正の確認メッセージが返る
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmCheckAsync_Whenリフレッシュデー判定日で打刻退勤が画面値より15分超過し承認済み申請がない_Thenリフレッシュデー補正確認メッセージが返る()
+        [TestMethod(DisplayName = "OnPostFinalConfirmCheckAsync: リフレッシュデー判定日で打刻退勤が画面値より15分超過し承認済み申請がない場合、リフレッシュデー補正確認メッセージが返る")]
+        public async Task OnPostFinalConfirmCheckAsync_リフレッシュデー判定日で打刻退勤が画面値より15分超過し承認済み申請がない場合リフレッシュデー補正確認メッセージが返る()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).Build();
@@ -6071,8 +6069,8 @@ expected,
         /// When: OnPostFinalConfirmCheckAsyncを実行
         /// Then: 勤務時間差の確認メッセージが返る
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmCheckAsync_WhenKinmujikanyorijissekijikangaooki_ThenJikansamesseejigakaeru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmCheckAsync: 勤務時間より実績合計時間が大きい場合、勤務時間差の確認メッセージが返る")]
+        public async Task OnPostFinalConfirmCheckAsync_勤務時間より実績合計時間が大きい場合勤務時間差の確認メッセージが返る()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).Build();
@@ -6121,8 +6119,8 @@ expected,
         /// When: 確定処理（振替休暇を選択）を実行
         /// Then: 振休残データの取得日が更新され、ステータスが「1日」になる
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenFurikyuushutoku_ThenFurikyuuzandeetagakoushinsareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 振休残データ（未取得）が存在する場合、取得日が更新されステータスが「1日」になる")]
+        public async Task OnPostFinalConfirmAsync_振休残データ未取得が存在する場合取得日が更新されステータスが1日になる()
         {
             // 準備 (Arrange)
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
@@ -6182,8 +6180,8 @@ expected,
         /// When: 確定処理（半日振休を選択）を実行
         /// Then: 振休残データの取得日が更新され、ステータスが「半日」になる
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenHannichifurikyuushutoku_ThenFurikyuuzandeetagakoushinsareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 半日振休を選択した場合、振休残データの取得日が更新されステータスが半日になる")]
+        public async Task OnPostFinalConfirmAsync_半日振休を選択した場合振休残データの取得日が更新されステータスが半日になる()
         {
             // 準備 (Arrange)
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
@@ -6243,8 +6241,8 @@ expected,
         /// When: 確定処理（年次有給休暇_1日を選択）を実行
         /// Then: 有給残データの消化数が増加する
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenYuukyuushutoku_ThenYuukyuuzandeetagakoushinsareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 年次有給休暇_1日を選択した場合、有給残データの消化数が増加する")]
+        public async Task OnPostFinalConfirmAsync_年次有給休暇_1日を選択した場合有給残データの消化数が増加する()
         {
             // 準備 (Arrange)
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
@@ -6302,8 +6300,8 @@ expected,
         /// When: 確定処理（計画有給休暇を選択）を実行
         /// Then: 計画有給数が増加する
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenKeikakuyuukyuushutoku_ThenKeikakuyuukyuudeetagakoushinsareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 計画有給休暇を選択した場合、計画有給数が増加する")]
+        public async Task OnPostFinalConfirmAsync_計画有給休暇を選択した場合計画有給数が増加する()
         {
             // 準備 (Arrange)
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
@@ -6360,8 +6358,8 @@ expected,
         /// When: 確定処理（半日有給を選択）を実行
         /// Then: 有給消化数(0.5)と半日回数が増加する
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenHannichiyuukyuushutoku_ThenYuukyuuzandeetagakoushinsareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 半日有給を選択した場合、有給消化数(0.5)と半日回数が増加する")]
+        public async Task OnPostFinalConfirmAsync_半日有給を選択した場合有給消化数05と半日回数が増加する()
         {
             // 準備 (Arrange)
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
@@ -6421,8 +6419,8 @@ expected,
         /// When: 確定処理（計画特別休暇を選択）を実行
         /// Then: 計画特別休暇数が増加する
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenKeikakutokubetsukyuukashutoku_ThenBarideeshonEraaninaru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 計画特別休暇を選択した場合、計画特別休暇数が増加する")]
+        public async Task OnPostFinalConfirmAsync_計画特別休暇を選択した場合計画特別休暇数が増加する()
         {
             // 準備 (Arrange)
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
@@ -6479,8 +6477,8 @@ expected,
         /// When: 確定処理を実行
         /// Then: 新規振休残データが作成される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenKyuujitsushukkin_ThenShinkifurikyuuzangasakuseisareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 休日出勤の場合、新規振休残データが作成される")]
+        public async Task OnPostFinalConfirmAsync_休日出勤の場合新規振休残データが作成される()
         {
             // 準備 (Arrange)
             var (syain, _, anken) = SeedFinalConfirmMinimumData();
@@ -6531,8 +6529,8 @@ expected,
         /// When: 確定処理で新たに半日振休を作成（合計10日）
         /// Then: 部門長宛の通知メッセージが作成される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostFinalConfirmAsync_WhenFurikyuuzankata_ThenTsuuchigasakuseisareru()
+        [TestMethod(DisplayName = "OnPostFinalConfirmAsync: 振休残が既に9.5日ある状態で半日振休を作成した場合、部門長宛の通知メッセージが作成される")]
+        public async Task OnPostFinalConfirmAsync_振休残が既に95日ある状態で半日振休を作成した場合部門長宛の通知メッセージが作成される()
         {
             // 準備 (Arrange)
             var (syain, _, anken) = SeedFinalConfirmMinimumData(syainId: 1, syainBaseId: 1, busyoId: 10);
@@ -6635,8 +6633,8 @@ expected,
         /// When: 確定解除を実行
         /// Then: 有給残データの消化数が減少する
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCancelConfirmAsync_WhenYuukyuutorikeshi_ThenYuukyuuzankenkazugamodosareru()
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 有給取得済みの確定日報を取消した場合、有給残データの消化数が減少する")]
+        public async Task OnPostCancelConfirmAsync_有給取得済みの確定日報を取消した場合有給残データの消化数が減少する()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -6679,8 +6677,8 @@ expected,
         /// When: 確定解除を実行
         /// Then: 計画有給数と消化数が減少する
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCancelConfirmAsync_WhenKeikakuyuukyuutorikeshi_ThenKeikakuyuukyuukensuugamodosareru()
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 計画有給取得済みの確定日報を取消した場合、計画有給数と消化数が減少する")]
+        public async Task OnPostCancelConfirmAsync_計画有給取得済みの確定日報を取消した場合計画有給数と消化数が減少する()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -6724,8 +6722,8 @@ expected,
         /// When: 確定解除を実行
         /// Then: 振休残データの取得日がnullになり、ステータスが「未」になる
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCancelConfirmAsync_When振休取得済み確定日報を取消_Then振休残データ取得日がnullになりステータスが未になる()
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 振休取得済みの確定日報を取消した場合、振休残データの取得日がnullになりステータスが未になる")]
+        public async Task OnPostCancelConfirmAsync_振休取得済みの確定日報を取消した場合振休残データ取得日がnullになりステータスが未になる()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -6773,8 +6771,8 @@ expected,
         /// When: 確定解除を実行
         /// Then: 作成されていた振休残データが削除される
         /// </summary>
-        [TestMethod]
-        public async Task OnPostCancelConfirmAsync_When休日出勤で作成された確定日報を取消_Then作成されていた振休残データが削除される()
+        [TestMethod(DisplayName = "OnPostCancelConfirmAsync: 休日出勤で作成された確定日報を取消した場合、作成されていた振休残データが削除される")]
+        public async Task OnPostCancelConfirmAsync_休日出勤で作成された確定日報を取消した場合作成されていた振休残データが削除される()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -6824,8 +6822,8 @@ expected,
         /// When: 振替休暇の確定処理を実行
         /// Then: 1件目は1日化され、2件目で半日が取得される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_WhenFurikyuuzangahannichijoutai_Then2Kenmedehannichishutokusareru()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 1日振休残が半日取得済みで別の未取得残がある場合、1件目は1日化され2件目で半日が取得される")]
+        public async Task UpdateConfirmLeaveAsync_1日振休残が半日取得済みで別の未取得残がある場合1件目は1日化され2件目で半日が取得される()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder()
@@ -6884,8 +6882,8 @@ expected,
         /// When: 振替休暇の確定処理を実行
         /// Then: 半日残は1日化され、別残で半日取得される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_When半日振休残が未取得で別の1日残も未取得_Then半日残が1日化され別残で半日取得される()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 半日振休残が未取得で別の1日残も未取得の場合、半日残が1日化され別残で半日取得される")]
+        public async Task UpdateConfirmLeaveAsync_半日振休残が未取得で別の1日残も未取得の場合半日残が1日化され別残で半日取得される()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder()
@@ -6943,8 +6941,8 @@ expected,
         /// When: 半日振休の確定処理を実行
         /// Then: 2回目取得日が設定され、1日取得状態になる
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_WhenHannichifurikyuudehannichijoutainozanwoshutok_Then1Hidorieninaru()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 半日振休残が半日取得済みの場合、2回目取得日が設定され1日取得状態になる")]
+        public async Task UpdateConfirmLeaveAsync_半日振休残が半日取得済みの場合2回目取得日が設定され1日取得状態になる()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).WithSyainBaseId(1).Build();
@@ -6985,8 +6983,8 @@ expected,
         /// When: 半日振休の確定処理を実行
         /// Then: 取得日が設定され、1日取得状態になる
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_WhenHannichifurikyuudehannichizanwoshutoku_Then1Hidorieninaru()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 半日振休残(0.5日)が未取得の場合、取得日が設定され1日取得状態になる")]
+        public async Task UpdateConfirmLeaveAsync_半日振休残が未取得の場合取得日が設定され1日取得状態になる()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).WithSyainBaseId(1).Build();
@@ -7026,8 +7024,8 @@ expected,
         /// When: TakeFurikyuuAsyncを直接実行
         /// Then: 対象のみ1日取得となり、別残は未取得のまま（重複条件の分岐は実行されない）
         /// </summary>
-        [TestMethod]
-        public async Task TakeFurikyuuAsync_WhenOneDayAndMi_ThenPrimaryOnlyUpdatedAndSecondaryUnchanged()
+        [TestMethod(DisplayName = "TakeFurikyuuAsync: 1日振休残が未取得で別の未取得残がある場合、対象のみ1日取得となり別残は未取得のまま")]
+        public async Task TakeFurikyuuAsync_1日振休残が未取得で別の未取得残がある場合対象のみ1日取得となり別残は未取得のまま()
         {
             var syain = new SyainBuilder().WithId(1).WithSyainBaseId(1).Build();
             db.Syains.Add(syain);
@@ -7076,8 +7074,8 @@ expected,
         /// When: 確定時休暇更新処理を実行
         /// Then: 何も更新されず終了する
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_WhenShaingasonzaishinai_ThenShorisezushuuryousuru()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 指定社員が存在しない場合、何も更新されず終了する")]
+        public async Task UpdateConfirmLeaveAsync_指定社員が存在しない場合何も更新されず終了する()
         {
             // 準備 (Arrange)
             db.YuukyuuZans.Add(new YuukyuuZan
@@ -7107,8 +7105,8 @@ expected,
         /// When: 確定時休暇更新処理を実行
         /// Then: 有給消化数が1増加する
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_WhenKubun2Ganenjiyuukyuu_ThenYuukyuushoukagazoukasuru()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 区分2に年次有給休暇（1日）を指定した場合、有給消化数が1増加する")]
+        public async Task UpdateConfirmLeaveAsync_区分2に年次有給休暇1日を指定した場合有給消化数が1増加する()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).WithSyainBaseId(1).Build();
@@ -7140,8 +7138,8 @@ expected,
         /// When: 確定時休暇更新処理を実行
         /// Then: 計画有給数が1増加する
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_WhenKeikakuyuukyuukyuuka_ThenKeikakuyuukyuukazugazoukasuru()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 区分1に計画有給休暇を指定した場合、計画有給数が1増加する")]
+        public async Task UpdateConfirmLeaveAsync_区分1に計画有給休暇を指定した場合計画有給数が1増加する()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).WithSyainBaseId(1).Build();
@@ -7173,8 +7171,8 @@ expected,
         /// When: 確定時休暇更新処理を実行
         /// Then: 消化数が0.5、半日回数が1増加する
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_WhenKubun2Gahannichiyuukyuu_ThenYuukyuuhannichijouhougazoukasuru()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 区分2に半日有給を指定した場合、消化数が0.5増加し半日回数が1増加する")]
+        public async Task UpdateConfirmLeaveAsync_区分2に半日有給を指定した場合消化数が0_5増加し半日回数が1増加する()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).WithSyainBaseId(1).Build();
@@ -7208,8 +7206,8 @@ expected,
         /// When: 確定時休暇更新処理を実行
         /// Then: 計画特別休暇数が1増加する
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_WhenKeikakutokubetsukyuuka_ThenKeikakutokubetsukyuukakazugazoukasuru()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 区分1に計画特別休暇を指定した場合、計画特別休暇数が1増加する")]
+        public async Task UpdateConfirmLeaveAsync_区分1に計画特別休暇を指定した場合計画特別休暇数が1増加する()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).WithSyainBaseId(1).Build();
@@ -7241,8 +7239,8 @@ expected,
         /// When: 確定時休暇更新処理を実行
         /// Then: 新規振休残が作成される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_WhenDoyoukyuujitsushukkin_ThenShinkifurikyuuzangasakuseisareru()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 土曜日に休日出勤（非稼働日）の場合、新規振休残が作成される")]
+        public async Task UpdateConfirmLeaveAsync_土曜日に休日出勤非稼働日の場合新規振休残が作成される()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder()
@@ -7280,8 +7278,8 @@ expected,
         /// When: 確定処理を実行
         /// Then: 新規の振休残が作成される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateConfirmLeaveAsync_When日曜日に管理社員が休日出勤_Then新規振休残が作成される()
+        [TestMethod(DisplayName = "UpdateConfirmLeaveAsync: 日曜日に管理社員が休日出勤の場合、新規振休残が作成される")]
+        public async Task UpdateConfirmLeaveAsync_日曜日に管理社員が休日出勤の場合新規振休残が作成される()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder()
@@ -7317,8 +7315,8 @@ expected,
         /// When: 労働時間240分で新規振休残を作成
         /// Then: 半日振休残が作成され、予定日が保存される
         /// </summary>
-        [TestMethod]
-        public async Task CreateNewFurikyuuAsync_When240Funkinmu_ThenHannichifurikyuutoshitesakuseisareru()
+        [TestMethod(DisplayName = "CreateNewFurikyuuAsync: 労働時間240分で新規振休残を作成した場合、半日振休残が作成され、予定日が保存される")]
+        public async Task CreateNewFurikyuuAsync_労働時間240分で新規振休残を作成した場合半日振休残が作成され予定日が保存される()
         {
             // 準備 (Arrange)
             var syain = new SyainBuilder().WithId(1).Build();
@@ -7348,8 +7346,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 作成済み振休残が削除される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_WhenDoyoukyuujitsushukkintorikes_ThenFurikyuuzangasakujosareru()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 土曜日の休日出勤取消の場合、作成済み振休残が削除される")]
+        public async Task UpdateCancelConfirmLeaveAsync_土曜日の休日出勤取消の場合作成済み振休残が削除される()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -7393,8 +7391,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 作成済み振休残が削除される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When日曜日休日出勤で作成済み振休残ありかつ管理職_Then作成済み振休残が削除される()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 日曜日の休日出勤取消で作成済み振休残ありかつ管理職の場合、作成済み振休残が削除される")]
+        public async Task UpdateCancelConfirmLeaveAsync_日曜日の休日出勤取消で作成済み振休残ありかつ管理職の場合作成済み振休残が削除される()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(4);
@@ -7439,8 +7437,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 有給消化数が1減算される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When区分1が1日有給で区分2が未選択_Then有給消化数が1減算される()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 区分1が1日有給で区分2が未選択の場合、有給消化数が1減算される")]
+        public async Task UpdateCancelConfirmLeaveAsync_区分1が1日有給で区分2が未選択の場合有給消化数が1減算される()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -7478,8 +7476,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 有給消化数が1減算される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When区分2が1日有給_Then有給消化数が1減算される()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 区分2が1日有給の場合、有給消化数が1減算される")]
+        public async Task UpdateCancelConfirmLeaveAsync_区分2が1日有給の場合有給消化数が1減算される()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -7517,8 +7515,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 有給消化数と計画有給数が減算される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When計画有給を取消_Then有給消化数と計画有給数が減算される()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 計画有給を取消した場合、有給消化数と計画有給数が減算される")]
+        public async Task UpdateCancelConfirmLeaveAsync_計画有給を取消した場合有給消化数と計画有給数が減算される()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -7558,8 +7556,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 消化数と半日回数が減算される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When区分2が半日有給で区分1が半日勤務_Then消化数と半日回数が減算される()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 区分2が半日有給で区分1が半日勤務の場合、消化数と半日回数が減算される")]
+        public async Task UpdateCancelConfirmLeaveAsync_区分2が半日有給で区分1が半日勤務の場合消化数と半日回数が減算される()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -7599,8 +7597,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 計画特別休暇回数が減算される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When計画特別休暇取消対象データが存在する_Then計画特別休暇回数が減算される()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 計画特別休暇取消対象データが存在し取消確定時の休暇更新を実行した場合、計画特別休暇回数が減算される")]
+        public async Task UpdateCancelConfirmLeaveAsync_計画特別休暇取消対象データが存在し取消確定時の休暇更新を実行した場合計画特別休暇回数が減算される()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -7638,8 +7636,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 振休残が未取得状態へ戻る
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When振替休暇取消対象振休残が存在する_Then振休残が未取得状態へ戻る()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 振替休暇取消対象振休残が存在する場合、振休残が未取得状態へ戻る")]
+        public async Task UpdateCancelConfirmLeaveAsync_振替休暇取消対象振休残が存在する場合振休残が未取得状態へ戻る()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -7685,8 +7683,8 @@ expected,
         /// When: 取消確定時の休暇更新を実行
         /// Then: 振休残が未取得状態へ戻る
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When区分2が半日振休で取消対象振休残が存在する_Then振休残が未取得状態へ戻る()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 区分2が半日振休で取消対象振休残が存在する場合、振休残が未取得状態へ戻る")]
+        public async Task UpdateCancelConfirmLeaveAsync_区分2が半日振休で取消対象振休残が存在する場合振休残が未取得状態へ戻る()
         {
             // 準備 (Arrange)
             EnsureKintaiZokusei(1);
@@ -7732,8 +7730,8 @@ expected,
         /// When: 取消処理を実行
         /// Then: 消化数と半日回数が減算される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When半日有給取消対象データが存在し区分1が半日勤務_Then消化数と半日回数が減算される()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 半日有給取消対象データが存在し区分1が半日勤務の場合、消化数と半日回数が減算される")]
+        public async Task UpdateCancelConfirmLeaveAsync_半日有給取消対象データが存在し区分1が半日勤務の場合消化数と半日回数が減算される()
         {
             // 準備 (Arrange)
             db.YuukyuuZans.Add(new YuukyuuZan
@@ -7770,8 +7768,8 @@ expected,
         /// When: 取消処理を実行
         /// Then: 計画特別休暇回数が減算される
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_WhenKeikakutokubetsukyuukatorikeshi_ThenKaisuugagensansareru()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 計画特別休暇取消対象データが存在し取消処理を実行した場合、計画特別休暇回数が減算される")]
+        public async Task UpdateCancelConfirmLeaveAsync_計画特別休暇取消対象データが存在し取消処理を実行した場合計画特別休暇回数が減算される()
         {
             // 準備 (Arrange)
             db.YuukyuuZans.Add(new YuukyuuZan
@@ -7805,8 +7803,8 @@ expected,
         /// When: 振休取消処理を実行
         /// Then: 対象・関連レコードの双方が未取得状態に戻る
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When振休取消処理を実行_Then対象関連レコード双方が未取得状態に戻る()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 振休取消対象と同日取得の別レコード(取得日1)が存在する場合、対象・関連レコード双方が未取得状態に戻る")]
+        public async Task UpdateCancelConfirmLeaveAsync_振休取消対象と同日取得の別レコード取得日1が存在する場合対象関連レコード双方が未取得状態に戻る()
         {
             // 準備 (Arrange)
             var jissekiDate = D("20250120");
@@ -7862,8 +7860,8 @@ expected,
         /// When: 振休取消処理を実行
         /// Then: 関連レコードは半日状態に戻る
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When振休取消処理を実行_Then関連レコードは半日状態に戻る()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 振休取消対象と同日取得の別レコード(取得日2)が存在する場合、関連レコードは半日状態に戻る")]
+        public async Task UpdateCancelConfirmLeaveAsync_振休取消対象と同日取得の別レコード取得日2が存在する場合関連レコードは半日状態に戻る()
         {
             // 準備 (Arrange)
             var jissekiDate = D("20250120");
@@ -7916,8 +7914,8 @@ expected,
         /// When: 半日振休取消を実行
         /// Then: 取得日2がクリアされ、半日状態に戻る
         /// </summary>
-        [TestMethod]
-        public async Task UpdateCancelConfirmLeaveAsync_When半日振休取消を実行_Then取得日2がクリアされ半日状態に戻る()
+        [TestMethod(DisplayName = "UpdateCancelConfirmLeaveAsync: 半日振休取消対象が取得日2に設定されている場合、取得日2がクリアされ半日状態に戻る")]
+        public async Task UpdateCancelConfirmLeaveAsync_半日振休取消対象が取得日2に設定されている場合取得日2がクリアされ半日状態に戻る()
         {
             // 準備 (Arrange)
             var jissekiDate = D("20250120");
@@ -7960,8 +7958,8 @@ expected,
         /// When: 取消処理を実行
         /// Then: 有給消化数が1減算される
         /// </summary>
-        [TestMethod]
-        public async Task CancelOneDayPaidLeaveAsync_WhenYobidashi_ThenYuukyuushoukakazugagensansareru()
+        [TestMethod(DisplayName = "CancelOneDayPaidLeaveAsync: 区分2に1日有給が設定されている場合、取消処理で有給消化数が1減算される")]
+        public async Task CancelOneDayPaidLeaveAsync_区分2に1日有給が設定されている場合取消処理で有給消化数が1減算される()
         {
             // 準備 (Arrange)
             db.YuukyuuZans.Add(new YuukyuuZan
@@ -7995,8 +7993,8 @@ expected,
         /// When: 振休残通知判定を実行
         /// Then: 通知メッセージは作成されない
         /// </summary>
-        [TestMethod]
-        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_WhenIkichimiman_ThenTsuuchihasakuseisarenai()
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 振休残が閾値未満の場合、振休残通知は作成されない")]
+        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_振休残が閾値未満の場合振休残通知は作成されない()
         {
             // 準備 (Arrange)
             var today = DateTime.Today.ToDateOnly();
@@ -8073,8 +8071,8 @@ expected,
         /// When: 振休残通知判定を実行
         /// Then: 通知メッセージが作成される
         /// </summary>
-        [TestMethod]
-        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_When振休残が閾値以上で部門長メールあり_Then通知メッセージが作成される()
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 振休残が閾値以上で部門長メールありの場合、通知メッセージが作成される")]
+        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_振休残が閾値以上で部門長メールありの場合通知メッセージが作成される()
         {
             // 準備 (Arrange)
             var today = DateTime.Today.ToDateOnly();
@@ -8148,8 +8146,8 @@ expected,
         /// When: 振休残通知判定を実行
         /// Then: 通知メッセージは作成されない
         /// </summary>
-        [TestMethod]
-        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_When振休残が閾値以上だが部門長メールなし_Then通知メッセージは作成されない()
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 振休残が閾値以上だが部門長メールなしの場合、通知メッセージは作成されない")]
+        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_振休残が閾値以上だが部門長メールなしの場合通知メッセージは作成されない()
         {
             // 準備 (Arrange)
             var today = DateTime.Today.ToDateOnly();
@@ -8217,9 +8215,8 @@ expected,
         /// When: OneDayHalfStateReachesThreshold
         /// Then: NotificationCreated
         /// </summary>
-        [TestMethod]
-        public async Task
-        SendCompensatoryLeaveNotificationIfNeededAsync_WhenOneDayHalfStateReachesThreshold_ThenNotificationCreated()
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 1日半日状態が閾値に達した場合、通知が作成される")]
+        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_1日半日状態が閾値に達した場合通知が作成される()
         {
             var today = DateTime.Today.ToDateOnly();
             var jissekiDate = D("20250120");
@@ -8283,9 +8280,8 @@ expected,
         /// When: HalfDayUnusedReachesThreshold
         /// Then: NotificationCreated
         /// </summary>
-        [TestMethod]
-        public async Task
-        SendCompensatoryLeaveNotificationIfNeededAsync_WhenHalfDayUnusedReachesThreshold_ThenNotificationCreated()
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 半日未取得が閾値に達した場合、通知が作成される")]
+        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_半日未取得が閾値に達した場合通知が作成される()
         {
             var today = DateTime.Today.ToDateOnly();
             var jissekiDate = D("20250120");
@@ -8349,9 +8345,8 @@ expected,
         /// When: ThresholdReachedAndNoBumoncho
         /// Then: NoNotification
         /// </summary>
-        [TestMethod]
-        public async Task
-        SendCompensatoryLeaveNotificationIfNeededAsync_WhenThresholdReachedAndNoBumoncho_ThenNoNotification()
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 閾値に達したが部門長が未設定の場合、通知は作成されない")]
+        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_閾値に達したが部門長が未設定の場合通知は作成されない()
         {
             var jissekiDate = D("20250120");
 
@@ -8404,9 +8399,8 @@ expected,
         /// When: HalfDayUnusedMixedStates
         /// Then: UseExpectedTotalDays
         /// </summary>
-        [TestMethod]
-        public async Task
-        SendCompensatoryLeaveNotificationIfNeededAsync_WhenHalfDayUnusedMixedStates_ThenUseExpectedTotalDays()
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 半日未取得で状態が混在している場合、期待される合計日数を使用する")]
+        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_半日未取得で状態が混在している場合期待される合計日数を使用する()
         {
             var today = DateTime.Today.ToDateOnly();
             var jissekiDate = D("20250120");
@@ -8475,9 +8469,8 @@ expected,
         /// When: BumonchoHasNoActiveSyain
         /// Then: NotificationNotCreated
         /// </summary>
-        [TestMethod]
-        public async Task
-        SendCompensatoryLeaveNotificationIfNeededAsync_WhenBumonchoHasNoActiveSyain_ThenNotificationNotCreated()
+        [TestMethod(DisplayName = "SendCompensatoryLeaveNotificationIfNeededAsync: 閾値に達したが部門長に有効な社員がいない場合、通知は作成されない")]
+        public async Task SendCompensatoryLeaveNotificationIfNeededAsync_閾値に達したが部門長に有効な社員がいない場合通知は作成されない()
         {
             var today = DateTime.Today.ToDateOnly();
             var jissekiDate = D("20250120");
@@ -8541,8 +8534,8 @@ expected,
         /// When: 半日有給回数上限
         /// Then: 半日有給上限エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenHannichiyuukyuukaisuujougen_ThenHannichiyuukyuujougeneraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日有給回数上限に達した場合、半日有給上限エラー")]
+        public async Task FinalConfirmValidationAsync_半日有給回数上限に達した場合半日有給上限エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日有給, isSyukkin: false, isVacation: true);
@@ -8565,8 +8558,8 @@ expected,
         /// When: 半日有給で有給残情報なし
         /// Then: 有給残情報未登録エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When半日有給で有給残情報なし_Then有給残情報未登録エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日有給で有給残情報がない場合、有給残情報未登録エラー")]
+        public async Task FinalConfirmValidationAsync_半日有給で有給残情報がない場合有給残情報未登録エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日有給, isSyukkin: false, isVacation: true);
@@ -8588,8 +8581,8 @@ expected,
         /// When: 男性で生理休暇選択
         /// Then: 生理休暇不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenDanseideseirikyuukasentaku_ThenSeirikyuukafukaeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 男性が生理休暇を選択した場合、生理休暇不可エラー")]
+        public async Task FinalConfirmValidationAsync_男性が生理休暇を選択した場合生理休暇不可エラー()
         {
             var syain = SeedConfirmValidationSyain(seibetsu: '1');
             AddSyukkinKubun(生理休暇, isSyukkin: false, isVacation: true);
@@ -8611,8 +8604,8 @@ expected,
         /// When: 振替休暇残が0 5以下
         /// Then: 振替休暇不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenFurikaekyuukazanga0_N5Ika_ThenFurikaekyuukafukaeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 振替休暇残が0または5日以下の場合、振替休暇不可エラー")]
+        public async Task FinalConfirmValidationAsync_振替休暇残が0または5日以下の場合振替休暇不可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(振替休暇, isSyukkin: false, isVacation: true);
@@ -8642,8 +8635,8 @@ expected,
         /// When: 半日振休残がない
         /// Then: 半日振休不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenHannichifurikyuuzanganai_ThenHannichifurikyuufukaeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日振休残がない場合、半日振休不可エラー")]
+        public async Task FinalConfirmValidationAsync_半日振休残がない場合半日振休不可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日振休, isSyukkin: false, isVacation: true);
@@ -8665,8 +8658,8 @@ expected,
         /// When: 半日有給で有給残0 5未満
         /// Then: 半日有給不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When半日有給で有給残0_5未満_Then半日有給不可エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日有給で有給残が0.5未満の場合、半日有給不可エラー")]
+        public async Task FinalConfirmValidationAsync_半日有給で有給残0_5未満の場合半日有給不可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日有給, isSyukkin: false, isVacation: true);
@@ -8695,8 +8688,8 @@ expected,
         /// When: 半日振休と半日有給で振休残あり
         /// Then: 振休先取得エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When半日振休と半日有給で振休残あり_Then振休先取得エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日振休と半日有給で振休残がある場合、振休先取得エラー")]
+        public async Task FinalConfirmValidationAsync_半日振休と半日有給で振休残がある場合振休先取得エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日振休, isSyukkin: false, isVacation: true);
@@ -8727,8 +8720,8 @@ expected,
         /// When: 半日有給で振休残あり
         /// Then: 振休先取得エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenHannichiyuukyuudefurikyuuzanari_ThenFurikyuusenshueeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日有給で振休残がある場合、振休先取得エラー")]
+        public async Task FinalConfirmValidationAsync_半日有給で振休残がある場合振休先取得エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日有給, isSyukkin: false, isVacation: true);
@@ -8758,8 +8751,8 @@ expected,
         /// When: 欠勤と振休残あり
         /// Then: 欠勤時振休可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenKekkintofurikyuuzanari_ThenKekkintokifurikyuukaeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 欠勤で振休残がある場合、欠勤時振休可エラー")]
+        public async Task FinalConfirmValidationAsync_欠勤で振休残がある場合欠勤時振休可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -8792,8 +8785,8 @@ expected,
         /// When: 欠勤と区分1半日振休で振休残1日
         /// Then: 欠勤時振休可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When欠勤と区分1半日振休で振休残1日_Then欠勤時振休可エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 欠勤と区分1半日振休で振休残がある場合、欠勤時振休可エラー")]
+        public async Task FinalConfirmValidationAsync_欠勤と区分1半日振休で振休残がある場合欠勤時振休可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日振休, isSyukkin: true, isVacation: false);
@@ -8824,8 +8817,8 @@ expected,
         /// When: 欠勤と有給残1日あり
         /// Then: 欠勤時振休可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenKekkintoyuukyuuzan1Nichiari_ThenKekkintokifurikyuukaeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 欠勤で有給残が1日ある場合、欠勤時振休可エラー")]
+        public async Task FinalConfirmValidationAsync_欠勤で有給残が1日ある場合欠勤時振休可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -8857,8 +8850,8 @@ expected,
         /// When: 欠勤と有給残0 5日あり
         /// Then: 欠勤時振休可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenKekkintoyuukyuuzan0_N5Nichiari_ThenKekkintokifurikyuukaeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 欠勤で有給残が0.5日ある場合、欠勤時振休可エラー")]
+        public async Task FinalConfirmValidationAsync_欠勤で有給残が0_5日ある場合欠勤時振休可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -8890,8 +8883,8 @@ expected,
         /// When: 1日有給で振休残あり
         /// Then: 振休先取得エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When1Nichiukyuudefurikyuuzanari_ThenFurikyuusenshueeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 1日有給で振休残がある場合、振休先取得エラー")]
+        public async Task FinalConfirmValidationAsync_1日有給で振休残がある場合振休先取得エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(年次有給休暇_1日, isSyukkin: false, isVacation: true);
@@ -8921,8 +8914,8 @@ expected,
         /// When: 1日有給で有給残不足
         /// Then: 1日有給不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When1Nichiukyuudeyuukyuuzanfusoku_Then1Nichiukyuufukaeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 1日有給で有給残不足の場合、1日有給不可エラー")]
+        public async Task FinalConfirmValidationAsync_1日有給で有給残不足の場合1日有給不可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(年次有給休暇_1日, isSyukkin: false, isVacation: true);
@@ -8951,8 +8944,8 @@ expected,
         /// When: 区分2が1日有給かつ区分1が半日有給
         /// Then: 出勤区分不正エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When区分2が1日有給かつ区分1が半日有給_Then出勤区分不正エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 区分2が1日有給かつ区分1が半日有給の場合、出勤区分不正エラー")]
+        public async Task FinalConfirmValidationAsync_区分2が1日有給かつ区分1が半日有給の場合出勤区分不正エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日有給, isSyukkin: false, isVacation: true);
@@ -8982,8 +8975,8 @@ expected,
         /// When: 計画有給が年上限
         /// Then: 計画有給上限エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenKeikakuyuukyuugatoshiuegen_ThenKeikakuyuukyuujougeneraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 計画有給が年上限の場合、計画有給上限エラー")]
+        public async Task FinalConfirmValidationAsync_計画有給が年上限の場合計画有給上限エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(計画有給休暇, isSyukkin: false, isVacation: true);
@@ -9012,8 +9005,8 @@ expected,
         /// When: 計画有給で有給残不足
         /// Then: 1日有給不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenKeikakuyuukyuudeyuukyuuzanfusoku_Then1Nichiukyuufukaeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 計画有給で有給残不足の場合、1日有給不可エラー")]
+        public async Task FinalConfirmValidationAsync_計画有給で有給残不足の場合1日有給不可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(計画有給休暇, isSyukkin: false, isVacation: true);
@@ -9042,8 +9035,8 @@ expected,
         /// When: 計画特別休暇が年上限
         /// Then: 計画特別休暇上限エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When計画特別休暇が年上限_Then計画特別休暇上限エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 計画特別休暇が年上限の場合、計画特別休暇上限エラー")]
+        public async Task FinalConfirmValidationAsync_計画特別休暇が年上限の場合計画特別休暇上限エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(計画特別休暇, isSyukkin: false, isVacation: true);
@@ -9070,8 +9063,8 @@ expected,
         /// When: 計画特別休暇で有給残情報なし
         /// Then: 有給残未登録エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When計画特別休暇で有給残情報なし_Then有給残未登録エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 計画特別休暇で有給残情報なしの場合、有給残未登録エラー")]
+        public async Task FinalConfirmValidationAsync_計画特別休暇で有給残情報なしの場合有給残未登録エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(計画特別休暇, isSyukkin: false, isVacation: true);
@@ -9095,8 +9088,8 @@ expected,
         /// When: 計画特別休暇で区分2未選択
         /// Then: 出勤区分不正エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When計画特別休暇で区分2未選択_Then出勤区分不正エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 計画特別休暇で区分2未選択の場合、出勤区分不正エラー")]
+        public async Task FinalConfirmValidationAsync_計画特別休暇で区分2未選択の場合出勤区分不正エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(計画特別休暇, isSyukkin: false, isVacation: true);
@@ -9124,8 +9117,8 @@ expected,
         /// When: 実績明細0件
         /// Then: 実績入力エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenJissekimeisai0Ken_ThenJissekinyuuryokueraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 実績明細が0件の場合、実績入力エラー")]
+        public async Task FinalConfirmValidationAsync_実績明細が0件の場合実績入力エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -9149,8 +9142,8 @@ expected,
         /// When: 工番5件超リンク
         /// Then: 最大件数エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenKouban5Kenchourinku_ThenSaidaikensuueraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 工番5件超リンクの場合、最大件数エラー")]
+        public async Task FinalConfirmValidationAsync_工番5件超リンクの場合最大件数エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -9174,8 +9167,8 @@ expected,
         /// When: 1日勤務でリンク工番なし
         /// Then: 工番選択エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When1Nikkintsutomuderinkukoubannashi_ThenKoubansentakueraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 1日勤務でリンク工番なしの場合、工番選択エラー")]
+        public async Task FinalConfirmValidationAsync_1日勤務でリンク工番なしの場合工番選択エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -9199,8 +9192,8 @@ expected,
         /// When: 休日出勤短時間でリンク3件
         /// Then: 休日短時間工番上限エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When休日出勤短時間でリンク3件_Then休日短時間工番上限エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 休日出勤短時間でリンク3件の場合、休日短時間工番上限エラー")]
+        public async Task FinalConfirmValidationAsync_休日出勤短時間でリンク3件の場合休日短時間工番上限エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(AttendanceClassification.休日出勤, isSyukkin: true, isVacation: false);
@@ -9228,8 +9221,8 @@ expected,
         /// When: 未来日かつ半日休暇組み合わせ
         /// Then: 未来実績不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When未来日かつ半日休暇組み合わせ_Then未来実績不可エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 未来日かつ半日休暇組み合わせの場合、未来実績不可エラー")]
+        public async Task FinalConfirmValidationAsync_未来日かつ半日休暇組み合わせの場合未来実績不可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日振休, isSyukkin: true, isVacation: false);
@@ -9260,8 +9253,8 @@ expected,
         /// When: 半日勤務でリンク3件
         /// Then: 半日勤務工番上限エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenHannichikinmuderinku3Ken_ThenHannichikinmukoubanjougeneraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日勤務でリンク3件の場合、半日勤務工番上限エラー")]
+        public async Task FinalConfirmValidationAsync_半日勤務でリンク3件の場合半日勤務工番上限エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日勤務, isSyukkin: true, isVacation: false);
@@ -9285,8 +9278,8 @@ expected,
         /// When: 半日勤務でリンク工番なしかつ区分マスタ未登録
         /// Then: 工番選択エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When半日勤務でリンク工番なしかつ区分マスタ未登録_Then工番選択エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日勤務でリンク工番なしかつ区分マスタ未登録の場合、工番選択エラー")]
+        public async Task FinalConfirmValidationAsync_半日勤務でリンク工番なしかつ区分マスタ未登録の場合工番選択エラー()
         {
             var syain = SeedConfirmValidationSyain();
             await db.SaveChangesAsync();
@@ -9309,8 +9302,8 @@ expected,
         /// When: 休暇時にリンク工番あり
         /// Then: 休暇時工番選択不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenKyuukatokinirinkukoubanari_ThenKyuukatokikoubansentakufukaer()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 休暇時にリンク工番ありの場合、休暇時工番選択不可エラー")]
+        public async Task FinalConfirmValidationAsync_休暇時にリンク工番ありの場合休暇時工番選択不可エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(計画有給休暇, isSyukkin: false, isVacation: true);
@@ -9339,8 +9332,8 @@ expected,
         /// When: 原価連動社員が費用種別2工番選択
         /// Then: 支援グループ工番不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When原価連動社員が費用種別2工番選択_Then支援グループ工番不可エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 原価連動社員が費用種別2工番選択の場合、支援グループ工番不可エラー")]
+        public async Task FinalConfirmValidationAsync_原価連動社員が費用種別2工番選択の場合支援グループ工番不可エラー()
         {
             var syain = SeedConfirmValidationSyain(isGenkaRendou: true);
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -9379,8 +9372,8 @@ expected,
         /// When: 原価凍結工番選択
         /// Then: 工番使用不可エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenGenkatouketsukoubansentaku_ThenKoubanshiyoufukaeraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 原価凍結工番選択の場合、工番使用不可エラー")]
+        public async Task FinalConfirmValidationAsync_原価凍結工番選択の場合工番使用不可エラー()
         {
             var syain = SeedConfirmValidationSyain(isGenkaRendou: false);
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -9424,8 +9417,8 @@ expected,
         /// When: 時間外伺い存在
         /// Then: 時間外上限エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_WhenJikangaiukagaisonzai_ThenJikangaijougeneraa()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 時間外伺い存在の場合、時間外上限エラー")]
+        public async Task FinalConfirmValidationAsync_時間外伺い存在の場合時間外上限エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -9468,8 +9461,8 @@ expected,
         /// When: 時間外伺い承認済み
         /// Then: 時間外上限未承認エラー
         /// </summary>
-        [TestMethod]
-        public async Task FinalConfirmValidationAsync_When時間外伺い承認済み_Then時間外上限未承認エラー()
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 時間外伺い承認済みの場合、時間外上限未承認エラー")]
+        public async Task FinalConfirmValidationAsync_時間外伺い承認済みの場合時間外上限未承認エラー()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(通常勤務, isSyukkin: true, isVacation: false);
@@ -9514,8 +9507,8 @@ expected,
         /// When: NoEditedAndNoOvertime
         /// Then: ReturnNull
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_WhenNoEditedAndNoOvertime_ThenReturnNull()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: 打刻修正なしかつ時間外なしの場合、nullを返す")]
+        public async Task CheckForNotificationMessageAsync_打刻修正なしかつ時間外なしの場合nullを返す()
         {
             var kintai = new KintaiZokusei
             {
@@ -9579,8 +9572,8 @@ expected,
         /// When: MonthEndOvertimeApproved
         /// Then: ReturnNull
         /// </summary>
-        [TestMethod]
-        public async Task CheckForNotificationMessageAsync_WhenMonthEndOvertimeApproved_ThenReturnNull()
+        [TestMethod(DisplayName = "CheckForNotificationMessageAsync: 月終了時間外承認済みの場合、nullを返す")]
+        public async Task CheckForNotificationMessageAsync_月終了時間外承認済みの場合nullを返す()
         {
             var kintai = new KintaiZokusei
             {
@@ -9653,8 +9646,8 @@ expected,
         /// When: NotApprovedAndExceedsMaxLimit
         /// Then: ReturnsTrue
         /// </summary>
-        [TestMethod]
-        public async Task OvertimeLimitCheckAsync_WhenNotApprovedAndExceedsMaxLimit_ThenReturnsTrue()
+        [TestMethod(DisplayName = "OvertimeLimitCheckAsync: 未承認かつ時間外上限超過の場合、trueを返す")]
+        public async Task OvertimeLimitCheckAsync_未承認かつ時間外上限超過の場合trueを返す()
         {
             var syain = SeedConfirmValidationSyain();
             syain.KintaiZokusei = new KintaiZokusei
@@ -9688,8 +9681,8 @@ expected,
         /// When: FinishedMonthTotalIsNegative
         /// Then: MonthTotalBecomesZero
         /// </summary>
-        [TestMethod]
-        public async Task Calculate3MonthZangyoAsync_WhenFinishedMonthTotalIsNegative_ThenMonthTotalBecomesZero()
+        [TestMethod(DisplayName = "Calculate3MonthZangyoAsync: 3ヶ月分の残業時間が負数の場合、0を返す")]
+        public async Task Calculate3MonthZangyoAsync_3ヶ月分の残業時間が負数の場合0を返す()
         {
             EnsureKintaiZokusei(1);
             var syain = new SyainBuilder()
@@ -9723,8 +9716,8 @@ expected,
         /// When: CurrentMonthIsNotFinishedAndNegative
         /// Then: NegativeIsKept
         /// </summary>
-        [TestMethod]
-        public async Task Calculate3MonthZangyoAsync_WhenCurrentMonthIsNotFinishedAndNegative_ThenNegativeIsKept()
+        [TestMethod(DisplayName = "Calculate3MonthZangyoAsync: 現在月が未終了かつ負数の場合、負数を保持する")]
+        public async Task Calculate3MonthZangyoAsync_現在月が未終了かつ負数の場合負数を保持する()
         {
             EnsureKintaiZokusei(1);
             var syain = new SyainBuilder()
@@ -9758,8 +9751,8 @@ expected,
         /// When: OnlyDifferentHeaderIdExists
         /// Then: ReturnsFalse
         /// </summary>
-        [TestMethod]
-        public void HasApprovedInquiry_WhenOnlyDifferentHeaderIdExists_ThenReturnsFalse()
+        [TestMethod(DisplayName = "HasApprovedInquiry: ヘッダーIDが異なる場合、falseを返す")]
+        public void HasApprovedInquiry_ヘッダーIDが異なる場合falseを返す()
         {
             var loginUser = new SyainBuilder().WithId(1).WithSyainBaseId(1).Build();
             var model = CreateModel(loginUser);
@@ -9793,8 +9786,8 @@ expected,
         /// When: HeaderIdMatchesAndTypeMatches
         /// Then: ReturnsTrue
         /// </summary>
-        [TestMethod]
-        public void HasApprovedInquiry_WhenHeaderIdMatchesAndTypeMatches_ThenReturnsTrue()
+        [TestMethod(DisplayName = "HasApprovedInquiry: ヘッダーIDと種類が一致する場合、trueを返す")]
+        public void HasApprovedInquiry_ヘッダーIDと種類が一致する場合trueを返す()
         {
             var loginUser = new SyainBuilder().WithId(1).WithSyainBaseId(1).Build();
             var model = CreateModel(loginUser);
@@ -9828,8 +9821,8 @@ expected,
         /// When: HolidayOnWorkday
         /// Then: HolidayOnWeekdayError
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenHolidayOnWorkday_ThenHolidayOnWeekdayError()
+        [TestMethod(DisplayName = "CommonValidationAsync: 休日出勤かつ平日の場合、HolidayOnWeekdayErrorを返す")]
+        public async Task CommonValidationAsync_休日出勤かつ平日の場合HolidayOnWeekdayErrorを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -9853,8 +9846,8 @@ expected,
         /// When: HolidayWorkOnWorkday
         /// Then: HolidayWorkOnWeekdayError
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenHolidayWorkOnWorkday_ThenHolidayWorkOnWeekdayError()
+        [TestMethod(DisplayName = "CommonValidationAsync: 休日出勤かつ平日の場合、HolidayWorkOnWeekdayErrorを返す")]
+        public async Task CommonValidationAsync_休日出勤かつ平日の場合HolidayWorkOnWeekdayErrorを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -9878,8 +9871,8 @@ expected,
         /// When: NonWorkdayAndKubun1IsNotHoliday
         /// Then: SelectHolidayOnWeekend
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenNonWorkdayAndKubun1IsNotHoliday_ThenSelectHolidayOnWeekend()
+        [TestMethod(DisplayName = "CommonValidationAsync: 休日出勤かつ平日の場合、SelectHolidayOnWeekendを返す")]
+        public async Task CommonValidationAsync_休日出勤かつ平日の場合SelectHolidayOnWeekendを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -9903,8 +9896,8 @@ expected,
         /// When: NonWorkdayAndKubun2Exists
         /// Then: InvalidAttendanceClassification
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenNonWorkdayAndKubun2Exists_ThenInvalidAttendanceClassification()
+        [TestMethod(DisplayName = "CommonValidationAsync: 休日出勤かつ平日の場合、InvalidAttendanceClassificationを返す")]
+        public async Task CommonValidationAsync_休日出勤かつ平日の場合InvalidAttendanceClassificationを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -9929,8 +9922,8 @@ expected,
         /// When: NonWorkdayHolidayWorkAndNoFuriYotei
         /// Then: EnterSubstituteHolidayDate
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenNonWorkdayHolidayWorkAndNoFuriYotei_ThenEnterSubstituteHolidayDate()
+        [TestMethod(DisplayName = "CommonValidationAsync: 休日出勤かつ平日の場合、EnterSubstituteHolidayDateを返す")]
+        public async Task CommonValidationAsync_休日出勤かつ平日の場合EnterSubstituteHolidayDateを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -9955,8 +9948,8 @@ expected,
         /// When: HolidayWithClockIn
         /// Then: CannotSelectHolidayWithClockIn
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenHolidayWithClockIn_ThenCannotSelectHolidayWithClockIn()
+        [TestMethod(DisplayName = "CommonValidationAsync: 休日出勤かつ平日の場合、CannotSelectHolidayWithClockInを返す")]
+        public async Task CommonValidationAsync_休日出勤かつ平日の場合CannotSelectHolidayWithClockInを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -9979,8 +9972,8 @@ expected,
         /// When: HalfDayWorkAndKubun2Exists
         /// Then: InvalidAttendanceClassification
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenHalfDayWorkAndKubun2Exists_ThenInvalidAttendanceClassification()
+            [TestMethod(DisplayName = "CommonValidationAsync: 半日勤務かつKubun2が存在する場合、InvalidAttendanceClassificationを返す")]
+        public async Task CommonValidationAsync_半日勤務かつKubun2が存在する場合InvalidAttendanceClassificationを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -10005,8 +9998,8 @@ expected,
         /// When: HalfDayPaidAndKubun2None
         /// Then: InvalidAttendanceClassification
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenHalfDayPaidAndKubun2None_ThenInvalidAttendanceClassification()
+        [TestMethod(DisplayName = "CommonValidationAsync: 半日有給かつKubun2がNoneの場合、InvalidAttendanceClassificationを返す")]
+        public async Task CommonValidationAsync_半日有給かつKubun2がNoneの場合InvalidAttendanceClassificationを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -10031,8 +10024,8 @@ expected,
         /// When: BothHalfDayPaid
         /// Then: SelectAnnualPaidLeaveOneDay
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenBothHalfDayPaid_ThenSelectAnnualPaidLeaveOneDay()
+        [TestMethod(DisplayName = "CommonValidationAsync: 両日半日有給の場合、SelectAnnualPaidLeaveOneDayを返す")]
+        public async Task CommonValidationAsync_両日半日有給の場合SelectAnnualPaidLeaveOneDayを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -10057,9 +10050,9 @@ expected,
         /// When: WorkingKubunAndNonPartWithKubun2
         /// Then: InvalidAttendanceClassification
         /// </summary>
-        [TestMethod]
+        [TestMethod(DisplayName = "CommonValidationAsync: 勤務区分が通常勤務かつ非パートでKubun2が存在する場合、InvalidAttendanceClassificationを返す")]
         public async Task
-        CommonValidationAsync_WhenWorkingKubunAndNonPartWithKubun2_ThenInvalidAttendanceClassification()
+        CommonValidationAsync_勤務区分が通常勤務かつ非パートでKubun2が存在する場合InvalidAttendanceClassificationを返す()
         {
             var syain = SeedConfirmValidationSyain();
             syain.KintaiZokusei = new KintaiZokusei
@@ -10093,8 +10086,8 @@ expected,
         /// When: NoWorkingTimeAndNormalWork
         /// Then: NotWorkingCannotSelectFormat
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenNoWorkingTimeAndNormalWork_ThenNotWorkingCannotSelectFormat()
+        [TestMethod(DisplayName = "CommonValidationAsync: 作業時間がない通常勤務の場合、NotWorkingCannotSelectFormatを返す")]
+        public async Task CommonValidationAsync_作業時間がない通常勤務の場合NotWorkingCannotSelectFormatを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -10121,8 +10114,8 @@ expected,
         /// When: NormalWorkAndShortHours
         /// Then: SelectHalfDayWorkDueToShortHours
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenNormalWorkAndShortHours_ThenSelectHalfDayWorkDueToShortHours()
+        [TestMethod(DisplayName = "CommonValidationAsync: 通常勤務かつ短時間の場合、SelectHalfDayWorkDueToShortHoursを返す")]
+        public async Task CommonValidationAsync_通常勤務かつ短時間の場合SelectHalfDayWorkDueToShortHoursを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -10148,8 +10141,8 @@ expected,
         /// When: PartWorkButEmployeeIsNotPart
         /// Then: CannotUsePartTimeWork
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenPartWorkButEmployeeIsNotPart_ThenCannotUsePartTimeWork()
+        [TestMethod(DisplayName = "CommonValidationAsync: パート勤務かつ非パートの場合、CannotUsePartTimeWorkを返す")]
+        public async Task CommonValidationAsync_パート勤務かつ非パートの場合CannotUsePartTimeWorkを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -10175,8 +10168,8 @@ expected,
         /// When: HalfDayWorkAndLongHours
         /// Then: SelectNormalWork
         /// </summary>
-        [TestMethod]
-        public async Task CommonValidationAsync_WhenHalfDayWorkAndLongHours_ThenSelectNormalWork()
+        [TestMethod(DisplayName = "CommonValidationAsync: 半日勤務かつ長時間の場合、SelectNormalWorkを返す")]
+        public async Task CommonValidationAsync_半日勤務かつ長時間の場合SelectNormalWorkを返す()
         {
             var syain = SeedConfirmValidationSyain();
             var modelState = new ModelStateDictionary();
@@ -10202,8 +10195,8 @@ expected,
         /// When: MaleAndPhysiologicalLeave
         /// Then: CannotTakePhysiologicalLeave
         /// </summary>
-        [TestMethod]
-        public async Task TemporarySaveValidationAsync_WhenMaleAndPhysiologicalLeave_ThenCannotTakePhysiologicalLeave()
+        [TestMethod(DisplayName = "TemporarySaveValidationAsync: 男性かつ生理休暇の場合、CannotTakePhysiologicalLeaveを返す")]
+        public async Task TemporarySaveValidationAsync_男性かつ生理休暇の場合CannotTakePhysiologicalLeaveを返す()
         {
             var syain = SeedConfirmValidationSyain(seibetsu: '1');
             AddSyukkinKubun(生理休暇, isSyukkin: false, isVacation: true);
@@ -10226,9 +10219,8 @@ expected,
         /// When: HalfDayPaidAndOneDayPaidAsKubun2
         /// Then: InvalidAttendanceClassification
         /// </summary>
-        [TestMethod]
-        public async Task
-        TemporarySaveValidationAsync_WhenHalfDayPaidAndOneDayPaidAsKubun2_ThenInvalidAttendanceClassification()
+        [TestMethod(DisplayName = "TemporarySaveValidationAsync: 半日有給かつ1日有給としてKubun2が設定されている場合、InvalidAttendanceClassificationを返す")]
+        public async Task TemporarySaveValidationAsync_半日有給かつ1日有給としてKubun2が設定されている場合InvalidAttendanceClassificationを返す()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日有給, isSyukkin: false, isVacation: true);
@@ -10252,9 +10244,8 @@ expected,
         /// When: PlannedSpecialLeaveAndKubun2None
         /// Then: InvalidAttendanceClassification
         /// </summary>
-        [TestMethod]
-        public async Task
-        TemporarySaveValidationAsync_WhenPlannedSpecialLeaveAndKubun2None_ThenInvalidAttendanceClassification()
+        [TestMethod(DisplayName = "TemporarySaveValidationAsync: 計画特別休暇かつKubun2がNoneの場合、InvalidAttendanceClassificationを返す")]
+        public async Task TemporarySaveValidationAsync_計画特別休暇かつKubun2がNoneの場合InvalidAttendanceClassificationを返す()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(計画特別休暇, isSyukkin: false, isVacation: true);
@@ -10278,9 +10269,9 @@ expected,
         /// When: HalfDayPaidAndLinkedProject
         /// Then: CannotSelectProjectDuringLeave
         /// </summary>
-        [TestMethod]
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日有給かつ連動案件ありの場合、CannotSelectProjectDuringLeaveを返す")]
         public async Task
-        FinalConfirmValidationAsync_WhenHalfDayPaidAndLinkedProject_ThenCannotSelectProjectDuringLeave()
+        FinalConfirmValidationAsync_半日有給かつ連動案件ありの場合CannotSelectProjectDuringLeaveを返す()
         {
             var syain = SeedConfirmValidationSyain();
             AddSyukkinKubun(半日有給, isSyukkin: false, isVacation: true);
@@ -10313,9 +10304,9 @@ expected,
         /// When: HalfDayPaidAndKubunMasterMissing
         /// Then: CannotSelectProjectDuringLeave
         /// </summary>
-        [TestMethod]
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 半日有給かつ区分マスタが未登録の場合、CannotSelectProjectDuringLeaveを返す")]
         public async Task
-        FinalConfirmValidationAsync_WhenHalfDayPaidAndKubunMasterMissing_ThenCannotSelectProjectDuringLeave()
+        FinalConfirmValidationAsync_半日有給かつ区分マスタが未登録の場合CannotSelectProjectDuringLeaveを返す()
         {
             // ルール28の後半条件を確認する
             // (区分1が半日有給または半日振休) かつ 連動案件あり
@@ -10349,9 +10340,9 @@ expected,
         /// When: HolidayWorkWithoutLinkedProject
         /// Then: SelectProjectCodeErrorPrecedes
         /// </summary>
-        [TestMethod]
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 休日出勤かつ連動案件なしの場合、SelectProjectCodeErrorPrecedesを返す")]
         public async Task
-        FinalConfirmValidationAsync_WhenHolidayWorkWithoutLinkedProject_ThenSelectProjectCodeErrorPrecedes()
+        FinalConfirmValidationAsync_休日出勤かつ連動案件なしの場合SelectProjectCodeErrorPrecedesを返す()
         {
             // 現行実装は 25-1 を先に判定するため、25-2 には到達しない
             var syain = SeedConfirmValidationSyain();
@@ -10386,9 +10377,9 @@ expected,
         /// When: PlannedAnnualLeaveAndNoPaidLeaveData
         /// Then: AnnualLeaveErrorPrecedes
         /// </summary>
-        [TestMethod]
+        [TestMethod(DisplayName = "FinalConfirmValidationAsync: 計画有給休暇かつ有給データなしの場合、AnnualLeaveErrorPrecedesを返す")]
         public async Task
-        FinalConfirmValidationAsync_WhenPlannedAnnualLeaveAndNoPaidLeaveData_ThenAnnualLeaveErrorPrecedes()
+        FinalConfirmValidationAsync_計画有給休暇かつ有給データなしの場合AnnualLeaveErrorPrecedesを返す()
         {
             // 現行実装は remainingPaidLeave<1 を先に判定するため、21-3 には到達しない
             var syain = SeedConfirmValidationSyain();
@@ -10421,8 +10412,8 @@ expected,
         /// When: YuukyuuNotFound
         /// Then: ReturnWithoutUpdate
         /// </summary>
-        [TestMethod]
-        public async Task CancelHalfDayPaidLeaveAsync_WhenYuukyuuNotFound_ThenReturnWithoutUpdate()
+        [TestMethod(DisplayName = "CancelHalfDayPaidLeaveAsync: 有給残が見つからない場合、更新せずに返す")]
+        public async Task CancelHalfDayPaidLeaveAsync_有給残が見つからない場合更新せずに返す()
         {
             var leave = CreateCompensatoryPaidLeave(
                 D("20250120"),
@@ -10445,8 +10436,8 @@ expected,
         /// When: YuukyuuNotFound
         /// Then: ReturnWithoutUpdate
         /// </summary>
-        [TestMethod]
-        public async Task CancelPlannedSpecialDayAsync_WhenYuukyuuNotFound_ThenReturnWithoutUpdate()
+        [TestMethod(DisplayName = "CancelPlannedSpecialDayAsync: 有給残が見つからない場合、更新せずに返す")]
+        public async Task CancelPlannedSpecialDayAsync_有給残が見つからない場合更新せずに返す()
         {
             var leave = CreateCompensatoryPaidLeave(
                 D("20250120"),
@@ -10468,8 +10459,8 @@ expected,
         /// When: NoMatchingRecord
         /// Then: ReturnWithoutUpdate
         /// </summary>
-        [TestMethod]
-        public async Task CancelHalfFurikyuuAsync_WhenNoMatchingRecord_ThenReturnWithoutUpdate()
+        [TestMethod(DisplayName = "CancelHalfFurikyuuAsync: 対象レコードがない場合、更新せずに返す")]
+        public async Task CancelHalfFurikyuuAsync_対象レコードがない場合更新せずに返す()
         {
             var leave = CreateCompensatoryPaidLeave(
                 D("20250120"),
@@ -10492,8 +10483,8 @@ expected,
         /// When: SyutokuYmd1Matches
         /// Then: ClearYmd1AndSetMi
         /// </summary>
-        [TestMethod]
-        public async Task CancelHalfFurikyuuAsync_WhenSyutokuYmd1Matches_ThenClearYmd1AndSetMi()
+        [TestMethod(DisplayName = "CancelHalfFurikyuuAsync: 取得日1が一致する場合、取得日1をクリアし状態を未に戻す")]
+        public async Task CancelHalfFurikyuuAsync_取得日1が一致する場合取得日1をクリアし状態を未に戻す()
         {
             var jissekiDate = D("20250120");
             var furikyuu = new FurikyuuZan
@@ -10531,8 +10522,8 @@ expected,
         /// When: NoPrimaryRecord
         /// Then: ReturnWithoutUpdate
         /// </summary>
-        [TestMethod]
-        public async Task CancelFurikyuuAsync_WhenNoPrimaryRecord_ThenReturnWithoutUpdate()
+        [TestMethod(DisplayName = "CancelFurikyuuAsync: 主レコードがない場合、更新せずに返す")]
+        public async Task CancelFurikyuuAsync_主レコードがない場合更新せずに返す()
         {
             var leave = CreateCompensatoryPaidLeave(
                 D("20250120"),
@@ -10552,11 +10543,11 @@ expected,
 
         /// <summary>
         /// Given: CancelFurikyuuAsync の条件を満たしている
-        /// When: NeedSecondHalfFalse
+        /// When: 半日振替休暇が取得していない場合
         /// Then: OnlyPrimaryIsUpdated
         /// </summary>
-        [TestMethod]
-        public async Task CancelFurikyuuAsync_WhenNeedSecondHalfFalse_ThenOnlyPrimaryIsUpdated()
+        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得していない場合、関連レコードを更新しない")]
+        public async Task CancelFurikyuuAsync_半日振替休暇が取得していない場合関連レコードを更新しない()
         {
             var jissekiDate = D("20250120");
             var first = new FurikyuuZan
@@ -10597,16 +10588,16 @@ expected,
             var secondUpdated = await db.FurikyuuZans.FindAsync(second.Id);
             Assert.IsNull(firstUpdated!.SyutokuYmd1, "主レコードの取得日1がクリアされること。");
             Assert.AreEqual(未, firstUpdated.SyutokuState, "主レコードが未に戻ること。");
-            Assert.AreEqual(jissekiDate, secondUpdated!.SyutokuYmd1, "needSecondHalf=falseでは関連レコードを更新しないこと。");
+            Assert.AreEqual(jissekiDate, secondUpdated!.SyutokuYmd1, "半日振替休暇が取得していない場合、関連レコードを更新しないこと。");
         }
 
         /// <summary>
         /// Given: CancelFurikyuuAsync の条件を満たしている
-        /// When: NeedSecondHalfTrueByOneDayHalfAndSecondYmd1Match
+        /// When: 半日振替休暇が取得している場合ByOneDayHalfAndSecondYmd1Match
         /// Then: SecondIsCleared
         /// </summary>
-        [TestMethod]
-        public async Task CancelFurikyuuAsync_WhenNeedSecondHalfTrueByOneDayHalfAndSecondYmd1Match_ThenSecondIsCleared()
+        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得している場合かつ関連レコードの取得日1が一致する場合、関連レコードの取得日1がクリアされ状態が未になる")]
+        public async Task CancelFurikyuuAsync_半日振替休暇が取得している場合かつ関連レコードの取得日1が一致する場合関連レコードの取得日1がクリアされ状態が未になる()
         {
             var jissekiDate = D("20250120");
             var first = new FurikyuuZan
@@ -10656,12 +10647,11 @@ expected,
 
         /// <summary>
         /// Given: CancelFurikyuuAsync の条件を満たしている
-        /// When: NeedSecondHalfTrueAndSecondYmd2Match
+        /// When: 半日振替休暇が取得している場合AndSecondYmd2Match
         /// Then: SecondYmd2ClearedAndStateHalf
         /// </summary>
-        [TestMethod]
-        public async Task
-        CancelFurikyuuAsync_WhenNeedSecondHalfTrueAndSecondYmd2Match_ThenSecondYmd2ClearedAndStateHalf()
+        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得している場合かつ関連レコードの取得日2が一致する場合、関連レコードの取得日2がクリアされ状態が半日になる")]
+        public async Task CancelFurikyuuAsync_半日振替休暇が取得している場合かつ関連レコードの取得日2が一致する場合関連レコードの取得日2がクリアされ状態が半日になる()
         {
             var jissekiDate = D("20250120");
             var first = new FurikyuuZan
@@ -10711,11 +10701,11 @@ expected,
 
         /// <summary>
         /// Given: CancelFurikyuuAsync の条件を満たしている
-        /// When: NeedSecondHalfTrueAndSecondNotFound
+        /// When: 半日振替休暇が取得している場合AndSecondNotFound
         /// Then: OnlyPrimaryUpdated
         /// </summary>
-        [TestMethod]
-        public async Task CancelFurikyuuAsync_WhenNeedSecondHalfTrueAndSecondNotFound_ThenOnlyPrimaryUpdated()
+        [TestMethod(DisplayName = "CancelFurikyuuAsync: 半日振替休暇が取得している場合かつ関連レコードが見つからない場合、主レコードのみ更新される")]
+        public async Task CancelFurikyuuAsync_半日振替休暇が取得している場合かつ関連レコードが見つからない場合主レコードのみ更新される()
         {
             var jissekiDate = D("20250120");
             var first = new FurikyuuZan
@@ -10754,6 +10744,3 @@ expected,
     }
 
 }
-
-
-

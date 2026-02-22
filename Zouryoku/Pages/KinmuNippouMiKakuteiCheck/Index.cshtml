@@ -1,0 +1,230 @@
+﻿@page
+@using Zouryoku.Pages.Shared.Components
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@using static Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel
+@using static Zouryoku.Utils.Const;
+@model Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "勤務日報未確定チェック";
+}
+<partial name="_ZouryokuHeader" />
+
+<div class="align-self-center m-auto w-75 app-screen--search">
+    <div class="app-area__search-criteria">
+        <form id="nippou-search-form">
+            @* 部署に関する検索条件部分 *@
+            <div class="row gx-3 mt-3">
+                <div class="col-auto app-input__label">部署</div>
+                @* ラジオボタン *@
+                <div class="col-auto mx-3 row">
+                    @foreach (var busyoRange in Enum.GetValues<BusyoRange>())
+                    {
+                        // ラジオボタンのid属性値
+                        var id = $"busyo-radio-{busyoRange}";
+                        // ラベル
+                        var label = busyoRange.GetType()
+                        .GetMember(busyoRange.ToString())
+                        .First()
+                        .GetCustomAttribute<DisplayAttribute>()?
+                        .Name ?? busyoRange.ToString();
+
+                        <div class="align-content-center form-check col">
+                            <input id="@id"
+                                   class="form-check-input"
+                                   type="radio"
+                                   value="@busyoRange"
+                                   asp-for="SearchConditions.Busyo.Range" />
+                            <label class="form-check-label app-input__label" for="@id">@label</label>
+                        </div>
+                    }
+                </div>
+                @* 部署選択 *@
+                <div class="col">
+                    <div class="input-group">
+                        <input id="busyo-name-input" class="form-control app-input__textbox" type="text" asp-for="SearchConditions.Busyo.Name" readonly />
+                        <button id="select-busyo-btn" class="btn btn-primary app-btn__base" type="button">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    <input id="busyo-id-input" type="hidden" asp-for="SearchConditions.Busyo.Id" />
+                </div>
+            </div>
+
+            @* 日付選択 *@
+            <div class="row mt-3 gx-3">
+                <label class="col-auto app-input__label" asp-for="SearchConditions.Date"></label>
+                <div class="col-auto row mx-3">
+                    <div class="col-auto align-content-center">～</div>
+                    <div class="input-group col">
+                        <input type="text" class="form-control app-input__textbox" asp-for="SearchConditions.Date" />
+                    </div>
+                    <partial name="Components/_Datepicker"
+                             model="@(new DatepickerModel { Id = Html.IdFor(model => model.SearchConditions.Date) })" />
+                </div>
+            </div>
+
+            <button id="search-btn" class="app-btn__base btn btn-primary mt-3" type="button"><i class="fa-solid fa-magnifying-glass"></i>検索</button>
+        </form>
+    </div>
+
+    @* 通知ボタン *@
+    <div class="app-area__tool-button">
+        @if (Model.CanNotify)
+        {
+            <button id="notify-btn" class="btn btn-success app-btn__base" type="button">通知</button>
+        }
+    </div>
+
+    <main id="nippous-partial-page" class="app-area__search-results mt-3"></main>
+</div>
+
+@section Scripts {
+    <script>
+        $(async function () {
+            // ==================================
+            // 定数
+            // ==================================
+
+            // URL
+            // ----------------------------------
+
+            // 日報検索
+            const URL_SEARCH_NIPPOU = toUrl('SearchNippous');
+            // 日報通知画面
+            const URL_NOTIFY_NIPPOU = '@Url.Page("Notify")';
+
+            // jQueryセレクタ
+            // ----------------------------------
+
+            // 検索フォーム
+            const SELECTOR_SEARCH_FORM = '#nippou-search-form';
+
+            // jQueryオブジェクト
+            // ----------------------------------
+            const $searchForm = $(SELECTOR_SEARCH_FORM);
+
+            // 部署選択ラジオボタンで「全社」を選択できるかどうか
+            const CAN_SELECT_ALL = @(Model.LoginInfo.User.IsCheckPendingReports.ToString().ToLower());
+
+            // ==================================
+            // イベント
+            // ==================================
+
+            // 初期化処理
+            // ----------------------------------
+
+            // 部署選択ラジオボタンの「全社」の選択可否を反映
+            $(`#busyo-radio-@BusyoRange.全社`).prop('disabled', !CAN_SELECT_ALL);
+
+            // バリデーション設定
+            initValidation(SELECTOR_SEARCH_FORM);
+
+            // 日報を初期条件で検索する
+            renderNippous();
+
+            // ボタンクリック時
+            // ----------------------------------
+
+            // 部署選択モーダルを開く
+            $(document).on('click', '#select-busyo-btn', function() {
+                openBusyoSelectModal(isMultiSelect = false);
+            });
+
+            // 日報未確定通知モーダルを開く
+            $(document).on('click', '#notify-btn', function() {
+
+                // GETパラメータの取得
+                // ------------------------------
+
+                // テーブルの各行を取得
+                // data属性に通知対象者の社員BaseIDが格納されている
+                const syainRows = $('[name=syainRow]');
+
+                // 検索結果が0件のときはエラー
+                if (syainRows.length == 0) {
+                    errorMessage('@string.Format(ErrorNonExistance, "検索結果")');
+                    return;
+                }
+
+                // GETパラメータを取得
+                const params = new URLSearchParams();
+                for (const syainRow of syainRows) {
+                    params.append('syainBaseIds', $(syainRow).data('syain-base-id'));
+                }
+
+                // モーダルを表示する
+                showModal(
+                    'notify-modal',
+                    `${URL_NOTIFY_NIPPOU}?${params.toString()}`,
+                    '日報未確定通知',
+                    '',
+                    null,
+                    500,
+                    350
+                )
+            });
+
+            // 検索ボタン押下
+            $(document).on('click', '#search-btn', async function() {
+                $('#nippous-partial-page').html(await searchNippous());
+            });
+
+            // イベントリスナー
+            // ----------------------------------
+
+            // 部署選択モーダルからの部署情報受け取り
+            window.addEventListener('message', function(event) {
+
+                // 認可
+                // ------------------------------
+
+                // 自ウィンドウからのメッセージか確認
+                if (event.origin !== window.location.origin) {
+                    return;
+                }
+
+                // イベントの内容が想定した形か確認
+                if (!event.data || !event.data.type) {
+                    return;
+                }
+
+                // 取得データの反映
+                // ------------------------------
+
+                // 取得データ
+                const data = event.data.payload;
+
+                $('#busyo-name-input').val(data.name);
+                $('#busyo-id-input').val(data.id);
+            });
+
+            // ==================================
+            // 共通関数
+            // ==================================
+
+            async function renderNippous(){
+                $('#nippous-partial-page').html(await searchNippous());
+            }
+
+            function searchNippous() {
+                var params = $('#nippou-search-form').serializeArray();
+                return getAsync(URL_SEARCH_NIPPOU, params);
+            }
+
+            /**
+             * sendGetAjaxをPromise化する
+             * @@param {URL} url リクエスト先のURL
+             * @@param {JSON} [params=null] リクエストボディに含めるパラメータ
+             * @@returns resolveでdataキーに格納されているデータを返すPromise
+             */
+            function getAsync(url, params = null) {
+                return new Promise(resolve => {
+                    sendGetAjax(url, params, data => resolve(data), false);
+                });
+            }
+        });
+    </script>
+}
+

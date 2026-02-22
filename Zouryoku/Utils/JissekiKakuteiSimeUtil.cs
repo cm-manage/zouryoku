@@ -21,7 +21,7 @@ public static class JissekiKakuteiSimeUtil
     /// <summary>
     /// 実績の中締め日。
     /// </summary>
-    private const int NakajimeDay = 15;
+    public const int NakajimeDay = 15;
 
     /// <summary>
     /// 実績確定期限情報を取得します。

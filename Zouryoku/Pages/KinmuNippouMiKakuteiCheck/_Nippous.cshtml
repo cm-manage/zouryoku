@@ -1,0 +1,25 @@
+﻿@using static Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel
+@model List<MikakuteiSyainViewModel>
+<table class="app-table__base w-100">
+    <thead>
+        <tr>
+            <th class="w-50" scope="col">部署</th>
+            <th class="w-auto" scope="col">社員番号</th>
+            <th class="w-25" scope="col">社員氏名</th>
+            <th class="w-auto" scope="col">最終確定日</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var nippou in Model)
+        {
+            <tr name="syainRow" data-syain-base-id="@nippou.SyainBaseId">
+                <td>@Html.DisplayFor(model => nippou.BusyoName)</td>
+                <td>@Html.DisplayFor(model => nippou.SyainCode)</td>
+                <td>@Html.DisplayFor(model => nippou.SyainName)</td>
+                <td>@Html.DisplayFor(model => nippou.LastKakuteiYmd)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<input id="is-exist-search-result" type="hidden" value="@(Model.Count != 0 ? true : false)" />

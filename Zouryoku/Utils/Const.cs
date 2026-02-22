@@ -106,6 +106,43 @@ namespace Zouryoku.Utils
         /// <summary> 未入力 </summary>
         public const string NotEntered = "未入力";
 
+        /// <summary>
+        /// 日報未確定通知メッセージの初期表示テキスト。
+        /// </summary>
+        /// <remarks>
+        /// <list type="table">
+        ///     <item>
+        ///         <term><c>{0}</c></term>    
+        ///         <description>対象の月</description>
+        ///     </item>
+        ///     <item>
+        ///         <term><c>{1}</c></term>
+        ///         <description>前半／後半／空文字</description>
+        ///     </item>
+        ///     <item>
+        ///         <term><c>{2}</c></term>
+        ///         <description>対象の開始日（始まり）</description>
+        ///     </item>
+        ///     <item>
+        ///         <term><c>{3}</c></term>
+        ///         <description>対象の締め日（終わり）</description>
+        ///     </item>
+        /// </list>
+        /// </remarks>
+        public const string NippouMikakuteiTsuchiMessage = """
+            お疲れ様です。
+            {0}月{1}分（{0}/{2}～{3}）の実績の一部が未確定ですので
+            確定処理をお願い致します。
+            """;
+        /// <summary>
+        /// 実績未確定の社員へチャットで通知を送信します。
+        /// よろしいですか？
+        /// </summary>
+        public const string NippouMikakuteiTsuchiConfirmation = """
+            実績未確定の社員へチャットで通知を送信します。
+            よろしいですか？
+            """;
+
         /// <summary> 勤務時間 午前開始時刻 8:30</summary>
         public static readonly TimeOnly BusinessHoursAmStart = new TimeOnly(8, 30);
         /// <summary> 勤務時間 午前終了時刻 12:00</summary>

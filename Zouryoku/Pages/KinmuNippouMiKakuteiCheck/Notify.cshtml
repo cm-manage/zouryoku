@@ -1,0 +1,44 @@
+﻿@page
+@using static Zouryoku.Utils.Const;
+@model Zouryoku.Pages.KinmuNippouMiKakuteiCheck.NotifyModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "未確定通知画面";
+}
+
+<form id="notify-form">
+    @Html.AntiForgeryToken()
+    @foreach (var syainBaseId in Model.ReceiveSyainBaseIds)
+    {
+        <input type="hidden" value="@syainBaseId" asp-for="@Model.ReceiveSyainBaseIds" />
+    }
+    <div class="app-area__header">
+        <div class="mt-3">
+            <pre>@NippouMikakuteiTsuchiConfirmation</pre>
+        </div>
+
+        <label class="form-label app-input__label fw-bold mt-3" asp-for="SendMessage"></label>
+        <textarea class="app-input__textarea d-block" rows="3" cols="60" asp-for="SendMessage" readonly></textarea>
+    </div>
+    <div class="app-area__body mt-3">
+        <partial name="_NotificationHistories" model="Model.MikakuteiTsuchiRirekis" />
+    </div>
+    <button id="send-btn" class="btn app-btn__base btn-success mt-3" type="button">
+        <i class="fa-solid fa-check"></i>通知を送信
+    </button>
+</form>
+
+@section Scripts {
+    <script>
+        // 送信ボタン押下時
+        $(document).on('click', '#send-btn', function(){
+            sendAjax(toUrl('Notify'), $('#notify-form').serializeArray(), function(){
+                // 成功ダイアログの表示
+                successSwal('通知しました', '', () => {
+                    // モーダルを閉じる
+                    closeCurrentIziModal();
+                });
+            });
+        })
+    </script>
+}

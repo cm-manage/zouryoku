@@ -102,7 +102,8 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         }
 
         /// <summary>
-        /// ②初期表示: ロールが存在する場合、ViewModelの選択ロールIDに並び順が最小（先頭）のロールIDが設定されることを確認します。
+        /// ②初期表示: ロールが存在する場合、ViewModelの選択ロールIDに並び順が最小（先頭）のロールIDが
+        /// 設定されることを確認します。
         /// </summary>
         [TestMethod(DisplayName = "OnGetAsync: 選択ロールIDに並び順先頭ロールを設定する")]
         public async Task OnGetAsync_選択ロールIDに並び順先頭ロールを設定する()

@@ -3010,7 +3010,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = targetDate;
 
             // Act
             await model.OnGetAsync();

@@ -92,17 +92,17 @@
                 const data = $form.find(':input[name^="Condition."]').serializeArray();
                 return new Promise(resolve => {
                     sendGetAjax(toUrl('SyainList'), data, function(result) {
-                    var tempDiv = $('<div>').html(result); //　HTML string から DOMとして変更
+                    var tempDiv = $('<div>').html(result); // HTML string から DOMとして変更
                     var itemCount = tempDiv.find('li').length; // <li> elementsのカウントと取得
 
                     if(itemCount > 0){
-                        $('.show-label').prop('hidden',false);　//　ラベル非表示解除
-                        $('#btn-sort-register').prop('disabled',false);　//　登録ボタン非表示解除
+                        $('.show-label').prop('hidden',false); // ラベル非表示解除
+                        $('#btn-sort-register').prop('disabled',false); // 登録ボタン非表示解除
                         resolve(result);
                     }
                     else{
-                        $('.show-label').prop('hidden',true);　//　ラベル表示解除
-                        $('#btn-sort-register').prop('disabled',true);　//　登録ボタン表示解除
+                        $('.show-label').prop('hidden',true); // ラベル表示解除
+                        $('#btn-sort-register').prop('disabled',true); // 登録ボタン表示解除
                         resolve([]);
                     }},false)
                 });

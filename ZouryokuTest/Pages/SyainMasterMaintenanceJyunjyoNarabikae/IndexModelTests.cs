@@ -15,6 +15,10 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         private long syainIdSeed = 1;
         private long syainBaseIdSeed = 1;
 
+        /// <summary>
+        /// テスト対象の IndexModel を生成します。
+        /// </summary>
+        /// <returns>生成された IndexModel</returns>
         private IndexModel CreateModel() => new(db, GetLogger<IndexModel>(), options, viewEngine)
         {
             PageContext = GetPageContext(),
@@ -22,6 +26,9 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             Condition = new SearchCondition()
         };
 
+        /// <summary>
+        /// ①初期表示: 有効期間内かつ未退職の社員のみが取得されることを確認します。
+        /// </summary>
         [TestMethod(DisplayName = "初期表示 目的：有効期間内かつ未退職の社員のみ取得")]
         public async Task OnGetSyainListAsync_有効期間内かつ未退職の社員のみ取得()
         {
@@ -66,6 +73,9 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             Assert.AreEqual((short)10, model.Syains[0].Jyunjyo);
         }
 
+        /// <summary>
+        /// ②初期表示: 取得された社員が並び順（Jyunjyo）の降順でソートされていることを確認します。
+        /// </summary>
         [TestMethod(DisplayName = "初期表示 目的：社員がJyunjyoの降順で並ぶことを確認")]
         public async Task OnGetSyainListAsync_Jyunjyoの降順で並ぶ()
         {
@@ -93,6 +103,9 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             Assert.AreEqual((short)1, model.Syains[1].Jyunjyo);
         }
 
+        /// <summary>
+        /// ③初期表示: 条件に合致する社員が存在しない場合、正常な応答で空の一覧が返されることを確認します。
+        /// </summary>
         [TestMethod(DisplayName = "初期表示 目的：対象部署の社員が0件でも正常応答で空一覧を返す")]
         public async Task OnGetSyainListAsync_対象部署の社員が0件でも空一覧を返す()
         {
@@ -112,6 +125,9 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             Assert.AreEqual(0, model.Syains.Count);
         }
 
+        /// <summary>
+        /// ④登録: 指定した社員の並び順（Jyunjyo）が正しく更新されることを確認します。
+        /// </summary>
         [TestMethod(DisplayName = "登録 目的：指定した社員のJyunjyoを更新する")]
         public async Task OnPostRegisterAsync_指定した社員のJyunjyoを更新する()
         {
@@ -136,6 +152,16 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             Assert.AreEqual((short)20, db.Syains.Find(syain2.Id)!.Jyunjyo);
         }
 
+        /// <summary>
+        /// 新しい社員データを追加し、DBに登録します。
+        /// </summary>
+        /// <param name="name">社員名</param>
+        /// <param name="busyoId">部署ID</param>
+        /// <param name="jyunjyo">並び順</param>
+        /// <param name="startYmd">有効開始日</param>
+        /// <param name="endYmd">有効終了日</param>
+        /// <param name="retired">退職フラグ</param>
+        /// <returns>登録された社員エンティティ</returns>
         private Syain AddNewSyain(string name, long busyoId = 1, 
             short jyunjyo = 0, DateOnly? startYmd = null, 
             DateOnly? endYmd = null, bool retired = false)
@@ -169,6 +195,10 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             return syain;
         }
 
+        /// <summary>
+        /// 指定した部署IDの部署が存在することを保証します（存在しない場合は生成します）。
+        /// </summary>
+        /// <param name="busyoId">部署ID</param>
         private void EnsureBusyoExists(long busyoId)
         {
             if (!db.BusyoBases.Local.Any(x => x.Id == busyoId) && !db.BusyoBases.Any(x => x.Id == busyoId))
@@ -192,6 +222,9 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             }
         }
 
+        /// <summary>
+        /// 各テスト実行前の共通初期化処理です。
+        /// </summary>
         [TestInitialize]
         public void SeedCommonData()
         {

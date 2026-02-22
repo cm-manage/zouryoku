@@ -11,7 +11,7 @@ using Zouryoku.Pages.Shared;
 namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
 {
     /// <summary>
-    /// 驛ｨ鄂ｲ荳ｦ縺ｳ譖ｿ縺医・繝ｼ繧ｸ繝｢繝・Ν
+    /// 社員並び替えページモデル
     /// </summary>
     [FunctionAuthorization]
     public class IndexModel : BasePageModel<IndexModel>
@@ -26,25 +26,25 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         }
 
         // ---------------------------------------------
-        // 騾壼ｸｸ縺ｮ繝励Ο繝代ユ繧｣・育判髱｢陦ｨ遉ｺ逕ｨ・・
+        // 通常のプロパティ（画面表示用など）
         // ---------------------------------------------
         public override bool UseInputAssets => true;
 
         /// <summary>
-        /// 驛ｨ鄂ｲID・磯∈謚槭＆繧後◆驛ｨ鄂ｲ・・
+        /// 部署ID（選択された部署）
         /// </summary>
         [BindProperty(SupportsGet = true)]
         public SearchCondition Condition { get; set; }
 
         /// <summary>
-        /// 陦ｨ遉ｺ逕ｨ遉ｾ蜩｡繝ｪ繧ｹ繝・
+        /// 表示用社員リスト
         /// </summary>
         public IList<SyainViewModel> Syains { get; set; } = [];
 
         /// <summary>
-        /// 蛻晄悄陦ｨ遉ｺ
+        /// 初期表示
         /// </summary>
-        /// <returns>繝壹・繧ｸ繝ｪ繧ｶ繝ｫ繝・/returns>
+        /// <returns>ページリザルト</returns>
         public async Task<IActionResult> OnGetAsync()
         {
             return Page();
@@ -52,16 +52,16 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
 
 
         /// <summary>
-        /// 荳ｦ縺ｳ鬆・ｿ晏ｭ・
+        /// 並び順保存
         /// </summary>
-        /// <param name="syains">荳ｦ縺ｳ鬆・､画峩蟇ｾ雎｡縺ｮ遉ｾ蜩｡繝ｪ繧ｹ繝・/param>
-        /// <returns>螳溯｡檎ｵ先棡・・SON・・/returns>
+        /// <param name="syains">並び順変更対象の社員リスト</param>
+        /// <returns>実行結果（JSON）</returns>
         public async Task<IActionResult> OnPostRegisterAsync(List<SyainOrderModel> syains)
         {
-            // 譖ｴ譁ｰ蟇ｾ雎｡ID縺ｮ縺ｿ謚ｽ蜃ｺ
+            // 更新対象IDのみ抽出
             var updateIds = syains.Select(s => s.Id).ToHashSet();
 
-            // 譖ｴ譁ｰ蟇ｾ雎｡繧剃ｸ蠎ｦ縺ｫ蜿門ｾ・
+            // 更新対象を一度に取得
             var targetSyains = await db.Syains
                 .Where(s => updateIds.Contains(s.Id))
                 .ToDictionaryAsync(s => s.Id);
@@ -79,9 +79,9 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         }
 
         /// <summary>
-        /// 遉ｾ蜩｡荳隕ｧ蜿門ｾ輸PI・磯Κ鄂ｲID謖・ｮ夲ｼ・
+        /// 社員一覧取得API（部署ID指定）
         /// </summary>
-        /// <returns>遉ｾ蜩｡繝ｪ繧ｹ繝茨ｼ・SON・・/returns>
+        /// <returns>社員リスト（JSON）</returns>
         public async Task<IActionResult> OnGetSyainListAsync()
         {
             var today = DateTime.Today.ToDateOnly();
@@ -104,30 +104,30 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
     }
 
     /// <summary>
-    /// 陦ｨ遉ｺ逕ｨ遉ｾ蜩｡繝｢繝・Ν
+    /// 表示用社員モデル
     /// </summary>
     public class SyainViewModel
     {
         /// <summary>
-        /// 遉ｾ蜩｡ID
+        /// 社員ID
         /// </summary>
         public long Id { get; set; }
 
         /// <summary>
-        /// 遉ｾ蜩｡蜷・
+        /// 社員名
         /// </summary>
         public string? Name { get; set; }
 
         /// <summary>
-        /// 荳ｦ縺ｳ鬆・
+        /// 並び順
         /// </summary>
         public short Jyunjyo { get; set; }
 
         /// <summary>
-        /// 繧ｨ繝ｳ繝・ぅ繝・ぅ縺九ｉ陦ｨ遉ｺ逕ｨ繝｢繝・Ν繧剃ｽ懈・縺励∪縺吶・
+        /// エンティティから表示用モデルを作成します。
         /// </summary>
-        /// <param name="syain">螟画鋤蜈・・遉ｾ蜩｡繧ｨ繝ｳ繝・ぅ繝・ぅ</param>
-        /// <returns>螟画鋤蠕後・SyainViewModel</returns>
+        /// <param name="syain">変換元の社員エンティティ</param>
+        /// <returns>変換後のSyainViewModel</returns>
         public static SyainViewModel FromEntity(Syain syain)
         {
 
@@ -141,30 +141,29 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
     }
 
     /// <summary>
-    /// 讀懃ｴ｢譚｡莉ｶ繝｢繝・Ν
+    /// 検索条件モデル
     /// </summary>
     public class SearchCondition
     {
         /// <summary>
-        /// 驕ｸ謚槭＆繧後◆驛ｨ鄂ｲID・・ULL險ｱ螳ｹ・・
+        /// 選択された部署ID（NULL許容）
         /// </summary>
         public long? BusyoId { get; set; }
     }
 
     /// <summary>
-    /// 荳ｦ縺ｳ鬆・ｿ晏ｭ倡畑遉ｾ蜩｡繝｢繝・Ν
+    /// 並び順保存用社員モデル
     /// </summary>
     public class SyainOrderModel
     {
         /// <summary>
-        /// 遉ｾ蜩｡ID
+        /// 社員ID
         /// </summary>
         public long Id { get; set; }
 
         /// <summary>
-        /// 險ｭ螳壹☆繧倶ｸｦ縺ｳ鬆・
+        /// 設定する並び順
         /// </summary>
         public short Jyunjyo { get; set; }
     }
  }
-

@@ -1,48 +1,86 @@
-﻿@page
+@page
 @model Zouryoku.Pages.RoleDefaultKengen.IndexModel
 @{
     Layout = "_Layout";
     ViewData["Title"] = "ロールデフォルト権限設定";
 }
+
+<style>
+    #ViewModel_SelectedRoleId {
+        width: 60%;
+        font-size: 14px;
+    }
+
+    .data-table {
+        font-size: 14px;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 8px 10px;
+        height: 10px;
+        border: 1px solid #ddd;
+    }
+</style>
+
 <partial name="_ZouryokuHeader" />
 
-<div class="container w-50">
-    <div class="app-screen--search">
-        <div class="app-area__search-criteria mt-3">
+<form id="role-form" method="post">
+    @Html.AntiForgeryToken()
+    <div class="container w-50">
+        <div class="app-screen--search">
             <div class="row mt-3">
-                <label for="role-select" class="app-input__label col-form-label col-12 col-lg-auto fw-bold">ロール</label>
-                <select id="role-select" class="col app-input__select form-select mx-3">
-                    @foreach (var role in Model.Roles)
-                    {
-                        <option value="@role.Id">@Html.DisplayName(role.Name)</option>
-                    }
+                <label asp-for="ViewModel.SelectedRoleId" class="app-input__label col-form-label col-12 col-lg-auto fw-bold">ロール</label>
+                <select asp-for="ViewModel.SelectedRoleId"
+                        asp-items="@Model.ViewModel.UserRoles"
+                        class="form-control form-select ms-2 me-3">
                 </select>
+                <input type="hidden" asp-for="ViewModel.KengenValue" />
+
+                <button class="app-area__tool-button btn btn-primary app-btn__base col-auto" id="btnAdd" type="button">
+                    <i class="fa-solid fa-check"></i>登録
+                </button>
+            </div>
+            <div id="permission-table" class="app-area__search-result mt-3 d-flex justify-content-center">
+                <partial name="_UserRoleList" for="ViewModel" />
             </div>
         </div>
-
-        <div class="app-area__tool-button">
-            <button class="btn btn-primary app-btn__base col-auto" type="button">
-                <i class="fa-solid fa-check"></i>登録
-            </button>
-        </div>
-
-        <main class="app-area__search-result mt-3 d-flex justify-content-center">
-            <partial name="_UserRoleList" model="Model.Roles[0]" />
-        </main>
-
-        <div class="app-area__tool-button mt-3">
-            <button class="btn btn-primary app-btn__base col-auto" type="button">
-                <i class="fa-solid fa-check"></i>登録
-            </button>
-        </div>
     </div>
-</div>
+</form>
 
 @section InputScripts {
+    <script src="~/assets/modules/sweetalert2/dist/sweetalert2.min.js"></script>
+    <link href="~/assets/modules/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet" />
+
+    <script src="~/js/sweetAlertUtil.js" asp-append-version="true"></script>
+
     <script>
         $(function() {
-            // コンボボックスの値に応じて表示を切り替えるメソッドが必要
+            // ロールの値を変更する
+            $(document).on('change', '#ViewModel_SelectedRoleId', function () {
+                var roleId = $(this).val();
+                sendAjax(toUrl("RoleData"), $('#role-form').serialize(), function (result) {
+                    $('#permission-table').html(result);
+                }, false, null, false);
+            });
+
+            // 登録ボタンのクリック
+            $(document).on('click', '#btnAdd', function () {
+                commonConfirm('登録します。よろしいですか？', null, async function() {
+                    var flags = 0;
+                    $('#permission-table input[type=checkbox]').each(function () {
+                        if ($(this).is(':checked')) {
+                            flags |= parseInt($(this).data('flag'));
+                        }
+                    });
+
+                    $('#ViewModel_KengenValue').val(flags);
+                    sendAjax(toUrl("UpdateRole"), $('#role-form').serializeArray(), function (result) {
+                        registerSuccessSwal("登録しました");
+                    }, false, null, false);
+                });
+            });
         });
-        const
     </script>
 }

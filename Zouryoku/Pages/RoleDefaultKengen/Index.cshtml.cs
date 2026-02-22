@@ -1,56 +1,102 @@
+using CommonLibrary.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Model.Data;
+using Model.Enums;
 using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
+using Zouryoku.Utils;
+using static Model.Enums.EmployeeAuthority;
 
 namespace Zouryoku.Pages.RoleDefaultKengen
 {
+    /// <summary>
+    /// ロールデフォルト権限設定画面です。
+    /// </summary>
     [FunctionAuthorization]
     public partial class IndexModel : BasePageModel<IndexModel>
     {
-        // ======================================
-        // 定数
-        // ======================================
+        private const long DefaultSelectedRoleId = 0L;
 
-        // ======================================
-        // DI
-        // ======================================
-
-        public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine) { }
-
-        // ======================================
-        // フィールド
-        // ======================================
-
-        public List<RoleViewModel> Roles { get; set; } = [];
-
-        // ======================================
-        // イベント
-        // ======================================
-
-        // GET
-        // --------------------------------------
-
-        public async Task OnGetAsync()
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public IndexModel(
+            ZouContext db,
+            ILogger<IndexModel> logger,
+            IOptions<AppConfig> optionsAccessor,
+            ICompositeViewEngine viewEngine)
+            : base(db, logger, optionsAccessor, viewEngine)
         {
-            // 表示を確認するためにとりあえず取得して返しているだけ
-            Roles = await GetUserRolesAsync();
+        }
+
+        [BindProperty(SupportsGet = true)]
+        public IndexViewModel ViewModel { get; set; } = new();
+
+        /// <summary>
+        /// 初期表示
+        /// </summary>
+        public async Task<IActionResult> OnGetAsync()
+        {
+            await InitializeViewModelAsync();
+            return Page();
         }
 
         /// <summary>
-        /// ロールテーブルのデータをビューモデルの形で全件取得する
+        /// ロールデータ取得（AJAX）
         /// </summary>
-        /// <returns>ユーザーロールのビューモデルのリスト</returns>
-        private async Task<List<RoleViewModel>> GetUserRolesAsync()
+        public async Task<IActionResult> OnPostRoleDataAsync()
         {
-            return await db.UserRoles
+            await InitializeViewModelAsync();
+
+            var html = await PartialToJsonAsync("_UserRoleList", ViewModel);
+            return SuccessJson(data: html);
+        }
+
+        /// <summary>
+        /// ロール権限更新
+        /// </summary>
+        public async Task<IActionResult> OnPostUpdateRoleAsync()
+        {
+            var role = await db.UserRoles.FindAsync(ViewModel.SelectedRoleId);
+            if (role is null)
+            {
+                return ErrorJson(Const.EmptyReadData);
+            }
+
+            role.Kengen = (EmployeeAuthority)ViewModel.KengenValue;
+            await db.SaveChangesAsync();
+
+            return SuccessJson(data: role);
+        }
+
+        /// <summary>
+        /// ViewModelの表示情報を初期化します。
+        /// </summary>
+        private async Task InitializeViewModelAsync()
+        {
+            var roles = await db.UserRoles
+                .OrderBy(role => role.Jyunjo)
                 .AsNoTracking()
-                .Select(userRole => new RoleViewModel(userRole))
                 .ToListAsync();
+
+            ViewModel.UserRoles = roles
+                .Select(role => new SelectListItem
+                {
+                    Value = role.Id.ToString(),
+                    Text = role.Name
+                })
+                .ToList();
+
+            var selectedRole = roles
+                .FirstOrDefault(role => role.Id == ViewModel.SelectedRoleId)
+                ?? roles.FirstOrDefault();
+
+            ViewModel.SelectedRoleId = selectedRole?.Id ?? DefaultSelectedRoleId;
+            ViewModel.Kengen = selectedRole?.Kengen ?? None;
         }
     }
 }

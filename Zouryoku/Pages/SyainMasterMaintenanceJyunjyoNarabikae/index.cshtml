@@ -1,0 +1,209 @@
+﻿@page
+@model Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae.IndexModel
+@{
+
+    ViewData["Title"] = "社員順序並び替え";
+}
+
+<div class="app-screen--entry py-4">
+    <form method="post" class="mt-3" id="syain-sort-form">
+        @Html.AntiForgeryToken()
+        <div class="mb-3 d-flex align-items-center">
+            <label class="form-label me-2 mb-0 text-nowrap">部署</label>
+            <input type="hidden" asp-for="Condition.BusyoId" />
+
+            <div class="input-group input-group-sm">
+                <!-- 表示用：部署名 -->
+                <input id="BusyoName"
+                       class="form-control form-control-sm bg-light"
+                       readonly />
+                <!-- 検索ボタンのみ -->
+                <button type="button" class="btn btn-primary btn-sm" id="btn-search-busyo" title="検索">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+        </div>
+
+        <p class="mb-2 show-label" hidden>社員名をドラッグ＆ドロップして順序を変更できます。ハンドルを掴んで移動してください。</p>
+
+        <div id="syain-sort-result">
+            <partial name="_SyainListPartial" model="Model" />
+        </div>
+
+        <div class="fixed-bottom px-3 py-2 text-end">
+            <button type="button" class="btn btn-primary" id="btn-sort-register" disabled>
+                <i class="fa-solid fa-check"></i>登録
+            </button>
+        </div>
+    </form>
+</div>
+
+@section InputScripts {
+    <script>
+        $(function () {
+
+            // -----------------------------
+            // 初期データ
+            // -----------------------------
+            const $sortForm = $('#syain-sort-form');
+            const $partialPage = $('#syain-sort-result');
+
+            // -----------------------------
+            // モーダル定数
+            // -----------------------------
+            const modalWidth = 800;
+            const modalHeight = 480;
+            const headerColor = 'var(--iframe-header-color)';
+
+            // -----------------------------
+            // 部署選択モーダルを開く
+            // -----------------------------
+            function openBusyoSearch() {
+                const modalId = 'busyo-search-modal';
+                const url = '@Url.Page("/BusyoSentaku/Index", new { mode = "single" })';
+                const title = '部署選択';
+
+                showInputModal(modalId, url, null, title, null, modalWidth, modalHeight, headerColor);
+            }
+
+            // -----------------------------
+            // 並び替え初期化
+            // -----------------------------
+            function initSortable() {
+                $('[data-js="sections"]').sortable({
+                    handle: '[data-js="handle"]',
+                    cursor: 'move',
+                    update: function () {
+                        const total = $(this).children('[data-js="syain"]').length;
+                        $(this).children('[data-js="syain"]').children('input[name$=".Jyunjyo"]').each(function (i) {
+                            // 設計書仕様: 社員マスタ.並び順序は降順表示
+                            // 先頭行ほど大きい並び順序を付与する
+                            $(this).val(total - i);
+                        });
+                    }
+                });
+            }
+
+            // -----------------------------
+            // 検索
+            // -----------------------------
+            async function loadSyains($form) {
+                // 検索条件のみを抽出（リストの内容は含めない）
+                const data = $form.find(':input[name^="Condition."]').serializeArray();
+                return new Promise(resolve => {
+                    sendGetAjax(toUrl('SyainList'), data, function(result) {
+                    var tempDiv = $('<div>').html(result); //　HTML string から DOMとして変更
+                    var itemCount = tempDiv.find('li').length; // <li> elementsのカウントと取得
+
+                    if(itemCount > 0){
+                        $('.show-label').prop('hidden',false);　//　ラベル非表示解除
+                        $('#btn-sort-register').prop('disabled',false);　//　登録ボタン非表示解除
+                        resolve(result);
+                    }
+                    else{
+                        $('.show-label').prop('hidden',true);　//　ラベル表示解除
+                        $('#btn-sort-register').prop('disabled',true);　//　登録ボタン表示解除
+                        resolve([]);
+                    }},false)
+                });
+            }
+
+            // -----------------------------
+            // 部署検索ボタン押下
+            // -----------------------------
+            $('#btn-search-busyo').on('click', function () {
+                openBusyoSearch();
+            });
+
+            // -----------------------------
+            // 部署選択メッセージ受信
+            // -----------------------------
+            window.addEventListener('message', async function (event) {
+                const data = event.data;
+                if (!data || data.type !== 'busyoSelected') return;
+
+                const busyo = data.payload;
+                if (!busyo) return;
+
+                const nameInput = document.querySelector('#BusyoName');
+                if (nameInput) {
+                    nameInput.value = busyo.name ?? busyo.Name ?? '';
+                }
+
+                const idInput = document.querySelector('[name="Condition.BusyoId"]');
+                if (idInput) {
+                    idInput.value = busyo.id ?? busyo.Id ?? '';
+                } else {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'Condition.BusyoId';
+                    hidden.value = busyo.id ?? busyo.Id ?? '';
+                    $sortForm[0].appendChild(hidden);
+                }
+
+                const html = await loadSyains($sortForm);
+                $partialPage.html(html);
+                initSortable();
+            });
+
+            // -----------------------------
+            // 共通登録 Ajax 処理
+            // -----------------------------
+            function commonSendRegisterAjax(url, data = $('form').serializeArray()) {
+                return new Promise((resolve, reject) => {
+                    sendRegisterAjax(url, data, function(result) {
+                        switch (result.status) {
+                            case responseStatusSuccess: // 成功
+                                resolve(result);
+                                break;
+                            case responseStatusError: // エラー
+                                errorMessage(result.message);
+                                scrollTo(0, 0);
+                                resolve(null);
+                                break;
+                        }
+                    });
+                });
+            }
+
+            // -----------------------------
+            // 登録ボタン押下
+            // -----------------------------
+            $('#btn-sort-register').on('click', function () {
+                // エラークリア
+                errorClear();
+
+                commonConfirm('登録します。よろしいですか？', null, async function() {
+                    const result = await commonSendRegisterAjax(toUrl('Register'));
+
+                    if (!result) return;
+
+                    registerSuccessSwal('登録しました', null, async function() {
+                        // 再検索して表示を更新
+                        const html = await loadSyains($sortForm);
+                        $partialPage.html(html);
+                        initSortable();
+                    });
+                });
+            });
+
+            // 初回ロード時
+            initSortable();
+         });
+    </script>
+}
+
+@section InputStyles {
+    <style>
+        /* 隣り合ったボーダーが 1px で表示されるようにネガティブマージンを入れる */
+        .app-my-border-collapse {
+            margin-top: -1px;
+            margin-bottom: -1px;
+        }
+        /* ハンドルのドラッグ可能エリアを拡張する */
+        .app-handle {
+            margin: -0.5rem -1rem;
+            padding: 0.5rem 1rem;
+        }
+    </style>
+}

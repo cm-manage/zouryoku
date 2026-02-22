@@ -1,0 +1,37 @@
+﻿@model Zouryoku.Pages.SyainMasterMaintenanceKensaku.IndexModel
+
+@* 検索結果一覧 ******************************************************************************** *@
+@if (Model.Results != null && Model.Results.Any())
+{
+    <table class="table app-table__base table-bordered table-striped table-hover text-nowrap align-middle">
+        <thead class="text-center">
+            <tr>
+                <th class="app-table__syain-code">@Html.DisplayNameFor(m => m.Results.First().SyainNo)</th>
+                <th class="app-table__syain-name">@Html.DisplayNameFor(m => m.Results.First().Name)</th>
+                <th class="app-table__bumoncyo">@Html.DisplayNameFor(m => m.Results.First().BusyoName)</th>
+                <th class="app-table__kyusyoku">@Html.DisplayNameFor(m => m.Results.First().Grade)</th>
+                <th class="app-table__kintai-zokusei">@Html.DisplayNameFor(m => m.Results.First().KintaiZokuseiName)</th>
+                <th class="app-table__role">@Html.DisplayNameFor(m => m.Results.First().UserRoleName)</th>
+                <th class="app-table__retired">@Html.DisplayNameFor(m => m.Results.First().RetiredDisplay)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Results)
+            {
+                <tr>
+                    <td class="text-center">@item.SyainNo</td>
+                    <td>
+                        <a href="javascript:void(0);" class="text-primary syain-link" data-id="@item.Id">
+                            @item.Name
+                        </a>
+                    </td>
+                    <td>@item.BusyoName</td>
+                    <td>@item.Grade</td>
+                    <td>@item.KintaiZokuseiName</td>
+                    <td class="text-center">@item.UserRoleName</td>
+                    <td class="text-center">@item.RetiredDisplay</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

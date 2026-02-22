@@ -1,7 +1,7 @@
 using Model.Enums;
 using Model.Model;
 using static Model.Enums.EmployeeAuthority;
-using Zouryoku.Pages.SyainMasterMaintenance;
+using Zouryoku.Pages.SyainMasterMaintenanceKensaku;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
 

@@ -226,7 +226,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             var result = await model.OnGetAsync();
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Mvc.RazorPages.PageResult), "PageResultが返されること");
+            Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Mvc.RazorPages.PageResult), "PageResultが" +
+                "返されること");
         }
 
         // =====================================================================

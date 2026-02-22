@@ -207,7 +207,8 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         }
 
         /// <summary>
-        /// ⑥権限更新: 更新対象のロールが存在しない場合、レスポンスメッセージに既定のエラーメッセージ（EmptyReadData）が設定されることを確認します。
+        /// ⑥権限更新: 更新対象のロールが存在しない場合、レスポンスメッセージに既定のエラーメッセージ（EmptyReadData）が
+        /// 設定されることを確認します。
         /// </summary>
         [TestMethod(DisplayName = "OnPostUpdateRoleAsync: 対象ロールなしでEmptyReadDataを返す")]
         public async Task OnPostUpdateRoleAsync_対象ロールなしでEmptyReadDataを返す()

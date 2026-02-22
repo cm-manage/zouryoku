@@ -31,7 +31,9 @@
     <div class="container w-50">
         <div class="app-screen--search">
             <div class="row mt-3">
-                <label asp-for="ViewModel.SelectedRoleId" class="app-input__label col-form-label col-12 col-lg-auto fw-bold">ロール</label>
+                <label
+                    asp-for="ViewModel.SelectedRoleId"
+                    class="app-input__label col-form-label col-12 col-lg-auto fw-bold">ロール</label>
                 <select asp-for="ViewModel.SelectedRoleId"
                         asp-items="@Model.ViewModel.UserRoles"
                         class="form-control form-select ms-2 me-3">

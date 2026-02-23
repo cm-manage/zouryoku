@@ -1,4 +1,6 @@
+using CommonLibrary.Extensions;
 using Model.Model;
+using static Zouryoku.Utils.Const;
 
 namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 {
@@ -26,7 +28,8 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             /// 画面に表示する送信履歴情報。
             /// </summary>
             /// <value><see cref="SendDateTime"/> <see cref="SyainName"/>が<see cref="SendCount"/>名に送信</value>
-            public string RirekiDisplay => $"{SendDateTime:M/d} {SyainName}が{SendCount}名に送信";
+            public string RirekiDisplay
+                => NippouMikakuteiTsuchiSendHistoryStr.Format(SendDateTime.ToString("MM/dd"), SyainName, SendCount);
 
             /// <value>
             /// 送信日時

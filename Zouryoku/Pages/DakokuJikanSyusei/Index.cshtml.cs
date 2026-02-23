@@ -14,6 +14,8 @@ using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 using static Model.Enums.DailyReportStatusClassification;
 using static Model.Enums.EmployeeWorkType;
+using static Model.Enums.ApprovalStatus;
+using static Model.Enums.InquiryType;
 
 namespace Zouryoku.Pages.DakokuJikanSyusei
 {
@@ -276,8 +278,8 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         // ---------------------------------------------
         // DI（サービス、DB、ロガーなど）
         // ---------------------------------------------
-        public IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> options)
-            : base(db, logger, options)
+        public IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> options, TimeProvider? timeProvider = null)
+            : base(db, logger, options, timeProvider)
         {
         }
         #endregion
@@ -424,16 +426,14 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         /// <summary>
         /// 社員情報を取得する。
         /// </summary>
-        /// <param name="syainId">社員情報</param>
+        /// <param name="syainId">社員ID</param>
         /// <returns>社員情報</returns>
         private async Task<Syain> GetSyainAsync(long syainId)
         {
             // 社員情報を返却
             return await db.Syains
                 .Include(x => x.KintaiZokusei)
-                .Include(x => x.Nippous.Where(x => x.NippouYmd == ViewModel.JissekiDate))
                 .AsNoTracking()
-                .AsSplitQuery()
                 .FirstAsync(x => x.Id == syainId);
         }
 
@@ -488,8 +488,8 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 // 伺いヘッダID
                 UkagaiHeaderId = notDeletedWorkinghours
                 .Where(x => x.UkagaiHeaderId != null)
-                .Select(x => x.UkagaiHeaderId!.Value)
-                .FirstOrDefault(),
+                .Select(x => x.UkagaiHeaderId)
+                .FirstOrDefault() ?? null,
 
                 // 修正理由
                 SyuseiReason = notDeletedWorkinghours
@@ -555,7 +555,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             {
                 SyainId = syainId,
                 JissekiDate = jissekiDate,
-                SyuseiReason = string.Empty
+                SyuseiReason = string.Empty,
             };
         }
         #endregion
@@ -680,11 +680,11 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 var label = $"出退勤{i + 1}";
 
                 // 出勤時間と退勤時間が入力されていない場合
-                if (set.Start.AsTimeOnly is null && set.End.AsTimeOnly is null) return;
+                if (set.Start.AsTimeOnly is null && set.End.AsTimeOnly is null) continue;
 
                 // 時と分の片方のみ入力されている場合
                 // 出勤と退勤の両方チェック
-                if (set.Start!.IsHalfInput || set.End.IsHalfInput) return;
+                if (set.Start!.IsHalfInput || set.End.IsHalfInput) continue;
 
                 var start = set.Start.AsTimeOnly;
                 var end = set.End.AsTimeOnly;
@@ -692,22 +692,18 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 // 出勤時間の入力値をDateTimeに変換
                 var isStartEmpty = start is null;
 
-                DateTime startDt = isStartEmpty
-                    ? new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 0, 0, 0)
-                    : new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, start!.Value.Hour, start.Value.Minute, 0);
+                DateTime startDt = baseDate.ToDateTime(isStartEmpty ? TimeOnly.MinValue : start);
 
                 // 退勤時間の入力値をDateTimeに変換
                 //      入力されていない場合、最大値を設定
                 var isEndEmpty = end is null;
                 
                 // 退勤時間の00:00は翌日扱いする
-                var endDate = (!isEndEmpty && end == TimeOnly.MinValue)
+                var endDate = (isEndEmpty || end == TimeOnly.MinValue)
                     ? baseDate.AddDays(1)
                     : baseDate;
 
-                DateTime endDt = isEndEmpty
-                    ? new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 23, 59, 59)
-                    : new DateTime(endDate.Year, endDate.Month, endDate.Day, end!.Value.Hour, end.Value.Minute, 0);
+                DateTime endDt = endDate.ToDateTime(isEndEmpty ? TimeOnly.MinValue : end);
 
                 ranges.Add((label, startDt, endDt));
             }
@@ -740,6 +736,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         /// バージョン件数を確認
         /// </summary>
         /// <param name="workingHours">勤怠打刻情報</param>
+        /// <param name="ukagaiShinseis">伺い申請情報</param>
         private void ValidateVersions(List<WorkingHour> workingHours, List<UkagaiShinsei> ukagaiShinseis)
         {
             // 勤怠打刻のバージョン件数と更新用勤怠打刻情報の件数確認
@@ -835,7 +832,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 // 申請年月日
                 ShinseiYmd = DateTime.Now.ToDateOnly(),
                 // ステータス
-                Status = isNotDairi ? ApprovalStatus.承認待 : ApprovalStatus.承認,
+                Status = isNotDairi ? 承認待 : 承認,
                 // 作業日付
                 WorkYmd = ViewModel.JissekiDate,
                 // 備考
@@ -850,7 +847,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             UkagaiShinsei ukagaiShinsei = new()
             {
                 // 伺い種別
-                UkagaiSyubetsu = InquiryType.打刻時間修正,
+                UkagaiSyubetsu = 打刻時間修正,
                 // 伺い入力ヘッダID
                 UkagaiHeader = ukagaiHeader,
             };
@@ -862,7 +859,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             {
                 var timeset = ViewModel.TimeSets[i];
 
-                if (timeset.Start.AsTimeOnly is null && timeset.End.AsTimeOnly is null) return;
+                if (timeset.Start.AsTimeOnly is null && timeset.End.AsTimeOnly is null) continue;
 
                 // 入力値
                 var jissekiDate = ViewModel.JissekiDate;

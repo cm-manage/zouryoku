@@ -85,43 +85,37 @@ namespace Zouryoku.Utils
         /// <param name="db">DBコンテキスト</param>
         /// <param name="baseDate">基準日付</param>
         /// <returns>通知対象の実績期間情報</returns>
-        /// <remarks>
-        /// 基準日付が1~15日の場合は月末締め or 一か月締め、
-        /// 16日以降なら中締めになる。
-        /// </remarks>
         public static async Task<JissekiSpan> GetJissekiSpanAsync(ZouContext db, DateOnly baseDate)
         {
+            // 基準月の中締め情報
+            // nullなら通知対象の実績期間は月末締めor一か月締めになる
+            var nakajimeInfo = (await GetKakuteiShimeKigenAsync(db, baseDate))
+                .SingleOrDefault(k => k.Kubun == 中締め);
 
-            // 通知対象の実績期間の年月
-            var jissekiYearMonth = baseDate.AddDays(-NakajimeDay).GetStartOfMonth();
-
-            // 実績対象期間に存在する確定期限の情報のリスト
-            // NOTE: 中締め・月末締めの2つか、一か月締めの1つかのどちらかになる
-            var kakuteiKigenInfos = await GetKakuteiShimeKigenAsync(db, jissekiYearMonth);
-
-            // 一か月締めのとき
-            if (kakuteiKigenInfos.SingleOrDefault(k => k.Kubun == 一か月締め) is JissekiKakuteiKigenInfo jissekiKakuteiKigenInfo)
+            // 基準月に中締めが存在して、基準日付が中締め日以前でないなら、基準月の中締めで確定する
+            if (nakajimeInfo is not null && NakajimeDay < baseDate.Day)
             {
                 return new JissekiSpan(
-                    jissekiYearMonth.Year,
-                    jissekiYearMonth.Month,
+                    baseDate.Year,
+                    baseDate.Month,
                     1,
-                    jissekiYearMonth.GetEndOfMonth().Day,
-                    jissekiKakuteiKigenInfo);
+                    NakajimeDay,
+                    nakajimeInfo);
             }
 
-            // 月末締めかどうか
-            var isLastOfMonthShime = baseDate.Day <= 15;
-
-            // 入力日付に対応する実績締め日情報
-            jissekiKakuteiKigenInfo = kakuteiKigenInfos
-                .Single(j => j.Kubun == (isLastOfMonthShime ? 月末締め : 中締め));
+            // 通知対象となる実績期間の締め日
+            // 基準月の先月の月末
+            var jissekiSimebi = baseDate.AddMonths(-1).GetEndOfMonth();
+            // 基準月の先月の実績確定期限情報
+            // 月末締めか一か月締めの情報を取得する
+            var jissekiKakuteiKigenInfo = (await GetKakuteiShimeKigenAsync(db, jissekiSimebi))
+                .Single(k => k.Kubun == 月末締め || k.Kubun == 一か月締め);
 
             return new JissekiSpan(
-                jissekiYearMonth.Year,
-                jissekiYearMonth.Month,
-                isLastOfMonthShime ? 16 : 1,
-                isLastOfMonthShime ? jissekiYearMonth.GetEndOfMonth().Day : 15,
+                jissekiSimebi.Year,
+                jissekiSimebi.Month,
+                jissekiKakuteiKigenInfo.Kubun == 一か月締め ? 1 : NakajimeDay + 1,
+                jissekiSimebi.Day,
                 jissekiKakuteiKigenInfo);
         }
     }

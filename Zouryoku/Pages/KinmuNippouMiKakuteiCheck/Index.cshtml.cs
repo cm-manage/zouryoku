@@ -12,9 +12,11 @@ using Zouryoku.Pages.Shared;
 using static Model.Enums.AchievementClassification;
 using static Model.Enums.DailyReportStatusClassification;
 using static Model.Enums.EmployeeWorkType;
+using static Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel.BusyoRange;
 using static Zouryoku.Utils.DateOnlyUtil;
 using static Zouryoku.Utils.JissekiKakuteiSimeUtil;
 using static Zouryoku.Utils.MikakuteiTsuchiUtil;
+using static CommonLibrary.Extensions.DateOnlyExtensions;
 
 namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 {
@@ -116,7 +118,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 {
                     Id = LoginInfo.User.BusyoId,
                     Name = LoginInfo.User.Busyo.Name,
-                    Range = BusyoRange.部署,
+                    Range = 部署,
                 },
                 Date = simebi,
             };
@@ -131,7 +133,6 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         /// <summary>
         /// 未確定の日報の検索を行うハンドラー。
         /// </summary>
-        /// <returns></returns>
         public async Task<IActionResult> OnGetSearchNippousAsync()
         {
             // 入力日付
@@ -142,7 +143,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 
             // 部署ID or null
             // NOTE: nullで全社検索を行うようにメソッドを作成している
-            var busyoId = SearchConditions.Busyo.Range != BusyoRange.全社 ? SearchConditions.Busyo.Id : null;
+            var busyoId = SearchConditions.Busyo.Range != 全社 ? SearchConditions.Busyo.Id : null;
 
             // 未確定者リストの取得
             // ----------------------------------
@@ -152,7 +153,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 
             // 不正データを持つ社員の取得
             // ----------------------------------
-            // NOTE: 不正データ = 指定日付から過去一か月間内の、実績確定を行っていない日報
+            // NOTE: 不正データ = 指定日付から過去一か月間内の、確定状態でない日報
 
             // 指定日付から過去一か月間の確定日報をIncludeした社員のリスト
             var syainsWithKakutei = await GetSyainsWithKakuteiNippousAsync(inputDate.AddMonths(-1), inputDate, inputDate, busyoId);
@@ -171,12 +172,12 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 }
 
                 // 過去一か月間の確定日報の件数
-                var cnt = syain.Nippous.Count;
+                var count = syain.Nippous.Count;
                 // 検索期間の日数
-                var span = inputDate.DayNumber - inputDate.AddMonths(-1).DayNumber + 1;
+                var span = GetDayCount(inputDate.AddMonths(-1), inputDate);
 
                 // 確定件数が検索期間の日数と一致しない社員をビューに格納する
-                if (cnt != span)
+                if (count != span)
                 {
                     // 社員氏名にサフィックスを付与する
                     syain.Name = $"{syain.Name}{BadNippouSuffix}";
@@ -201,7 +202,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         /// </summary>
         /// <param name="date">日付</param>
         /// <param name="busyoId">部署ID</param>
-        /// <returns></returns>
+        /// <returns>最終確定日が<paramref name="date"/>より前の社員のビューモデル</returns>
         private async Task<List<MikakuteiSyainViewModel>> GetMikakuteiSyainsAsync(DateOnly date, long? busyoId = null)
         {
             // SQLクエリ
@@ -293,6 +294,4 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 kakuteiKigenInfos.Any(k => k.Kubun == 中締め) ? NakajimeDay : nextSimebiYmd.GetEndOfMonth().Day);
         }
     }
-
-
 }

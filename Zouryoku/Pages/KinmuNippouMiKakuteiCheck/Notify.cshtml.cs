@@ -1,19 +1,18 @@
 using CommonLibrary.Extensions;
-using LanguageExt;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Model.Data;
-using Model.Enums;
 using Model.Model;
 using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
+using static Model.Enums.AchievementClassification;
 using static Model.Enums.EmployeeAuthority;
 using static Model.Enums.FunctionalClassification;
-using static Zouryoku.Utils.MikakuteiTsuchiUtil;
 using static Zouryoku.Utils.Const;
+using static Zouryoku.Utils.MikakuteiTsuchiUtil;
 
 namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 {
@@ -103,9 +102,9 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // 送信予定メッセージ内の前半／後半の設定
             var kubunStr = jissekiSpan.JissekiKakuteiKigenInfo.Kubun switch
             {
-                AchievementClassification.中締め => "前半",
-                AchievementClassification.月末締め => "後半",
-                AchievementClassification.一か月締め => "",
+                中締め => "前半",
+                月末締め => "後半",
+                一か月締め => "",
                 _ => ""
             };
             // 送信予定メッセージを作成
@@ -194,7 +193,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         /// 未確定通知履歴を全件取得する。
         /// </summary>
         /// <returns>未確定通知履歴のリスト</returns>
-        public async Task<List<MikakuteiTsuchiRirekiViewModel>> GetNippousAsync()
+        private async Task<List<MikakuteiTsuchiRirekiViewModel>> GetNippousAsync()
         {
             return await db.MikakuteiTsuchiRirekis
                 .AsSplitQuery()
@@ -207,7 +206,12 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 .ToListAsync();
         }
 
-        public async Task AddSyainTsuchiRirekiRelsAsync(long rirekiId, long[] receivedSyainBaseIds)
+        /// <summary>
+        /// 社員⇔未確定通知履歴テーブルにデータを追加する。
+        /// </summary>
+        /// <param name="rirekiId">未確定通知履歴ID</param>
+        /// <param name="receivedSyainBaseIds">通知対象社員の社員BaseIDの配列</param>
+        private async Task AddSyainTsuchiRirekiRelsAsync(long rirekiId, long[] receivedSyainBaseIds)
         {
             // 挿入するデータのリスト
             var rels = new List<SyainTsuchiRirekiRel>();
@@ -229,7 +233,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         /// </summary>
         /// <param name="keepCount">残しておきたい件数</param>
         /// <returns>送信時間降順で<paramref name="keepCount"/> + 1件目以降の未確定通知履歴データ</returns>
-        public async Task<List<MikakuteiTsuchiRireki>> FetchOldMikakuteiTsuchiRirekis(int keepCount)
+        private async Task<List<MikakuteiTsuchiRireki>> FetchOldMikakuteiTsuchiRirekis(int keepCount)
         {
             return await db.MikakuteiTsuchiRirekis
                 // NOTE: 中間テーブルをIncludeすることで同時に削除できるようにする
@@ -239,7 +243,4 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 .ToListAsync();
         }
     }
-
-
-
 }

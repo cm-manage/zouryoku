@@ -1598,7 +1598,7 @@ namespace ZouryokuTest.Api
         [DataRow(差戻, false, 99L, null, DisplayName = "ステータスが差戻の場合")]
         [DataRow(承認待, true, 99L, null, DisplayName = "無効フラグがtrueの場合")]
         [DataRow(承認待, false, null, null, DisplayName = "一次承認社員が入力されていない場合")]
-        [DataRow(承認待, false, 99L, 99L, DisplayName = "一次承認社員が入力されている場合")]
+        [DataRow(承認待, false, 99L, 99L, DisplayName = "最終承認社員が入力されている場合")]
         public async Task GetCountAsync_指示最終承認者_条件を満たさない申請をカウントしない(
             ApprovalStatus status,
             bool invalid,

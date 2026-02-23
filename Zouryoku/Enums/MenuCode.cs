@@ -46,6 +46,7 @@ namespace Zouryoku.Enums
 
         [MenuInfo(
             title: "勤務日報未確定チェック",
+            url: "/KinmuNippouMiKakuteiCheck/Index",
             canDisplayMobile: false)]
         勤務日報未確定チェック,
 
@@ -79,10 +80,7 @@ namespace Zouryoku.Enums
         [MenuInfo(
             title: "データ出力",
             canDisplayMobile: false,
-            kengen:
-                EmployeeAuthority.勤怠データ出力 |
-                EmployeeAuthority.指示承認者 |
-                EmployeeAuthority.指示最終承認者)]
+            kengen: EmployeeAuthority.勤怠データ出力)]
         データ出力,
 
         [MenuInfo(
@@ -120,12 +118,12 @@ namespace Zouryoku.Enums
         計画有給休暇最終承認,
 
         [MenuInfo(
-            title: "顧客検索",
+            title: "顧客",
             url: "/KokyakuMeiKensaku/Index")]
         顧客,
 
         [MenuInfo(
-            title: "案件検索",
+            title: "案件",
             url: "/AnkenMeiKensaku/Index")]
         案件,
 
@@ -158,13 +156,8 @@ namespace Zouryoku.Enums
         日報確定解除,
 
         [MenuInfo(
-            title: "代理入力設定",
-            kengen: EmployeeAuthority.管理機能利用_人財向け)]
-        代理入力設定,
-
-        [MenuInfo(
             title: "社員マスタメンテナンス",
-            url: "/SyainMasterMaintenance/Index",
+            url: "/SyainMasterMaintenanceKensaku/Index",
             canDisplayMobile: false,
             kengen: EmployeeAuthority.管理機能利用_その他)]
         社員マスタメンテナンス,
@@ -191,6 +184,7 @@ namespace Zouryoku.Enums
 
         [MenuInfo(
             title: "KINGS連携プログラム稼働状況",
+            url: "Maintenance/ServiceHistory/Index",
             canDisplayMobile: false,
             kengen: EmployeeAuthority.管理機能利用_その他)]
         KINGS連携プログラム稼働状況,
@@ -203,8 +197,9 @@ namespace Zouryoku.Enums
 
         [MenuInfo(
             title: "有給・振休管理",
+            url: "Maintenance/Kintais/Index",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.管理機能利用_人財向け)]
+            kengen: EmployeeAuthority.有給_振替管理)]
         有給_振休管理,
 
         [MenuInfo(
@@ -222,7 +217,8 @@ namespace Zouryoku.Enums
         アプリケーション設定,
 
         [MenuInfo(
-            title: "改訂履歴")]
+            title: "改訂履歴",
+            url: "RevisionHistory/Index")]
         改訂履歴,
 
         [MenuInfo(

@@ -43,107 +43,111 @@
 
 <div class="app-screen--search">
     <form method="get" id="syain-search-form">
-        <div class="row g-3">
-            <!-- 左カラム -->
-            <div class="col-md-6">
-                <div class="row mb-2">
-                    <label asp-for="Condition.SyainNo" class="col-2 col-form-label fw-bold text-nowrap"></label>
-                    <div class="col">
-                        <input asp-for="Condition.SyainNo" class="form-control" placeholder="社員番号を入力" />
+        <div class="app-area__search-criteria">
+            <div class="row g-3 mt-1">
+                <!-- 左カラム -->
+                <div class="col-md-6">
+                    <div class="row mb-2">
+                        <label asp-for="Condition.SyainNo" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <div class="col">
+                            <input asp-for="Condition.SyainNo" class="form-control" />
+                        </div>
                     </div>
-                </div>
 
-                <div class="row mb-3 align-items-center">
-                    <label asp-for="Condition.BusyoName" class="col-md-2 col-form-label fw-bold small"></label>
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <!-- 表示用：部署名 -->
-                            <input asp-for="Condition.BusyoName"
-                                   class="form-control form-control-sm bg-light"
-                                   readonly />
-                            <!-- 検索ボタンのみ -->
-                            <button type="button" class="btn btn-primary btn-sm" id="search-busyo" title="検索">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
+                    <div class="row mb-3 align-items-center">
+                        <label asp-for="Condition.BusyoName" class="col-2 col-form-label fw-bold app-input__label"></label>
+                        <div class="col">
+                            <div class="input-group">
+                                <!-- 表示用：部署名 -->
+                                <input asp-for="Condition.BusyoName"
+                                       class="form-control bg-light"
+                                       readonly />
+                                <!-- 検索ボタンのみ -->
+                                <button type="button" class="btn btn-primary" id="search-busyo" title="検索">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row mb-2">
+                        <label asp-for="Condition.Grade" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <div class="col">
+                            <input asp-for="Condition.Grade" type="text" class="form-control w-50" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <label asp-for="Condition.UserRoleId" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <div class="col">
+                            <select asp-for="Condition.UserRoleId" asp-items="Model.Condition.UserRoleOptions" class="form-select">
+                                <option value="">-- 未選択 --</option>
+                            </select>
                         </div>
                     </div>
                 </div>
 
-
-                <div class="row mb-2">
-                    <label asp-for="Condition.Grade" class="col-2 col-form-label fw-bold text-nowrap"></label>
-                    <div class="col">
-                        <input asp-for="Condition.Grade" class="form-control" placeholder="級職を入力" />
+                <!-- 右カラム -->
+                <div class="col-md-6">
+                    <div class="row mb-2">
+                        <label asp-for="Condition.SyainName" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <div class="col">
+                            <input asp-for="Condition.SyainName" class="form-control" />
+                        </div>
                     </div>
-                </div>
 
-                <div class="row mb-2">
-                    <label asp-for="Condition.UserRoleId" class="col-2 col-form-label fw-bold text-nowrap"></label>
-                    <div class="col">
-                        <select asp-for="Condition.UserRoleId" asp-items="Model.Condition.UserRoleOptions" class="form-select">
-                            <option value="">-- 未選択 --</option>
-                        </select>
+                    <div class="row mb-2">
+                        <label asp-for="Condition.IncludeRetired" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <div class="col d-flex align-items-center">
+                            <div class="form-check form-switch m-0">
+                                <input asp-for="Condition.IncludeRetired" class="form-check-input" type="checkbox" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <label asp-for="Condition.KintaiZokuseiId" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <div class="col">
+                            <select asp-for="Condition.KintaiZokuseiId" asp-items="Model.Condition.KintaiZokuseiOptions" class="form-select">
+                                <option value="">-- 未選択 --</option>
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <label asp-for="Condition.Kengen" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <div class="col">
+                            <select asp-for="Condition.Kengen" class="form-select" asp-items="Model.Condition.KengenOptions">
+                                <option value="">-- 未選択 --</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 右カラム -->
-            <div class="col-md-6">
-                <div class="row mb-2">
-                    <label asp-for="Condition.SyainName" class="col-2 col-form-label fw-bold text-nowrap"></label>
-                    <div class="col">
-                        <input asp-for="Condition.SyainName" class="form-control" placeholder="社員名を入力" />
-                    </div>
-                </div>
-
-                <div class="row mb-2">
-                    <label  asp-for="Condition.IncludeRetired" class="col-2 col-form-label fw-bold text-nowrap"></label>
-                    <div class="col d-flex align-items-center">
-                        <div class="form-check form-switch m-0">
-                            <input asp-for="Condition.IncludeRetired" class="form-check-input" type="checkbox" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-2">
-                    <label asp-for="Condition.KintaiZokuseiId" class="col-2 col-form-label fw-bold text-nowrap"></label>
-                    <div class="col">
-                        <select asp-for="Condition.KintaiZokuseiId" asp-items="Model.Condition.KintaiZokuseiOptions" class="form-select">
-                            <option value="">-- 未選択 --</option>
-                        </select>
-
-                    </div>
-                </div>
-
-                <div class="row mb-2">
-                    <label asp-for="Condition.Kengen" class="col-2 col-form-label fw-bold text-nowrap"></label>
-                    <div class="col">
-                        <select asp-for="Condition.Kengen" class="form-select" asp-items="Model.Condition.KengenOptions">
-                            <option value="">-- 未選択 --</option>
-                        </select>
-                    </div>
+            <div class="row mt-3">
+                <div class="col-auto">
+                    <button type="button" class="btn btn-primary app-btn__base" id="search-btn">
+                        <i class="fa-solid fa-magnifying-glass"></i>検索
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex flex-column align-items-end mt-3">
-            <button type="button" class="btn btn-primary btn-sm mb-2 btn-fixed" id="search-btn">
-                <i class="fa-solid fa-magnifying-glass"></i>検索
+        <div class="app-area__tool-button text-end mb-3">
+            <button type="button" class="btn btn-success app-btn__base me-2" id="create-btn">
+                <i class="fa fa-plus"></i>新規作成
             </button>
-            <div>
-                <button type="button" class="btn btn-success btn-sm me-2 btn-fixed" id="create-btn">
-                    <i class="fa fa-plus text-white"></i>新規作成
-                </button>
-
-                <button type="button" class="btn btn-secondary btn-sm btn-fixed" id="sort-btn">
-                    <i class="fa-solid fa-arrow-up-arrow-down text-white"></i>順序変更
-                </button>
-            </div>
+            <button type="button" class="btn btn-secondary app-btn__base" id="sort-btn">
+                <i class="fa-solid fa-arrow-up-arrow-down"></i>順序変更
+            </button>
         </div>
     </form>
 
     <!-- 検索結果エリア -->
-    <div id="syain-search-results">
+    <div class="app-area__search-results" id="syain-search-results">
         <partial name="_SyainSearchResults" model="Model" />
     </div>
 </div>

@@ -1,9 +1,11 @@
 using Model.Enums;
 using Model.Model;
 using static Model.Enums.EmployeeAuthority;
+using static Model.Enums.EmployeeWorkType;
 using Zouryoku.Pages.SyainMasterMaintenanceKensaku;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
 {
@@ -34,17 +36,24 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             db.AddRange(roleAdmin, roleGeneral);
 
             // 勤怠属性
-            var kintaiNormal = new KintaiZokuseiBuilder()
-                .WithId(1)
-                .WithName("通常勤務")
+            var kintai3Months60Hours = new KintaiZokuseiBuilder()
+                .WithId((short) _3か月60時間)
+                .WithName("_3か月60時間")
                 .Build();
 
-            var kintaiShift = new KintaiZokuseiBuilder()
-                .WithId(2)
-                .WithName("シフト勤務")
+            var kintaiPartTime = new KintaiZokuseiBuilder()
+                .WithId((short) パート)
+                .WithName("パート")
                 .Build();
 
-            db.AddRange(kintaiNormal, kintaiShift);
+            var kintaiMinashi = new KintaiZokuseiBuilder()
+                .WithId((short)みなし対象者)
+                .WithName("みなし対象者")
+                .WithIsMinashi(true)
+                .WithCode(みなし対象者)
+                .Build();
+
+            db.AddRange(kintai3Months60Hours, kintaiPart, kintaiMinashi);
 
             // 部署
             var busyoSystem = new BusyoBuilder()
@@ -68,6 +77,30 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             var syainBase2 = new SyainBasis { Id = 2, Code = "S002", Name = "佐藤" };
             var syainBase3 = new SyainBasis { Id = 3, Code = "S003", Name = "鈴木" };
             db.AddRange(syainBase1, syainBase2, syainBase3);
+        }
+
+        /// <summary>
+        /// みなし対象者なしのBASEデータ
+        /// </summary>
+        private void SeedBaseWithoutMinashi()
+        {
+            // ユーザーロール
+            var roleAdmin = new UserRole { Id = 1, Code = 1, Name = "管理者", Jyunjo = 1 };
+            var roleGeneral = new UserRole { Id = 2, Code = 2, Name = "一般", Jyunjo = 2 };
+            db.AddRange(roleAdmin, roleGeneral);
+
+            // 勤怠属性（みなし対象者なし）
+            var kintai3Months60Hours = new KintaiZokuseiBuilder()
+                .WithId((short)_3か月60時間)
+                .WithName("_3か月60時間")
+                .Build();
+
+            var kintaiPart = new KintaiZokuseiBuilder()
+                .WithId((short)パート)
+                .WithName("パート")
+                .Build();
+
+            db.AddRange(kintai3Months60Hours, kintaiPart);
         }
 
         /// <summary>
@@ -145,8 +178,50 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             await model.OnGetAsync();
 
             // Assert
+
+            Assert.AreEqual((long)みなし対象者, model.Condition.KintaiZokuseiId, "初期表示時の勤怠属性IDは3であること。");
             Assert.IsNotNull(model.Condition.KintaiZokuseiOptions, "勤怠属性の選択肢が取得されていること");
-            Assert.AreEqual(2, model.Condition.KintaiZokuseiOptions.Count(), "勤怠属性の選択肢が2件取得されていること");
+            Assert.AreEqual(3, model.Condition.KintaiZokuseiOptions.Count(), "勤怠属性の選択肢が2件取得されていること");
+        }
+
+        /// <summary>
+        /// ①-2 初期表示: 勤怠属性IDが事前設定済みの場合は上書きしない
+        /// </summary>
+        [TestMethod(DisplayName = "初期表示時に勤怠属性IDが指定済みなら上書きされないこと")]
+        public async Task OnGetAsync_初期表示_勤怠属性ID指定済みなら上書きしないこと()
+        {
+            // Arrange
+            SeedBase();
+            await db.SaveChangesAsync();
+
+            var model = CreateModel();
+            model.Condition.KintaiZokuseiId = (long)パート;
+
+            // Act
+            await model.OnGetAsync();
+
+            // Assert
+            Assert.AreEqual((long)パート, model.Condition.KintaiZokuseiId, "事前設定した勤怠属性IDが保持されること");
+        }
+
+        /// <summary>
+        /// ①-3 初期表示: みなし対象者が存在しない場合は勤怠属性IDを設定しない
+        /// </summary>
+        [TestMethod(DisplayName = "初期表示時にみなし対象者が未登録なら勤怠属性IDは未設定のままであること")]
+        public async Task OnGetAsync_初期表示_みなし対象者未登録なら勤怠属性ID未設定のまま()
+        {
+            // Arrange
+            SeedBaseWithoutMinashi();
+            await db.SaveChangesAsync();
+
+            var model = CreateModel();
+
+            // Act
+            await model.OnGetAsync();
+
+            // Assert
+            Assert.IsFalse(model.Condition.KintaiZokuseiId.HasValue, "みなし対象者が存在しない場合は勤怠属性IDが設定されないこと");
+            Assert.AreEqual(2, model.Condition.KintaiZokuseiOptions.Count(), "みなし対象者なしの2件が選択肢になること");
         }
 
         /// <summary>
@@ -226,7 +301,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             var result = await model.OnGetAsync();
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Mvc.RazorPages.PageResult), "PageResultが" +
+            Assert.IsInstanceOfType(result, typeof(PageResult), "PageResultが" +
                 "返されること");
         }
 
@@ -633,6 +708,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             var syain = new Syain
             {
                 Id = 100,
+                SyainBaseId = 100,
                 Code = "T100",
                 Name = "テスト太郎",
                 Kyusyoku = 5,
@@ -646,11 +722,13 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             var vm = new SyainViewModel(syain);
 
             // Assert
-            Assert.AreEqual(100, vm.Id, "Idが一致すること");
+            Assert.AreEqual(100, vm.SyainBaseId, "SyainBaseIdが一致すること");
             Assert.AreEqual("T100", vm.SyainNo, "SyainNoが一致すること");
             Assert.AreEqual("テスト太郎", vm.Name, "Nameが一致すること");
             Assert.AreEqual("テスト部署", vm.BusyoName, "BusyoNameが一致すること");
+            Assert.AreEqual((short)5, vm.Grade, "Gradeが一致すること");
             Assert.AreEqual("通常", vm.KintaiZokuseiName, "KintaiZokuseiNameが一致すること");
+            Assert.AreEqual("管理者", vm.UserRoleName, "UserRoleNameが一致すること");
             Assert.AreEqual("退職", vm.RetiredDisplay, "退職フラグが'退職'と表示されること");
         }
 
@@ -664,6 +742,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             var syain = new Syain
             {
                 Id = 200,
+                SyainBaseId = 200,
                 Code = "T200",
                 Name = "テスト花子",
                 Kyusyoku = 2,
@@ -677,12 +756,36 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             var vm = new SyainViewModel(syain);
 
             // Assert
-            Assert.AreEqual(200, vm.Id, "Idが一致すること");
+            Assert.AreEqual(200, vm.SyainBaseId, "SyainBaseIdが一致すること");
             Assert.AreEqual("T200", vm.SyainNo, "SyainNoが一致すること");
             Assert.AreEqual("テスト花子", vm.Name, "Nameが一致すること");
             Assert.AreEqual("営業部", vm.BusyoName, "BusyoNameが一致すること");
+            Assert.AreEqual((short)2, vm.Grade, "Gradeが一致すること");
             Assert.AreEqual("シフト", vm.KintaiZokuseiName, "KintaiZokuseiNameが一致すること");
+            Assert.AreEqual("一般", vm.UserRoleName, "UserRoleNameが一致すること");
             Assert.AreEqual(string.Empty, vm.RetiredDisplay, "在職の場合は空文字になること");
+        }
+
+        /// <summary>
+        /// ㉔IndexModel: Conditionセッター
+        /// </summary>
+        [TestMethod(DisplayName = "Conditionに検索条件を設定したとき、設定したインスタンスが保持されること")]
+        public void IndexModel_Conditionセッター_設定した検索条件インスタンスを保持すること()
+        {
+            // Arrange
+            var model = CreateModel();
+            var condition = new SyainSearchCondition
+            {
+                SyainNo = "S999",
+                Grade = 9,
+                IncludeRetired = true
+            };
+
+            // Act
+            model.Condition = condition;
+
+            // Assert
+            Assert.AreSame(condition, model.Condition, "Conditionのsetter/getterで同一インスタンスが保持されること");
         }
     }
 }

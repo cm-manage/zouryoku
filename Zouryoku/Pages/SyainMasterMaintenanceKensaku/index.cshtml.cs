@@ -9,6 +9,7 @@ using Model.Model;
 using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
+using static Model.Enums.EmployeeWorkType;
 
 namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
 {
@@ -65,7 +66,18 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
                 .AsNoTracking()
                 .Select(k => new { k.Id, k.Name })
                 .ToListAsync();
-            Condition.KintaiZokuseiOptions = new SelectList(kintaiList, "Id", "Name");
+            var defaultKintaiZokuseiId = kintaiList.FirstOrDefault(k => k.Id == (short)みなし対象者)?.Id;
+
+            if (!Condition.KintaiZokuseiId.HasValue && defaultKintaiZokuseiId.HasValue)
+            {
+                Condition.KintaiZokuseiId = defaultKintaiZokuseiId.Value;
+            }
+
+            Condition.KintaiZokuseiOptions = new SelectList(
+                kintaiList,
+                "Id",
+                "Name",
+                Condition.KintaiZokuseiId);
 
             // ロール一覧
             var roles = await db.UserRoles
@@ -142,8 +154,7 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
                 query = query.Where(s => s.Kyusyoku == Condition.Grade.Value);
             }
 
-            var syainList = await query.OrderBy(s => s.Jyunjyo)
-                .OrderBy(s => s.Busyo.Jyunjyo)
+            var syainList = await query.OrderBy(s => s.Busyo.Jyunjyo)
                 .ThenByDescending(s => s.Jyunjyo)
                 .ThenByDescending(s => s.Code)
                 .Select(s => new SyainViewModel(s))
@@ -171,8 +182,8 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
         }
 
         /// <summary>部署ID</summary>
-        [Display(Name = "社員ID")]
-        public long Id => _syain.Id;
+        [Display(Name = "社員BASEマスタのID")]
+        public long SyainBaseId => _syain.SyainBaseId;
 
         /// <summary>社員番号</summary>
         [Display(Name = "社員番号")]
@@ -183,7 +194,7 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
         public string Name => _syain.Name;
 
         /// <summary>部署名</summary>
-        [Display(Name = "部署名")]
+        [Display(Name = "部署")]
         public string BusyoName => _syain.Busyo.Name;
 
         /// <summary>社員級職</summary>
@@ -217,7 +228,7 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
         public string? SyainName { get; set; }
 
         /// <summary>部署名称</summary>
-        [Display(Name = "部署名")]
+        [Display(Name = "部署")]
         public string? BusyoName { get; set; }
 
         /// <summary>級職</summary>

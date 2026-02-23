@@ -587,11 +587,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // 必須プロパティの確認
             Assert.IsNotNull(firstRow.DateLabel, "DateLabel が設定されているべきです。");
             Assert.IsNotNull(firstRow.ApplicationLabel, "ApplicationLabel が設定されているべきです。");
-            // WorkTime は null の場合もある（実績・打刻情報がない場合）
-            // Assert.IsNotNull(firstRow.WorkTime, "WorkTime が設定されているべきです。");
             Assert.IsNotNull(firstRow.ActualWorked, "ActualWorked が設定されているべきです。");
-            // ReportStatus は null の場合もある（実績情報がない場合）
-            // Assert.IsNotNull(firstRow.ReportStatus, "ReportStatus が設定されているべきです。");
             Assert.IsNotNull(firstRow.ApplicationType, "ApplicationType が設定されているべきです。");
             Assert.AreEqual(syain.Id, firstRow.SyainId, "SyainId が社員IDと一致するべきです。");
             Assert.IsNotNull(firstRow.DateIso, "DateIso が設定されているべきです。");
@@ -2717,7 +2713,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
             var today = DateTime.Today.ToDateOnly();
-            var targetDate = today.AddDays(-1);
+            var targetDate = today.GetEndOfMonth().AddDays(-1);
             
             var nippou = new NippouBuilder()
                 .WithId(7101)
@@ -2786,7 +2782,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
             var today = DateTime.Today.ToDateOnly();
-            var targetDate = today.AddDays(1);
+            var targetDate = today.GetStartOfMonth().AddDays(1);
             
             var wh = new WorkingHoursBuilder()
                 .WithId(7101)
@@ -2821,7 +2817,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
             var today = DateTime.Today.ToDateOnly();
-            var targetDate = today.AddDays(2);
+            var targetDate = today.GetStartOfMonth().AddDays(2);
             
             var ukagai = new UkagaiHeaderBuilder()
                 .WithId(7101)
@@ -2856,7 +2852,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
             var today = DateTime.Today.ToDateOnly();
-            var targetDate = today.AddDays(3);
+            var targetDate = today.GetStartOfMonth().AddDays(9);
             
             var ukagai = new UkagaiHeaderBuilder()
                 .WithId(7102)
@@ -2890,7 +2886,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
             var today = DateTime.Today.ToDateOnly();
-            var targetDate = today.AddDays(4);
+            var targetDate = today.GetStartOfMonth().AddDays(4);
             
             var ukagai = new UkagaiHeaderBuilder()
                 .WithId(7103)
@@ -2924,7 +2920,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
             var today = DateTime.Today.ToDateOnly();
-            var targetDate = today.AddDays(5);
+            var targetDate = today.GetStartOfMonth().AddDays(5);
             
             var nippou = new NippouBuilder()
                 .WithId(7103)
@@ -2966,7 +2962,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
             var today = DateTime.Today.ToDateOnly();
-            var targetDate = today.AddDays(6);
+
+            var targetDate = today.GetStartOfMonth().AddDays(6);
             
             var nendo = new YukyuNendoBuilder().WithId(7101).WithIsThisYear(true).Build();
             db.YukyuNendos.Add(nendo);
@@ -2999,7 +2996,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
             var today = DateTime.Today.ToDateOnly();
-            var targetDate = today.AddDays(7);
+
+            var targetDate = today.GetStartOfMonth().AddDays(7);
             
             var nendo = new YukyuNendoBuilder().WithId(7101).WithIsThisYear(true).Build();
             db.YukyuNendos.Add(nendo);
@@ -3010,7 +3008,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = targetDate;
+            model.NippouYmd = today;
 
             // Act
             await model.OnGetAsync();
@@ -3032,14 +3030,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
             var today = DateTime.Today.ToDateOnly();
-            var targetDate = today.AddDays(8);
+            var targetDate = today.GetStartOfMonth().AddDays(8);
             
             var furikyu = new FurikyuuZan { Id = 7101, SyainId = syain.Id, SyutokuYoteiYmd = targetDate };
             db.FurikyuuZans.Add(furikyu);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = targetDate;
+            model.NippouYmd = today;
 
             // Act
             await model.OnGetAsync();

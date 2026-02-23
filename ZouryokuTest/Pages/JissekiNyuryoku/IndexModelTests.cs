@@ -8004,8 +8004,8 @@ expected,
                 .WithId(101)
                 .WithSyainBaseId(bumonchoBase.Id)
                 .WithBusyoId(busyo.Id)
-                .WithStartYmd(today.AddDays(-1))
-                .WithEndYmd(today.AddDays(1))
+                .WithStartYmd(today.GetStartOfMonth())
+                .WithEndYmd(today.GetEndOfMonth())
                 .WithEMail("boss@test.com")
                 .Build();
 
@@ -8083,8 +8083,8 @@ expected,
                 .WithId(101)
                 .WithSyainBaseId(bumonchoBase.Id)
                 .WithBusyoId(busyo.Id)
-                .WithStartYmd(today.AddDays(-1))
-                .WithEndYmd(today.AddDays(1))
+                .WithStartYmd(today.GetStartOfMonth())
+                .WithEndYmd(today.GetEndOfMonth())
                 .WithEMail("boss@test.com")
                 .Build();
 
@@ -8159,8 +8159,8 @@ expected,
                 .WithId(101)
                 .WithSyainBaseId(bumonchoBase.Id)
                 .WithBusyoId(busyo.Id)
-                .WithStartYmd(today.AddDays(-1))
-                .WithEndYmd(today.AddDays(1))
+                .WithStartYmd(today.GetStartOfMonth())
+                .WithEndYmd(today.GetEndOfMonth())
                 .WithEMail(string.Empty)
                 .Build();
 
@@ -8227,8 +8227,8 @@ expected,
                 .WithId(111)
                 .WithSyainBaseId(bumonchoBase.Id)
                 .WithBusyoId(busyo.Id)
-                .WithStartYmd(today.AddDays(-1))
-                .WithEndYmd(today.AddDays(1))
+                .WithStartYmd(today.GetStartOfMonth())
+                .WithEndYmd(today.GetEndOfMonth())
                 .WithEMail("boss_halfday@test.com")
                 .Build();
 
@@ -8292,8 +8292,8 @@ expected,
                 .WithId(211)
                 .WithSyainBaseId(bumonchoBase.Id)
                 .WithBusyoId(busyo.Id)
-                .WithStartYmd(today.AddDays(-1))
-                .WithEndYmd(today.AddDays(1))
+                .WithStartYmd(today.GetStartOfMonth())
+                .WithEndYmd(today.GetEndOfMonth())
                 .WithEMail("boss_half_unused@test.com")
                 .Build();
 
@@ -8413,8 +8413,8 @@ expected,
                 .WithId(411)
                 .WithSyainBaseId(bumonchoBase.Id)
                 .WithBusyoId(busyo.Id)
-                .WithStartYmd(today.AddDays(-1))
-                .WithEndYmd(today.AddDays(1))
+                .WithStartYmd(today.GetStartOfMonth())
+                .WithEndYmd(today.GetEndOfMonth())
                 .WithEMail("boss_mixed@test.com")
                 .Build();
 
@@ -8485,8 +8485,8 @@ expected,
                 .WithId(511)
                 .WithSyainBaseId(bumonchoBase.Id)
                 .WithBusyoId(busyo.Id)
-                .WithStartYmd(today.AddDays(-30))
-                .WithEndYmd(today.AddDays(-1))
+                .WithStartYmd(today.GetStartOfMonth().AddMonths(-1))
+                .WithEndYmd(today.GetEndOfLastMonth())
                 .WithEMail("inactive_boss@test.com")
                 .Build();
 

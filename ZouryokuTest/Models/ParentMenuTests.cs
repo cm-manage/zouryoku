@@ -1,4 +1,5 @@
 using CommonLibrary.Extensions;
+using NPOI.Util;
 using Zouryoku.Enums;
 using Zouryoku.Extensions;
 using Zouryoku.Models.Menu;
@@ -83,9 +84,10 @@ namespace ZouryokuTest.Models
         {
             // ---------- Arrange ----------
             var parent = new ParentMenu("親", true, "icon");
+            var parentCopy = parent.Copy();
 
             // ---------- Act ----------
-            var result = parent.AddChildMenu(MenuCode.勤務表, "child-icon", false);
+            var result = parentCopy.AddChildMenu(MenuCode.勤務表, "child-icon", false);
 
             // ---------- Assert ----------
             // ChildMenus以外は同じであること
@@ -115,12 +117,13 @@ namespace ZouryokuTest.Models
 
             // あらかじめ親メニューに勤務表を設定
             parent.AddChildMenu(MenuCode.勤務表, "child-icon", false);
+            var parentCopy = parent.Copy();
 
             // 変更後の子メニュー
             var changeChildMenu = new ChildMenu(MenuCode.申請確認, "new-icon", true);
 
             // ---------- Act ----------
-            var result = parent.ChangeChildMenus([changeChildMenu]);
+            var result = parentCopy.ChangeChildMenus([changeChildMenu]);
 
             // ---------- Assert ----------
             // ChildMenus以外は同じであること

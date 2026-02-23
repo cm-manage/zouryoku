@@ -142,6 +142,8 @@ namespace Zouryoku.Utils
             実績未確定の社員へチャットで通知を送信します。
             よろしいですか？
             """;
+        /// <summary>{0} {1}が{2}名に送信</summary>
+        public const string NippouMikakuteiTsuchiSendHistoryStr = "{0} {1}が{2}名に送信";
 
         /// <summary> 勤務時間 午前開始時刻 8:30</summary>
         public static readonly TimeOnly BusinessHoursAmStart = new TimeOnly(8, 30);

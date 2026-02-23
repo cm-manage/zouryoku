@@ -27,6 +27,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             [Display(Name = "社員氏名")]
             public string SyainName => _syain.Name;
 
+            /// <value>社員BaseID</value>
             public long SyainBaseId => _syain.SyainBase.Id;
 
             /// <value>確定日</value>
@@ -62,6 +63,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 /// <value>部署名</value>
                 public required string Name { get; set; }
 
+                /// <value>部署ID</value>
                 public required long? Id { get; set; }
             }
         }

@@ -1,10 +1,13 @@
-﻿@model Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae.IndexModel
+@model Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae.IndexModel
 
 <ul data-js="sections" class="list-group">
     @{ int i = 0; }
     @foreach (var s in Model.Syains)
     {
-        <li class="list-group-item bg-primary-subtle border border-info app-my-border-collapse" data-id="@s.Id" data-js="syain">
+        <li class="list-group-item bg-primary-subtle border border-info app-my-border-collapse"
+            data-id="@s.Id"
+            data-js="syain"
+        >
             <input type="hidden" name="syains[@i].Id" value="@s.Id" />
             <input type="hidden" name="syains[@i].Jyunjyo" value="@s.Jyunjyo" class="syain-order" />
 

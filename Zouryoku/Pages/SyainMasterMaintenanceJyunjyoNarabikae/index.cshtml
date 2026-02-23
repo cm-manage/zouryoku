@@ -1,7 +1,6 @@
-﻿@page
+@page
 @model Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae.IndexModel
 @{
-
     ViewData["Title"] = "社員順序並び替え";
 }
 
@@ -24,7 +23,10 @@
             </div>
         </div>
 
-        <p class="mb-2 show-label" hidden>社員名をドラッグ＆ドロップして順序を変更できます。ハンドルを掴んで移動してください。</p>
+        <p
+            class="mb-2 show-label"
+            hidden
+        >社員名をドラッグ＆ドロップして順序を変更できます。ハンドルを掴んで移動してください。</p>
 
         <div id="syain-sort-result">
             <partial name="_SyainListPartial" model="Model" />

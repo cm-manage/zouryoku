@@ -48,14 +48,16 @@
                 <!-- 左カラム -->
                 <div class="col-md-6">
                     <div class="row mb-2">
-                        <label asp-for="Condition.SyainNo" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <label asp-for="Condition.SyainNo"
+                            class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
                         <div class="col">
                             <input asp-for="Condition.SyainNo" class="form-control" />
                         </div>
                     </div>
 
                     <div class="row mb-3 align-items-center">
-                        <label asp-for="Condition.BusyoName" class="col-2 col-form-label fw-bold app-input__label"></label>
+                        <label asp-for="Condition.BusyoName"
+                             class="col-2 col-form-label fw-bold app-input__label"></label>
                         <div class="col">
                             <div class="input-group">
                                 <!-- 表示用：部署名 -->
@@ -72,16 +74,19 @@
 
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.Grade" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <label asp-for="Condition.Grade"
+                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
                         <div class="col">
                             <input asp-for="Condition.Grade" type="text" class="form-control w-50" />
                         </div>
                     </div>
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.UserRoleId" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <label asp-for="Condition.UserRoleId"
+                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
                         <div class="col">
-                            <select asp-for="Condition.UserRoleId" asp-items="Model.Condition.UserRoleOptions" class="form-select">
+                            <select asp-for="Condition.UserRoleId" asp-items="Model.Condition.UserRoleOptions"
+                                class="form-select">
                                 <option value="">-- 未選択 --</option>
                             </select>
                         </div>
@@ -91,14 +96,16 @@
                 <!-- 右カラム -->
                 <div class="col-md-6">
                     <div class="row mb-2">
-                        <label asp-for="Condition.SyainName" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <label asp-for="Condition.SyainName"
+                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
                         <div class="col">
                             <input asp-for="Condition.SyainName" class="form-control" />
                         </div>
                     </div>
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.IncludeRetired" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <label asp-for="Condition.IncludeRetired"
+                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
                         <div class="col d-flex align-items-center">
                             <div class="form-check form-switch m-0">
                                 <input asp-for="Condition.IncludeRetired" class="form-check-input" type="checkbox" />
@@ -107,9 +114,13 @@
                     </div>
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.KintaiZokuseiId" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <label asp-for="Condition.KintaiZokuseiId"
+                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
                         <div class="col">
-                            <select asp-for="Condition.KintaiZokuseiId" asp-items="Model.Condition.KintaiZokuseiOptions" class="form-select">
+                            <select 
+                                 asp-for="Condition.KintaiZokuseiId" 
+                                 asp-items="Model.Condition.KintaiZokuseiOptions"
+                                 class="form-select">
                                 <option value="">-- 未選択 --</option>
                             </select>
 
@@ -117,9 +128,11 @@
                     </div>
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.Kengen" class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                        <label asp-for="Condition.Kengen"
+                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
                         <div class="col">
-                            <select asp-for="Condition.Kengen" class="form-select" asp-items="Model.Condition.KengenOptions">
+                            <select asp-for="Condition.Kengen"
+                                class="form-select" asp-items="Model.Condition.KengenOptions">
                                 <option value="">-- 未選択 --</option>
                             </select>
                         </div>

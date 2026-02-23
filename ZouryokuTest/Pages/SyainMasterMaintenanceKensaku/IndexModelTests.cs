@@ -1,11 +1,12 @@
+using Amazon.Auth.AccessControlPolicy;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Model.Enums;
 using Model.Model;
-using static Model.Enums.EmployeeAuthority;
-using static Model.Enums.EmployeeWorkType;
 using Zouryoku.Pages.SyainMasterMaintenanceKensaku;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using static Model.Enums.EmployeeAuthority;
+using static Model.Enums.EmployeeWorkType;
 
 namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
 {
@@ -53,7 +54,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
                 .WithCode(みなし対象者)
                 .Build();
 
-            db.AddRange(kintai3Months60Hours, kintaiPart, kintaiMinashi);
+            db.AddRange(kintai3Months60Hours, kintaiPartTime, kintaiMinashi);
 
             // 部署
             var busyoSystem = new BusyoBuilder()
@@ -140,7 +141,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
                 .WithJyunjyo(2)
                 .Build();
 
-            // S003: 鈴木, 営業部, 退職=false, ロール=一般, 勤怠=シフト, 級職=3, 権限=労働状況報告|勤務日報未確定チェック
+            // S003: 鈴木, 営業部, 退職=false, ロール=一般, 勤怠=シフト, 級職=3,
+            // 権限=労働状況報告|勤務日報未確定チェック
             var syain3 = new SyainBuilder()
                 .WithId(3)
                 .WithSyainBaseId(3)
@@ -178,10 +180,11 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             await model.OnGetAsync();
 
             // Assert
-
-            Assert.AreEqual((long)みなし対象者, model.Condition.KintaiZokuseiId, "初期表示時の勤怠属性IDは3であること。");
+            Assert.AreEqual((long)みなし対象者, model.Condition.KintaiZokuseiId, "初期表示時の勤怠属性IDは" +
+                "3であること。");
             Assert.IsNotNull(model.Condition.KintaiZokuseiOptions, "勤怠属性の選択肢が取得されていること");
-            Assert.AreEqual(3, model.Condition.KintaiZokuseiOptions.Count(), "勤怠属性の選択肢が2件取得されていること");
+            Assert.AreEqual(3, model.Condition.KintaiZokuseiOptions.Count(), "勤怠属性の選択肢が" +
+                "2件取得されていること");
         }
 
         /// <summary>
@@ -220,8 +223,10 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             await model.OnGetAsync();
 
             // Assert
-            Assert.IsFalse(model.Condition.KintaiZokuseiId.HasValue, "みなし対象者が存在しない場合は勤怠属性IDが設定されないこと");
-            Assert.AreEqual(2, model.Condition.KintaiZokuseiOptions.Count(), "みなし対象者なしの2件が選択肢になること");
+            Assert.IsFalse(model.Condition.KintaiZokuseiId.HasValue, "みなし対象者が存在しない場合は勤怠属性IDが" +
+                "設定されないこと");
+            Assert.AreEqual(2, model.Condition.KintaiZokuseiOptions.Count(), "みなし対象者なしの2件が" +
+                "選択肢になること");
         }
 
         /// <summary>
@@ -263,7 +268,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             Assert.IsNotNull(model.Condition.KengenOptions, "社員権限の選択肢が取得されていること");
             // EmployeeAuthority enumの全値分
             var expectedCount = Enum.GetValues(typeof(EmployeeAuthority)).Length;
-            Assert.AreEqual(expectedCount, model.Condition.KengenOptions.Count(), "全権限の選択肢が取得されていること");
+            Assert.AreEqual(expectedCount, model.Condition.KengenOptions.Count(), "全権限の選択肢が" +
+                "取得されていること");
         }
 
         /// <summary>

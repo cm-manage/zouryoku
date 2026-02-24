@@ -47,8 +47,9 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
         public IndexModel(ZouContext context,
                           ILogger<IndexModel> logger,
                           IOptions<Zouryoku.AppConfig> options,
-                          ICompositeViewEngine viewEngine)
-      : base(context, logger, options, viewEngine)
+                          ICompositeViewEngine viewEngine,
+                          TimeProvider? timeProvider = null)
+      : base(context, logger, options, viewEngine, timeProvider)
         { }
 
         // ============================================================
@@ -79,7 +80,7 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
         /// <returns></returns>
         public async Task<IActionResult> OnGetAsync()
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
 
             // クッキーから選択値を復元
             var cookie = HttpContext.GetCookieOrDefault<AttendanceListCookie>();
@@ -99,7 +100,7 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
         /// <returns></returns>
         public async Task<IActionResult> OnPostBusyoAsync()
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
             var items = await ViewImpactDepartmentAsync(Search.BusyoId, SyainView.SelectedId, today);
 
             return SuccessJson(null, items);
@@ -111,7 +112,7 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
         /// <returns></returns>
         public async Task<IActionResult> OnPostSearchAsync()
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
 
             // 期間取得
             var (kikanStart, kikanEnd) = Search.GetNormalizeKikan();
@@ -464,7 +465,7 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
         private async Task<List<SelectListItem>> GetSyainItemsAsync(List<Busyo> busyos, string selectedSyainBaseId)
         {
             var busyoIds = busyos.Select(x => x.Id);
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
             return await db.Syains.Where(x => (busyoIds.Contains(x.BusyoId)) &&
                                          !x.Retired && x.StartYmd <= today &&
                                          today <= x.EndYmd)

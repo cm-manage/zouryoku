@@ -1,7 +1,7 @@
 using CommonLibrary.Extensions;
 using Model.Data;
 using static Model.Enums.AchievementClassification;
-using static Zouryoku.Utils.DateOnlyUtil;
+using static ZouryokuCommonLibrary.Utils.DateOnlyUtil;
 using static Zouryoku.Utils.JissekiKakuteiSimeUtil;
 
 namespace Zouryoku.Utils

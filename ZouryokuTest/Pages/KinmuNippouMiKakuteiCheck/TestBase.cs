@@ -60,6 +60,11 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             UserRoleId = 0,
         };
 
+        /// <summary>
+        /// 403ページのURL。
+        /// </summary>
+        protected const string Url403 = "/page403/";
+
         // ======================================
         // 補助メソッド
         // ======================================
@@ -73,6 +78,31 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
         {
             // IndexModelのインスタンス
             var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
+            {
+                PageContext = GetPageContext(),
+                TempData = GetTempData()
+            };
+
+            // DBにログインユーザーの情報を登録する
+            LoginUser.Kengen = auth;
+            db.Add(LoginUser);
+            db.SaveChanges();
+
+            // ログイン情報のモック
+            SetLoginInfo(model, LoginUser);
+
+            return model;
+        }
+
+        /// <summary>
+        /// テストするための<see cref="NotifyModel"/>インスタンスを取得する。
+        /// </summary>
+        /// <param name="auth">ログインユーザーの権限</param>
+        /// <returns>テスト用<see cref="NotifyModel"/>インスタンス</returns>
+        protected NotifyModel CreateNotifyModel(EmployeeAuthority auth = None)
+        {
+            // NotifyModelのインスタンス
+            var model = new NotifyModel(db, GetLogger<NotifyModel>(), options, viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()

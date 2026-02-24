@@ -209,8 +209,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             await Model!.OnGetAsync(false, false);
 
             // Assert
-            Assert.AreEqual(new DateOnly(DateTime.Now.AddYears(-2).Year, 1, 1), Model.SearchConditions.ChaYmd.From);
-            Assert.AreEqual(DateTime.Now.ToDateOnly().GetEndOfMonth(), Model.SearchConditions.ChaYmd.To);
+            Assert.AreEqual(new DateOnly(fakeTimeProvider.Now().AddYears(-2).Year, 1, 1), Model.SearchConditions.ChaYmd.From);
+            Assert.AreEqual(fakeTimeProvider.Today().GetEndOfMonth(), Model.SearchConditions.ChaYmd.To);
             Assert.IsTrue(Model.SearchConditions.IsOwnBusyoOnly);
             Assert.IsFalse(Model.SearchConditions.ShowGenkaToketu);
             Assert.AreEqual(IndexModel.AnkenSearchModel.SortKeyList.顧客名, Model.SearchConditions.SortKey);
@@ -377,8 +377,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             {
                 SyainBaseId = 1,
                 Name = expectedSekininSyaName ?? "取得されないデータ",
-                StartYmd = DateTime.Now.AddDays(startYmdOffset).ToDateOnly(),
-                EndYmd = DateTime.Now.AddDays(endYmdOffset).ToDateOnly(),
+                StartYmd = fakeTimeProvider.Today().AddDays(startYmdOffset),
+                EndYmd = fakeTimeProvider.Today().AddDays(endYmdOffset),
                 // 不要なNOT NULLカラムに適当に値を詰める
                 Code = string.Empty,
                 KanaName = string.Empty,

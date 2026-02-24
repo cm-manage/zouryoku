@@ -181,7 +181,7 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
         public async Task OnGetAsync_日報実績データあり_日報実績データが取得される()
         {
             // Arrange
-            var today = DateTime.Today.ToDateOnly();
+            var today = Today.ToDateOnly();
             var busyos = CreateBusyoHierarchy();
             var loginUserSyain = CreateSyainWithBusyo(busyos.Busyo3);
             var otherSyain = CreateSyainWithBusyo();
@@ -233,7 +233,7 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
         public async Task OnGetAsync_日報実績データなし_日報実績データが取得されない()
         {
             // Arrange
-            var today = DateTime.Today.ToDateOnly();
+            var today = Today.ToDateOnly();
             var busyos = CreateBusyoHierarchy();
             var loginUserSyain = CreateSyainWithBusyo(busyos.Busyo3);
             db.AddRange(busyos);

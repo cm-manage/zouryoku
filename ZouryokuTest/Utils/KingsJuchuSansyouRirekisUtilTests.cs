@@ -1,3 +1,4 @@
+using CommonLibrary.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
 using Zouryoku.Utils;
@@ -58,7 +59,7 @@ namespace ZouryokuTest.Utils
 
             };
 
-            var now = DateTime.Now;
+            var now = fakeTimeProvider.Now();
 
             // シード: ログインユーザーの受注参照履歴
             var userRirekis = Enumerable.Range(1, existingCount).Select(i =>
@@ -88,10 +89,10 @@ namespace ZouryokuTest.Utils
             SeedEntities(syainBase, juchu, userRirekis, otherUserRirekis);
 
             // ---------- Act ----------
-            var beforeActTime = DateTime.Now;
-            await KingsJuchuSansyouRirekisUtil.MaintainKingsJuchuSansyouRirekiAsync(db, juchu.Id, syainBase.Id);
+            var beforeActTime = fakeTimeProvider.Now();
+            await KingsJuchuSansyouRirekisUtil.MaintainKingsJuchuSansyouRirekiAsync(db, juchu.Id, syainBase.Id, fakeTimeProvider.Now());
             await db.SaveChangesAsync();
-            var afterActTime = DateTime.Now;
+            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             // 登録された履歴を取得
@@ -161,7 +162,7 @@ namespace ZouryokuTest.Utils
 
             };
 
-            var now = DateTime.Now;
+            var now = fakeTimeProvider.Now();
 
             // シード: ログインユーザーの受注参照履歴
             var userRirekis = Enumerable.Range(1, existingCount).Select(i =>
@@ -193,17 +194,17 @@ namespace ZouryokuTest.Utils
                 Id = 100,
                 KingsJuchuId = juchu.Id,
                 SyainBaseId= syainBase.Id,
-                SansyouTime = DateTime.Now.AddMinutes(-100),
+                SansyouTime = fakeTimeProvider.Now().AddMinutes(-100),
             };
 
             // 必要データ登録
             SeedEntities(syainBase, juchu, userRirekis, existingRireki, otherUserRirekis);
 
             // ---------- Act ----------
-            var beforeActTime = DateTime.Now;
-            await KingsJuchuSansyouRirekisUtil.MaintainKingsJuchuSansyouRirekiAsync(db, juchu.Id, syainBase.Id);
+            var beforeActTime = fakeTimeProvider.Now();
+            await KingsJuchuSansyouRirekisUtil.MaintainKingsJuchuSansyouRirekiAsync(db, juchu.Id, syainBase.Id, fakeTimeProvider.Now());
             await db.SaveChangesAsync();
-            var afterActTime = DateTime.Now;
+            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             var updatedRireki = await db.KingsJuchuSansyouRirekis

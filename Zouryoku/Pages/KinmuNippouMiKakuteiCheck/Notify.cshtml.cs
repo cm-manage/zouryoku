@@ -133,7 +133,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // システム日付が通知可能期間外なら403へリダイレクト
             if (!await IsInNotificationPeriodAsync(db, today, jissekiSpan))
             {
-                return new ForbidResult();
+                return new RedirectResult("/page403/");
             }
 
             // データの登録
@@ -142,7 +142,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // 送信内容に登録するデータ
             var messageContent = new MessageContent
             {
-                SyainId = LoginInfo.User.SyainBaseId,
+                SyainId = LoginInfo.User.Id,
                 Content = SendMessage,
                 FunctionType = 未確定通知,
             };

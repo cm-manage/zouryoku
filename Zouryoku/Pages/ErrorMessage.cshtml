@@ -1,0 +1,9 @@
+﻿@page
+@model Zouryoku.Pages.ErrorMessage
+@{
+    Layout = "_Layout_NoSession";
+}
+<div class="alert alert-danger alert-errors d-flex">
+    <div><i class="fas fa-exclamation-triangle fa-fw"></i></div>
+    <div id="validation-summary" asp-validation-summary="ModelOnly" class="app-validation-summary-errors"></div>
+</div>

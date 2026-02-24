@@ -1,3 +1,4 @@
+using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -11,10 +12,8 @@ namespace Zouryoku.Pages.Maintenance.Syains
     /// 個人設定ページモデル
     /// </summary>
     [FunctionAuthorizationAttribute]
-    public class IndexModel : BasePageModel<IndexModel>
+    public class IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> optionsAccessor) : BasePageModel<IndexModel>(db, logger, optionsAccessor)
     {
-        private readonly ZouContext _context;
-
         /// <summary>
         /// 顔写真設定情報
         /// </summary>
@@ -25,71 +24,64 @@ namespace Zouryoku.Pages.Maintenance.Syains
         /// </summary>
         public override bool UseInputAssets { get; } = true;
 
-        public IndexModel(ZouContext context, ILogger<IndexModel> logger, IOptions<AppConfig> options)
-            : base(context, logger, options)
-            => _context = context;
-
         /// <summary>
         /// 画面初期表示
         /// </summary>
         public async Task OnGetAsync()
         {
             // ログインユーザーの社員情報を取得
-            if (LoginInfo?.User?.Id > 0)
+            var syain = await db.Syains
+                .AsNoTracking()
+                .Where(s => s.Id == LoginInfo.User.Id)
+                .Include(s => s.SyainBase)
+                    .ThenInclude(sb => sb.SyainPhotos)
+                        .ThenInclude(sp => sp.PhotoAfterProcessTnData)
+                .FirstOrDefaultAsync();
+
+            if (syain?.SyainBase != null)
             {
-                var syain = await _context.Syains
-                    .AsNoTracking()
-                    .Where(s => s.Id == LoginInfo.User.Id)
-                    .Include(s => s.SyainBase)
-                        .ThenInclude(sb => sb.SyainPhotos)
-                            .ThenInclude(sp => sp.PhotoAfterProcessTnData)
-                    .FirstOrDefaultAsync();
+                PhotoInfo.SyainName = syain.Name;
+                PhotoInfo.SyainBaseId = syain.SyainBaseId;
 
-                if (syain?.SyainBase != null)
-                {
-                    PhotoInfo.SyainName = syain.Name;
-                    PhotoInfo.SyainBaseId = syain.SyainBaseId;
-
-                    // すべての写真を取得（削除されていないもの）
-                    PhotoInfo.AllPhotos = syain.SyainBase.SyainPhotos
-                        .Where(p => !p.Deleted)
-                        .OrderByDescending(p => p.UploadTime)
-                        .Select(p =>
-                        {
-                            var photoData = p.PhotoAfterProcessTnData
-                                .FirstOrDefault(pt => pt.Photo != null);
-
-                            return new PhotoItemInfo
-                            {
-                                Id = p.Id,
-                                PhotoName = p.PhotoName,
-                                UploadTime = p.UploadTime,
-                                IsSelected = p.Selected,
-                                HasPhotoData = photoData != null,
-                                PhotoBase64 = photoData != null
-                                    ? Convert.ToBase64String(photoData.Photo)
-                                    : string.Empty
-                            };
-                        })
-                        .ToList();
-
-                    // 設定中の写真情報も保持
-                    var selectedPhoto = syain.SyainBase.SyainPhotos
-                        .Where(p => p.Selected && !p.Deleted)
-                        .FirstOrDefault();
-
-                    if (selectedPhoto?.PhotoAfterProcessTnData.Any(pt => pt.Photo != null) == true)
+                // すべての写真を取得（削除されていないもの）
+                PhotoInfo.AllPhotos = syain.SyainBase.SyainPhotos
+                    .Where(p => !p.Deleted)
+                    .OrderByDescending(p => p.UploadTime)
+                    .Select(p =>
                     {
-                        var photoData = selectedPhoto.PhotoAfterProcessTnData
+                        var photoData = p.PhotoAfterProcessTnData
                             .FirstOrDefault(pt => pt.Photo != null);
 
-                        if (photoData?.Photo != null)
+                        return new PhotoItemInfo
                         {
-                            PhotoInfo.CurrentPhotoBase64 = Convert.ToBase64String(photoData.Photo);
-                            PhotoInfo.HasPhoto = true;
-                            PhotoInfo.CurrentPhotoId = selectedPhoto.Id;
-                            PhotoInfo.PhotoName = selectedPhoto.PhotoName;
-                        }
+                            Id = p.Id,
+                            PhotoName = p.PhotoName,
+                            UploadTime = p.UploadTime,
+                            IsSelected = p.Selected,
+                            HasPhotoData = photoData != null,
+                            PhotoBase64 = photoData != null
+                                ? Convert.ToBase64String(photoData.Photo)
+                                : string.Empty
+                        };
+                    })
+                    .ToList();
+
+                // 設定中の写真情報も保持
+                var selectedPhoto = syain.SyainBase.SyainPhotos
+                    .Where(p => p.Selected && !p.Deleted)
+                    .FirstOrDefault();
+
+                if (selectedPhoto?.PhotoAfterProcessTnData.Any(pt => pt.Photo != null) == true)
+                {
+                    var photoData = selectedPhoto.PhotoAfterProcessTnData
+                        .FirstOrDefault(pt => pt.Photo != null);
+
+                    if (photoData?.Photo != null)
+                    {
+                        PhotoInfo.CurrentPhotoBase64 = Convert.ToBase64String(photoData.Photo);
+                        PhotoInfo.HasPhoto = true;
+                        PhotoInfo.CurrentPhotoId = selectedPhoto.Id;
+                        PhotoInfo.PhotoName = selectedPhoto.PhotoName;
                     }
                 }
             }
@@ -100,17 +92,17 @@ namespace Zouryoku.Pages.Maintenance.Syains
         /// </summary>
         public async Task<IActionResult> OnPostSelectPhotoAsync(long photoId)
         {
-            var syainBaseId = LoginInfo?.User?.SyainBaseId;
-            if (syainBaseId == null || syainBaseId <= 0)
+            var syainBaseId = LoginInfo.User.SyainBaseId;
+            if (syainBaseId <= 0)
             {
                 return ErrorJson("ユーザー情報を取得できませんでした。");
             }
 
             // トランザクション開始
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            using var transaction = await db.Database.BeginTransactionAsync();
 
             // 既存の設定中の写真をすべて非選択に変更
-            var selectedPhotos = await _context.SyainPhotos
+            var selectedPhotos = await db.SyainPhotos
                 .Where(p => p.SyainBaseId == syainBaseId)
                 .ToListAsync();
 
@@ -120,7 +112,7 @@ namespace Zouryoku.Pages.Maintenance.Syains
             }
 
             // 指定の写真を選択
-            var targetPhoto = await _context.SyainPhotos
+            var targetPhoto = await db.SyainPhotos
                 .Where(p => p.Id == photoId && p.SyainBaseId == syainBaseId && !p.Deleted)
                 .FirstOrDefaultAsync();
 
@@ -131,9 +123,9 @@ namespace Zouryoku.Pages.Maintenance.Syains
 
             targetPhoto.Selected = true;
             // UploadTimeを現在時刻に更新してETagを変更させ、ブラウザキャッシュを無効化
-            targetPhoto.UploadTime = DateTime.Now;
+            targetPhoto.UploadTime = timeProvider.Now();
 
-            await _context.SaveChangesAsync();
+            await db.SaveChangesAsync();
             await transaction.CommitAsync();
 
             return SuccessJson("写真を設定しました。");

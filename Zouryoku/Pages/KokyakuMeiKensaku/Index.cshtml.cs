@@ -35,8 +35,8 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
         // ======================================
 
         public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine) { }
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider? timeProvider = null)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         // ======================================
         // フィールド
@@ -256,7 +256,7 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
             }
 
             // 登録または更新を行い、参照履歴超過分を削除
-            await MaintainKokyakuKaisyaSansyouRirekiAsync(db, customerId, LoginInfo.User.SyainBaseId);
+            await MaintainKokyakuKaisyaSansyouRirekiAsync(db, customerId, LoginInfo.User.SyainBaseId, timeProvider.Now());
 
             await db.SaveChangesAsync();
 
@@ -287,7 +287,7 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
         /// <returns>タプル(総件数, 参照履歴のリスト)</returns>
         private async Task<(int total, List<CustomerViewModel> customers)> GetReferenceHistoriesAsync(long empBaseId, int pageIndex)
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
 
             var query = db.KokyakuKaisyaSansyouRirekis
                 .AsNoTracking()
@@ -318,7 +318,7 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
         private async Task<(int total, List<CustomerViewModel> customers)> SearchCustomersAsync(string word, int pageIndex)
         {
             var searchWord = StringUtil.NormalizeString(word);
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
 
             var query = db.KokyakuKaishas
                 .AsNoTracking()
@@ -454,7 +454,7 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
         public string? Tel => Source.Tel;
 
         // インスタンス生成時点で有効期限を確認したエンティティを入れている想定
-        [Display(Name = "営業担当")]
+        [Display(Name = "担当者名")]
         public string? SalesPersonName
             => Source.EigyoBaseSyain?.Syains.FirstOrDefault()?.Name;
 

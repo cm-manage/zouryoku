@@ -34,8 +34,8 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
         // DI（サービス、DB、ロガーなど）
         // ---------------------------------------------
         public IndexModel(
-            ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> options, ICompositeViewEngine viewEngine)
-            : base(db, logger, options, viewEngine) { }
+            ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> options, ICompositeViewEngine viewEngine, TimeProvider? timeProvider = null)
+            : base(db, logger, options, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets => true;
 
@@ -67,13 +67,7 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
             // 案件情報の存在チェック
             if (anken is null)
             {
-                ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                IndexViewModel = new()
-                {
-                    CanAdd = false,
-                    LoginInfo = LoginInfo
-                };
-                return Page();
+                return RedirectToPage("/ErrorMessage", new { errorMessage = Const.ErrorSelectedDataNotExists });
             }
 
             // 画面描画用ViewModelの作成
@@ -218,7 +212,7 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
             }
 
             // 案件参照履歴を保存
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, LoginInfo.User.SyainBaseId);
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, LoginInfo.User.SyainBaseId, timeProvider.Now());
             await db.SaveChangesAsync();
         }
     }

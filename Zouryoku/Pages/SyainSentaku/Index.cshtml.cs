@@ -53,8 +53,8 @@ namespace Zouryoku.Pages.SyainSentaku
         // DI（サービス、DB、ロガーなど）
         // ---------------------------------------------
 
-        public IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-           : base(db, logger, optionsAccessor, viewEngine) { }
+        public IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider? timeProvider = null)
+           : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         /// <summary>
         /// 複数選択フラグ
@@ -162,7 +162,7 @@ namespace Zouryoku.Pages.SyainSentaku
                     .ToList();
 
                 // 現在日付取得
-                Today = DateTime.Now.ToDateOnly();
+                Today = timeProvider.Today();
 
                 // 最終選択社員を設定
                 PreSelectedSyain = await GetPreselectedSyainAsync(selectedSyainBaseIds);
@@ -182,7 +182,7 @@ namespace Zouryoku.Pages.SyainSentaku
         public async Task<IActionResult> OnGetTreeAsync()
         {
             // 現在日付取得
-            Today = DateTime.Now.ToDateOnly();
+            Today = timeProvider.Today();
             var busyo = await GetBusyoAsync();
             var busyoList = BuildTree(busyo);
             return new JsonResult(busyoList);
@@ -208,26 +208,26 @@ namespace Zouryoku.Pages.SyainSentaku
             var partialName = GetPartialName(isMultipleFlg);
 
             // 現在日付取得
-            Today = DateTime.Now.ToDateOnly();
+            Today = timeProvider.Today();
 
             // 部署一覧を取得
             var busyoList = await GetBusyoAsync();
 
             // 親子関係を構築してDepthを付与
-            BuildParentRelation(busyoList);
+            var orderedBusyoList = BuildParentRelation(busyoList);
 
             // 指定部署ID、指定部署ID配下取得
-            TargetBusyoIds = GetChildrenBusyoIds(busyoId, busyoList);
+            TargetBusyoIds = GetChildrenBusyoIds(busyoId, orderedBusyoList);
 
             // 社員を取得
             SyainList = await GetSyainFromBusyoAsync(TargetBusyoIds, selectedIds);
 
             // 取得した社員を部署に割り当てる
-            AssignSyainToBusyo(busyoList, SyainList);
+            AssignSyainToBusyo(orderedBusyoList, SyainList);
 
             SyainListPage = new PartialModel
             {
-                BusyoList = busyoList
+                BusyoList = orderedBusyoList
             };
 
             var data = await PartialToJsonAsync(partialName, SyainListPage);
@@ -252,7 +252,7 @@ namespace Zouryoku.Pages.SyainSentaku
             var partialName = GetPartialName(isMultipleFlg);
 
             // 現在日付取得
-            Today = DateTime.Now.ToDateOnly();
+            Today = timeProvider.Today();
 
             // 部署一覧を取得
             var busyoList = await GetBusyoAsync();
@@ -266,7 +266,7 @@ namespace Zouryoku.Pages.SyainSentaku
                                     .ToList();
 
             // 親子関係を構築して Depth を付与
-            BuildParentRelation(filteredBusyoList);
+            var orderedBusyoList = BuildParentRelation(filteredBusyoList);
 
             // 検索対象部署ID
             TargetBusyoIds = filteredBusyoList.Select(busyo => busyo.Id).ToList();
@@ -275,12 +275,12 @@ namespace Zouryoku.Pages.SyainSentaku
             SyainList = await GetSyainFromNameAsync(SyainName!, TargetBusyoIds);
 
             // 取得した社員を部署に割り当て
-            AssignSyainToBusyo(busyoList, SyainList);
+            AssignSyainToBusyo(orderedBusyoList, SyainList);
 
             // Partialに渡すモデル
             SyainListPage = new PartialModel
             {
-                BusyoList = busyoList
+                BusyoList = orderedBusyoList
             };
 
             var data = await PartialToJsonAsync(partialName, SyainListPage);
@@ -295,7 +295,7 @@ namespace Zouryoku.Pages.SyainSentaku
         public async Task<IActionResult> OnGetSyainNameAutoCompAsync(string term)
         {
             // 現在日付取得
-            Today = DateTime.Now.ToDateOnly();
+            Today = timeProvider.Today();
 
             var busyoList = await GetBusyoAsync();
 
@@ -423,54 +423,33 @@ namespace Zouryoku.Pages.SyainSentaku
         /// 親子関係を構築
         /// </summary>
         /// <param name="busyoList">部署リスト</param>
-        private static void BuildParentRelation(List<BusyoViewModel> busyoList)
+        /// <returns>ルート部署から順に親子関係を平坦化したリスト</returns>
+        private static List<BusyoViewModel> BuildParentRelation(List<BusyoViewModel> busyoList)
         {
-            busyoList
-               .Select(busyo => { busyo.Children = new List<BusyoViewModel>(); busyo.Depth = 0; return busyo; })
-               .ToList();
+            if (busyoList.Count == 0) return [];
 
-            var childrenLookup = busyoList
-                .Where(busyo => busyo.OyaId.HasValue)
-                .GroupBy(busyo => busyo.OyaId!.Value)
-                .ToDictionary(group => group.Key, group => group.ToList());
+            // キーが親ID、値がその親に紐づく子部署群となるルックアップ作成
+            var lookup = busyoList.ToLookup(busyo => busyo.OyaId);
 
-            busyoList
-               .Select(busyo =>
-               {
-                   busyo.Children = childrenLookup.TryGetValue(busyo.Id, out var list) ? list : new List<BusyoViewModel>();
-                   return busyo;
-               })
-               .ToList();
-
-            // 再帰的にルートから深さを設定
-            busyoList
-                .Where(b => !b.OyaId.HasValue)
-                .Select(root => { SetDepth(root, 0); return root; })
+            return lookup[null]
+                .OrderBy(busyo => busyo.Jyunjyo)
+                .SelectMany(root => TraverseNode(root, 0, lookup))
                 .ToList();
-
-            // ソート
-            busyoList.Sort((a, b) =>
-            {
-                var cmp = a.Depth.CompareTo(b.Depth);
-                if (cmp != 0) return cmp;
-                return a.Jyunjyo.CompareTo(b.Jyunjyo);
-            });
         }
 
         /// <summary>
-        /// 指定ノードと子孫ノードに対して深さ設定
+        /// 各部署の階層設定、階層ごとの並び替え
         /// </summary>
-        /// <param name="node">指定ノード</param>
-        /// <param name="depth">深さ</param>
-        private static void SetDepth(BusyoViewModel node, int depth)
+        /// <param name="node">親部署</param>
+        /// <param name="depth">階層</param>
+        /// <param name="lookup">部署のルックアップ</param>
+        /// <returns>階層ごとに並び替えられた部署</returns>
+        private static IEnumerable<BusyoViewModel> TraverseNode(BusyoViewModel node, int depth, ILookup<long?, BusyoViewModel> lookup)
         {
-            if (node == null)
-                return;
-
             node.Depth = depth;
-            (node.Children ?? Enumerable.Empty<BusyoViewModel>())
-                .Select(child => { SetDepth(child, depth + Step); return child; })
-                .ToList();
+            node.Children = lookup[node.Id].OrderBy(busyo => busyo.Jyunjyo).ToList();
+            var rest = node.Children.SelectMany(child => TraverseNode(child, depth + Step, lookup));
+            return rest.Prepend(node);
         }
 
         /// <summary>

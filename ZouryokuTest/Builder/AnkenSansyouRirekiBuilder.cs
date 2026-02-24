@@ -50,7 +50,7 @@ namespace ZouryokuTest.Builder
                 Id = _id ?? 0,
                 SyainBaseId = _syainBaseId ?? 1,
                 AnkenId = _ankenId ?? 1,
-                SansyouTime = _sansyouTime ?? DateTime.Now,
+                SansyouTime = _sansyouTime ?? new DateTime(2024, 1, 1),
                 Version = _version ?? 1
             };
         }

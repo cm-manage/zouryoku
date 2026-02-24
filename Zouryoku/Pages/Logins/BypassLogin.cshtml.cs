@@ -9,6 +9,7 @@ using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Utils;
 using ZouryokuCommonLibrary;
+using CommonLibrary.Extensions;
 
 namespace Zouryoku.Pages.Logins
 {
@@ -47,15 +48,28 @@ namespace Zouryoku.Pages.Logins
             
             logger.LogInformation("システム共通 設定値サンプル = " + appSettings.HogeThreshold);
 
+            var today = DateTime.Today.ToDateOnly();
             // 社員検索（メール一致）
-            var syain = await db.Syains
+            var syains = await db.Syains
                 .Include(s => s.Busyo)
                 .Include(s => s.SyainBase)
-                .FirstOrDefaultAsync(s => s.EMail == Email);
+                .Where(s => s.EMail == Email)
+                .ToListAsync();
+
+            if (syains.Count == 0)
+            {
+                ModelState.AddModelError(nameof(Email), "対象のメールアドレスは登録されていません。");
+                return Page();
+            }
+
+            var syain = syains
+                .Where(s => s.StartYmd <= today && today <= s.EndYmd)
+                .Where(s => !s.Retired)
+                .FirstOrDefault();
 
             if (syain == null)
             {
-                ModelState.AddModelError(nameof(Email), "対象のメールアドレスは登録されていません。");
+                ModelState.AddModelError(nameof(Email), "対象の社員は退職済みです。");
                 return Page();
             }
 
@@ -66,7 +80,7 @@ namespace Zouryoku.Pages.Logins
                 EntraEmail = Email,
                 EntraDisplayName = syain.Name,
                 AuthenticationMethod = "Bypass",
-                LastRefreshedAt = DateTime.Now
+                LastRefreshedAt = timeProvider.Now()
             };
 
             // セッション保存

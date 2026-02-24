@@ -82,7 +82,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             var kingsJuchu = new KingsJuchu()
             {
                 Id = 1,
-                Nendo = (short)DateTime.Today.ToDateOnly().GetFiscalYear(),
+                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
                 // 不要なNOT NULLカラムに適当に値を詰める
                 JucYmd = DateOnly.MinValue,
                 EntYmd = DateOnly.MinValue,
@@ -180,8 +180,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             {
                 SyainBaseId = 1,
                 Name = expectedSekininSyaName ?? "取得されないデータ",
-                StartYmd = DateTime.Now.AddDays(startYmdOffset).ToDateOnly(),
-                EndYmd = DateTime.Now.AddDays(endYmdOffset).ToDateOnly(),
+                StartYmd = fakeTimeProvider.Today().AddDays(startYmdOffset),
+                EndYmd = fakeTimeProvider.Today().AddDays(endYmdOffset),
                 // 不要なNOT NULLカラムに適当に値を詰める
                 Code = string.Empty,
                 KanaName = string.Empty,
@@ -212,7 +212,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
                 JucKin = jucKin,
                 ChaYmd = chaYmd,
                 NsyYmd = nsyYmd,
-                Nendo = (short)DateTime.Now.ToDateOnly().GetFiscalYear(),
+                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
                 // 不要なNOT NULLカラムに適当に値を詰める
                 JucYmd = DateOnly.MinValue,
                 EntYmd = DateOnly.MinValue,
@@ -340,7 +340,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
                 JuchuuNo = "受注番号",
                 JuchuuGyoNo = 1,
                 ChaYmd = new DateOnly(2025, 1, 1),
-                Nendo = (short)DateTime.Now.ToDateOnly().GetFiscalYear(),
+                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
                 IsGenkaToketu = false,
                 SekouBumonCd = LoginUserBusyoCode,
                 // 不要なNOT NULLカラムに適当に値を詰める
@@ -472,7 +472,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
                 JuchuuNo = "受注番号",
                 JuchuuGyoNo = 1,
                 ChaYmd = new DateOnly(2025, 1, 1),
-                Nendo = (short)DateTime.Now.ToDateOnly().GetFiscalYear(),
+                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
                 SekouBumonCd = sekouBumonCd,
                 IsGenkaToketu = isGentaToketsu,
                 // 不要なNOT NULLカラムに適当に値を詰める
@@ -549,7 +549,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             var kingsJuchu = new KingsJuchu()
             {
                 Id = 1,
-                Nendo = (short)DateTime.Now.ToDateOnly().GetFiscalYear(),
+                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
                 IsGenkaToketu = false,
                 // 不要なNOT NULLカラムに適当に値を詰める
                 SekouBumonCd = string.Empty,
@@ -600,7 +600,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             var kingsJuchu = new KingsJuchu()
             {
                 Id = 1,
-                Nendo = (short)(DateTime.Now.ToDateOnly().GetFiscalYear() - 1),
+                Nendo = (short)(fakeTimeProvider.Today().GetFiscalYear() - 1),
                 IsGenkaToketu = false,
                 // 不要なNOT NULLカラムに適当に値を詰める
                 SekouBumonCd = string.Empty,
@@ -674,7 +674,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
                 kingsJuchus.Add(new KingsJuchu()
                 {
                     Id = i,
-                    Nendo = (short)DateTime.Now.ToDateOnly().GetFiscalYear(),
+                    Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
                     // NOTE: (案件ID, 着工日) = (1, 2025/1/1), (2, 2025/1/2), (3, 2025/1/3)となるので、
                     //       着工日の降順で案件IDが[3, 2, 1]と並ぶ
                     ChaYmd = new DateOnly(2025, 1, 1).AddDays((i + 2) % 3),

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Time.Testing;
 using Model.Model;
 using Moq;
 using Zouryoku.Data;
@@ -67,7 +68,9 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
         /// </summary>
         private const string SyainCode3 = "1";
 
-        protected static DateOnly FirstDayOfMonth => DateTime.Today.ToDateOnly().GetStartOfMonth();
+        protected static DateTime Today => new DateTime(2025, 5, 2);
+
+        protected static DateOnly FirstDayOfMonth => new DateOnly(2025, 5, 1);
 
         /// <summary>
         /// 勤務日報確認画面用の <see cref="IndexModel"/> を生成し、テスト実行に必要なコンテキスト情報を設定します。
@@ -93,7 +96,11 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
                 .Callback<ViewContext>(vc => onRender?.Invoke((IndexModel.DaysViewModel?)vc.ViewData.Model))
                 .Returns(Task.CompletedTask);
 
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngineMock.Object)
+            // システム日時を固定するための FakeTimeProvider
+            fakeTimeProvider = new FakeTimeProvider(new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero));
+            fakeTimeProvider.SetLocalNow(Today);
+
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngineMock.Object, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
@@ -252,7 +259,7 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
         // Arrange用ヘルパーメソッド
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected static IndexModel.DaysQuery CreateDaysQuery(long targetSyainId, DateOnly? targetYm = null) => new()
+        protected IndexModel.DaysQuery CreateDaysQuery(long targetSyainId, DateOnly? targetYm = null) => new()
         {
             TargetYm = targetYm ?? FirstDayOfMonth,
             TargetSyainId = targetSyainId

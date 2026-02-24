@@ -35,8 +35,8 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
         // ======================================
 
         public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine) { }
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider timeProvider)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         // ======================================
         // フィールド
@@ -117,7 +117,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
         /// <param name="kokyakuId">初期検索条件に指定する顧客会社ID</param>
         public async Task<IActionResult> OnGetAsync(bool canCardClick, bool canAdd, long? kokyakuId = null)
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
 
             // 参照履歴を取得
             (SearchResultCount, Ankens) = await GetReferenceHistoriesAsync(LoginInfo.User.SyainBaseId, 0, today);
@@ -157,7 +157,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
             IsReferHistory = true;
 
             // 参照履歴を取得
-            (SearchResultCount, Ankens) = await GetReferenceHistoriesAsync(LoginInfo.User.SyainBaseId, 0, DateTime.Now.ToDateOnly());
+            (SearchResultCount, Ankens) = await GetReferenceHistoriesAsync(LoginInfo.User.SyainBaseId, 0, timeProvider.Today());
 
             // 部分ページを返答
             return await RespondPageAsync(PartialPage);
@@ -214,7 +214,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
                 // 履歴参照の場合
                 if (isReferHistory)
                 {
-                    return await GetReferenceHistoriesAsync(LoginInfo.User.SyainBaseId, PageIndex, DateTime.Now.ToDateOnly());
+                    return await GetReferenceHistoriesAsync(LoginInfo.User.SyainBaseId, PageIndex, timeProvider.Today());
                 }
                 // 顧客名検索の場合
                 else
@@ -292,7 +292,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
             }
 
             // 登録または更新を行い、参照履歴超過分を削除
-            await MaintainAnkenSansyouRirekiAsync(db, anken!, LoginInfo.User.SyainBaseId);
+            await MaintainAnkenSansyouRirekiAsync(db, anken!, LoginInfo.User.SyainBaseId, timeProvider.Now());
 
             await db.SaveChangesAsync();
 
@@ -385,7 +385,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
         /// <returns>案件情報のビューモデルのリスト</returns>
         private async Task<(int total, List<AnkenViewModel> ankens)> SearchAnkensAsync(AnkenSearchModel model, int pageIndex)
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
 
             // NOTE: varだとIQueryable<Anken, KokyakuKaisha?>型になるため明示的に宣言
             IQueryable<Anken> query = db.Ankens

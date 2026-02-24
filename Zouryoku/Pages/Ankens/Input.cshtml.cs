@@ -34,8 +34,8 @@ namespace Zouryoku.Pages.Ankens
         // ---------------------------------------------
         // DI（サービス、DB、ロガーなど）
         // ---------------------------------------------
-        public InputModel(ZouContext db, ILogger<InputModel> logger, IOptions<AppConfig> options)
-            : base(db, logger, options)
+        public InputModel(ZouContext db, ILogger<InputModel> logger, IOptions<AppConfig> options, TimeProvider? timeProvider = null)
+            : base(db, logger, options, timeProvider)
         { }
 
         // ---------------------------------------------
@@ -90,8 +90,7 @@ namespace Zouryoku.Pages.Ankens
 
                 if (existing is null)
                 {
-                    ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                    return Page();
+                    return RedirectToPage("/ErrorMessage", new { errorMessage = Const.ErrorSelectedDataNotExists });
                 }
                 Anken = AnkenInputModel.FromEntity(existing);
             }
@@ -161,7 +160,7 @@ namespace Zouryoku.Pages.Ankens
             }
 
             // 案件参照履歴保存
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, entity, user.SyainBaseId);
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, entity, user.SyainBaseId, timeProvider.Now());
 
             // DB保存
             await SaveWithConcurrencyCheckAsync(string.Format(Const.ErrorConflictReload, AnkenInfoLabel));

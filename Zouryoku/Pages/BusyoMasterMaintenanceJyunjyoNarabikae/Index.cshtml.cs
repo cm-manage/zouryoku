@@ -23,7 +23,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
         /// このページの CSS スタイルで扱う部署階層数（レベル数）を表します。
         /// この値を超える階層構造であっても、同一または類似の色調が再利用される形で表示自体は可能です。
         /// </summary>
-        public static int CssLevelCount => 15;
+        public static int CssLevelCount => 6;
 
         // 排他エラーメッセージ
         public static string ErrorConflictBusyo { get; } = string.Format(Const.ErrorConflictReload, "部署マスタ");

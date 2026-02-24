@@ -28,10 +28,14 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
         // ---------------------------------------------
         // 2. DI（サービス、DB、ロガーなど）
         // ---------------------------------------------
+        private readonly TimeProvider _timeProvider;
+
         public IndexModel(
-            ZouContext context, ILogger<IndexModel> logger, IOptions<AppConfig> options, ICompositeViewEngine viewEngine)
+            ZouContext context, ILogger<IndexModel> logger, IOptions<AppConfig> options, ICompositeViewEngine viewEngine,
+            TimeProvider timeProvider)
             : base(context, logger, options, viewEngine)
         {
+            _timeProvider = timeProvider;
         }
 
         // ---------------------------------------------
@@ -59,10 +63,15 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
         /// </summary>
         public async Task<IActionResult> OnGetAsync()
         {
-            TargetDaysQuery = new DaysQuery();
+            var targetYm = _timeProvider.Now().ToDateOnly();
             var targetSyain = LoginInfo.User;
+            TargetDaysQuery = new DaysQuery
+            {
+                TargetYm = targetYm,
+                TargetSyainId = targetSyain.Id
+            };
 
-            var (daysViewModel, errorMessage) = await CreateDaysViewModelAsync(TargetDaysQuery.TargetYm, targetSyain);
+            var (daysViewModel, errorMessage) = await CreateDaysViewModelAsync(targetYm, targetSyain);
             if (daysViewModel is null)
             {
                 // エラーメッセージを空画面の上部に表示する。
@@ -90,11 +99,13 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
         /// </param>
         public async Task<IActionResult> OnGetSearchAsync(DaysQuery targetDaysQuery)
         {
+            var targetYm = targetDaysQuery.TargetYm ?? _timeProvider.Now().ToDateOnly();
+
             // 全社員を指定可能
             var targetSyain = await GetTargetSyainAsync(targetDaysQuery.TargetSyainId);
             if (targetSyain is null) return CommonErrorResponseWithMessage(Const.ErrorSelectedDataNotExists);
 
-            var (daysViewModel, errorMessage) = await CreateDaysViewModelAsync(targetDaysQuery.TargetYm, targetSyain);
+            var (daysViewModel, errorMessage) = await CreateDaysViewModelAsync(targetYm, targetSyain);
             if (daysViewModel is null)
             {
                 // エラーメッセージを画面上部に表示する。

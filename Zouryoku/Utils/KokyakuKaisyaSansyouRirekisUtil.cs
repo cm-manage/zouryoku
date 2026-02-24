@@ -29,7 +29,8 @@ namespace Zouryoku.Utils
         /// <param name="db">DbContext</param>
         /// <param name="kokyakuId">参照する顧客情報のID</param>
         /// <param name="syainBaseId">ログインユーザーの社員BaseID</param>
-        public static async Task MaintainKokyakuKaisyaSansyouRirekiAsync(ZouContext db, long kokyakuId, long syainBaseId)
+        /// <param name="now">現在日時</param>
+        public static async Task MaintainKokyakuKaisyaSansyouRirekiAsync(ZouContext db, long kokyakuId, long syainBaseId, DateTime now)
         {
             // 既存の顧客会社参照履歴を取得
             KokyakuKaisyaSansyouRireki? existingRireki = await db.KokyakuKaisyaSansyouRirekis
@@ -41,7 +42,7 @@ namespace Zouryoku.Utils
             if (existingRireki is not null)
             {
                 // 顧客会社参照履歴を更新
-                existingRireki.SansyouTime = DateTime.Now;
+                existingRireki.SansyouTime = now;
 
                 // 削除対象検索クエリ（更新データは検索しない）
                 searchQuery = x => (x.SyainBaseId == syainBaseId && x.Id != existingRireki.Id);
@@ -53,7 +54,7 @@ namespace Zouryoku.Utils
                 {
                     KokyakuKaisyaId = kokyakuId,
                     SyainBaseId = syainBaseId,
-                    SansyouTime = DateTime.Now
+                    SansyouTime = now
                 };
                 db.KokyakuKaisyaSansyouRirekis.Add(newEntity);
 

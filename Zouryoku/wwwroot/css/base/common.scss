@@ -1000,6 +1000,8 @@ textarea[readonly]:focus {
     }
     // フッターエリア
     .app-area__footer {
+        // fixed-bottomを常時適用
+        position: fixed;
         left: 0;
         right: 0;
         bottom: 0;

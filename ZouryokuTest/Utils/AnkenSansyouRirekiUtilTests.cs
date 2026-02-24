@@ -1,3 +1,4 @@
+using CommonLibrary.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
 using Zouryoku.Utils;
@@ -45,10 +46,10 @@ namespace ZouryokuTest.Utils
             SeedEntities(syainBase, anken, userRirekis, otherUserRirekis);
 
             // ---------- Act ----------
-            var beforeActTime = DateTime.Now;
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id);
+            var beforeActTime = fakeTimeProvider.Now();
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, fakeTimeProvider.Now());
             await db.SaveChangesAsync();
-            var afterActTime = DateTime.Now;
+            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             // 登録された履歴を取得
@@ -106,10 +107,10 @@ namespace ZouryokuTest.Utils
             SeedEntities(syainBase, anken, userRirekis, existingRireki, otherUserRirekis);
 
             // ---------- Act ----------
-            var beforeActTime = DateTime.Now;
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id);
+            var beforeActTime = fakeTimeProvider.Now();
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, fakeTimeProvider.Now());
             await db.SaveChangesAsync();
-            var afterActTime = DateTime.Now;
+            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             var updatedRireki = await db.AnkenSansyouRirekis
@@ -166,10 +167,10 @@ namespace ZouryokuTest.Utils
 
             // ---------- Act ----------
             await db.Ankens.AddAsync(anken);
-            var beforeActTime = DateTime.Now;
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id);
+            var beforeActTime = fakeTimeProvider.Now();
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, fakeTimeProvider.Now());
             await db.SaveChangesAsync();
-            var afterActTime = DateTime.Now;
+            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             var registeredRireki = await db.AnkenSansyouRirekis
@@ -227,10 +228,10 @@ namespace ZouryokuTest.Utils
 
             // ---------- Act ----------
             anken.Name = "更新後案件";
-            var beforeActTime = DateTime.Now;
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id);
+            var beforeActTime = fakeTimeProvider.Now();
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, fakeTimeProvider.Now());
             await db.SaveChangesAsync();
-            var afterActTime = DateTime.Now;
+            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             var updatedRireki = await db.AnkenSansyouRirekis
@@ -303,14 +304,14 @@ namespace ZouryokuTest.Utils
         /// </summary>
         /// <param name="syainBaseId">社員BaseID</param>
         /// <param name="count">生成件数</param>
-        private static List<AnkenSansyouRireki> CreateAnkenSansyouRirekis(long syainBaseId, int count)
+        private List<AnkenSansyouRireki> CreateAnkenSansyouRirekis(long syainBaseId, int count)
         {
             return new AnkenSansyouRirekiBuilder()
                 .WithAnkenId(0) // ダミー
                 .WithSyainBaseId(syainBaseId)
                 .BuildMany(1, count, data =>
                 {
-                    data.SansyouTime = DateTime.Now.AddMinutes(-data.Id); // IDの小さい順に古い日時とする
+                    data.SansyouTime = fakeTimeProvider.Now().AddMinutes(-data.Id); // IDの小さい順に古い日時とする
                 });
 
         }
@@ -318,13 +319,13 @@ namespace ZouryokuTest.Utils
         /// <summary>
         /// シード: 既存の案件参照履歴生成
         /// </summary>
-        private static AnkenSansyouRireki CreateExistingAnkenSansyouRireki(long ankenId, long syainBaseId, long id)
+        private AnkenSansyouRireki CreateExistingAnkenSansyouRireki(long ankenId, long syainBaseId, long id)
         {
             return new AnkenSansyouRirekiBuilder()
                 .WithId(id)
                 .WithAnkenId(ankenId)
                 .WithSyainBaseId(syainBaseId)
-                .WithSansyouTime(DateTime.Now.AddMinutes(-100)) // 古い日時とする
+                .WithSansyouTime(fakeTimeProvider.Now().AddMinutes(-100)) // 古い日時とする
                 .Build();
         }
 
@@ -333,14 +334,14 @@ namespace ZouryokuTest.Utils
         /// </summary>
         /// <param name="ankenId">案件ID</param>
         /// <param name="startId">一番最初の参照履歴ID</param>
-        private static List<AnkenSansyouRireki> CreateOtherAnkenSansyouRirekis(long ankenId, int startId)
+        private List<AnkenSansyouRireki> CreateOtherAnkenSansyouRirekis(long ankenId, int startId)
         {
             return new AnkenSansyouRirekiBuilder()
                 .WithAnkenId(ankenId)
                 .WithSyainBaseId(0) // ダミー
                 .BuildMany(startId, 3, data =>
                 {
-                    data.SansyouTime = DateTime.Now.AddMinutes(-data.Id); // IDの小さい順に古い日時とする
+                    data.SansyouTime = fakeTimeProvider.Now().AddMinutes(-data.Id); // IDの小さい順に古い日時とする
                 });
         }
 

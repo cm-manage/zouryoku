@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "部署順序並び替え";
 
+    // CSSの階層ごとのスタイルを計算するためのパラメータと関数
     var cssLightnessDecrement = 0.02; // 階層ごとの明度の減少量
     var cssChromaIncrement = 0.04; // 階層ごとの彩度の増加量
     var cssBorderWidthBase = 2.0; // 階層0のボーダー幅（px）
@@ -20,7 +21,6 @@
     </div>
 
     <form method="post">
-        @Html.AntiForgeryToken()
         @* 部署ツリー *@
         <div class="app-area__body">
             <ul data-js="sections" class="list-group mt-3">

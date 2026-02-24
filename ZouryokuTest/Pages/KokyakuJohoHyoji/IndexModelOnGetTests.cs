@@ -1,11 +1,11 @@
 using CommonLibrary.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
 using Zouryoku.Utils;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
-using static Zouryoku.Pages.KokyakuJohoHyoji.IndexModel;
 
 namespace ZouryokuTest.Pages.KokyakuJohoHyoji
 {
@@ -93,7 +93,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
 
             // 社員情報の作成
             List<Syain> syains = new List<Syain>();
-            var today = DateTime.Now.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             syains.Add(new SyainBuilder().WithId(1)
                 .WithSyainBaseId(1)
@@ -196,7 +196,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 現在の日付を取得
-            var today = DateTime.Now.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 顧客会社情報の作成
             var kokyaku = new KokyakuKaishaBuilder().WithName("AA会社")
@@ -251,7 +251,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 現在の日付を取得
-            var today = DateTime.Now.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 顧客会社情報の作成
             var kokyaku = new KokyakuKaishaBuilder().WithId(1)
@@ -328,12 +328,12 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
 
             // ================ Act ================ //
             // 処理実行前の現在日時の取得
-            var beforeActTime = DateTime.Now;
+            var beforeActTime = fakeTimeProvider.Now();
 
             await model.OnGetAsync(kokyaku.Id);
 
             // 処理実行後の現在日時の取得
-            var afterActTime = DateTime.Now;
+            var afterActTime = fakeTimeProvider.Now();
 
             // ================ Assert ================ //
             // 確認対象の顧客会社参照履歴を取得
@@ -367,11 +367,11 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         //      パラメータ.部署ID = 部署マスタ.IDを満たす部署情報がDBに存在しない場合
         // ===========================================================================================
         /// <summary>
-        /// パラメータ.顧客会社IDと一致する顧客情報が存在しない場合、NotFoundが返却されることを確認
+        /// パラメータ.顧客会社IDと一致する顧客情報が存在しない場合、RedirectToPageResultが返却されることを確認
         /// </summary>
         /// <param name="kokyakuId">顧客会社ID</param>
-        [TestMethod(DisplayName = "パラメータの顧客会社IDと一致する顧客情報が存在しない → エラーメッセージ が返却される")]
-        public async Task OnGetAsync_パラメータの顧客会社IDと一致する顧客情報が存在しない_エラーメッセージを返却()
+        [TestMethod(DisplayName = "パラメータの顧客会社IDと一致する顧客情報が存在しない → エラーページに遷移する")]
+        public async Task OnGetAsync_パラメータの顧客会社IDと一致する顧客情報が存在しない_エラーページに遷移()
         {
             // ================ Arrange ================ //
             // 顧客会社情報の作成
@@ -386,14 +386,11 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
             var result = await model.OnGetAsync(1);
 
             // ================ Assert ================ //
-            // ModelStateにエラーが設定されていること
-            Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsNotNull(model.ModelState[string.Empty], "ModelStateにキーがemptyのエラーが存在するはずです。");
+            var redirect = result as RedirectToPageResult;
 
-            // エラーメッセージの確認
-            var messages = model.ModelState[string.Empty]!.Errors.Select(e => e.ErrorMessage).ToList();
-            Assert.HasCount(1, messages, "ModelStateにはエラーが1件設定されているはずです。");
-            Assert.AreEqual(Const.ErrorSelectedDataNotExists, messages[0], "エラーメッセージが一致しません。");
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual("/ErrorMessage", redirect.PageName);
+            Assert.AreEqual(Const.ErrorSelectedDataNotExists, redirect.RouteValues?["errorMessage"]);
         }
 
         // =================================================================
@@ -415,7 +412,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 現在の日付を取得
-            var today = DateTime.Now.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 顧客会社情報の作成
             var kokyaku = new KokyakuKaishaBuilder().WithName("AA会社")
@@ -530,42 +527,6 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
             Assert.IsNull(model.KokyakuView.EigyouSyainName, "EigyouSyainName が取得されています。");
             Assert.IsNotNull(model.EigyouSyainBusyoName);
             Assert.IsEmpty(model.EigyouSyainBusyoName, "EigyouSyainBusyoName が取得されています。");
-        }
-
-        // =============================================================
-        // 顧客情報取得
-        //      パラメータ.顧客会社IDのデータがDBに存在しない場合
-        // =============================================================
-        /// <summary>
-        /// 顧客情報が取得されないことを確認
-        /// </summary>
-        [TestMethod(DisplayName = "パラメータ.顧客会社IDのデータがDBに存在しない → 顧客情報が取得されない")]
-        public async Task OnGetAsync_パラメータの顧客会社IDと一致する顧客情報が存在しない_顧客情報が取得されない()
-        {
-            // ================ Arrange ================ //
-            var model = CreateModel();
-
-            // ================ Act ================ //
-            await model.OnGetAsync(1);
-
-            // ================ Assert ================ //
-            Assert.IsNotNull(model.KokyakuView);
-            Assert.IsNull(model.KokyakuView.Id);
-            Assert.IsNull(model.KokyakuView.Code);
-            Assert.IsNull(model.KokyakuView.Name);
-            Assert.IsNull(model.KokyakuView.NameKana);
-            Assert.IsNull(model.KokyakuView.Ryakusyou);
-            Assert.IsNull(model.KokyakuView.Shiten);
-            Assert.IsNull(model.KokyakuView.YuubinnBangou);
-            Assert.IsNull(model.KokyakuView.Jyuusyo1);
-            Assert.IsNull(model.KokyakuView.Jyuusyo2);
-            Assert.IsNull(model.KokyakuView.Tel);
-            Assert.IsNull(model.KokyakuView.Fax);
-            Assert.IsNull(model.KokyakuView.Memo);
-            Assert.IsNull(model.KokyakuView.Url);
-            Assert.IsNull(model.KokyakuView.GyousyuName);
-            Assert.IsNull(model.KokyakuView.EigyouSyainName);
-            Assert.IsNull(model.KokyakuView.EigyouSyainBusyoId);
         }
     }
 }

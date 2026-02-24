@@ -114,8 +114,12 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
                 var slot = slots[i];
 
                 // 出勤時間・退勤時間設定
+                var taikin = w.TaikinTime?.ToHHmm() ?? "";
+                if (taikin == "00:00" && w.Hiduke.AddDays(1) == w.TaikinTime.ToDateOnly())
+                    taikin = "24:00"; // 打刻時間が翌日00:00の場合は24:00と表示
+
                 slot.SetSyukkin(w.SyukkinTime?.ToHHmm() ?? "");
-                slot.SetTaikin(w.TaikinTime?.ToHHmm() ?? "");
+                slot.SetTaikin(taikin);
 
                 // 位置情報設定（権限がある場合のみ）
                 if (loginUser.IsCheckStampPosition)

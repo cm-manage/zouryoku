@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="~/js/fancytree/skin-win8/ui.fancytree.min.css" asp-append-version="true">
     <style>
         #app-area-height-busyo-tree {
-            height: 35rem;
+            height: calc(100vh - 18rem);
             text-align: left !important;
         }
 
@@ -23,7 +23,7 @@
         }
 
         .app-area-height-syain-names-list {
-            height: 35rem;
+            height: calc(100vh - 18rem);
         }
 
         .syain-names-list-border-off {
@@ -38,7 +38,7 @@
             align-items: stretch;
             flex-wrap: nowrap;
             overflow: hidden;
-            height: 35rem;
+            height: calc(100vh - 18rem);
         }
 
         .app-tree-place {
@@ -105,7 +105,7 @@
                     </span>
                 </div>
             </div>
-            <div class="col-12 col-lg-6 app-syain-place card card-body overflow-auto app-area-height-syain-names-list">
+            <div class="col-12 col-lg-6 app-syain-place card card-body app-area-height-syain-names-list">
                 @if (Model.IsMultipleSelection)
                 {
                     <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
@@ -120,7 +120,7 @@
                     </div>
                 }
                 <!-- 社員表示 -->
-                <div id="syainlist-container"></div>
+                <div id="syainlist-container" class="overflow-auto"></div>
             </div>
         </div>
     </main>
@@ -128,7 +128,7 @@
         <!-- 複数選択時、確定ボタン -->
         @if (Model.IsMultipleSelection)
         {
-            <div class="col-12 d-flex justify-content-end">
+            <div class="text-end p-2">
                 <button type="button" class="btn btn-primary confirm app-btn__base">
                     <i class="fa-solid fa-circle-check"></i> 確定
                 </button>
@@ -156,6 +156,8 @@
 
             // 増減量
             const step = 1
+
+            const lgSize = 992;
 
             const TREE = '#app-area-height-busyo-tree';
 
@@ -320,7 +322,7 @@
             function getSyain(event, data){
                 const targetNode = data.node;
                 const busyoId = targetNode.data?.id;
-                if (busyoId == null)
+                if (busyoId == null || targetNode.getLevel() == 1 )
                     return;
 
                 // 部署選択時、最終選択部署に設定
@@ -413,7 +415,7 @@
             function IsMobile(){
                 const screenWidth = window.screen.width;
 
-                if (screenWidth < 992)
+                if (screenWidth < lgSize)
                     toggleTreeView();
             }
 

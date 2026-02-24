@@ -14,7 +14,7 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         /// <returns>ページコンテキスト、TempData、およびログイン情報が設定された <see cref="IndexModel"/> インスタンス。</returns>
         protected IndexModel CreateModel(Syain? loginUser = null)
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine);
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider);
             model.PageContext = GetPageContext();
             model.TempData = GetTempData();
             if (loginUser != null)

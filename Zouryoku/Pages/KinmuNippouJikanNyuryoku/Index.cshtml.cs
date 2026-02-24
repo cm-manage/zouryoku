@@ -45,16 +45,6 @@ namespace Zouryoku.Pages.KinmuNippouJikanNyuryoku
         /// </summary>
         public class TimeSelectListHelper
         {
-            /// <summary>
-            /// 分コンボボックスの選択間隔（分単位）。
-            /// </summary>
-            /// <remarks>
-            /// 1 の場合は 00, 01, 02, …, 59 の 1 分刻み、
-            /// 5 の場合は 00, 05, 10, …, 55 の 5 分刻みといった形で
-            /// <see cref="GetMinuteListItems"/> 内の分の刻み幅を制御する。
-            /// </remarks>
-            private const int MinuteInterval = 1;
-
             #region コンボボックス選択肢生成
             /// <summary>
             /// 時間選択肢
@@ -71,13 +61,11 @@ namespace Zouryoku.Pages.KinmuNippouJikanNyuryoku
             /// </summary>
             /// <returns></returns>
             public static IEnumerable<SelectListItem> GetMinuteListItems() =>
-                Enumerable.Range(0, (MaxMinute / MinuteInterval) + 1)
-                    .Select(i => i * MinuteInterval)
-                    .Select(i => new SelectListItem
-                    {
-                        Value = i.ToString(""),
-                        Text = i.ToString("00")
-                    });
+                Enumerable.Range(0, MaxMinute + 1).Select(i => new SelectListItem
+                {
+                    Value = i.ToString(""),
+                    Text = i.ToString("00")
+                });
             #endregion
         }
         #endregion
@@ -222,6 +210,18 @@ namespace Zouryoku.Pages.KinmuNippouJikanNyuryoku
         /// <summary>
         /// 入力内容出力モデル
         /// </summary>
+        /// <remarks>
+        /// インターフェース仕様:
+        /// - 社員ID: 社員ID
+        /// - 実績年月日: 入力中の実績年月日
+        /// - 出勤時間1: 選択した出勤時間1
+        /// - 退勤時間1: 選択した退勤時間1
+        /// - 出勤時間2: 選択した出勤時間2
+        /// - 退勤時間2: 選択した退勤時間2
+        /// - 出勤時間3: 選択した出勤時間3
+        /// - 退勤時間3: 選択した退勤時間3
+        /// - 代理入力フラグ: Inputされた内容をそのままOutputする
+        /// </remarks>
         public class TimeInputResult
         {
             /// <summary>社員ID</summary>
@@ -296,7 +296,9 @@ namespace Zouryoku.Pages.KinmuNippouJikanNyuryoku
             ViewModel = BuildNewViewModel(syainId, jissekiDate, isDairiInput);
             return Page();
         }
+        #endregion
 
+        #region POST処理
         /// <summary>登録処理</summary>
         /// <returns>結果</returns>
         public async Task<IActionResult> OnPostRegisterAsync()
@@ -659,6 +661,7 @@ namespace Zouryoku.Pages.KinmuNippouJikanNyuryoku
         private TimeInputResult ConvertTimeInputResult()
         {
             // 設計書のインターフェース仕様に合わせて、出退勤時間は個別プロパティである必要がある
+            // インターフェース仕様は TimeInputResult クラスのXMLドキュメントを参照
             var nippouOutput = new TimeInputResult
             {
                 SyainId = ViewModel.SyainId,
@@ -671,6 +674,7 @@ namespace Zouryoku.Pages.KinmuNippouJikanNyuryoku
                 var set = ViewModel.TimeSets[i];
 
                 // 設計書のインターフェース仕様に合わせて、1～3件目までを個別プロパティにセットする
+                // インターフェース仕様は TimeInputResult クラスのXMLドキュメントを参照
                 switch (i)
                 {
                     case 0:

@@ -16,7 +16,7 @@ namespace ZouryokuTest.Pages.Ankens
     {
         private InputModel CreateModel(Syain? loginUser = null)
         {
-            var model = new InputModel(db, GetLogger<InputModel>(), options);
+            var model = new InputModel(db, GetLogger<InputModel>(), options, fakeTimeProvider);
             model.PageContext = GetPageContext();
             model.TempData = GetTempData();
             if (loginUser != null)

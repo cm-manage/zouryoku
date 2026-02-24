@@ -17,7 +17,7 @@ namespace ZouryokuTest.Pages.Maintenance.PcLogs
     {
         private InputModel CreateModel()
         {
-            var model = new InputModel(db, GetLogger<InputModel>(), options);
+            var model = new InputModel(db, GetLogger<InputModel>(), options, fakeTimeProvider);
             model.PageContext = GetPageContext();
             model.TempData = GetTempData();
             return model;

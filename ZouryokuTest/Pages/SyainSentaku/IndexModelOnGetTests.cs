@@ -93,7 +93,7 @@ namespace ZouryokuTest.Pages.SyainSentaku
         [TestMethod]
         [DataRow("", DisplayName = "空文字である場合")]
         [DataRow(null, DisplayName = "nullである場合")]
-        public async Task OnGetAsync_インプットが空または空文字_最終選択社員が取得されない(string? preSelectedSyains)
+        public async Task OnGetAsync_インプットが無効値_最終選択社員が取得されない(string? preSelectedSyains)
         {
             // Arrange
             var busyo1 = AddBusyo(1, "部署1", 1, true, null);

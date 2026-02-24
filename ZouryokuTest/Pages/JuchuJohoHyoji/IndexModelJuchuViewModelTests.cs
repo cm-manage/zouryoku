@@ -39,7 +39,6 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         private const bool GenkaToketu = false;
         private const string ToketuYmd = "2025/04/06";
         private const string Biko = "備考";
-        private const bool Deleted = false;
         private const ContractClassification KeiyakuJotaiKbn = ContractClassification.受注_自営;
         private const long BusyoId = 1;
 
@@ -517,7 +516,7 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
             }
             else
             {
-                Assert.AreEqual(nsyYmd, viewModel.NsyYmd.ToString());
+                Assert.AreEqual(nsyYmd, viewModel.NsyYmd!.ToString());
             }
         }
 
@@ -548,7 +547,7 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
             }
             else
             {
-                Assert.AreEqual(kurYmd, viewModel.KurYmd.ToString());
+                Assert.AreEqual(kurYmd, viewModel.KurYmd!.ToString());
             }
         }
 
@@ -579,7 +578,7 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
             }
             else
             {
-                Assert.AreEqual(knyYmd, viewModel.KnyYmd.ToString());
+                Assert.AreEqual(knyYmd, viewModel.KnyYmd!.ToString());
             }
         }
 
@@ -610,7 +609,7 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
             }
             else
             {
-                Assert.AreEqual(toketuYmd, viewModel.ToketuYmd.ToString());
+                Assert.AreEqual(toketuYmd, viewModel.ToketuYmd!.ToString());
             }
         }
 

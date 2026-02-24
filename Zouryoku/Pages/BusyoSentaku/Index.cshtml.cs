@@ -17,8 +17,8 @@ namespace Zouryoku.Pages.BusyoSentaku
     [FunctionAuthorizationAttribute]
     public class IndexModel : BasePageModel<IndexModel>
     {
-        public IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> options)
-            : base(db, logger, options) { }
+        public IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> options, TimeProvider? timeProvider = null)
+            : base(db, logger, options, timeProvider) { }
 
         public override bool UseInputAssets => true;
 
@@ -63,7 +63,7 @@ namespace Zouryoku.Pages.BusyoSentaku
         /// <returns>部署ツリーJSONデータ</returns>
         public async Task<IActionResult> OnGetTreeAsync()
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
             var allBusyo = await db.Busyos
                 .AsNoTracking()
                 .Where(b => b.IsActive && b.StartYmd <= today && today <= b.EndYmd)

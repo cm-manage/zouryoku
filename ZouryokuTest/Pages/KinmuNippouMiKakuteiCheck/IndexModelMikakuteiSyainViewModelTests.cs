@@ -4,6 +4,9 @@ using static Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel;
 
 namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
 {
+    /// <summary>
+    /// <see cref="MikakuteiSyainViewModel"/>のテストクラス。
+    /// </summary>
     [TestClass]
     public class IndexModelMikakuteiSyainViewModelTests
     {

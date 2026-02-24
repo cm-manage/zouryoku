@@ -1,0 +1,364 @@
+﻿@page
+@model Zouryoku.Pages.Maintenance.Operationday.IndexModel
+@using Model.Enums
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "稼働日マスタメンテナンス";
+}
+
+
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+<style>
+    .operationday-screen .operation-day-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+        .operationday-screen .operation-day-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            text-align: center;
+            background-color: #B8D4F1;
+            padding: 0.75rem;
+            font-weight: 600;
+            border: 1px solid #DDD;
+        }
+
+        .operationday-screen .operation-day-table tbody td {
+            text-align: center;
+            padding: 0.65rem;
+            border: 1px solid #DDD;
+            word-break: break-word;
+        }
+
+        .operationday-screen .operation-day-table tbody tr {
+            cursor: pointer;
+        }
+
+        .operationday-screen .operation-day-table .holiday-row td {
+            background-color: #FFE6E6;
+        }
+
+        .operationday-screen .operation-day-table .saturday-row td {
+            background-color: #E6F0FF;
+        }
+
+    .operationday-screen .circle-display {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .operationday-screen .holiday-text {
+        color: #CC0000;
+    }
+
+    .operationday-screen .table-container {
+        max-height: 700px;
+        overflow-y: auto;
+        border: 1px solid #E1E5EE;
+        border-radius: 0.75rem;
+        background-color: #FFF;
+    }
+
+    .operationday-screen .button-section {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+        .operationday-screen .button-section.edit-buttons {
+            display: none;
+        }
+
+            .operationday-screen .button-section.edit-buttons.active {
+                display: flex;
+            }
+
+        .operationday-screen .button-section.normal-buttons.hidden {
+            display: none;
+        }
+
+    .operationday-screen .register-button-section {
+        display: none;
+    }
+
+        .operationday-screen .register-button-section.active {
+            display: block;
+        }
+
+    .operationday-screen .edit-mode-container {
+        display: none;
+    }
+
+        .operationday-screen .edit-mode-container.active {
+            display: table-cell;
+        }
+
+    .operationday-screen .view-mode-container.hidden {
+        display: none;
+    }
+
+    .operationday-screen .syukusaijitsu-edit-column {
+        display: none;
+    }
+
+        .operationday-screen .syukusaijitsu-edit-column.active {
+            display: table-cell;
+        }
+
+    .operationday-screen .checkbox-cell {
+        text-align: center;
+    }
+
+        .operationday-screen .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+</style>
+
+<partial name="_ZouryokuHeader" model="Model" />
+<div class="app-screen--search operationday-screen">
+    <div class="app-area__search-criteria">
+        <div class="row d-flex mt-lg-2 gap-lg-2 align-items-center">
+            <label for="SelectedYear" class="col-lg-1 col-form-label app-input__label ps-2">年度</label>
+            <div class="col-lg-2">
+                <select asp-for="SelectedYear" asp-items="Model.YearSelectList" class="form-control form-select app-input__select"></select>
+                <span asp-validation-for="UpdateModel.Year" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="app-area__tool-button mb-3">
+        <div class="d-flex flex-wrap gap-3 align-items-center">
+            <div class="button-section normal-buttons" id="normalButtonSection">
+                <button type="button" class="btn btn-success app-btn__base btn-edit" id="editButton">
+                    <i class="fa-solid fa-pen-to-square me-1"></i>編集
+                </button>
+            </div>
+            <div class="button-section edit-buttons" id="editButtonSection">
+                <button type="button" class="btn btn-secondary app-btn__base btn-cancel" id="cancelButton">
+                    <i class="fa-solid fa-rotate-left me-1"></i>キャンセル
+                </button>
+            </div>
+            <div class="register-button-section">
+                <button type="button" class="btn btn-primary app-btn__base btn-register" value="登録" id="registerBtn">
+                    <i class="fa-solid fa-floppy-disk me-1"></i>登録
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="app-area__search-results">
+        <div id="operationdayTableContainer">
+            @await Html.PartialAsync("_OperationdayTable", Model)
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <!-- iziModal -->
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <!--iziModalUtil JavaScript -->
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+    <script>
+        // 年度変更時にテーブルのみ再読み込み
+        $('#SelectedYear').on('change', function () {
+            const year = $(this).val();
+            const baseUrl = '@Url.Page("/Maintenance/Operationday/Index")';
+            const url = baseUrl + '?handler=Table&year=' + encodeURIComponent(year);
+
+            $.get(url, function (html) {
+                $('#cancelButton').trigger('click');
+                $('#operationdayTableContainer').html(html);
+            });
+        });
+
+        // 編集ボタン
+        $('#editButton').on('click', function () {
+            enterEditMode();
+        });
+
+        // キャンセルボタン
+        $('#cancelButton').on('click', function () {
+            exitEditMode();
+        });
+
+        // 実績確定締め日チェックボックスの月内上限チェック
+        $(document).on('change', '.kakuteikigen-checkbox', function () {
+            validateKakuteiKigenPerMonth($(this));
+        });
+
+        /**  
+         * 実績確定締め日チェックボックスの月内チェック数を検証し、 
+         * 1〜15日で1つまで、16日〜月末で1つまでに制限する
+         * */
+        function validateKakuteiKigenPerMonth($changedCheckbox) {
+            // チェックを変更した行の index と日付を取得
+            const rowIndex = $changedCheckbox.data('index');
+            const $row = $('tr[data-index="' + rowIndex + '"]');
+            const dateStr = $row.data('date'); // yyyy-MM-dd
+            if (!dateStr) {
+                return;
+            }
+
+            // 'yyyy-MM-dd' を手動で分解してパースし、タイムゾーン依存の挙動を避ける
+            const parts = dateStr.split('-');
+            const year = Number(parts[0]);
+            const month = Number(parts[1]) - 1; // 0-based (0=Jan)
+            const day = Number(parts[2]);
+            const date = new Date(year, month, day);
+
+            // 変更対象が前半(1〜15)か後半(16〜月末)か
+            const isFirstHalf = day <= 15;
+
+            let firstHalfCount = 0;
+            let secondHalfCount = 0;
+
+            // 同じ月の行だけを対象に、前半/後半ごとのチェック数を数える
+            $('.kakuteikigen-checkbox').each(function () {
+                const $cb = $(this);
+                const idx = $cb.data('index');
+                const $tr = $('tr[data-index="' + idx + '"]');
+                const dStr = $tr.data('date');
+                if (!dStr) {
+                    return;
+                }
+
+                const d = new Date(dStr);
+                if (d.getFullYear() !== year || d.getMonth() !== month) {
+                    return;
+                }
+
+                if ($cb.prop('checked')) {
+                    const dDay = d.getDate();
+                    if (dDay <= 15) {
+                        firstHalfCount++;
+                    } else {
+                        secondHalfCount++;
+                    }
+                }
+            });
+
+            // 制限オーバーしているか判定
+            let isError = false;
+            let message = '';
+
+            if (isFirstHalf && firstHalfCount > 1) {
+                isError = true;
+                message = '同じ月の1日〜15日には1日だけ実績確定締め日を設定できます。';
+            } else if (!isFirstHalf && secondHalfCount > 1) {
+                isError = true;
+                message = '同じ月の16日〜月末には1日だけ実績確定締め日を設定できます。';
+            }
+
+            if (isError) {
+                // 今回の操作を元に戻す
+                $changedCheckbox.prop('checked', false);
+
+                // アラートを表示
+                errorSwal('',message)
+            }
+        }
+
+        /**  編集モードに入る処理 */
+        function enterEditMode() {
+            // 表示モードを非表示にする
+            $('.view-mode-container').addClass('hidden');
+
+            // 編集モードを表示する
+            $('.edit-mode-container').addClass('active');
+
+            // checkboxの祝祭日区分列 を表示
+            $('.syukusaijitsu-edit-column').addClass('active');
+
+            // ボタンセクションを切り替える
+            $('#normalButtonSection').addClass('hidden');
+            $('#editButtonSection').addClass('active');
+            $('.register-button-section').addClass('active');
+        }
+
+        /**  編集モードから抜ける処理 */
+        function exitEditMode() {
+            // 編集モードを非表示にする
+            $('.edit-mode-container').removeClass('active');
+
+            // 表示モードを表示する
+            $('.view-mode-container').removeClass('hidden');
+
+            // 第3列を非表示
+            $('.syukusaijitsu-edit-column').removeClass('active');
+
+            // ボタンセクションを切り替える
+            $('#normalButtonSection').removeClass('hidden');
+            $('#editButtonSection').removeClass('active');
+            $('.register-button-section').removeClass('active');
+        }
+
+        /**
+         * テーブル内の最初のエラー要素までスクロールする
+         * （.table-container 内だけをスクロール）
+         */
+        function scrollTableToFirstError() {
+            const $tableContainer = $('.table-container');
+            if ($tableContainer.length === 0) {
+                return;
+            }
+
+            // 1. input/select などに付くエラークラスを優先
+            let $errorElement = $tableContainer.find('.input-validation-error').first();
+
+            // 2. なければ、エラーメッセージ(span.text-danger)から探す
+            if ($errorElement.length === 0) {
+                $errorElement = $tableContainer.find('.text-danger')
+                    .filter(function () { return $(this).text().trim().length > 0; })
+                    .first();
+            }
+
+            if ($errorElement.length === 0) {
+                return;
+            }
+
+            const containerTop = $tableContainer.offset().top;
+            const containerScrollTop = $tableContainer.scrollTop();
+            const elementTop = $errorElement.offset().top;
+
+            // コンテナ基準の相対位置 + 現在スクロール量 - 余白
+            const offsetInContainer = elementTop - containerTop + containerScrollTop - 40;
+
+            $tableContainer.animate({ scrollTop: offsetInContainer }, 300);
+        }
+
+        // 登録ボタン
+        $('#registerBtn').on('click', function () {
+            register('登録', 'Register');
+        });
+
+        /** 登録 */
+        function register(actionName, handler) {
+            const $form = $('#operationdayForm');
+
+            // クライアント側の検証でエラーがない場合のみ、登録処理を行う
+            if (!$form.valid()) {
+                return;
+            }
+
+            commonConfirm(actionName + 'します。よろしいですか？', null, function () {
+                const data = $form.serializeArray();
+
+                // 共通の sendRegisterAjax はそのまま利用
+                sendRegisterAjax(toUrl(handler), data, function (result) {
+                    registerSuccessSwal(actionName + 'しました', null, function() {
+                        $('#cancelButton').trigger('click');
+                        $('#SelectedYear').trigger('change');
+                    });
+                }, function() {
+                    scrollTableToFirstError();
+                });
+            });
+        }
+    </script>
+}

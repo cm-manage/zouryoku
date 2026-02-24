@@ -1,0 +1,116 @@
+﻿@page
+@model Zouryoku.Pages.Maintenance.PhotoList.DetailsModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "社員詳細";
+    ViewData["TitleIcon"] = "fa-solid fa-user";
+}
+
+
+<style>
+    .photo-details-page {
+        background-color: #F5F7FB;
+        min-height: 100%;
+        padding: 2rem 1rem 3rem;
+    }
+
+    .photo-details-card {
+        max-width: 640px;
+        margin: 0 auto;
+        background-color: #FFF;
+        border-radius: 1rem;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+        padding: 2rem;
+    }
+
+    .photo-details-card__photo {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+        .photo-details-card__photo img {
+            width: 200px;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            border: 1px solid #DDD;
+        }
+
+    .photo-details-card__section-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #1F4B99;
+        margin-bottom: 0.75rem;
+    }
+
+    .photo-details-card__table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin-bottom: 1.5rem;
+    }
+
+        .photo-details-card__table th,
+        .photo-details-card__table td {
+            border: 1px solid #D7DBE7;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            word-break: break-word;
+        }
+
+        .photo-details-card__table th {
+            width: 28%;
+            background-color: #F8FAFF;
+            font-weight: 600;
+        }
+</style>
+
+
+<div class="app-screen--entry">
+    <div class="app-area__header"></div>
+    <div class="app-area__body">
+        <div class="photo-details-card__photo mt-3">
+            @if (!string.IsNullOrEmpty(Model.Syain.PhotoBase64))
+            {
+                <img src="data:image/jpeg;base64,@Model.Syain.PhotoBase64" alt="@Model.Syain.Name" />
+            }
+            else
+            {
+                <img src="~/img/noimage.jpg" alt="写真はありません" />
+            }
+        </div>
+
+        <div class="photo-details-card__section-title">基本情報</div>
+        <table class="photo-details-card__table">
+            <tr>
+                <th>社員番号</th>
+                <td>@Model.Syain.SyainNumber</td>
+            </tr>
+            <tr>
+                <th>氏名</th>
+                <td>@Model.Syain.Name</td>
+            </tr>
+            <tr>
+                <th>氏名（カナ）</th>
+                <td>@Model.Syain.NameKana</td>
+            </tr>
+            <tr>
+                <th>所属部署</th>
+                <td>@Model.Syain.BusyoName</td>
+            </tr>
+            <tr>
+                <th>入社年月日</th>
+                <td>@(Model.Syain.NyusyaYmd.HasValue ? Model.Syain.NyusyaYmd.Value.ToString("yyyy/MM/dd") : string.Empty)</td>
+            </tr>
+            <tr>
+                <th>メールアドレス</th>
+                <td>@Model.Syain.MailAddress</td>
+            </tr>
+            <tr>
+                <th>電話番号</th>
+                <td>@Model.Syain.TelNumber</td>
+            </tr>
+        </table>
+    </div>
+</div>

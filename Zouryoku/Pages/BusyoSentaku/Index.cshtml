@@ -18,7 +18,7 @@
         /* 本体 */
         .app-busyo-body {
             /* 画面全体高さ - margin・footer・errorMessage 高さ */
-            height: calc(100vh - 8.5rem);
+            height: calc(100vh - 14rem);
             overflow-y: auto;
         }
 
@@ -29,14 +29,14 @@
             overflow-y: auto;
         }
 
-            /* fancytree */
-            .app-busyo-tree .fancytree-container {
-                padding: 0.25rem 0;
-                background: transparent;
-                font-family: inherit;
-                font-size: 1rem;
-                border: none !important;
-            }
+        /* fancytree */
+        .app-busyo-tree .fancytree-container {
+            padding: 0.25rem 0;
+            background: transparent;
+            font-family: inherit;
+            font-size: 1rem;
+            border: none !important;
+        }
     </style>
 }
 
@@ -51,7 +51,7 @@
     <div class="app-area__header">
     </div>
 
-    <main class="app-area__body app-busyo-body">
+    <main class="app-area__body">
         <div class="text-end p-2" id="multi-buttons">
             <button type="button" class="btn btn-success app-btn__base" id="select-all">
                 <i class="fa-regular fa-square-check"></i>全選択
@@ -61,8 +61,10 @@
             </button>
         </div>
 
-        <div class="app-busyo-tree">
-            <div id="busyo-tree"></div>
+        <div class="app-busyo-body">
+            <div class="app-busyo-tree">
+                <div id="busyo-tree"></div>
+            </div>
         </div>
     </main>
 

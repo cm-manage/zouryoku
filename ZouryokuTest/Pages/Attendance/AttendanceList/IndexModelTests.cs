@@ -10,7 +10,6 @@ using Zouryoku.Extensions;
 using Zouryoku.Pages.Attendance.AttendanceList;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Pages.Shared.Components;
-using ZouryokuCommonLibrary.Utils;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Extensions;
 using ZouryokuTest.Pages.Builder;
@@ -43,7 +42,7 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
         /// <returns>ページコンテキスト</returns>
         private IndexModel CreateModel(Syain loginUser)
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine)
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()

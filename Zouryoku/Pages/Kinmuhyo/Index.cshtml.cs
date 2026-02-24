@@ -23,8 +23,9 @@ namespace Zouryoku.Pages.Kinmuhyo
         public IndexModel(ZouContext context,
                           ILogger<IndexModel> logger,
                           IOptions<Zouryoku.AppConfig> options,
-                          ICompositeViewEngine viewEngine)
-            : base(context, logger, options, viewEngine)
+                          ICompositeViewEngine viewEngine,
+                          TimeProvider? timeProvider = null)
+            : base(context, logger, options, viewEngine, timeProvider)
         {
         }
 
@@ -122,7 +123,7 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <returns>初期化に成功した場合は社員情報、失敗した場合はnull</returns>
         private async Task<Syain?> InitializePageDataAsync(long syainId, DateOnly? nippouYmd)
         {
-            ViewModel.CurrentTime = DateTime.Now;
+            ViewModel.CurrentTime = timeProvider.Now();
             var today = ViewModel.CurrentTime.ToDateOnly();
             var systemYearMonth = today.GetStartOfMonth();
 

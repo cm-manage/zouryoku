@@ -20,12 +20,17 @@ namespace Zouryoku.Api
     [Route("api/[controller]")]
     [ApiController]
     [FunctionAuthorization]
-    public class SinseiKensuBadgeController(ZouContext db) : ControllerBase
+    public class SinseiKensuBadgeController(ZouContext db, TimeProvider? timeProvider) : ControllerBase
     {
         // ---------------------------------------------
         // プライベートプロパティ
         // ---------------------------------------------
         private LoginInfo LoginInfo => HttpContext.Session.LoginInfo();
+
+        // ---------------------------------------------
+        // DI
+        // ---------------------------------------------
+        private readonly TimeProvider timeProvider = timeProvider ?? TimeProvider.System;
 
         // ---------------------------------------------
         // 申請件数取得API
@@ -54,7 +59,7 @@ namespace Zouryoku.Api
             // 指示承認者の場合、一次承認予定の申請件数を加算
             if (loginUser.IsInstructionApprover)
             {
-                totalApprovalCount += await FetchInstructionCountAsync(loginUser, DateTime.Today.ToDateOnly());
+                totalApprovalCount += await FetchInstructionCountAsync(loginUser, timeProvider.Today());
 
             }
 

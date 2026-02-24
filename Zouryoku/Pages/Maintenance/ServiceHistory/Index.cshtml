@@ -1,0 +1,220 @@
+﻿@page
+@using Model.Enums
+@model Zouryoku.Pages.Maintenance.ServiceHistory.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "サービス稼働履歴";
+}
+
+<style>
+    /* 検索条件エリア */
+    .condition-area {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    /* 検索条件の内部マージン */
+    .condition-area-inner {
+        margin-bottom: 10px;
+    }
+
+    /* 検索条件のフレックスコンテナ */
+    .condition-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .condition-row:last-child {
+        margin-bottom: 0;
+    }
+
+    /* 検索条件の入力フィールド */
+    .condition-field {
+        min-width: 250px;
+    }
+
+    .condition-field label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .condition-field select,
+    .condition-field input {
+        width: 100%;
+        max-width: 350px;
+    }
+
+    /* ボタンエリア */
+    .button-area {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .button-area button {
+        min-width: 100px;
+    }
+
+    /* テーブルエリア */
+    .table-area {
+        overflow-x: auto;
+    }
+
+    .table-area table {
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    /* データなしメッセージ */
+    .no-data-message {
+        text-align: center;
+        color: #999;
+        margin-top: 20px;
+        padding: 20px;
+        display: none;
+        font-size: 14px;
+    }
+
+    .no-data-message.show {
+        display: block;
+    }
+</style>
+
+<h1>サービス稼働履歴</h1>
+
+<form>
+    @Html.AntiForgeryToken()
+    <div class="condition-area">
+        <div class="condition-area-inner">
+            <div class="condition-row">
+                <div class="condition-field">
+                    <label>サービス名</label>
+                    <select class="form-control" asp-for="Condition.ServiceType">
+                        <option value=""></option>
+                        @foreach (var item in Html.GetEnumSelectList<ServiceClassification>())
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="condition-row">
+                    <div class="condition-field">
+                        <label>ステータス</label>
+                        <select class="form-control" asp-for="Condition.Status">
+                            <option value=""></option>
+                            @foreach (var item in Html.GetEnumSelectList<ServiceStatus>())
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="condition-field">
+                    <label>期間（From）</label>
+                    <input class="form-control" asp-for="Condition.RequestDateFrom" type="date" />
+                </div>
+                <div class="condition-field">
+                    <label>期間（To）</label>
+                    <input class="form-control" asp-for="Condition.CompletedDateTo" type="date" />
+                </div>
+            </div>
+        </div>
+        <div class="button-area">
+            <button type="button" id="search-btn" class="btn btn-primary">検索</button>
+            <button type="button" id="clear-btn" class="btn btn-secondary">クリア</button>
+        </div>
+    </div>
+
+    <div id="table-area" class="table-area">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>サービス名</th>
+                    <th>実行開始日時</th>
+                    <th>実行日時</th>
+                    <th>完了日時</th>
+                    <th>ステータス</th>
+                    <th>内容</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="no-data-message" class="no-data-message">
+        検索結果がありません。
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(function() {
+            // ページロード時に全データを表示
+            search();
+        });
+
+        // 検索ボタン押下時
+        $('#search-btn').on('click', function() {
+            search();
+        });
+
+        // クリアボタン押下時
+        $('#clear-btn').on('click', function() {
+            clear();
+        });
+
+        /** 検索処理 */
+        function search() {
+            let jsonData = $('form').serializeArray();
+            
+            $.post({
+                url: '@Url.Page(null, null, new { handler = "Search" })',
+                data: jsonData,
+                dataType: 'json',
+                traditional: true
+            }).done(function(result) {
+                if (result && result.data && result.data.length > 0) {
+                    renderTable(result.data);
+                    $('#table-area').show();
+                    $('#no-data-message').removeClass('show');
+                } else {
+                    $('#table-area').hide();
+                    $('#no-data-message').addClass('show').text('検索結果がありません');
+                }
+            }).fail(function() {
+                $('#no-data-message').addClass('show').text('検索中にエラーが発生しました');
+                $('#table-area').hide();
+            });
+        }
+
+        /** テーブル描画 */
+        function renderTable(data) {
+            let tableBody = $('#table-body');
+            tableBody.empty();
+            
+            $.each(data, function(index, item) {
+                let row = $('<tr>');
+                row.append($('<td>').text(item.serviceType));
+                row.append($('<td>').text(item.displayRequestDate));
+                row.append($('<td>').text(item.displayExecuteDate));
+                row.append($('<td>').text(item.displayCompletedDate));
+                row.append($('<td>').text(item.status));
+                row.append($('<td>').text(item.content || ''));
+                tableBody.append(row);
+            });
+        }
+
+        /** クリア */
+        function clear() {
+            $('select, input[type="date"]').val('');
+            search();
+        }
+    </script>
+}

@@ -7,7 +7,6 @@
 
 <div>
     <form method="post">
-        @Html.AntiForgeryToken()
         <!-- 社員ID -->
         <input type="hidden" asp-for="ViewModel.SyainId" />
         <!-- 代理入力フラグ -->
@@ -31,13 +30,13 @@
                             </div>
                             <div class="col-sm-7 d-flex align-items-center">
                                 <!-- 出勤時間 -->
-                                <select asp-for="ViewModel.TimeSets[i].Start.Hour" class="form-select form-select-sm hour-width"
+                                <select asp-for="ViewModel.TimeSets[i].Start.Hour" class="form-select form-select-sm"
                                         asp-items="IndexModel.TimeSelectListHelper.GetHourListItems()"
                                         aria-label="@IndexModel.KinmuNippouNyuryokuViewModel.LabelTitle[i] 出勤 時">
                                     <option value=""></option>
                                 </select>
                                 <span>：</span>
-                                <select asp-for="ViewModel.TimeSets[i].Start.Minute" class="form-select form-select-sm minute-width"
+                                <select asp-for="ViewModel.TimeSets[i].Start.Minute" class="form-select form-select-sm"
                                         asp-items="IndexModel.TimeSelectListHelper.GetMinuteListItems()"
                                         aria-label="@IndexModel.KinmuNippouNyuryokuViewModel.LabelTitle[i] 出勤 分">
                                     <option value=""></option>
@@ -46,13 +45,13 @@
                                 <span>～</span>
 
                                 <!-- 退勤時間 -->
-                                <select asp-for="ViewModel.TimeSets[i].End.Hour" class="form-select form-select-sm hour-width"
+                                <select asp-for="ViewModel.TimeSets[i].End.Hour" class="form-select form-select-sm"
                                         asp-items="IndexModel.TimeSelectListHelper.GetHourListItems()"
                                         aria-label="@IndexModel.KinmuNippouNyuryokuViewModel.LabelTitle[i] 退勤 時">
                                     <option value=""></option>
                                 </select>
                                 <span>：</span>
-                                <select asp-for="ViewModel.TimeSets[i].End.Minute" class="form-select form-select-sm minute-width"
+                                <select asp-for="ViewModel.TimeSets[i].End.Minute" class="form-select form-select-sm"
                                         asp-items="IndexModel.TimeSelectListHelper.GetMinuteListItems()"
                                         aria-label="@IndexModel.KinmuNippouNyuryokuViewModel.LabelTitle[i] 退勤 分">
                                     <option value=""></option>

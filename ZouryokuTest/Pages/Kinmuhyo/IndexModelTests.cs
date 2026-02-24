@@ -34,7 +34,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         /// <returns>IndexModel</returns>
         private IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine)
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
@@ -117,7 +117,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var (syain, _) = InitializeTestData();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var futureMonth = today.AddMonths(2);
             var model = CreateModel();
             model.SyainId = syain.Id;
@@ -150,7 +150,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         /// </summary>
         private (Syain syain, Busyo busyo) InitializeTestData()
         {
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 部署データ作成
             var busyoBase = new BusyoBasisBuilder()
@@ -227,7 +227,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var (syain, _) = InitializeTestData();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var model = CreateModel();
 
             // Act
@@ -257,16 +257,16 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var beforeCall = DateTime.Now;
+            var beforeCall = fakeTimeProvider.Now();
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
             await model.OnGetAsync();
 
             // Assert
             Assert.IsTrue(model.ViewModel.CurrentTime >= beforeCall.AddSeconds(-1), "CurrentTime が現在時刻に近い値であるべきです。");
-            Assert.IsTrue(model.ViewModel.CurrentTime <= DateTime.Now.AddSeconds(1), "CurrentTime が現在時刻に近い値であるべきです。");
+            Assert.IsTrue(model.ViewModel.CurrentTime <= fakeTimeProvider.Now().AddSeconds(1), "CurrentTime が現在時刻に近い値であるべきです。");
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
             await model.OnGetAsync();
 
             // Assert
@@ -304,7 +304,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
 
             // Act
             await model.OnGetAsync();
@@ -326,7 +326,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
 
             // Act
             await model.OnGetAsync();
@@ -395,7 +395,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // Act
             model.SyainId = syain.Id;
@@ -417,7 +417,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var pastMonth = DateTime.Today.ToDateOnly().AddMonths(-1);
+            var pastMonth = fakeTimeProvider.Today().AddMonths(-1);
 
             // Act
             model.SyainId = syain.Id;
@@ -446,7 +446,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
             await model.OnGetAsync();
 
             // Assert
@@ -467,7 +467,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
             await model.OnGetAsync();
 
             // Assert
@@ -494,7 +494,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var targetDate = DateTime.Today.ToDateOnly();
+            var targetDate = fakeTimeProvider.Today();
 
             model.SyainId = syain.Id;
             model.NippouYmd = targetDate;
@@ -527,7 +527,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
             await model.OnGetAsync();
 
             // Assert
@@ -554,7 +554,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
             await model.OnGetAsync();
 
             // Assert
@@ -572,7 +572,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var targetDate = DateTime.Today.ToDateOnly();
+            var targetDate = fakeTimeProvider.Today();
 
             // Act
             model.SyainId = syain.Id;
@@ -607,7 +607,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
             await model.OnGetAsync();
 
             // Assert
@@ -641,7 +641,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, busyo) = InitializeTestData();
             var model = CreateModel();
-            var targetDate = DateTime.Today.ToDateOnly();
+            var targetDate = fakeTimeProvider.Today();
 
             var totalBreakTime = Common.Time.休憩時間List.Sum(b => b.Item2 - b.Item1);
             var breakTimeHours = totalBreakTime / 60m; // 分を時間に変換
@@ -713,7 +713,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 休日マスタ（祝日）を作成
             var holiday = new HikadoubiBuilder()
@@ -761,7 +761,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var monthStart = today.GetStartOfMonth();
 
             // 1. 休暇管理 (2日目を休暇とする) -> worked = false
@@ -819,7 +819,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetStartOfMonth().AddDays(10);
 
             // 日報実績データ作成（確定済み）
@@ -859,7 +859,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetStartOfMonth().AddDays(11);
 
             // 打刻データ作成
@@ -897,7 +897,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetStartOfMonth().AddDays(15);
 
             // 申請データ作成（残業・承認済み）
@@ -952,7 +952,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
 
             // Act
             await model.OnGetAsync();
@@ -975,7 +975,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 振替休暇残データ作成
             var furi = new FurikyuuZan
@@ -1014,7 +1014,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var systemMonth = today.GetStartOfMonth();
 
             // 11日連続出勤の実績を作成
@@ -1056,7 +1056,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 7日連続出勤の実績を作成
             for (int i = 0; i < 7; i++)
@@ -1096,7 +1096,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 45時間残業の実績(1日)
             var nippou = new NippouBuilder()
@@ -1131,7 +1131,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 35時間残業の実績(1日)
             var nippou = new NippouBuilder()
@@ -1172,7 +1172,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 35時間残業
             var nippou = new NippouBuilder()
@@ -1214,7 +1214,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 90時間残業
             var nippou = new NippouBuilder()
@@ -1255,7 +1255,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             db.Nippous.Add(new NippouBuilder().WithSyainId(syain.Id).WithNippouYmd(today.GetStartOfMonth()).WithHZangyo(105).Build());
             await db.SaveChangesAsync();
@@ -1285,7 +1285,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             db.Nippous.Add(new NippouBuilder().WithSyainId(syain.Id).WithNippouYmd(today.GetStartOfMonth()).WithHZangyo(105).Build());
             await db.SaveChangesAsync();
@@ -1312,7 +1312,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var holidayDate = today.GetStartOfMonth(); // 月初を祝日に
 
             var holiday = new HikadoubiBuilder()
@@ -1371,7 +1371,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             var nippou = new NippouBuilder()
                 .WithSyainId(syain.Id)
@@ -1404,7 +1404,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             var nippou = new NippouBuilder()
                 .WithSyainId(syain.Id)
@@ -1437,12 +1437,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             var wh = new WorkingHoursBuilder()
                 .WithSyainId(syain.Id)
                 .WithHiduke(today)
-                .WithSyukkinTime(DateTime.Now)
+                .WithSyukkinTime(fakeTimeProvider.Now())
                 .Build();
             db.WorkingHours.Add(wh);
             await db.SaveChangesAsync();
@@ -1470,7 +1470,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             var furi = new FurikyuuZan
             {
@@ -1505,7 +1505,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 計画有給設定
             var keikaku = new YukyuKeikaku
@@ -1549,7 +1549,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 計画特休設定
             var keikaku = new YukyuKeikaku
@@ -1593,7 +1593,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             model.SyainId = syain.Id;
             model.NippouYmd = today;
 
@@ -1618,7 +1618,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             if (today >= today.GetEndOfMonth()) return; // 当月内に明日がない場合はスキップ
 
             var tomorrow = today.AddDays(1);
@@ -1646,7 +1646,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             var nextMonthToday = today.AddMonths(1);
             model.SyainId = syain.Id;
@@ -1673,7 +1673,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             if (today <= today.GetStartOfMonth()) return; // 当月内に昨日がない場合はスキップ
 
             var yesterday = today.AddDays(-1);
@@ -1701,7 +1701,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 予定データを作成しておく (InitializePlannedWorkAsyncを走らせるため)
             model.SyainId = syain.Id;
@@ -1729,14 +1729,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // 当月失効の振替休暇
             var furi = new FurikyuuZan
             {
                 SyainId = syain.Id,
                 KyuujitsuSyukkinYmd = today.AddMonths(-3),
-                DaikyuuKigenYmd = today, // 今月期限
+                DaikyuuKigenYmd = today.AddDays(1), // 今月期限（当月初日を避ける）
                 SyutokuState = 未,
                 IsOneDay = true
             };
@@ -1766,7 +1766,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             // 3ヶ月以上前（例：4ヶ月前）の休日出勤で未取得
             var kyuujitsuYmd = today.AddMonths(-4);
 
@@ -1804,7 +1804,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             var ukagai = new UkagaiHeaderBuilder()
                 .WithSyainId(syain.Id)
@@ -1849,7 +1849,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             var model = CreateModel();
             model.SyainId = syain.Id;
-            model.NippouYmd = DateTime.Today.ToDateOnly();
+            model.NippouYmd = fakeTimeProvider.Today();
 
             // Act
             await model.OnGetAsync();
@@ -1870,7 +1870,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, today, 中締め);
 
             // Act
@@ -1890,7 +1890,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, today, 月末締め);
 
             // Act
@@ -1910,7 +1910,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, today, 一か月締め);
 
             // Act
@@ -1930,7 +1930,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, today, (AchievementClassification)99);
 
             // Act
@@ -1951,7 +1951,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             // システム日付を当月に設定（CalculateTotalOvertime で isSystemMonth が true になる必要がある）
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
@@ -1996,7 +1996,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var systemMonth = today.GetStartOfMonth();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
@@ -2125,7 +2125,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
@@ -2173,7 +2173,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var systemMonth = today.GetStartOfMonth();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
@@ -2234,7 +2234,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var systemMonth = today.GetStartOfMonth();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
@@ -2273,7 +2273,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var systemMonth = today.GetStartOfMonth();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
@@ -2312,7 +2312,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var systemMonth = today.GetStartOfMonth();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
@@ -2343,7 +2343,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var systemMonth = today.GetStartOfMonth();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
@@ -2374,7 +2374,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
@@ -2412,7 +2412,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
@@ -2472,7 +2472,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
@@ -2529,7 +2529,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
@@ -2578,7 +2578,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
             model.NippouYmd = today;
@@ -2613,7 +2613,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
             model.NippouYmd = today;
@@ -2649,7 +2649,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
             model.NippouYmd = today;
@@ -2678,7 +2678,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
             model.NippouYmd = today;
@@ -2712,7 +2712,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetEndOfMonth().AddDays(-1);
             
             var nippou = new NippouBuilder()
@@ -2747,7 +2747,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             
             var nippou = new NippouBuilder()
                 .WithId(7102)
@@ -2781,7 +2781,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetStartOfMonth().AddDays(1);
             
             var wh = new WorkingHoursBuilder()
@@ -2816,7 +2816,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetStartOfMonth().AddDays(2);
             
             var ukagai = new UkagaiHeaderBuilder()
@@ -2851,7 +2851,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetStartOfMonth().AddDays(9);
             
             var ukagai = new UkagaiHeaderBuilder()
@@ -2885,7 +2885,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetStartOfMonth().AddDays(4);
             
             var ukagai = new UkagaiHeaderBuilder()
@@ -2919,7 +2919,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetStartOfMonth().AddDays(5);
             
             var nippou = new NippouBuilder()
@@ -2934,7 +2934,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
                 Id = 7101,
                 NippouId = 7103,
                 DairiNyuryokuSyainId = syain.Id,
-                DairiNyuryokuTime = DateTime.Now,
+                DairiNyuryokuTime = fakeTimeProvider.Now(),
                 Invalid = false
             });
             await db.SaveChangesAsync();
@@ -2961,7 +2961,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             var targetDate = today.GetStartOfMonth().AddDays(6);
             
@@ -2995,7 +2995,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             var targetDate = today.GetStartOfMonth().AddDays(7);
             
@@ -3029,7 +3029,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = DateTime.Today.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             var targetDate = today.GetStartOfMonth().AddDays(8);
             
             var furikyu = new FurikyuuZan { Id = 7101, SyainId = syain.Id, SyutokuYoteiYmd = targetDate };

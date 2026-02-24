@@ -7,6 +7,26 @@ namespace ZouryokuTest.Pages.SyainSentaku
     public class IndexModelOnGetTreeTest : IndexModelTestsBase
     {
         /// <summary>
+        /// 正常系: 部署が存在しない場合、レコードが部署一覧に取得されないこと
+        /// </summary>
+        [TestMethod]
+        public async Task OnGetAsync_部署が存在しない場合_部署一覧に取得されない()
+        {
+            // Arrange
+            var model = CreateModel();
+
+            // Act
+            var result = await model.OnGetTreeAsync();
+
+            // Assert
+            var json = AssertJson(result);
+
+            var nodes = DeserializeNodes(json);
+
+            Assert.HasCount(0, nodes);
+        }
+
+        /// <summary>
         /// 正常系: アクティブフラグ＝FALSEの場合、レコードが部署一覧に取得されないこと
         /// </summary>
         [TestMethod]

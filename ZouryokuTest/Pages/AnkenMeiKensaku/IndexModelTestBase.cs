@@ -48,7 +48,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         protected IndexModel CreateModel()
         {
             // IndexModelのインスタンスを作成
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine)
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData(),

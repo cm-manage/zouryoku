@@ -1,4 +1,5 @@
 using CommonLibrary.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Zouryoku.Utils;
@@ -206,10 +207,10 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         //      パラメータ.受注IDと一致する受注情報が存在しない場合
         // =============================================================
         /// <summary>
-        /// パラメータ.受注IDと一致する受注情報が存在しない場合、Pageを返し、ModelStateにエラーが設定されることを確認
+        /// パラメータ.受注IDと一致する受注情報が存在しない場合、RedirectToResultが返却されることを確認
         /// </summary>
-        [TestMethod(DisplayName = "パラメータ.受注IDと一致する受注情報が存在しない → ModelStateにエラーが設定される")]
-        public async Task OnGetAsync_受注情報が取得されなかった場合_ModelStateにエラーを設定()
+        [TestMethod(DisplayName = "パラメータ.受注IDと一致する受注情報が存在しない → RedirectToResultが返却される")]
+        public async Task OnGetAsync_受注情報が取得されなかった場合_RedirectToResultを返却()
         {
             // ================ Arrange ================ //
             // 受注情報の作成
@@ -224,17 +225,14 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
             var model = CreateModel();
 
             // ================ Act ================ //
-            await model.OnGetAsync(2);
+            var result = await model.OnGetAsync(2);
 
             // ================ Assert ================ //
-            // ModelStateにエラーが設定されていること
-            Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsNotNull(model.ModelState[string.Empty], "ModelStateにキーがemptyのエラーが存在するはずです。");
+            var redirect = result as RedirectToPageResult;
 
-            // エラーメッセージの確認
-            var messages = model.ModelState[string.Empty]!.Errors.Select(e => e.ErrorMessage).ToList();
-            Assert.HasCount(1, messages, "ModelStateにはエラーが1件設定されているはずです。");
-            Assert.AreEqual(Const.ErrorSelectedDataNotExists, messages[0], "エラーメッセージが一致しません。");
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual("/ErrorMessage", redirect.PageName);
+            Assert.AreEqual(Const.ErrorSelectedDataNotExists, redirect.RouteValues?["errorMessage"]);
         }
     }
 }

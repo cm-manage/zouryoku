@@ -882,6 +882,7 @@ textarea[readonly]:focus {
   border: none;
 }
 .app-screen--others2 .app-area__footer {
+  position: fixed;
   left: 0;
   right: 0;
   bottom: 0;

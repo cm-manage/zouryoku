@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Model.Data;
-using static System.DayOfWeek;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using static Model.Enums.RefreshDayFlag;
+using static System.DayOfWeek;
 
-namespace Zouryoku.Utils
+namespace ZouryokuCommonLibrary.Utils
 {
     public static class DateOnlyUtil
     {
@@ -11,6 +14,11 @@ namespace Zouryoku.Utils
         /// ウィークエンドの配列
         /// </summary>
         private static readonly DayOfWeek[] Weekend = { Saturday, Sunday };
+
+        /// <summary>
+        /// 非稼働日テーブルを何日先まで検索するか。
+        /// </summary>
+        private const int HikadoubiSearchLimit = 30;
 
         /// <summary>
         /// 翌営業日を取得する。
@@ -24,7 +32,8 @@ namespace Zouryoku.Utils
             // リフレッシュデーでない非稼働日が該当する
             var hikadoubi = (await db.Hikadoubis
                 .AsNoTracking()
-                .Where(h => baseDate < h.Ymd
+                .Where(h => h.Ymd < baseDate.AddDays(HikadoubiSearchLimit)
+                    && baseDate < h.Ymd
                     && h.RefreshDay != リフレッシュデー)
                 .Select(h => h.Ymd)
                 .ToListAsync())

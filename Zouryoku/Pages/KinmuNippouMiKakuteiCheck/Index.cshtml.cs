@@ -14,7 +14,7 @@ using static Model.Enums.AchievementClassification;
 using static Model.Enums.DailyReportStatusClassification;
 using static Model.Enums.EmployeeWorkType;
 using static Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel.BusyoRange;
-using static Zouryoku.Utils.DateOnlyUtil;
+using static ZouryokuCommonLibrary.Utils.DateOnlyUtil;
 using static Zouryoku.Utils.JissekiKakuteiSimeUtil;
 using static Zouryoku.Utils.MikakuteiTsuchiUtil;
 

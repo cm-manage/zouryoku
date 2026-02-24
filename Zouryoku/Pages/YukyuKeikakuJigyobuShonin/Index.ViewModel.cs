@@ -24,8 +24,6 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
         [ValidateNever]
         public class JigyoubuShoninViewModel
         {
-            private const double PercentageMultiplier = 100;
-
             public Authority Authority { get; }
 
             /// <summary>
@@ -81,8 +79,8 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
                 var totalColumnCount = CalculateTotalColumnCount();
 
                 // 実数で除算させるために double 型にキャスト
-                SingleColumnWidthPercentage = $"{((double)1 / totalColumnCount) * PercentageMultiplier:0.000}%";
-                MeisaiColumnWidthPercentage = $"{((double)MeisaiPerYukyuKeikaku / totalColumnCount) * PercentageMultiplier:0.000}%";
+                SingleColumnWidthPercentage = ((double)1 / totalColumnCount).ToString("0%");
+                MeisaiColumnWidthPercentage = ((double)MeisaiPerYukyuKeikaku / totalColumnCount).ToString("0%");
             }
 
             /// <summary>

@@ -232,13 +232,15 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             int deletedCount)
         {
             // ================ Arrange ================ //
-            var baseDate = new DateOnly(2025, 4, 1);
+            var baseDate = new DateOnly(2026, 7, 1);
             var syainId = 1;
+            var now = new DateTime(2026, 7, 2, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
 
-            var baseExpectedSyukkinTime = new DateTime(2025, 4, 1, 9, 0, 0);
+            var baseExpectedSyukkinTime = new DateTime(2026, 7, 1, 9, 0, 0);
             var expectedSyukkinTimes = new List<DateTime>();
 
-            var baseExpectedTaikinTime = new DateTime(2025, 4, 1, 9, 30, 0);
+            var baseExpectedTaikinTime = new DateTime(2026, 7, 1, 9, 30, 0);
             var expectedTaikinTimes = new List<DateTime>();
 
             // 社員情報の登録
@@ -286,7 +288,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             {
                 Id = 1,
                 SyainId = syainId,
-                ShinseiYmd = fakeTimeProvider.Now().ToDateOnly(),
+                ShinseiYmd = now.ToDateOnly(),
                 Status = 0,
                 WorkYmd = baseDate,
                 Biko = "備考",
@@ -388,7 +390,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             int addJissekiDate)
         {
             // ================ Arrange ================ //
-            var baseDate = new DateOnly(2025, 4, 1);
+            var baseDate = new DateOnly(2026, 7, 1);
+            var now = new DateTime(2026, 7, 2, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
 
             // 社員情報の登録
             var syain = new Syain()
@@ -435,7 +439,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             {
                 Id = 1,
                 SyainId = syainId,
-                ShinseiYmd = fakeTimeProvider.Now().ToDateOnly(),
+                ShinseiYmd = now.ToDateOnly(),
                 Status = 0,
                 WorkYmd = baseDate,
                 Biko = "備考",
@@ -458,8 +462,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyukkinLongitude = 0,
                 TaikinLatitude = 0,
                 TaikinLongitude = 0,
-                SyukkinTime = new DateTime(2025, 4, 1, 9, 0, 0),
-                TaikinTime = new DateTime(2025, 4, 1, 18, 0, 0),
+                SyukkinTime = new DateTime(2026, 7, 1, 9, 0, 0),
+                TaikinTime = new DateTime(2026, 7, 1, 18, 0, 0),
                 Edited = false,
                 Deleted = false,
                 UkagaiHeader = ukagaiHeader,
@@ -639,8 +643,10 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
         public async Task OnGetAsync_勤怠打刻情報に紐づく日報実績情報が存在しない_日報実績情報を取得しない()
         {
             // ================ Arrange ================ //
-            var baseDate = new DateOnly(2025, 4, 1);
+            var baseDate = new DateOnly(2026, 7, 1);
             var syainId = 1;
+            var now = new DateTime(2026, 7, 2, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
 
             // 社員情報の登録
             var syain = new Syain()
@@ -675,7 +681,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             {
                 Id = 1,
                 SyainId = syainId,
-                ShinseiYmd = fakeTimeProvider.Now().ToDateOnly(),
+                ShinseiYmd = now.ToDateOnly(),
                 Status = 0,
                 WorkYmd = baseDate,
                 Biko = "備考",
@@ -698,8 +704,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyukkinLongitude = 0,
                 TaikinLatitude = 0,
                 TaikinLongitude = 0,
-                SyukkinTime = new DateTime(2025, 4, 1, 9, 0, 0),
-                TaikinTime = new DateTime(2025, 4, 1, 18, 0, 0),
+                SyukkinTime = new DateTime(2026, 7, 1, 9, 0, 0),
+                TaikinTime = new DateTime(2026, 7, 1, 18, 0, 0),
                 Edited = false,
                 Deleted = false,
                 UkagaiHeader = ukagaiHeader,

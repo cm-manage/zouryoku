@@ -10,19 +10,25 @@ using Model.Model;
 using NPOI.SS.UserModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Reflection;
 using System.Text.Json;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
+using static Model.Enums.AttendanceClassification;
+using static Model.Enums.InquiryType;
+using static Model.Enums.LeaveBalanceFetchStatus;
+using static Model.Enums.ResponseStatus;
+using static Zouryoku.Pages.KinmuJokyoKakunin.WarnLevel;
 using FileUtil = Zouryoku.Utils.FileUtil;
-using ResponseStatus = Model.Enums.ResponseStatus;
+
 
 namespace Zouryoku.Pages.KinmuJokyoKakunin
 {
     public partial class IndexModel : BasePageModel<IndexModel>
     {
         public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine) { }
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider timeProvider)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets => true;
 
@@ -63,9 +69,9 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// </summary>
         public void OnGet()
         {
-            SearchIndex.From = DateTime.Now.ToString("yyyy-MM");
-            SearchIndex.To = DateTime.Now.ToString("yyyy-MM");
-            SearchIndex.WarnLevel = WarnLevel.All;
+            SearchIndex.From = timeProvider.Now().ToString("yyyy-MM");
+            SearchIndex.To = timeProvider.Now().ToString("yyyy-MM");
+            SearchIndex.WarnLevel = All;
         }
 
         /// <summary>
@@ -75,8 +81,36 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         public async Task<IActionResult> OnGetSearchAsync(StatusSearchViewModel Search)
         {
             // 単純バリデーションチェック
-            bool check = TryValidateModel(Search);
+            bool check = ModelState.IsValid;
 
+            DateOnly startMonth = default;
+            DateOnly endMonth = default;
+
+            if (!string.IsNullOrEmpty(Search.From) && !string.IsNullOrEmpty(Search.To))
+            {
+                startMonth = DateOnly.ParseExact(Search.From, "yyyy-MM", CultureInfo.InvariantCulture);
+                endMonth = DateOnly.ParseExact(Search.To, "yyyy-MM", CultureInfo.InvariantCulture);
+
+
+                if (startMonth > endMonth)
+                {
+                    var fromDisplay = typeof(StatusSearchViewModel)
+                        .GetProperty(nameof(Search.From))?
+                        .GetCustomAttribute<DisplayAttribute>()?
+                        .Name;
+
+                    var toDisplay = typeof(StatusSearchViewModel)
+                        .GetProperty(nameof(Search.To))?
+                        .GetCustomAttribute<DisplayAttribute>()?
+                        .Name;
+
+                    // TODO:: do we need to place const in const files
+                    const string M_0108 = "{0}は{1}より前の日付を入力してください。";
+                    ModelState.AddModelError(nameof(Search.Busyo), string.Format(M_0108, fromDisplay, toDisplay));
+                    check = false;
+                }
+
+            }
             // 条件付きバリデーションチェック
             if (Search.BusyoMode != "all" && Search.Busyo == "")
             {
@@ -100,22 +134,13 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                 // 以降の処理を行わない
                 return new JsonResult(new
                 {
-                    status = ResponseStatus.エラー,
+                    status = エラー,
                     message = string.Join("\n", errorMessages)
                 });
             }
 
             // 画面表示モデル
             var vm = new TableViewModel();
-
-            // yyyy-MM を DateOnly（月初）に変換
-            DateOnly fromMonth = DateOnly.ParseExact(Search.From, "yyyy-MM", CultureInfo.InvariantCulture);
-            DateOnly toMonth = DateOnly.ParseExact(Search.To, "yyyy-MM", CultureInfo.InvariantCulture);
-
-            // 早い・遅いを判定
-            DateOnly startMonth = fromMonth <= toMonth ? fromMonth : toMonth;
-            DateOnly endMonth = fromMonth <= toMonth ? toMonth : fromMonth;
-
             // 早いほう → 1日
             DateOnly searchFrom = new DateOnly(startMonth.Year, startMonth.Month, 1);
             // 遅いほう → 末日
@@ -139,12 +164,14 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     .Include(s => s.Nippous
                         .Where(n =>
                             n.NippouYmd >= searchFrom &&
-                            n.NippouYmd <= searchTo))
-                        .ThenInclude(n => n.SyukkinKubunId1Navigation) // 出勤区分1
+                            n.NippouYmd <= searchTo)
+                        )
+                    .ThenInclude(n => n.SyukkinKubunId1Navigation) // 出勤区分1
                     .Include(s => s.Nippous
                         .Where(n =>
                             n.NippouYmd >= searchFrom &&
-                            n.NippouYmd <= searchTo))
+                            n.NippouYmd <= searchTo)
+                        )
                         .ThenInclude(n => n.SyukkinKubunId2Navigation) // 出勤区分2
                     .Include(s => s.FurikyuuZans)
                     .Include(s => s.SyainBase)
@@ -174,7 +201,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         // ■残業_残業
                         Zangyo = g.Sum(n => (n.HZangyo ?? 0) + (n.DZangyo ?? 0) + (n.NJitsudou ?? 0)),
                         // ■特別休暇取得
-                        SpecialUsed = g.Sum(n => HasAnyKubun(n, AttendanceClassification.計画特別休暇) ? 1 : 0),
+                        SpecialUsed = g.Sum(n => HasAnyKubun(n, 計画特別休暇) ? 1 : 0),
                     })
                     .OrderBy(x => x.Year)
                     .ThenBy(x => x.Month)
@@ -187,17 +214,17 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     .ToDictionary(
                         g => g.Key,
                         g => g.SelectMany(h => h.UkagaiShinseis)
-                              .Count(d => d.UkagaiSyubetsu == InquiryType.時間外労働時間制限拡張)
+                              .Count(d => d.UkagaiSyubetsu == 時間外労働時間制限拡張)
                     );
 
                 // 出勤日
                 var workKubuns = new[]
                 {
-                    AttendanceClassification.通常勤務,
+                    通常勤務,
                     AttendanceClassification.休日出勤,
-                    AttendanceClassification.年次有給休暇_1日,
-                    AttendanceClassification.半日有給,
-                    AttendanceClassification.計画有給休暇
+                    年次有給休暇_1日,
+                    半日有給,
+                    計画有給休暇
                 };
 
                 // 出勤日リスト
@@ -215,10 +242,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                 var zangyoMap = monthlyList.ToDictionary(x => (x.Year, x.Month), x => x.Zangyo);
 
                 // 1か月ずつループ
-                for (int i = 0; i < monthlyList.Count; i++)
+                foreach(var m in monthlyList)
                 {
-                    // 集計月情報
-                    var m = monthlyList[i];
                     // 集計月末日
                     var finalDay = new DateTime(m.Year, m.Month, 1).ToDateOnly().AddMonths(1).AddDays(-1);
 
@@ -290,11 +315,11 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     decimal paidYearTotal = yukyuYearTotal.Sum(n =>
                     {
                         if (HasAnyKubun(n,
-                            AttendanceClassification.年次有給休暇_1日,
-                            AttendanceClassification.計画有給休暇))
+                            年次有給休暇_1日,
+                            計画有給休暇))
                             return 1m;
 
-                        if (HasAnyKubun(n, AttendanceClassification.半日有給))
+                        if (HasAnyKubun(n, 半日有給))
                             return 0.5m;
 
                         return 0m;
@@ -302,7 +327,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
                     // 年度初めの有給日数
                     decimal wariate;
-                    var today = DateTime.Today;
+                    var today = timeProvider.Today();
                     // 現在の有給年度
                     var currentNendo = today.Month >= yukyuMonth ? today.Year : today.Year - 1;
 
@@ -321,7 +346,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     var paidRemain = wariate - paidYearTotal;
 
                     // 半日休_年間累計
-                    var halfDayUsed = yukyuYearTotal.Count(n => HasAnyKubun(n, AttendanceClassification.半日有給));
+                    var halfDayUsed = yukyuYearTotal.Count(n => HasAnyKubun(n, 半日有給));
                     // ■有給休暇_うち半日残
                     var paidHalfRemain = 10 - (0.5m * halfDayUsed);
 
@@ -383,7 +408,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             var html = await PartialToJsonAsync("_IndexPartial", vm);
             return new JsonResult(new
             {
-                status = ResponseStatus.正常,
+                status = 正常,
                 data = html
             });
         }
@@ -396,9 +421,6 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// <returns></returns>
         private static bool HasAnyKubun(Nippou n, params AttendanceClassification[] targets)
         {
-            if (targets == null || targets.Length == 0)
-                return false;
-
             var code1 = n.SyukkinKubunId1Navigation.Code;
             var code2 = n.SyukkinKubunId2Navigation?.Code;
 
@@ -448,17 +470,17 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             bool secondTerm = 2 <= month && month <= 3;
 
             // 警告レベルを判定
-            WarnLevel level = WarnLevel.All;
+            WarnLevel level = All;
             if (firstTerm && value <= appSettings.PaidYearTotalWarn12To1
                 || secondTerm && value <= appSettings.PaidYearTotalWarn2To3)
             {
-                level = WarnLevel.Warn;
+                level = Warn;
                 includesWarn = true;
             }
             else if (firstTerm && value <= appSettings.PaidYearTotalNotice12To1
                 || secondTerm && value <= appSettings.PaidYearTotalNotice2To3)
             {
-                level = WarnLevel.Notice;
+                level = Notice;
                 includesNotice = true;
             }
 
@@ -474,8 +496,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         {
             return level switch
             {
-                WarnLevel.Warn => "warn-level",
-                WarnLevel.Notice => "notice-level",
+                Warn => "warn-level",
+                Notice => "notice-level",
                 _ => ""
             };
         }
@@ -502,10 +524,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             // 現在の連勤ブロックの直前日
             var previousDay = workingDates[0];
 
-            for (int i = 1; i < workingDates.Count; i++)
+            foreach(var currentDay in workingDates)
             {
-                var currentDay = workingDates[i];
-
                 // 前日から連続していれば連勤継続
                 if (currentDay == previousDay.AddDays(1))
                 {
@@ -635,10 +655,6 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     }
                 }
 
-                // データが存在する月のみで平均を算出
-                if (monthsWithDataCount == 0)
-                    continue;
-
                 // 集計対象期間の平均残業時間
                 var averageZangyo =
                     totalZangyoInSpan / monthsWithDataCount;
@@ -660,11 +676,11 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         private static decimal CalcFurikyuuRemain(FurikyuuZan z)
         {
             // 1日休・未取得
-            if (z.IsOneDay && z.SyutokuState == LeaveBalanceFetchStatus.未) return 1.0m;
+            if (z.IsOneDay && z.SyutokuState == 未) return 1.0m;
             // 1日休・半日取得済
-            if (z.IsOneDay && z.SyutokuState == LeaveBalanceFetchStatus.半日) return 0.5m;
+            if (z.IsOneDay && z.SyutokuState == 半日) return 0.5m;
             // 半休・未取得
-            if (!z.IsOneDay && z.SyutokuState == LeaveBalanceFetchStatus.未) return 0.5m;
+            if (!z.IsOneDay && z.SyutokuState == 未) return 0.5m;
             // それ以外＝取得済み
             return 0m;
         }
@@ -696,12 +712,13 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
                 int rowIndex = excelHeader;
 
+
                 foreach (var w in vm.WorkList)
                 {
                     // 最終行以外、1行目をコピーする
                     if (w != vm.WorkList.Last())
                     {
-                        sheet.CopyAndInsertRow(excelHeader, excelHeader + 1);
+                        sheet.CopyAndInsertRow(rowIndex, rowIndex + 1);
                     }
                     IRow? row = sheet.GetRow(rowIndex++);
 

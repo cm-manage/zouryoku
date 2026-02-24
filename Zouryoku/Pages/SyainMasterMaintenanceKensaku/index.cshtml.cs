@@ -1,3 +1,4 @@
+using LanguageExt.UnsafeValueAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
@@ -8,7 +9,9 @@ using Model.Enums;
 using Model.Model;
 using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
+using Zouryoku.Utils;
 using static Model.Enums.EmployeeWorkType;
 
 namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
@@ -37,11 +40,23 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
         public List<SyainViewModel> Results { get; set; } = [];
 
         /// <summary>
+        /// 保存するセッション名
+        /// </summary>
+        private const string SaveSessionName = "selectedSyainBaseId";
+
+        public class ValidateSelectionRequest
+        {
+            public long SyainBaseId { get; set; }
+        }
+
+        /// <summary>
         /// 画面初期表示
         /// </summary>
         /// <returns>社員マスタメンテナンスページ</returns>
         public async Task<IActionResult> OnGetAsync()
         {
+            //　勤怠属性のTrueステータス
+            Condition.IsKintaiZoukuseiStatus = true;
             await InitializeSearchConditionOptionsAsync();
             Results = await GetSyainListAsync();
             return Page();
@@ -53,6 +68,8 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
         /// <returns></returns>
         public async Task<IActionResult> OnGetSearchAsync()
         {
+            //　勤怠属性のFalseステータス
+            Condition.IsKintaiZoukuseiStatus = false;
             Results = await GetSyainListAsync();
 
             var data = await PartialToJsonAsync("_SyainSearchResults", this);
@@ -62,12 +79,8 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
         private async Task InitializeSearchConditionOptionsAsync()
         {
             // 勤怠属性一覧
-            var kintaiList = await db.KintaiZokuseis
-                .AsNoTracking()
-                .Select(k => new { k.Id, k.Name })
-                .ToListAsync();
+            var kintaiList = await InitializeKintaiZokuseis();
             var defaultKintaiZokuseiId = kintaiList.FirstOrDefault(k => k.Id == (short)みなし対象者)?.Id;
-
             if (!Condition.KintaiZokuseiId.HasValue && defaultKintaiZokuseiId.HasValue)
             {
                 Condition.KintaiZokuseiId = defaultKintaiZokuseiId.Value;
@@ -131,7 +144,7 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
             }
 
             // 勤怠属性
-            if (Condition.KintaiZokuseiId.HasValue)
+            if (Condition.KintaiZokuseiId.HasValue && !Condition.IsKintaiZoukuseiStatus)
             {
                 query = query.Where(s => s.KintaiZokuseiId == Condition.KintaiZokuseiId.Value);
             }
@@ -162,6 +175,42 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
 
             return syainList;
         }
+
+        /// <summary>
+        /// 勤怠属性登録
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<KintaiZokusei>> InitializeKintaiZokuseis()
+        {
+            var kintaiZokuseiList = new List<KintaiZokusei>()
+            {
+                new KintaiZokusei { Id = (long)EmployeeWorkType.みなし対象者, Name = EmployeeWorkType.みなし対象者.ToString() },
+                new KintaiZokusei { Id = (long)EmployeeWorkType._3か月60時間, Name = EmployeeWorkType._3か月60時間.ToString() },
+                new KintaiZokusei { Id = (long)EmployeeWorkType.フリー, Name = EmployeeWorkType.フリー.ToString() },
+                new KintaiZokusei { Id = (long)EmployeeWorkType.管理, Name = EmployeeWorkType.管理.ToString() },
+                new KintaiZokusei { Id = (long)EmployeeWorkType.標準社員外, Name = EmployeeWorkType.標準社員外.ToString() },
+                new KintaiZokusei { Id = (long)EmployeeWorkType.パート, Name = EmployeeWorkType.パート.ToString() },
+                new KintaiZokusei { Id = (long)EmployeeWorkType.月45時間, Name = EmployeeWorkType.月45時間.ToString()}
+            };
+            return kintaiZokuseiList;
+        }
+
+        /// <summary>
+        /// バリデーションチェック、セッション保存
+        /// </summary>
+        /// <param name="data">検証リクエスト</param>
+        /// <returns>選択検証結果JSONデータ</returns>
+        public async Task<IActionResult> OnPostValidateSelectionAsync(ValidateSelectionRequest data)
+        {
+            // 未使用パラメータ警告抑制
+            _ = data;
+
+            // セッションに部署IDを保存
+            HttpContext.Session.Set(data.SyainBaseId, SaveSessionName);
+
+            return SuccessJson();
+        }
+
     }
 
     /// <summary>
@@ -263,6 +312,20 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
         /// 社員権限の選択肢
         /// </summary>
         public SelectList KengenOptions { get; set; } = default!;
+
+        /// <summary>
+        /// 勤怠属性のステータス
+        /// </summary>
+        public bool IsKintaiZoukuseiStatus { get; set;  }
+    }
+
+    /// <summary>
+    /// 勤怠属性リスト
+    /// </summary>
+    public class KintaiZoukusei
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }
 

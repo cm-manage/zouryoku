@@ -41,6 +41,11 @@
 
 <partial name="_ZouryokuHeader" model="Model" />
 
+<form id="syain-select-form" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="syainBaseId" id="select-syain-base-id" value="" />
+</form>
+
 <div class="app-screen--search">
     <form method="get" id="syain-search-form">
         <div class="app-area__search-criteria">
@@ -55,7 +60,7 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3 align-items-center">
+                    <div class="row mb-2 align-items-center">
                         <label asp-for="Condition.BusyoName"
                              class="col-2 col-form-label fw-bold app-input__label"></label>
                         <div class="col">
@@ -176,6 +181,12 @@
             const $searchForm = $('#syain-search-form');
             const $partialPage = $('#syain-search-results');
 
+            // 最終選社員BaseIdセッション保存URL
+            const validationUrl = toUrl('ValidateSelection');
+
+            // 初期表示部署
+            let selectSyainBaseId = 0;
+
             // -----------------------------
             // モーダル定数
             // -----------------------------
@@ -189,7 +200,7 @@
             function openInsert(id) {
                 const modalId = 'syain-insert-modal';
                 const url = '@Url.Page("/SyainMasterMaintenanceTouroku/Index")';
-                const title = id ? '社員編集' : '社員マスタ登録';
+                const title = '社員マスタ登録';
 
                 showInputModal(modalId, url, id, title, null, modalWidth, modalHeight, headerColor);
             }
@@ -257,9 +268,21 @@
             // 部署名リンク押下
             // -----------------------------
             $partialPage.on('click', '.syain-link', function () {
-                const id = $(this).data('id');
-                openInsert(id);
+                selectSyainBaseId = $(this).data('id');
+
+                // セッション保存
+                sendValidation();
             });
+
+            // 未選択エラーチェック、セッション保存
+            function sendValidation(){
+                $('#select-syain-base-id').val(selectSyainBaseId);
+                let formData =  $('#syain-select-form').serialize();
+            
+                sendAjax(validationUrl, formData, function(){
+                        openInsert(null);
+                    },false);
+            }
 
             // Enter キーで検索
             $searchForm.on('keypress', function(e) {

@@ -1,6 +1,6 @@
 @model Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae.IndexModel.BusyoOrderRenderContext
 
-<li data-js="busyo" class="list-group-item bg-primary-subtle border border-info app-my-border-collapse">
+<li data-js="busyo" class="list-group-item @Model.BusyoLevelClass">
 
     <input type="hidden" name="@($"{Model.InputNamePrefix}.Id")" value="@Model.BusyoOrder.Id" />
     <input type="hidden" name="@($"{Model.InputNamePrefix}.Version")" value="@Model.BusyoOrder.Version" />
@@ -11,19 +11,17 @@
         <div class="fw-bold">@Model.BusyoOrder.Name</div>
     </div>
 
-    @if (Model.BusyoOrder.Children?.Any() == true)
+    @if (Model.BusyoOrder.Children?.Any() is true)
     {
         <ul data-js="sections" class="list-group ps-4 mt-2">
             @for (int i = 0; i < Model.BusyoOrder.Children.Count; i++)
             {
                 var child = Model.BusyoOrder.Children[i];
                 var prefix = $"{Model.InputNamePrefix}.Children[{i}]";
+                var cssLevel = Math.Min(Model.CssLevel + 1, IndexModel.CssLevelCount);
 
-                @await Html.PartialAsync(
-                "_BusyoOrderNode",
-                new Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae.IndexModel.BusyoOrderRenderContext(child, prefix)
-                )
-                }
-    </ul>
-        }
+                @await Html.PartialAsync("_BusyoOrderNode", new IndexModel.BusyoOrderRenderContext(child, prefix, cssLevel))
+            }
+        </ul>
+    }
 </li>

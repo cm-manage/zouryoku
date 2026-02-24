@@ -1,11 +1,9 @@
-using Zouryoku.Extensions;
-using Zouryoku.Utils;
+using EnumsNET;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Model.Data;
 using Model.Enums;
 using Zouryoku.Data;
-using EnumsNET;
+using Zouryoku.Extensions;
 
 namespace Zouryoku.Attributes
 {

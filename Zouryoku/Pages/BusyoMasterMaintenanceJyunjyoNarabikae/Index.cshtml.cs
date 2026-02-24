@@ -19,6 +19,12 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
         // ---------------------------------------------
         // 1. 定数
         // ---------------------------------------------
+        /// <summary>
+        /// このページの CSS スタイルで扱う部署階層数（レベル数）を表します。
+        /// この値を超える階層構造であっても、同一または類似の色調が再利用される形で表示自体は可能です。
+        /// </summary>
+        public static int CssLevelCount => 15;
+
         // 排他エラーメッセージ
         public static string ErrorConflictBusyo { get; } = string.Format(Const.ErrorConflictReload, "部署マスタ");
 
@@ -195,9 +201,13 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
         /// </summary>
         /// <param name="BusyoOrder">部署表示・更新ビューモデル</param>
         /// <param name="InputNamePrefix">name属性用のプレフィックス文字列</param>
+        /// <param name="CssLevel">適用するCSSの階層 (1ベース)</param>
         /// <remarks>
         /// 部署順序レンダリング部分ビューに渡すコンテキストです。
         /// </remarks>
-        public record BusyoOrderRenderContext(BusyoOrder BusyoOrder, string InputNamePrefix);
+        public record BusyoOrderRenderContext(BusyoOrder BusyoOrder, string InputNamePrefix, int CssLevel)
+        {
+            public string BusyoLevelClass => $"app-busyo-level-{CssLevel}";
+        }
     }
 }

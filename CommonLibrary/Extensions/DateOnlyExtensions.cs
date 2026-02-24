@@ -137,7 +137,7 @@ namespace CommonLibrary.Extensions
         /// <param name="toDate">日付To</param>
         /// <returns><paramref name="fromDate"/> ≦ D ≦ <paramref name="toDate"/>を満たす<see cref="DateOnly"/> Dの個数</returns>
         public static int GetDayCount(DateOnly fromDate, DateOnly toDate)
-            => toDate.Day - fromDate.Day + 1;
+            => toDate.DayNumber - fromDate.DayNumber + 1;
 
         /// <summary>
         /// 指定日付が開始日から何年目かを取得します。

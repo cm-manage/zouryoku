@@ -34,7 +34,8 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             [Display(Name = "最終確定日")]
             [DisplayFormat(NullDisplayText = "-")]
             public DateOnly? LastKakuteiYmd { get; } =
-                syain.Nippous.Empty() ? null : syain.Nippous.Where(n => n.TourokuKubun == 確定保存).Max(n => n.NippouYmd);
+                syain.Nippous.Any(n => n.TourokuKubun == 確定保存) ?
+                    syain.Nippous.Where(n => n.TourokuKubun == 確定保存).Max(n => n.NippouYmd) : null;
         }
 
         /// <summary>
@@ -44,13 +45,13 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         {
             /// <value>部署の検索条件</value>
             [Display(Name = "部署")]
-            public required BusyoCondition Busyo { get; set; }
+            public BusyoCondition Busyo { get; set; } = new();
 
             /// <value>日付</value>
             [Display(Name = "日付")]
             [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
             [Required]
-            public required DateOnly Date { get; set; }
+            public DateOnly Date { get; set; }
 
             /// <summary>
             /// 部署に関する条件を格納するクラス
@@ -58,13 +59,13 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             public class BusyoCondition
             {
                 /// <value>検索範囲</value>
-                public required BusyoRange Range { get; set; }
+                public BusyoRange Range { get; set; }
 
                 /// <value>部署名</value>
-                public required string Name { get; set; }
+                public string Name { get; set; } = string.Empty;
 
                 /// <value>部署ID</value>
-                public required long? Id { get; set; }
+                public long? Id { get; set; }
             }
         }
     }

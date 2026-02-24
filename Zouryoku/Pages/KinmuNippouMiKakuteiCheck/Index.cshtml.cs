@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
 using Zouryoku.Data;
 using Zouryoku.Pages.Shared;
+using static CommonLibrary.Extensions.DateOnlyExtensions;
 using static Model.Enums.AchievementClassification;
 using static Model.Enums.DailyReportStatusClassification;
 using static Model.Enums.EmployeeWorkType;
@@ -16,7 +17,6 @@ using static Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel.BusyoRange;
 using static Zouryoku.Utils.DateOnlyUtil;
 using static Zouryoku.Utils.JissekiKakuteiSimeUtil;
 using static Zouryoku.Utils.MikakuteiTsuchiUtil;
-using static CommonLibrary.Extensions.DateOnlyExtensions;
 
 namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 {
@@ -59,8 +59,8 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         // ======================================
 
         public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine)
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider timeProvider)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider)
         {
             Today = timeProvider.Today();
         }
@@ -79,13 +79,18 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         /// 検索条件のバインドプロパティ。
         /// </summary>
         [BindProperty(SupportsGet = true)]
-        public required NippouSearchViewModel SearchConditions { get; set; }
+        public NippouSearchViewModel SearchConditions { get; set; } = new();
 
         /// <summary>
         /// 通知可能かどうかのフラグ。
         /// </summary>
         /// <remarks><see cref="OnGetAsync"/>で設定され、初期遷移時に使用される。</remarks>
         public bool CanNotify { get; set; }
+
+        /// <summary>
+        /// 検索結果に使用する未確定社員のリスト。
+        /// </summary>
+        public List<MikakuteiSyainViewModel> MikakuteiSyains { get; set; } = [];
 
         public override bool UseInputAssets => true;
 
@@ -106,22 +111,16 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 
             // 検索日付の初期条件
             var simebi = jissekiSpan.JissekiSimebiYmd;
-            // 通知対象の実績期間の確定期限の翌々営業日以降は、次の実績締め日を取得する
+            // 通知対象の実績期間の確定期限の翌営業日の翌日以降は、次の実績締め日を取得する
             if (await GetNextBusinessDayAsync(db, jissekiSpan.JissekiKakuteiKigenInfo.KakuteiKigenYmd) < Today)
             {
                 simebi = await GetNextJissekiSimebiAsync(simebi);
             }
 
-            SearchConditions = new()
-            {
-                Busyo = new()
-                {
-                    Id = LoginInfo.User.BusyoId,
-                    Name = LoginInfo.User.Busyo.Name,
-                    Range = 部署,
-                },
-                Date = simebi,
-            };
+            SearchConditions.Busyo.Id = LoginInfo.User.BusyoId;
+            SearchConditions.Busyo.Name = LoginInfo.User.Busyo.Name;
+            SearchConditions.Busyo.Range = 部署;
+            SearchConditions.Date = simebi;
 
             // 通知可能かどうかのチェック
             // ----------------------------------
@@ -149,17 +148,17 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // ----------------------------------
 
             // 未確定者リスト
-            var viewModel = await GetMikakuteiSyainsAsync(inputDate, busyoId);
+            MikakuteiSyains = await GetMikakuteiSyainsAsync(inputDate, Today, busyoId);
 
             // 不正データを持つ社員の取得
             // ----------------------------------
             // NOTE: 不正データ = 指定日付から過去一か月間内の、確定状態でない日報
 
             // 指定日付から過去一か月間の確定日報をIncludeした社員のリスト
-            var syainsWithKakutei = await GetSyainsWithKakuteiNippousAsync(inputDate.AddMonths(-1), inputDate, inputDate, busyoId);
+            var syainsWithKakutei = await GetSyainsWithKakuteiNippousAsync(inputDate.AddMonths(-1), inputDate, Today, busyoId);
 
             // 未確定者のIDリスト
-            var mikakuteiSyainBaseIds = viewModel
+            var mikakuteiSyainBaseIds = MikakuteiSyains
                 .Select(s => s.SyainBaseId)
                 .ToList();
 
@@ -172,7 +171,8 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 }
 
                 // 過去一か月間の確定日報の件数
-                var count = syain.Nippous.Count;
+                var count = syain.Nippous
+                    .Count(n => n.NippouYmd <= inputDate);
                 // 検索期間の日数
                 var span = GetDayCount(inputDate.AddMonths(-1), inputDate);
 
@@ -181,14 +181,14 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 {
                     // 社員氏名にサフィックスを付与する
                     syain.Name = $"{syain.Name}{BadNippouSuffix}";
-                    viewModel.Add(new MikakuteiSyainViewModel(syain));
+                    MikakuteiSyains.Add(new MikakuteiSyainViewModel(syain));
                 }
             }
 
             // 検索結果の返却
             // ----------------------------------
 
-            var data = await PartialToJsonAsync("_Nippous", viewModel);
+            var data = await PartialToJsonAsync("_Nippous", MikakuteiSyains);
             return SuccessJson(null, data);
         }
 
@@ -197,18 +197,21 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         // ================================================
 
         /// <summary>
-        /// 最終確定日が指定日付より前の日報をもつ社員（標準社員外を除く）を取得する。
+        /// 最終確定日が指定日付より前の日報をもつ、<paramref name="baseDate"/>時点で有効な社員（標準社員外を除く）を取得する。
         /// <paramref name="busyoId"/>を指定したときは、部署IDによる絞り込みも行う。
         /// </summary>
         /// <param name="date">日付</param>
+        /// <param name="baseDate">有効かどうかを判定する日付</param>
         /// <param name="busyoId">部署ID</param>
         /// <returns>最終確定日が<paramref name="date"/>より前の社員のビューモデル</returns>
-        private async Task<List<MikakuteiSyainViewModel>> GetMikakuteiSyainsAsync(DateOnly date, long? busyoId = null)
+        private async Task<List<MikakuteiSyainViewModel>> GetMikakuteiSyainsAsync(DateOnly date, DateOnly baseDate, long? busyoId = null)
         {
             // SQLクエリ
-            var query = CreateQueryForFetchValidStandardSyain(date).AsNoTracking()
+            var query = CreateQueryForFetchValidStandardSyain(baseDate).AsNoTracking()
                 .Include(s => s.Nippous)
-                .Where(s => s.Nippous
+                .Where(s =>
+                    !s.Nippous.Any(n => n.TourokuKubun == 確定保存)
+                    || s.Nippous
                     .Where(n => n.TourokuKubun == 確定保存)
                     .Max(n => n.NippouYmd) < date)
                 .AsQueryable();
@@ -217,7 +220,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             if (busyoId.HasValue)
             {
                 query = query
-                    .Where(s => s.BusyoId == busyoId);
+                    .Where(s => s.BusyoId == busyoId.Value);
             }
 
             return await query
@@ -238,14 +241,14 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             var query = CreateQueryForFetchValidStandardSyain(baseDate).AsNoTracking()
                 .Include(s => s.Nippous
                     .Where(n => n.TourokuKubun == 確定保存)
-                    .Where(n => startYmd <= n.NippouYmd && n.NippouYmd <= endYmd))
+                    .Where(n => startYmd <= n.NippouYmd))
                 .AsQueryable();
 
             // 部署IDを指定されているなら部署IDで絞り込む
             if (busyoId.HasValue)
             {
                 query = query
-                    .Where(s => s.BusyoId == busyoId);
+                    .Where(s => s.BusyoId == busyoId.Value);
             }
 
             return await query.ToListAsync();
@@ -259,13 +262,13 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         private IQueryable<Syain> CreateQueryForFetchValidStandardSyain(DateOnly baseDate)
             => db.Syains
                 .AsSplitQuery()
-                .Include(s => s.Busyo)
                 .Include(s => s.SyainBase)
+                .Include(s => s.Busyo)
                 .Where(s =>
                     s.KintaiZokusei.Code != 標準社員外
                     && !s.Retired
-                    && s.StartYmd <= baseDate && baseDate <= s.EndYmd)
-                .Where(s => s.Busyo.StartYmd <= baseDate && baseDate <= s.Busyo.EndYmd)
+                    && s.StartYmd <= baseDate && baseDate <= s.EndYmd
+                    && s.Busyo.StartYmd <= baseDate && baseDate <= s.Busyo.EndYmd)
                 .OrderBy(s => s.Busyo.Code)
                 .ThenBy(s => s.Code)
                 .AsQueryable();
@@ -283,7 +286,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 return simebi.GetEndOfMonth();
             }
 
-            // 次回締め日
+            // 次回締め日の年月
             var nextSimebiYmd = simebi.GetStartOfMonth().AddMonths(1);
 
             var kakuteiKigenInfos = await GetKakuteiShimeKigenAsync(db, nextSimebiYmd);

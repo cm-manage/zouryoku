@@ -171,6 +171,11 @@ namespace Zouryoku.Pages.Shared
 
         /// <summary>
         /// 共通エラーレスポンス
+        /// JS側のerrorMessage(取得結果.message)を行うと
+        /// 画面上部にModelStateのエラーをまとめてアラート表示する
+        /// 
+        /// 注意：単項目チェックのようにエラーを各入力項目の近くに表示したい場合は、
+        ///       JS側でsendRegisterAjaxで呼出しModelState.ErrorJson()を使用してください
         /// </summary>
         public IActionResult CommonErrorResponse() => Error(ModelState.Errors()
             .SelectMany(e => e.Value.Select(v => new ResponseModel(v, e.Key)))

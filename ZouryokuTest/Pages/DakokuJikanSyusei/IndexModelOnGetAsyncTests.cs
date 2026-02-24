@@ -111,8 +111,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
         }
 
         // ==================================================================================
-        // 勤怠打刻情報を取得
-        //      パラメータ.社員ID、パラメータ.実績年月日と一致する勤怠打刻情報が存在する場合
+        // 勤怠打刻情報取得
         // ==================================================================================
         [DataRow(1, DisplayName = "Deletedがfalseの勤怠打刻情報が1件 → 勤怠打刻情報が取得される")]
         [DataRow(2, DisplayName = "Deletedがfalseの勤怠打刻情報が2件 → 勤怠打刻情報が取得される")]
@@ -379,7 +378,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
         // =============================================
 
         // ==================================================================================
-        // 勤怠打刻情報を取得
+        // 勤怠打刻情報取得
         // ==================================================================================
         [DataRow(2, 0, DisplayName = "パラメータの社員IDと一致する勤怠打刻情報が存在しない → 勤怠打刻情報を取得しない")]
         [DataRow(1, 1, DisplayName = "パラメータの実績日付と一致する勤怠打刻情報が存在しない → 勤怠打刻情報を取得しない")]
@@ -477,6 +476,79 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.AreEqual(syainId, model.ViewModel.SyainId);
             Assert.AreEqual(baseDate, model.ViewModel.JissekiDate);
             Assert.IsNull(model.ViewModel.UkagaiHeaderId);
+            Assert.IsEmpty(model.ViewModel.DeletedTimeSets);
+            Assert.IsEmpty(model.ViewModel.SyuseiReason);
+            Assert.IsEmpty(model.ViewModel.UkagaiShinseiVersions);
+            Assert.IsNull(model.ViewModel.UkagaiHeaderVersion);
+            Assert.IsFalse(model.ViewModel.IsKakutei);
+            Assert.IsNull(model.ViewModel.TorokuKubun);
+        }
+
+        [TestMethod(DisplayName = "勤怠打刻情報が１件も登録されていない → 勤怠打刻情報が取得されない")]
+        public async Task OnGetAsync_勤怠打刻情報が登録されていない_勤怠打刻情報を取得しない()
+        {
+            // ================ Arrange ================ //
+            var baseDate = new DateOnly(2025, 4, 1);
+            var syainId = 1;
+
+            // 社員情報の登録
+            var syain = new Syain()
+            {
+                Id = syainId,
+                Code = "100",
+                Name = "社員A",
+                KanaName = "シャインエー",
+                Seibetsu = (char)1,
+                BusyoCode = "100",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = new DateOnly(2020, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Kyusyoku = 1,
+                SyucyoSyokui = BusinessTripRole._2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = true,
+                Kengen = EmployeeAuthority.None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = 1,
+                BusyoId = 1,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            };
+
+            // 日報実績の登録
+            var nippou = new Nippou()
+            {
+                SyainId = syainId,
+                NippouYmd = baseDate,
+                Youbi = 1,
+                KaisyaCode = NippousCompanyCode.協和,
+                IsRendouZumi = true,
+                TourokuKubun = DailyReportStatusClassification.一時保存,
+                SyukkinKubunId1 = 1,
+            };
+
+            SeedEntities(syain, nippou);
+
+            var model = CreateModel();
+
+            // ================ Act ================ //
+            await model.OnGetAsync(syainId, baseDate);
+
+            // ================ Assert ================ //
+            Assert.AreEqual(syainId, model.ViewModel.SyainId);
+            Assert.AreEqual(baseDate, model.ViewModel.JissekiDate);
+            Assert.IsNull(model.ViewModel.UkagaiHeaderId);
+            for (int i = 0; i < model.ViewModel.TimeSets.Count; i++)
+            {
+                Assert.IsNull(model.ViewModel.TimeSets[i].Start.Hour);
+                Assert.IsNull(model.ViewModel.TimeSets[i].Start.Minute);
+                Assert.IsNull(model.ViewModel.TimeSets[i].End.Hour);
+                Assert.IsNull(model.ViewModel.TimeSets[i].End.Minute);
+            }
             Assert.IsEmpty(model.ViewModel.DeletedTimeSets);
             Assert.IsEmpty(model.ViewModel.SyuseiReason);
             Assert.IsEmpty(model.ViewModel.UkagaiShinseiVersions);

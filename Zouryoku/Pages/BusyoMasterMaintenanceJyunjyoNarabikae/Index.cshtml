@@ -1,11 +1,16 @@
 @page
-
-@using Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
-
 @model Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae.IndexModel
-
 @{
     ViewData["Title"] = "部署順序並び替え";
+
+    var cssLightnessDecrement = 0.02; // 階層ごとの明度の減少量
+    var cssChromaIncrement = 0.04; // 階層ごとの彩度の増加量
+    var cssBorderWidthBase = 2.0; // 階層0のボーダー幅（px）
+    var cssBorderWidthDecrement = 0.25; // 階層ごとのボーダー幅の減少量（px）
+    var cssBorderWidthMin = 1.0; // ボーダー幅の最小値（px）
+    string GetLightnessMultiplier(int level) => $"{1 - level * cssLightnessDecrement:0.###}";
+    string GetChromaOffset(int level) => $"{0 + level * cssChromaIncrement:0.###}";
+    string GetBorderWidth(int level) => $"{Math.Max(cssBorderWidthBase - level * cssBorderWidthDecrement, cssBorderWidthMin):0.###}px";
 }
 
 <div class="app-screen--entry">
@@ -19,14 +24,10 @@
         @* 部署ツリー *@
         <div class="app-area__body">
             <ul data-js="sections" class="list-group mt-3">
-                    @for (int i = 0; i < Model.RootBusyoOrders.Count; i++)
+                @for (int i = 0; i < Model.RootBusyoOrders.Count; i++)
                 {
-                    @await Html.PartialAsync("_BusyoOrderNode",
-                        new IndexModel.BusyoOrderRenderContext(
-                            Model.RootBusyoOrders[i],
-                            $"busyoOrders[{i}]"
-                        )
-                    )
+                    @await Html.PartialAsync("_BusyoOrderNode", new IndexModel.BusyoOrderRenderContext(
+                        Model.RootBusyoOrders[i], $"busyoOrders[{i}]", CssLevel: 1))
                 }
             </ul>
         </div>
@@ -102,15 +103,36 @@
 
 @section InputStyles {
     <style>
-        /* 隣り合ったボーダーが 1px で表示されるようにネガティブマージンを入れる */
-        .app-my-border-collapse {
-            margin-top: -1px;
-            margin-bottom: -1px;
-        }
         /* ハンドルのドラッグ可能エリアを拡張する */
         .app-handle {
             margin: -0.5rem -1rem;
             padding: 0.5rem 1rem;
+        }
+
+        /* 階層ごとの色分け（ブルー系濃淡） */
+        @for (int i = 0; i < IndexModel.CssLevelCount; i++)
+        {
+            var cssLevel = i + 1; // 1ベースに変換
+            var lightnessMultiplier = GetLightnessMultiplier(i);
+            var chromaOffset = GetChromaOffset(i);
+            var borderWidth = GetBorderWidth(i);
+            var hoverLightnessMultiplier = GetLightnessMultiplier(i + 1);
+            var hoverChromaOffset = GetChromaOffset(i + 1);
+            <text>
+            .app-busyo-level-@cssLevel {
+                background-color: oklch(from var(--bs-primary-bg-subtle) calc(l * @lightnessMultiplier) calc(c + @chromaOffset) h);
+                border: @borderWidth solid oklch(from var(--bs-primary) calc(l * @lightnessMultiplier) c h);
+                /* ボーダー幅の変更で中身がずれないように補正 */
+                padding-left: calc(var(--bs-list-group-item-padding-x) - @borderWidth);
+            }
+            /* ホバー時は1階層暗く表示する */
+            .app-busyo-level-@cssLevel:hover:not(:has(.list-group-item:hover)) {
+                background-color: oklch(from var(--bs-primary-bg-subtle) calc(l * @hoverLightnessMultiplier) calc(c + @hoverChromaOffset) h);
+                border-left: 6px solid oklch(from var(--bs-primary) calc(l * @hoverLightnessMultiplier) c h);
+                /* ボーダー幅の変更で中身がずれないように補正 */
+                padding-left: calc(var(--bs-list-group-item-padding-x) - 6px);
+            }
+            </text>
         }
     </style>
 }

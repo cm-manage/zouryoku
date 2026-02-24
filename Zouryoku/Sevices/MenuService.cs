@@ -16,6 +16,7 @@ namespace Zouryoku.Sevices
 
         // パラメータ名
         private const string ParamSyainId = "SyainId";
+        private const string ParamIsDairiSinsei = "IsDairiSinsei";
         private const string ParamCanAdd = "CanAdd";
         private const string ParamCanCardClick = "CanCardClick";
 
@@ -66,7 +67,6 @@ namespace Zouryoku.Sevices
         private const string IconSlidersH = "fa-sliders-h";
         private const string IconUserLock = "fa-user-lock";
         private const string IconUnlockAlt = "fa-unlock-alt";
-        private const string IconuserEdit = "fa-user-edit";
         private const string IconUsersCog = "fa-users-cog";
         private const string IconBuilding = "fa-building";
         private const string IconCogs = "fa-cogs";
@@ -111,8 +111,8 @@ namespace Zouryoku.Sevices
 
             // 申請管理
             sinseiKanriParentMenu
-                .AddChildMenu(申請入力, IconPencilAlt, false)
-                .AddChildMenu(代理申請入力, IconUserClock, false)
+                .AddChildMenu(申請入力, IconPencilAlt, false, CreateSinseiNyuryokuParams(false))
+                .AddChildMenu(代理申請入力, IconUserClock, false, CreateSinseiNyuryokuParams(true))
                 .AddChildMenu(申請入力一覧, IconList, false)
                 .AddChildMenu(申請確認, IconCheckCircle, false)
                 .AddChildMenu(申請入力履歴, IconHistory, false);
@@ -145,7 +145,6 @@ namespace Zouryoku.Sevices
             kanriParentMenu
                 .AddChildMenu(代理ログイン, IconUserLock, false)
                 .AddChildMenu(日報確定解除, IconUnlockAlt, false)
-                .AddChildMenu(代理入力設定, IconuserEdit, false)
                 .AddChildMenu(社員マスタメンテナンス, IconUsersCog, false)
                 .AddChildMenu(部署マスタメンテナンス, IconBuilding, false)
                 .AddChildMenu(プロセス会社項目設定, IconCogs, false)
@@ -202,6 +201,17 @@ namespace Zouryoku.Sevices
             => new()
             {
                 { ParamSyainId, loginUser.Id.ToString() }
+            };
+
+        /// <summary>
+        /// 申請入力のパラメータ作成処理
+        /// </summary>
+        /// <param name="isDairiSinsei">代理申請フラグ</param>
+        /// <returns>申請入力の呼び出しパラメータ</returns>
+        private static Dictionary<string, string> CreateSinseiNyuryokuParams(bool isDairiSinsei)
+            => new()
+            {
+                { ParamIsDairiSinsei, isDairiSinsei.ToString() }
             };
 
         /// <summary>

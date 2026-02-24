@@ -269,6 +269,10 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsTrue(model.ModelState.IsValid);
         }
 
+        // =============================================
+        // DB更新処理
+        // =============================================
+
         [DataRow(1, DisplayName = "打刻漏れ修正時に１件入力 → 入力値が登録される")]
         [DataRow(2, DisplayName = "打刻漏れ修正時に２件入力 → 入力値が登録される")]
         [DataRow(3, DisplayName = "打刻漏れ修正時に３件入力 → 入力値が登録される")]
@@ -838,6 +842,305 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.HasCount(1, afterUkagaiShinsei);
             Assert.AreEqual(afterUkagaiHeader.Id, afterUkagaiShinsei[0].UkagaiHeaderId);
             Assert.AreEqual(InquiryType.打刻時間修正, afterUkagaiShinsei[0].UkagaiSyubetsu);
+        }
+
+        [DataRow(null, null, 18, 0, DisplayName = "出勤時間が未入力 → 出勤時間がnullで登録される")]
+        [DataRow(9, 0, null, null, DisplayName = "退勤時間が未入力 → 退勤時間がnullで登録される")]
+        [TestMethod]
+        public async Task OnPostRegisterAsync_入力値がnull_正常に登録(
+            int? syukkinHour,
+            int? syukkinMinute,
+            int? taikinHour,
+            int? taikinMinute)
+        {
+            // ================ Arrange ================ //
+            var baseDate = new DateOnly(2025, 4, 1);
+
+            var model = CreateModel();
+
+            // 勤怠属性の登録
+            var kintaiZokusei = new KintaiZokusei()
+            {
+                Name = "test",
+                Code = EmployeeWorkType.パート,
+                SeigenTime = 0,
+                IsMinashi = false,
+                MaxLimitTime = 0,
+            };
+
+            // ログインユーザーの社員情報を追加
+            var syainBase = new SyainBasis()
+            {
+                Id = LoggedInUserId,
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+            };
+
+            var syain = new Syain
+            {
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+                KanaName = LoggedInUserName,
+                Seibetsu = (char)1,
+                BusyoCode = "100",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = new DateOnly(2020, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Kyusyoku = 1,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = true,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBase = syainBase,
+                BusyoId = 1,
+                KintaiZokusei = kintaiZokusei,
+                UserRoleId = 1,
+            };
+
+            // 日報実績の登録
+            var nippou = new Nippou()
+            {
+                Syain = syain,
+                NippouYmd = baseDate,
+                Youbi = 1,
+                KaisyaCode = NippousCompanyCode.協和,
+                IsRendouZumi = true,
+                TourokuKubun = DailyReportStatusClassification.一時保存,
+                SyukkinKubunId1 = 1,
+            };
+
+            SeedEntities(syainBase, syain, nippou, kintaiZokusei);
+
+            // LoginInfoを作成
+            var loginInfo = new LoginInfo { User = syain };
+
+            // セッションに格納
+            model.HttpContext.Session.Set(loginInfo);
+
+            // ================ Act ================ //
+            await model.OnGetAsync(syain.Id, baseDate);
+
+            // 入力値の設定
+            model.ViewModel.TimeSets[0].Start.Hour = syukkinHour;
+            model.ViewModel.TimeSets[0].Start.Minute = syukkinMinute;
+            model.ViewModel.TimeSets[0].End.Hour = taikinHour;
+            model.ViewModel.TimeSets[0].End.Minute = taikinMinute;
+
+            DateTime? syukkinTime = new DateTime();
+            if (syukkinHour is not null && syukkinMinute is not null)
+            {
+                syukkinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, syukkinHour.Value, syukkinMinute.Value, 0);
+            }
+            else
+            {
+                syukkinTime = null;
+            }
+
+            DateTime? taikinTime = new DateTime();
+            if (taikinHour is not null && taikinMinute is not null)
+            {
+                taikinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, taikinHour.Value, taikinMinute.Value, 0);
+            }
+            else
+            {
+                taikinTime = null;
+            }
+
+            await model.OnPostRegisterAsync();
+
+            // 更新後の情報を取得
+            var targetDeletedWorkinHour = await db.WorkingHours
+                .Where(x => x.Deleted)
+                .OrderBy(x => x.SyukkinTime)
+                .ToListAsync();
+
+            var targetNotDeletedWorkinHour = await db.WorkingHours
+                .Where(x => !x.Deleted)
+                .OrderBy(x => x.SyukkinTime)
+                .ToListAsync();
+
+            var targetUkagaiHeader = await db.UkagaiHeaders
+                .FirstOrDefaultAsync();
+
+            var targetUkagaiShinsei = await db.UkagaiShinseis
+                .ToListAsync();
+
+            // ================ Assert ================ //
+            Assert.IsEmpty(targetDeletedWorkinHour);
+            Assert.IsNotEmpty(targetNotDeletedWorkinHour);
+            Assert.IsNotNull(targetUkagaiHeader);
+            Assert.IsNotEmpty(targetUkagaiShinsei);
+            Assert.AreEqual(syain.Id, targetUkagaiHeader.SyainId);
+            Assert.AreEqual(DateTime.Now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
+            Assert.AreEqual(ApprovalStatus.承認, targetUkagaiHeader.Status);
+            Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
+            Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
+            Assert.IsFalse(targetUkagaiHeader.Invalid);
+            Assert.HasCount(1, targetUkagaiShinsei);
+            Assert.AreEqual(targetUkagaiHeader.Id, targetUkagaiShinsei[0].UkagaiHeaderId);
+            Assert.AreEqual(InquiryType.打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
+            Assert.HasCount(1, targetUkagaiShinsei);
+            Assert.AreEqual(model.ViewModel.SyainId, targetNotDeletedWorkinHour[0].SyainId);
+            Assert.AreEqual(model.ViewModel.JissekiDate, targetNotDeletedWorkinHour[0].Hiduke);
+            Assert.AreEqual(0, targetNotDeletedWorkinHour[0].SyukkinLatitude);
+            Assert.AreEqual(0, targetNotDeletedWorkinHour[0].SyukkinLongitude);
+            Assert.AreEqual(0, targetNotDeletedWorkinHour[0].TaikinLatitude);
+            Assert.AreEqual(0, targetNotDeletedWorkinHour[0].TaikinLongitude);
+            Assert.AreEqual(syukkinTime, targetNotDeletedWorkinHour[0].SyukkinTime);
+            Assert.AreEqual(taikinTime, targetNotDeletedWorkinHour[0].TaikinTime);
+            Assert.AreEqual(targetUkagaiHeader.Id, targetNotDeletedWorkinHour[0].UkagaiHeaderId);
+            Assert.IsFalse(targetNotDeletedWorkinHour[0].Deleted);
+            Assert.IsTrue(targetNotDeletedWorkinHour[0].Edited);
+        }
+
+        [DataRow(0, 0, 18, 0, DisplayName = "出勤時間が00:00 → 出勤時間が00:00で登録される")]
+        [DataRow(9, 0, 0, 0, DisplayName = "退勤時間が00:00 → 退勤時間が次の日の00:00で登録される")]
+        [DataRow(0, 0, 0, 0, DisplayName = "出勤時間、退勤時間が00:00 → 出勤時間が00:00、退勤時間が次の日の00:00で登録される")]
+        [TestMethod]
+        public async Task OnPostRegisterAsync_入力値が0_正常に登録(
+            int syukkinHour,
+            int syukkinMinute,
+            int taikinHour,
+            int taikinMinute)
+        {
+            // ================ Arrange ================ //
+            var baseDate = new DateOnly(2025, 4, 1);
+
+            var model = CreateModel();
+
+            // 勤怠属性の登録
+            var kintaiZokusei = new KintaiZokusei()
+            {
+                Name = "test",
+                Code = EmployeeWorkType.パート,
+                SeigenTime = 0,
+                IsMinashi = false,
+                MaxLimitTime = 0,
+            };
+
+            // ログインユーザーの社員情報を追加
+            var syainBase = new SyainBasis()
+            {
+                Id = LoggedInUserId,
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+            };
+
+            var syain = new Syain
+            {
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+                KanaName = LoggedInUserName,
+                Seibetsu = (char)1,
+                BusyoCode = "100",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = new DateOnly(2020, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Kyusyoku = 1,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = true,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBase = syainBase,
+                BusyoId = 1,
+                KintaiZokusei = kintaiZokusei,
+                UserRoleId = 1,
+            };
+
+            // 日報実績の登録
+            var nippou = new Nippou()
+            {
+                Syain = syain,
+                NippouYmd = baseDate,
+                Youbi = 1,
+                KaisyaCode = NippousCompanyCode.協和,
+                IsRendouZumi = true,
+                TourokuKubun = DailyReportStatusClassification.一時保存,
+                SyukkinKubunId1 = 1,
+            };
+
+            SeedEntities(syainBase, syain, nippou, kintaiZokusei);
+
+            // LoginInfoを作成
+            var loginInfo = new LoginInfo { User = syain };
+
+            // セッションに格納
+            model.HttpContext.Session.Set(loginInfo);
+
+            // ================ Act ================ //
+            await model.OnGetAsync(syain.Id, baseDate);
+
+            // 入力値の設定
+            model.ViewModel.TimeSets[0].Start.Hour = syukkinHour;
+            model.ViewModel.TimeSets[0].Start.Minute = syukkinMinute;
+            model.ViewModel.TimeSets[0].End.Hour = taikinHour;
+            model.ViewModel.TimeSets[0].End.Minute = taikinMinute;
+
+            DateTime syukkinTime = new DateTime();
+            syukkinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, syukkinHour, syukkinMinute, 0);
+            
+
+            DateTime taikinTime = new DateTime();
+            if (taikinHour == 0 && taikinMinute == 0)
+            {
+                taikinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.AddDays(1).Day, taikinHour, taikinMinute, 0);
+            }
+            else
+            {
+                taikinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, taikinHour, taikinMinute, 0);
+            }
+
+            await model.OnPostRegisterAsync();
+
+            // 更新後の情報を取得
+            var targetDeletedWorkinHour = await db.WorkingHours
+                .Where(x => x.Deleted)
+                .OrderBy(x => x.SyukkinTime)
+                .ToListAsync();
+
+            var targetNotDeletedWorkinHour = await db.WorkingHours
+                .Where(x => !x.Deleted)
+                .OrderBy(x => x.SyukkinTime)
+                .ToListAsync();
+
+            var targetUkagaiHeader = await db.UkagaiHeaders
+                .FirstOrDefaultAsync();
+
+            var targetUkagaiShinsei = await db.UkagaiShinseis
+                .ToListAsync();
+
+            // ================ Assert ================ //
+            Assert.IsEmpty(targetDeletedWorkinHour);
+            Assert.IsNotEmpty(targetNotDeletedWorkinHour);
+            Assert.IsNotNull(targetUkagaiHeader);
+            Assert.IsNotEmpty(targetUkagaiShinsei);
+            Assert.AreEqual(syain.Id, targetUkagaiHeader.SyainId);
+            Assert.AreEqual(DateTime.Now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
+            Assert.AreEqual(ApprovalStatus.承認, targetUkagaiHeader.Status);
+            Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
+            Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
+            Assert.IsFalse(targetUkagaiHeader.Invalid);
+            Assert.HasCount(1, targetUkagaiShinsei);
+            Assert.AreEqual(targetUkagaiHeader.Id, targetUkagaiShinsei[0].UkagaiHeaderId);
+            Assert.AreEqual(InquiryType.打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
+            Assert.HasCount(1, targetUkagaiShinsei);
+            Assert.AreEqual(model.ViewModel.SyainId, targetNotDeletedWorkinHour[0].SyainId);
+            Assert.AreEqual(model.ViewModel.JissekiDate, targetNotDeletedWorkinHour[0].Hiduke);
+            Assert.AreEqual(0, targetNotDeletedWorkinHour[0].SyukkinLatitude);
+            Assert.AreEqual(0, targetNotDeletedWorkinHour[0].SyukkinLongitude);
+            Assert.AreEqual(0, targetNotDeletedWorkinHour[0].TaikinLatitude);
+            Assert.AreEqual(0, targetNotDeletedWorkinHour[0].TaikinLongitude);
+            Assert.AreEqual(syukkinTime, targetNotDeletedWorkinHour[0].SyukkinTime);
+            Assert.AreEqual(taikinTime, targetNotDeletedWorkinHour[0].TaikinTime);
+            Assert.AreEqual(targetUkagaiHeader.Id, targetNotDeletedWorkinHour[0].UkagaiHeaderId);
+            Assert.IsFalse(targetNotDeletedWorkinHour[0].Deleted);
+            Assert.IsTrue(targetNotDeletedWorkinHour[0].Edited);
         }
 
         // =============================================
@@ -1433,6 +1736,103 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsNotNull(entry);
             Assert.IsNotEmpty(entry.Errors);
             Assert.AreEqual(string.Format(Const.ErrorInputRequired, "出退勤時間"), entry.Errors[0].ErrorMessage);
+        }
+
+        [DataRow(9, 11, 10, 15, 16, 18, "出退勤1", "出退勤2", DisplayName = "出退勤１と出退勤２が重複 → IsValidがfalseで返却される")]
+        [DataRow(9, 11, 12, 15, 14, 18, "出退勤2", "出退勤3", DisplayName = "出退勤２と出退勤３が重複 → IsValidがfalseで返却される")]
+        [DataRow(9, 11, 12, 15, 8, 10, "出退勤3", "出退勤1", DisplayName = "出退勤１と出退勤３が重複 → IsValidがfalseで返却される")]
+        [TestMethod]
+        public async Task OnPostRegisterAsync_出退勤時間が重複_IsValidがfalseで返却(
+            int syukkinHour1,
+            int taikinHour1,
+            int syukkinHour2,
+            int taikinHour2,
+            int syukkinHour3,
+            int taikinHour3,
+            string inputLabel1,
+            string inputLabel2)
+        {
+            // ================ Arrange ================ //
+            var model = CreateModel();
+
+            // 勤怠属性の登録
+            var kintaiZokusei = new KintaiZokusei()
+            {
+                Name = "test",
+                Code = EmployeeWorkType.管理,
+                SeigenTime = 0,
+                IsMinashi = false,
+                MaxLimitTime = 0,
+            };
+
+            // ログインユーザーの社員情報を追加
+            var syainBase = new SyainBasis()
+            {
+                Id = LoggedInUserId,
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+            };
+
+            var syain = new Syain
+            {
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+                KanaName = LoggedInUserName,
+                Seibetsu = (char)1,
+                BusyoCode = "100",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = new DateOnly(2020, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Kyusyoku = 1,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = true,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBase = syainBase,
+                BusyoId = 1,
+                KintaiZokusei = kintaiZokusei,
+                UserRoleId = 1,
+            };
+
+            SeedEntities(syainBase, syain, kintaiZokusei);
+
+            // LoginInfoを作成
+            var loginInfo = new LoginInfo { User = syain };
+
+            // セッションに格納
+            model.HttpContext.Session.Set(loginInfo);
+
+            // ================ Act ================ //
+            // 入力値の設定
+            // 出退勤1
+            model.ViewModel.TimeSets[0].Start.Hour = syukkinHour1;
+            model.ViewModel.TimeSets[0].Start.Minute = 0;
+            model.ViewModel.TimeSets[0].End.Hour = taikinHour1;
+            model.ViewModel.TimeSets[0].End.Minute = 0;
+
+            // 出退勤2
+            model.ViewModel.TimeSets[1].Start.Hour = syukkinHour2;
+            model.ViewModel.TimeSets[1].Start.Minute = 0;
+            model.ViewModel.TimeSets[1].End.Hour = taikinHour2;
+            model.ViewModel.TimeSets[1].End.Minute = 0;
+
+            // 出退勤3
+            model.ViewModel.TimeSets[2].Start.Hour = syukkinHour3;
+            model.ViewModel.TimeSets[2].Start.Minute = 0;
+            model.ViewModel.TimeSets[2].End.Hour = taikinHour3;
+            model.ViewModel.TimeSets[2].End.Minute = 0;
+
+            await model.OnPostRegisterAsync();
+
+            // ================ Assert ================ //
+            Assert.IsFalse(model.ModelState.IsValid);
+            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
+            Assert.IsNotNull(entry);
+            Assert.IsNotEmpty(entry.Errors);
+            Assert.AreEqual(string.Format(Const.ErrorOverlapInputTime, inputLabel1, inputLabel2), entry.Errors[0].ErrorMessage);
         }
 
         [TestMethod(DisplayName = "入力したユーザ != 修正したユーザ かつ 社員権限が代理入力者に該当せず、修正理由が未入力 → IsValidがfalseで返却される")]

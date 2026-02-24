@@ -32,8 +32,8 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         // ======================================
 
         public NotifyModel(ZouContext db, ILogger<NotifyModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine) { }
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider timeProvider)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         // ======================================
         // フィールド
@@ -85,7 +85,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // システム日付が通知可能期間外なら403へリダイレクト
             if (!await IsInNotificationPeriodAsync(db, today, jissekiSpan))
             {
-                return new ForbidResult();
+                return new RedirectResult("/page403/");
             }
 
             // 画面項目の設定

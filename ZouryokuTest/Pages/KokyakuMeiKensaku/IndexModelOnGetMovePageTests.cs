@@ -1,3 +1,4 @@
+using CommonLibrary.Extensions;
 using ZouryokuTest.Builder;
 
 namespace ZouryokuTest.Pages.KokyakuMeiKensaku
@@ -152,7 +153,7 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
                 .WithId(12)
                 .WithKokyakuKaisyaId(1)
                 .WithSyainBaseId(1)
-                .WithSansyouTime(DateTime.Now.AddDays(-1))
+                .WithSansyouTime(fakeTimeProvider.Now().AddDays(-1))
                 .Build());
             db.SaveChanges();
 

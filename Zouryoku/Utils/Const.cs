@@ -9,6 +9,9 @@ namespace Zouryoku.Utils
 
         public const string PasswordRegex = "^^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z])(?=.*[!-/:-@[-`{-~])[0-9a-zA-Z!-/:-@[-`{-~]{10,}$";
 
+        /// <summary>エラーが発生しました。</summary>
+        public const string Error = "エラーが発生しました。";
+
         /// <summary>ファイルを選択してください。</summary>
         public const string PleaseSelectFile = "ファイルを選択してください。";
         /// <summary>CSVの列数が正しくありません。</summary>

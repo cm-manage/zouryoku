@@ -31,7 +31,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         /// </summary>
         protected IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options)
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData(),

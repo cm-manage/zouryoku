@@ -163,17 +163,6 @@
 
             const registerUrl = toUrl("Register");
 
-            // 定時設定
-            $("#btn-time-set").on("click", function() {
-                for (let i = 0; i < 3; i++) {
-                    $(`#syukkin-hour-${i}, #syukkin-minute-${i}, #taikin-hour-${i}, #taikin-minute-${i}`).val("");
-                }
-                $("#syukkin-hour-0").val(teijiStartHour);
-                $("#syukkin-minute-0").val(teijiStartMinute);
-                $("#taikin-hour-0").val(teijiEndHour);
-                $("#taikin-minute-0").val(teijiEndMinute);
-            });
-
             // 各セットの出退勤select群
             // 1セット目のみ例外的に無効化されない
             const timeSets = [$('select[name^="ViewModel.TimeSets[0].End."]')];
@@ -201,6 +190,19 @@
                     }
                 }
             }
+
+            // 定時設定
+            $("#btn-time-set").on("click", function() {
+                for (let i = 0; i < 3; i++) {
+                    $(`#syukkin-hour-${i}, #syukkin-minute-${i}, #taikin-hour-${i}, #taikin-minute-${i}`).val("");
+                }
+                $("#syukkin-hour-0").val(teijiStartHour);
+                $("#syukkin-minute-0").val(teijiStartMinute);
+                $("#taikin-hour-0").val(teijiEndHour);
+                $("#taikin-minute-0").val(teijiEndMinute);
+
+                updateTimeSets();
+            });
 
             // 初期状態
             updateTimeSets();

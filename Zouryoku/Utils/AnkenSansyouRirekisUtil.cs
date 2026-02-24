@@ -29,7 +29,8 @@ namespace Zouryoku.Utils
         /// <param name="db">DbContext</param>
         /// <param name="anken">参照した案件情報</param>
         /// <param name="syainBaseId">ログインユーザーの社員BaseID</param>
-        public static async Task MaintainAnkenSansyouRirekiAsync(ZouContext db, Anken anken, long syainBaseId)
+        /// <param name="now">現在日時</param>
+        public static async Task MaintainAnkenSansyouRirekiAsync(ZouContext db, Anken anken, long syainBaseId, DateTime now)
         {
             // 既存の案件参照履歴を検索
             AnkenSansyouRireki? existingRireki = await db.AnkenSansyouRirekis
@@ -41,7 +42,7 @@ namespace Zouryoku.Utils
             if (existingRireki is not null)
             {
                 // 案件参照履歴を更新
-                existingRireki.SansyouTime = DateTime.Now;
+                existingRireki.SansyouTime = now;
 
                 // 削除対象検索クエリ（更新データは検索しない）
                 searchQuery = x => (x.SyainBaseId == syainBaseId && x.Id != existingRireki.Id);
@@ -53,7 +54,7 @@ namespace Zouryoku.Utils
                 {
                     Anken = anken,
                     SyainBaseId = syainBaseId,
-                    SansyouTime = DateTime.Now
+                    SansyouTime = now
                 };
                 db.AnkenSansyouRirekis.Add(newEntity);
 

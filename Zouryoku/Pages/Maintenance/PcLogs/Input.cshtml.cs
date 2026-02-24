@@ -1,3 +1,4 @@
+using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -24,8 +25,8 @@ namespace Zouryoku.Pages.Maintenance.PcLogs
     {
         private readonly ZouContext context;
 
-        public InputModel(ZouContext context, ILogger<InputModel> logger, IOptions<AppConfig> options)
-            : base(context, logger, options)
+        public InputModel(ZouContext context, ILogger<InputModel> logger, IOptions<AppConfig> options, TimeProvider? timeProvider = null)
+            : base(context, logger, options, timeProvider)
         {
             this.context = context;
         }
@@ -40,7 +41,7 @@ namespace Zouryoku.Pages.Maintenance.PcLogs
         /// 入力対象PCログ (ViewModel)
         /// </summary>
         [BindProperty]
-        public PcLogModel PcLog { get; set; } = new PcLogModel() { Datetime = DateTime.Now };
+        public PcLogModel PcLog { get; set; } = new PcLogModel();
 
         /// <summary>
         ///画面初期表示（新規/編集）
@@ -55,6 +56,10 @@ namespace Zouryoku.Pages.Maintenance.PcLogs
                     return NotFound();
                 }
                 PcLog = PcLogModel.FromEntity(existing);
+            }
+            else
+            {
+                PcLog.Datetime = timeProvider.Now();
             }
             return Page();
         }

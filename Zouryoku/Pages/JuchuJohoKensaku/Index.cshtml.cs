@@ -307,7 +307,7 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             }
 
             // 登録または更新を行い、参照履歴超過分を削除
-            await MaintainKingsJuchuSansyouRirekiAsync(db, juchuId, LoginInfo.User.SyainBaseId);
+            //await MaintainKingsJuchuSansyouRirekiAsync(db, juchuId, LoginInfo.User.SyainBaseId);
 
             await db.SaveChangesAsync();
 

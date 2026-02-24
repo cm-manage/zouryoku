@@ -1,3 +1,4 @@
+using CommonLibrary.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Model.Data;
@@ -11,10 +12,8 @@ namespace Zouryoku.Pages.Maintenance.PhotoList
     /// 顔写真一覧ページモデル
     /// </summary>
     [FunctionAuthorizationAttribute]
-    public class IndexModel : BasePageModel<IndexModel>
+    public class IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> optionsAccessor, TimeProvider? timeProvider = null) : BasePageModel<IndexModel>(db, logger, optionsAccessor, timeProvider)
     {
-        private readonly ZouContext _context;
-
         /// <summary>
         /// １行の写真数
         /// </summary>
@@ -24,27 +23,23 @@ namespace Zouryoku.Pages.Maintenance.PhotoList
         /// 部署ごとの社員写真情報
         /// </summary>
         public List<BusyoPhotoGroup> BusyoPhotoGroups { get; set; } = new();
-
-        public IndexModel(ZouContext context, ILogger<IndexModel> logger, IOptions<AppConfig> options)
-            : base(context, logger, options)
-            => _context = context;
-
+       
         /// <summary>
         /// 顔写真一覧画面の初期表示処理を行います。
         /// 全部署と所属社員の写真情報を階層的に取得し、部署ごとにグループ化して表示します。
         /// </summary>
         public async Task OnGetAsync()
         {
-            var today = DateOnly.FromDateTime(DateTime.Now);
+            var today = timeProvider.Today();
             const long rootBusyoId = 0;
 
-            // 全部署を1回のクエリで取得（N+1問題を解決）
-            var allBusyos = await _context.Busyos
+            // 全部署を1回のクエリで取得
+            var allBusyos = await db.Busyos
                 .AsNoTracking()
                 .Where(b =>
                     b.IsActive &&
-                    b.StartYmd < today &&
-                    b.EndYmd > today)
+                    b.StartYmd <= today &&
+                    b.EndYmd >= today)
                 .OrderBy(b => b.Jyunjyo)
                 .ToListAsync();
 
@@ -59,7 +54,7 @@ namespace Zouryoku.Pages.Maintenance.PhotoList
             var busyoIds = hierarchicalBusyos.Select(b => b.Id).ToList();
 
             // 全社員を1回のクエリで取得
-            var allSyains = await _context.Syains
+            var allSyains = await db.Syains
                 .AsNoTracking()
                 .Where(s => busyoIds.Contains(s.BusyoId) && !s.Retired)
                 .Include(s => s.SyainBase)

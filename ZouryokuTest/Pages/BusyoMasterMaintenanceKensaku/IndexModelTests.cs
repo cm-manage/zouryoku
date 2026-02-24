@@ -13,7 +13,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
     {
         private IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine)
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
@@ -89,7 +89,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
         {
             SeedBase();
 
-            var today = DateTime.Now.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             db.Add(new BusyoBuilder()
                 .WithIsActive(false)
@@ -114,8 +114,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
             SeedBase();
 
             db.Add(new BusyoBuilder()
-                .WithStartYmd(DateTime.Now.AddDays(1).ToDateOnly())
-                .WithEndYmd(DateTime.Now.AddDays(2).ToDateOnly())
+                .WithStartYmd(fakeTimeProvider.Now().AddDays(1).ToDateOnly())
+                .WithEndYmd(fakeTimeProvider.Now().AddDays(2).ToDateOnly())
                 .Build());
 
             await db.SaveChangesAsync();
@@ -135,8 +135,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
             SeedBase();
 
             db.Add(new BusyoBuilder()
-                .WithStartYmd(DateTime.Now.AddDays(-2).ToDateOnly())
-                .WithEndYmd(DateTime.Now.AddDays(-1).ToDateOnly())
+                .WithStartYmd(fakeTimeProvider.Now().AddDays(-2).ToDateOnly())
+                .WithEndYmd(fakeTimeProvider.Now().AddDays(-1).ToDateOnly())
                 .Build());
 
             await db.SaveChangesAsync();
@@ -157,8 +157,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
 
             db.Add(new BusyoBuilder()
                 .WithIsActive(true)
-                .WithStartYmd(DateTime.Now.AddDays(-1).ToDateOnly())
-                .WithEndYmd(DateTime.Now.AddDays(1).ToDateOnly())
+                .WithStartYmd(fakeTimeProvider.Now().AddDays(-1).ToDateOnly())
+                .WithEndYmd(fakeTimeProvider.Now().AddDays(1).ToDateOnly())
                 .Build());
 
             await db.SaveChangesAsync();

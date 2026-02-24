@@ -1,0 +1,438 @@
+﻿@page
+@model Zouryoku.Pages.Maintenance.Kintais.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "勤怠メンテナンス";
+}
+
+@section InputStyles {
+    <style>
+        /* タブのcss */
+        .tab-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            height: 100%;
+        }
+
+        .tab-header {
+            order: -1;
+            cursor: pointer;
+            margin: 2px 0;
+            width: 200px;
+            padding: 9px 0;
+            border-bottom: 3px solid #4d8cca;
+            background-color: #ececec;
+            text-align: center;
+            align-content: center;
+            color: #4d8cca;
+            display: inline-block;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            font-size: 18px;
+            height: 50px;
+        }
+
+        .tab-content {
+            width: 100%;
+            display: none;
+            padding: 0;
+        }
+
+        .tab-switch:checked + .tab-header {
+            background: #4d8cca;
+            color: #FFF;
+        }
+
+            .tab-switch:checked + .tab-header + .tab-content {
+                display: block;
+            }
+
+        .tab-switch {
+            display: none;
+        }
+
+        table {
+            .th-date {
+                width: 5%;
+            }
+
+            .th-kubun {
+                width: 8%;
+            }
+
+            .th-juchu {
+                width: 14%;
+            }
+
+            .th-time {
+                width: 7%;
+                min-width: 8ch;
+            }
+        }
+
+        .shortage-panel {
+            border: 2px solid #3b7ec1;
+            border-radius: 8px;
+            padding: 24px;
+            min-height: 420px;
+        }
+
+        .shortage-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .shortage-note {
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .shortage-input {
+            width: 140px;
+            text-align: right;
+            background-color: #f0f3f6;
+            font-weight: bold;
+        }
+
+        .shortage-block {
+            margin-top: 24px;
+        }
+
+        .shortage-days-input {
+            width: 140px;
+        }
+
+        .vacation-panel {
+            border: 2px solid #3b7ec1;
+            border-radius: 8px;
+            padding: 24px;
+            min-height: 420px;
+        }
+
+        .vacation-row {
+            display: grid;
+            grid-template-columns: repeat(8, max-content);
+            align-items: end;
+            column-gap: 16px;
+            row-gap: 12px;
+        }
+
+        .vacation-label {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .vacation-input {
+            width: 140px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .vacation-input--readonly {
+            background-color: #f0f3f6;
+        }
+
+        .vacation-sign {
+            font-size: 22px;
+            font-weight: bold;
+            padding-bottom: 8px;
+        }
+
+        .vacation-block {
+            margin-top: 32px;
+            max-width: 200px;
+        }
+    </style>
+}
+
+<partial name="_ZouryokuHeader" model="Model" />
+
+<div class="app-screen--search">
+    <form method="post" id="kintai-maintenance-form">
+        @Html.AntiForgeryToken()
+        <div class="app-area__search-criteria">
+            <div class="d-flex mt-lg-2 gap-lg-2 align-items-center">
+                <label asp-for="Condition.TargetYearMonth" class="col-lg-1 col-form-label app-input__label ps-2">対象年月</label>
+                <div class="col-lg-2">
+                    <input class="form-control app-input__textbox" asp-for="Condition.TargetYearMonth" type="month" />
+                </div>
+                <label asp-for="Condition.SyainId" class="col-lg-1 col-form-label app-input__label ps-2">社員名</label>
+                <div class="col-lg-2 d-flex">
+                    <select class="form-control form-select app-input__select" asp-for="Condition.SyainId" asp-items="Model.SyainSelectList">
+                        <option value=""></option>
+                    </select>
+                    <button type="button" id="btn-syain-select" class="btn btn-primary app-btn__base">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+                <div class="col-lg-2 d-flex gap-2">
+                    <button type="button" id="btn-search" class="btn btn-primary app-btn__base">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        検索
+                    </button>
+                    <button type="button" id="btn-clear" class="btn btn-secondary app-btn__base">クリア</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-wrap mt-lg-3">
+            <input id="tab1" type="radio" name="TAB" class="tab-switch" value="tab1_content" checked />
+            <label class="tab-header" for="tab1">出勤区分変更</label>
+            <div id="tab1_content" class="tab-content">
+                <div class="border rounded p-3 mb-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-lg-2">
+                            <label class="app-input__label">対象日</label>
+                            <input type="date" class="form-control app-input__textbox" id="target-date" name="TargetDate" />
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="fw-bold mb-2">現在値</div>
+                        <div class="row g-3 align-items-center">
+                            <div class="col-lg-2">
+                                <label class="app-input__label">出勤区分1</label>
+                                <input type="text" class="form-control app-input__textbox" readonly />
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">出勤区分2</label>
+                                <input type="text" class="form-control app-input__textbox" readonly />
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">実働時間</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control app-input__textbox" readonly />
+                                    <span class="input-group-text">時間</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">残業累計</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control app-input__textbox" readonly />
+                                    <span class="input-group-text">時間</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">割増</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control app-input__textbox" readonly />
+                                    <span class="input-group-text">時間</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">深夜</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control app-input__textbox" readonly />
+                                    <span class="input-group-text">時間</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="fw-bold mb-2">登録欄</div>
+                        <div class="row g-3 align-items-center">
+                            <div class="col-lg-2">
+                                <label class="app-input__label">出勤区分1</label>
+                                <select class="form-control form-select app-input__select" id="reg-kubun1" name="RegKubun1">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">出勤区分2</label>
+                                <select class="form-control form-select app-input__select" id="reg-kubun2" name="RegKubun2">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">実働</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control app-input__textbox" id="reg-jitsudo" name="RegJitsudo" step="0.25" />
+                                    <span class="input-group-text">時間</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">残業</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control app-input__textbox" id="reg-zangyo" name="RegZangyo" step="0.25" />
+                                    <span class="input-group-text">時間</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">割増</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control app-input__textbox" id="reg-warimashi" name="RegWarimashi" step="0.25" />
+                                    <span class="input-group-text">時間</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="app-input__label">深夜</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control app-input__textbox" id="reg-shinya" name="RegShinya" step="0.25" />
+                                    <span class="input-group-text">時間</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <button type="button" class="btn btn-secondary app-btn__base" id="btn-auto-adjust">自動調整</button>
+                            <button type="button" class="btn btn-primary app-btn__base" id="btn-register">登録</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-area__search-results">
+                    <table class="table app-table__calendar table-bordered text-nowrap text-center align-middle">
+                        <thead class="table-primary">
+                            <tr>
+                                <th rowspan="2" class="th-date align-middle">日付</th>
+                                <th rowspan="2" class="th-kubun align-middle">出勤区分</th>
+                                <th rowspan="2" class="th-juchu align-middle">受注番号</th>
+                                <th rowspan="2" class="th-time align-middle">出勤</th>
+                                <th rowspan="2" class="th-time align-middle">退勤</th>
+                                <th colspan="3">平日</th>
+                                <th colspan="3">土祝祭日</th>
+                                <th colspan="2">法定休日</th>
+                            </tr>
+                            <tr>
+                                <th class="th-time">残業</th>
+                                <th class="th-time">割増</th>
+                                <th class="th-time">深夜</th>
+                                <th class="th-time">残業</th>
+                                <th class="th-time">割増</th>
+                                <th class="th-time">深夜</th>
+                                <th class="th-time">実働</th>
+                                <th class="th-time">深夜</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kintai-list-body">
+                            @await Html.PartialAsync("_IndexPartial", Model.KintaiView)
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <input id="tab2" type="radio" name="TAB" class="tab-switch" value="tab2_content" />
+            <label class="tab-header" for="tab2">不足時間調整</label>
+            <div id="tab2_content" class="tab-content">
+                <div class="shortage-panel">
+                    <div class="shortage-title">残業累計</div>
+                    <div class="shortage-note">※残業時間が整数の場合、就業時間を補填する必要はございません。</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="text" class="form-control app-input__textbox shortage-input" readonly value="1201" />
+                        <button type="button" class="btn btn-primary app-btn__base">自動計算</button>
+                    </div>
+
+                    <div class="shortage-block">
+                        <div class="fw-bold mb-2">振替休暇</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="text" class="form-control app-input__textbox shortage-days-input" />
+                            <span>日</span>
+                        </div>
+                    </div>
+
+                    <div class="shortage-block">
+                        <div class="fw-bold mb-2">有給休暇</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="text" class="form-control app-input__textbox shortage-days-input" />
+                            <span>日</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-5">
+                        <button type="button" class="btn btn-primary app-btn__base">登録</button>
+                    </div>
+                </div>
+            </div>
+
+            <input id="tab3" type="radio" name="TAB" class="tab-switch" value="tab3_content" />
+            <label class="tab-header" for="tab3">有給メンテナンス</label>
+            <div id="tab3_content" class="tab-content">
+                <div class="vacation-panel">
+                    <div class="vacation-row">
+                        <div>
+                            <div class="vacation-label">有給休暇</div>
+                            <input type="text" class="form-control app-input__textbox vacation-input" value="20" />
+                        </div>
+                        <div class="vacation-sign">+</div>
+                        <div>
+                            <div class="vacation-label">繰越有給数</div>
+                            <input type="text" class="form-control app-input__textbox vacation-input" value="20" />
+                        </div>
+                        <div class="vacation-sign">-</div>
+                        <div>
+                            <div class="vacation-label">消化数</div>
+                            <input type="text" class="form-control app-input__textbox vacation-input vacation-input--readonly" readonly value="6" />
+                        </div>
+                        <div class="vacation-sign">=</div>
+                        <div>
+                            <div class="vacation-label">残有給数</div>
+                            <input type="text" class="form-control app-input__textbox vacation-input vacation-input--readonly" readonly value="34" />
+                        </div>
+                        <div>
+                            <div class="vacation-label">半日有給使用回数</div>
+                            <input type="text" class="form-control app-input__textbox vacation-input" value="5" />
+                        </div>
+                    </div>
+
+                    <div class="vacation-block">
+                        <div class="vacation-label">計画有給残数</div>
+                        <input type="text" class="form-control app-input__textbox vacation-input" />
+                    </div>
+
+                    <div class="vacation-block">
+                        <div class="vacation-label">計画特別休暇残数</div>
+                        <input type="text" class="form-control app-input__textbox vacation-input" />
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-5">
+                        <button type="button" class="btn btn-primary app-btn__base">登録</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        const SELECTED_SYAIN = "syainSelected";
+
+        $(function () {
+            $(window).on("message", function (event) {
+                const e = event.originalEvent;
+                // セキュリティチェック（オリジン確認）
+                if (e.origin !== window.location.origin) return;
+                const data = e.data;
+                if (!data || data.type !== SELECTED_SYAIN) return;
+                $('#Condition_SyainId').val(data.selectedSyain.syainId);
+            });
+
+            $("#btn-syain-select").on("click", function (e) {
+                e.preventDefault();
+                openSyainSelectModal(false, null);
+            });
+
+            $("#btn-search").on("click", function () {
+                errorMessageClear();
+
+                var targetYearMonth = $("#Condition_TargetYearMonth").val();
+                var syainId = $("#Condition_SyainId").val();
+
+                if (!targetYearMonth || !syainId) {
+                    errorMessage("対象年月と社員名を入力してください。");
+                    return;
+                }
+
+                sendAjax(toUrl("Search"), $('#kintai-maintenance-form').serializeArray(), function (data) {
+                    $("#kintai-list-body").html(data);
+                }, false, null, false);
+            });
+        });
+    </script>
+}

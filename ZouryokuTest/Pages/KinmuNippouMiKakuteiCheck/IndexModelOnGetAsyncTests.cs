@@ -1,12 +1,20 @@
 using Model.Model;
+using Zouryoku.Pages.KinmuNippouMiKakuteiCheck;
 using static Model.Enums.EmployeeAuthority;
 using static Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel.BusyoRange;
 
 namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
 {
+    /// <summary>
+    /// <see cref="IndexModel.OnGetAsync"/>のテストクラス。
+    /// </summary>
     [TestClass]
-    public partial class IndexModelOnGetAsyncTests : TestBase
+    public class IndexModelOnGetAsyncTests : TestBase
     {
+        // ======================================
+        // テストメソッド
+        // ======================================
+
         // 検索条件の初期化
         // --------------------------------------
 
@@ -130,6 +138,9 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             Assert.AreEqual(new DateOnly(2026, 2, 15), model.SearchConditions.Date);
         }
 
+        // 通知可能フラグの設定
+        // --------------------------------------
+
         [TestMethod]
         public async Task OnGetAsync_ログインユーザーが権限を持っていて通知可能な期間_通知可能フラグがtrue()
         {
@@ -190,4 +201,3 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
         }
     }
 }
-

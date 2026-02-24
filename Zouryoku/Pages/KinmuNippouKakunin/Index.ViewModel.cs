@@ -20,15 +20,15 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
             /// <summary>
             /// 対象年月
             /// </summary>
-            public DateOnly TargetYm { get; init; } = DateTime.Today.ToDateOnly();
+            public DateOnly? TargetYm { get; init; }
 
             /// <summary>
             /// <see cref="TargetYm"/> の表示用テキスト
             /// 表示テンプレートの影響を受けないためのプロパティであり <see cref="DisplayFormatAttribute"/> は使用しない。
             /// </summary>
-            public string TargetYmText => TargetYm.ToString("yyyy/MM");
+            public string TargetYmText => TargetYm?.ToString("yyyy/MM") ?? "";
 
-            public string TargetYmPickerValue => TargetYm.ToString("yyyy-MM");
+            public string TargetYmPickerValue => TargetYm?.ToString("yyyy-MM") ?? "";
 
             /// <summary>
             /// 対象社員ID

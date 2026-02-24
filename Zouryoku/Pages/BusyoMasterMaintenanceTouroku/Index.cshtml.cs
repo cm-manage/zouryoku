@@ -68,8 +68,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
                 // 存在チェック
                 if (busyo == null)
                 {
-                    ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                    return Page();
+                    return RedirectToPage("/ErrorMessage", new { errorMessage = Const.ErrorSelectedDataNotExists });
                 }
 
                 // Viewモデルに変換

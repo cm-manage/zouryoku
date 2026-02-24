@@ -236,8 +236,16 @@
             });
 
             // ドロップダウン変更時イベント
-                $("#Search_SortSelected, #Search_SortOrderType, #Search_Kikan_SelectedOption, #SyainView_SelectedId").on("change", function() {
+            $("#Search_SortSelected, #Search_SortOrderType, #Search_Kikan_SelectedOption, #SyainView_SelectedId").on("change", function() {
                 setTimeout(() => $("#btn-kinmu-search").trigger('click'));    // 期間の表示更新待ちで検索ボタンを遅延トリガー
+            });
+
+            // Enterキー押下で検索実行
+            $(document).on("keydown", function(e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    $("#btn-kinmu-search").trigger("click");
+                }
             });
 
             // Validation共通初期化関数を呼ぶ

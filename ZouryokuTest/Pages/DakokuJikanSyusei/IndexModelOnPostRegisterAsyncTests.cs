@@ -281,12 +281,14 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             int kintaiInputCount)
         {
             // ================ Arrange ================ //
-            var baseDate = new DateOnly(2025, 4, 1);
+            var baseDate = new DateOnly(2026, 7, 1);
+            var now = new DateTime(2026, 7, 2, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
 
-            var baseExpectedSyukkinTime = new DateTime(2025, 4, 1, 9, 0, 0);
+            var baseExpectedSyukkinTime = new DateTime(2026, 7, 1, 9, 0, 0);
             var expectedSyukkinTimes = new List<DateTime>();
 
-            var baseExpectedTaikinTime = new DateTime(2025, 4, 1, 9, 30, 0);
+            var baseExpectedTaikinTime = new DateTime(2026, 7, 1, 9, 30, 0);
             var expectedTaikinTimes = new List<DateTime>();
 
             var model = CreateModel();
@@ -418,7 +420,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsNotNull(targetUkagaiHeader);
             Assert.IsNotEmpty(targetUkagaiShinsei);
             Assert.AreEqual(syain.Id, targetUkagaiHeader.SyainId);
-            Assert.AreEqual(DateTime.Now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
+            Assert.AreEqual(now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
             Assert.AreEqual(ApprovalStatus.承認, targetUkagaiHeader.Status);
             Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
@@ -427,6 +429,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.AreEqual(targetUkagaiHeader.Id, targetUkagaiShinsei[0].UkagaiHeaderId);
             Assert.AreEqual(InquiryType.打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
             Assert.HasCount(1, targetUkagaiShinsei);
+            Assert.HasCount(kintaiInputCount, targetNotDeletedWorkinHour);
             for (int i = 0; i < kintaiInputCount; i++)
             {
                 Assert.AreEqual(model.ViewModel.SyainId, targetNotDeletedWorkinHour[i].SyainId);
@@ -451,12 +454,14 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             int kintaiInputCount)
         {
             // ================ Arrange ================ //
-            var baseDate = new DateOnly(2025, 4, 1);
+            var baseDate = new DateOnly(2026, 7, 1);
+            var now = new DateTime(2026, 7, 2, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
 
-            var baseExpectedSyukkinTime = new DateTime(2025, 4, 1, 9, 0, 0);
+            var baseExpectedSyukkinTime = new DateTime(2026, 7, 1, 9, 0, 0);
             var expectedSyukkinTimes = new List<DateTime>();
 
-            var baseExpectedTaikinTime = new DateTime(2025, 4, 1, 9, 30, 0);
+            var baseExpectedTaikinTime = new DateTime(2026, 7, 1, 9, 30, 0);
             var expectedTaikinTimes = new List<DateTime>();
 
             var model = CreateModel();
@@ -637,7 +642,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 Assert.IsFalse(targetNotDeletedWorkinHour[i].Deleted);
                 Assert.IsTrue(targetNotDeletedWorkinHour[i].Edited);
             }
-            Assert.AreEqual(DateTime.Now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
+            Assert.AreEqual(now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
             Assert.AreEqual(ApprovalStatus.承認待, targetUkagaiHeader.Status);
             Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
@@ -651,7 +656,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
         public async Task OnPostRegisterAsync_２回目以降の修正時_入力値を登録()
         {
             // ================ Arrange ================ //
-            var baseDate = new DateOnly(2025, 4, 1);
+            var baseDate = new DateOnly(2026, 7, 1);
+            var now = new DateTime(2026, 7, 2, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
 
             var model = CreateModel();
 
@@ -721,7 +728,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var ukagaiHeader = new UkagaiHeader()
             {
                 SyainId = syain.Id,
-                ShinseiYmd = fakeTimeProvider.Now().ToDateOnly(),
+                ShinseiYmd = now.ToDateOnly(),
                 Status = 0,
                 WorkYmd = baseDate,
                 Biko = "備考",
@@ -819,8 +826,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.AreEqual(0, afterDeletedWorkinHour[0].SyukkinLongitude);
             Assert.AreEqual(0, afterDeletedWorkinHour[0].TaikinLatitude);
             Assert.AreEqual(0, afterDeletedWorkinHour[0].TaikinLongitude);
-            Assert.AreEqual(new DateTime(2025, 4, 1, 15, 0, 0), afterDeletedWorkinHour[0].SyukkinTime);
-            Assert.AreEqual(new DateTime(2025, 4, 1, 21, 0, 0), afterDeletedWorkinHour[0].TaikinTime);
+            Assert.AreEqual(new DateTime(2026, 7, 1, 15, 0, 0), afterDeletedWorkinHour[0].SyukkinTime);
+            Assert.AreEqual(new DateTime(2026, 7, 1, 21, 0, 0), afterDeletedWorkinHour[0].TaikinTime);
             Assert.AreEqual(afterUkagaiHeader.Id, afterDeletedWorkinHour[0].UkagaiHeaderId);
             Assert.IsTrue(afterDeletedWorkinHour[0].Deleted);
             Assert.HasCount(1, afterNotDeletedWorkinHour);
@@ -834,7 +841,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.AreEqual(taikinTime, afterNotDeletedWorkinHour[0].TaikinTime);
             Assert.AreEqual(afterUkagaiHeader.Id, afterNotDeletedWorkinHour[0].UkagaiHeaderId);
             Assert.IsFalse(afterNotDeletedWorkinHour[0].Deleted);
-            Assert.AreEqual(DateTime.Now.ToDateOnly(), afterUkagaiHeader.ShinseiYmd);
+            Assert.AreEqual(now.ToDateOnly(), afterUkagaiHeader.ShinseiYmd);
             Assert.AreEqual(ApprovalStatus.承認待, afterUkagaiHeader.Status);
             Assert.AreEqual(baseDate, afterUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, afterUkagaiHeader.Biko);
@@ -854,7 +861,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             int? taikinMinute)
         {
             // ================ Arrange ================ //
-            var baseDate = new DateOnly(2025, 4, 1);
+            var baseDate = new DateOnly(2026, 7, 1);
+            var now = new DateTime(2026, 7, 2, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
 
             var model = CreateModel();
 
@@ -974,7 +983,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsNotNull(targetUkagaiHeader);
             Assert.IsNotEmpty(targetUkagaiShinsei);
             Assert.AreEqual(syain.Id, targetUkagaiHeader.SyainId);
-            Assert.AreEqual(DateTime.Now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
+            Assert.AreEqual(now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
             Assert.AreEqual(ApprovalStatus.承認, targetUkagaiHeader.Status);
             Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
@@ -1007,7 +1016,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             int taikinMinute)
         {
             // ================ Arrange ================ //
-            var baseDate = new DateOnly(2025, 4, 1);
+            var baseDate = new DateOnly(2026, 7, 1);
+            var now = new DateTime(2026, 7, 2, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
 
             var model = CreateModel();
 
@@ -1121,7 +1132,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsNotNull(targetUkagaiHeader);
             Assert.IsNotEmpty(targetUkagaiShinsei);
             Assert.AreEqual(syain.Id, targetUkagaiHeader.SyainId);
-            Assert.AreEqual(DateTime.Now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
+            Assert.AreEqual(now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
             Assert.AreEqual(ApprovalStatus.承認, targetUkagaiHeader.Status);
             Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
@@ -2192,7 +2203,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
         {
             // ================ Arrange ================ //
             var syainId = 1;
-            var baseDate = new DateOnly(2025, 04, 01);
+            var baseDate = new DateOnly(2026, 07, 01);
+            var now = new DateTime(2026, 7, 2, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
 
             var model = CreateModel();
 
@@ -2250,7 +2263,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var ukagaiHeader = new UkagaiHeader()
             {
                 SyainId = syainId,
-                ShinseiYmd = fakeTimeProvider.Now().ToDateOnly(),
+                ShinseiYmd = now.ToDateOnly(),
                 Status = 0,
                 WorkYmd = baseDate,
                 Biko = "備考",
@@ -2274,8 +2287,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyukkinLongitude = 0,
                 TaikinLatitude = 0,
                 TaikinLongitude = 0,
-                SyukkinTime = new DateTime(2025, 4, 1, 9, 0, 0),
-                TaikinTime = new DateTime(2025, 4, 1, 18, 0, 0),
+                SyukkinTime = new DateTime(2025, 7, 1, 9, 0, 0),
+                TaikinTime = new DateTime(2025, 7, 1, 18, 0, 0),
                 Edited = true,
                 Deleted = false,
                 UkagaiHeader = ukagaiHeader,
@@ -2290,8 +2303,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyukkinLongitude = 0,
                 TaikinLatitude = 0,
                 TaikinLongitude = 0,
-                SyukkinTime = new DateTime(2025, 4, 1, 9, 0, 0),
-                TaikinTime = new DateTime(2025, 4, 1, 19, 0, 0),
+                SyukkinTime = new DateTime(2025, 7, 1, 9, 0, 0),
+                TaikinTime = new DateTime(2025, 7, 1, 19, 0, 0),
                 Edited = false,
                 Deleted = true,
                 UkagaiHeader = ukagaiHeader,

@@ -1,8 +1,8 @@
 using Model.Model;
 using static Model.Enums.RefreshDayFlag;
-using static Zouryoku.Utils.DateOnlyUtil;
+using static ZouryokuCommonLibrary.Utils.DateOnlyUtil;
 
-namespace ZouryokuTest.Utils
+namespace ZouryokuCommonLibraryTest.Utils
 {
     [TestClass]
     public class DateOnlyUtilTests : BaseInMemoryDbContextTest

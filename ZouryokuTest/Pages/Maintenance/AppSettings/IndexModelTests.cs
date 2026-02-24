@@ -15,7 +15,7 @@ namespace ZouryokuTest.Pages.Maintenance.AppSettings
     {
         private IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options);
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, fakeTimeProvider);
             model.PageContext = GetPageContext();
             model.TempData = GetTempData();
             return model;

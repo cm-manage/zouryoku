@@ -30,7 +30,8 @@ namespace Zouryoku.Utils
         /// <param name="db">DbContext</param>
         /// <param name="juchuId">参照したKINGS受注情報のID</param>
         /// <param name="syainBaseId">ログインユーザーの社員BaseID</param>
-        public static async Task MaintainKingsJuchuSansyouRirekiAsync(ZouContext db, long juchuId, long syainBaseId)
+        /// <param name="now">現在日時</param>
+        public static async Task MaintainKingsJuchuSansyouRirekiAsync(ZouContext db, long juchuId, long syainBaseId, DateTime now)
         {
             // 既存の受注参照履歴を検索
             KingsJuchuSansyouRireki? existingRireki = await db.KingsJuchuSansyouRirekis
@@ -42,7 +43,7 @@ namespace Zouryoku.Utils
             if (existingRireki is not null)
             {
                 // Kings受注参照履歴を更新
-                existingRireki.SansyouTime = DateTime.Now;
+                existingRireki.SansyouTime = now;
 
                 // 削除対象検索クエリ（更新データは検索しない）
                 searchQuery = x => (x.SyainBaseId == syainBaseId && x.Id != existingRireki.Id);
@@ -54,7 +55,7 @@ namespace Zouryoku.Utils
                 {
                     KingsJuchuId = juchuId,
                     SyainBaseId = syainBaseId,
-                    SansyouTime = DateTime.Now
+                    SansyouTime = now
                 };
                 db.KingsJuchuSansyouRirekis.Add(newEntity);
 

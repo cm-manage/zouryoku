@@ -23,15 +23,22 @@
             numberOfMonths: [@Model.NumberOfMonthsHeight, @Model.NumberOfMonthsWidth],
             showOn: 'both',
             appendTo: 'body',
-            beforeShow: function(input, inst) { // カレンダーを縦横に並べると<input>の上に被るように表示されるため、appendToとbeforeShowで移動させる
+            beforeShow: function(input, inst) {
                 var offset = $(input).offset();
                 var height = $(input).outerHeight();
                 setTimeout(function() {
+                    // 初期表示の月のずれを修正する (最大12ヶ月)
+                    for (let i = 0; i < 12; i++) {
+                        // 前月ボタンは再生成されるため、毎回取得する必要がある。
+                        $('a[data-handler="prev"]').trigger('click');
+                    }
+
+                    // カレンダーを縦横に並べると<input>の上に被るように表示されるため、appendToとbeforeShowで移動させる
                     inst.dpDiv.css({
                         top: offset.top + height, // 表示されたカレンダーを入力欄の下に移動
                         left: offset.left,
                         zIndex: 10 // デフォルトで zIndex: 1 に上書きされるためクラス指定不可
-                    })
+                    });
                 });
             }
         }).holiday(); // jquery.holiday.js プラグインを使用し、日本の祝日をカレンダー上でハイライト表示する

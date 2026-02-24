@@ -34,7 +34,7 @@ namespace ZouryokuTest.Utils
             await db.SaveChangesAsync();
 
             // Act
-            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 2, DateTime.Now.ToDateOnly());
+            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 2, fakeTimeProvider.Today());
 
             // Assert
             Assert.HasCount(3, data, "戻り値の件数が一致しません。");
@@ -97,7 +97,7 @@ namespace ZouryokuTest.Utils
             await db.SaveChangesAsync();
 
             // Act
-            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 1, DateTime.Now.ToDateOnly());
+            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 1, fakeTimeProvider.Today());
 
             // Assert
             Assert.HasCount(3, data, "戻り値の件数が一致しません。");
@@ -161,7 +161,7 @@ namespace ZouryokuTest.Utils
             await db.SaveChangesAsync();
 
             // Act
-            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 3, DateTime.Now.ToDateOnly());
+            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 3, fakeTimeProvider.Today());
 
             // Assert
             Assert.HasCount(1, data, "戻り値の件数が一致しません。");
@@ -202,7 +202,7 @@ namespace ZouryokuTest.Utils
             await db.SaveChangesAsync();
 
             // Act
-            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 3, DateTime.Now.ToDateOnly());
+            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 3, fakeTimeProvider.Today());
 
             // Assert
             Assert.HasCount(3, data, "戻り値の件数が一致しません。");
@@ -265,7 +265,7 @@ namespace ZouryokuTest.Utils
             await db.SaveChangesAsync();
 
             // Act
-            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 3, DateTime.Now.ToDateOnly());
+            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 3, fakeTimeProvider.Today());
 
             // Assert
             Assert.HasCount(2, data, "戻り値の件数が一致しません。");
@@ -317,7 +317,7 @@ namespace ZouryokuTest.Utils
             await db.SaveChangesAsync();
 
             // Act
-            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 3, DateTime.Now.ToDateOnly());
+            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 3, fakeTimeProvider.Today());
 
             // Assert
             Assert.HasCount(3, data, "戻り値の件数が一致しません。");
@@ -380,7 +380,7 @@ namespace ZouryokuTest.Utils
             await db.SaveChangesAsync();
 
             // Act
-            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 1, DateTime.Now.ToDateOnly());
+            var data = await Zouryoku.Utils.ImpactDepartment.GetImpactDepartmentAsync(db, 1, fakeTimeProvider.Today());
 
             // Assert
             Assert.HasCount(3, data, "戻り値の件数が一致しません。");

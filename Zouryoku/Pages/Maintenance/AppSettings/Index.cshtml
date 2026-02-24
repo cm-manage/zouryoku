@@ -7,77 +7,57 @@
 }
 <link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
 
-<h1>@ViewData["Title"]</h1>
-<h4><br />アプリケーション設定</h4>
-<hr />
-<style>
-    .form-group {
-        margin-top: 15px;
-    }
-</style>
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
+<partial name="_ZouryokuHeader" model="Model" />
+<div class="app-screen--entry">
+    <div class="app-area__header"></div>
+    <div class="app-area__body">
+        <form method="post" id="appsetting-form">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
             @Html.AntiForgeryToken()
-
-            <div class="form-group">
-                <label class="control-label">日報停止日</label>
-                <div>
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="AppSetting.NippoStopDate" class="col-lg-2 col-form-label app-input__label ps-2">日報停止日</label>
+                <div class="col-lg-5">
                     <span asp-validation-for="AppSetting.NippoStopDate" class="text-danger"></span>
-                </div>
-                <div>
-                    <input asp-for="AppSetting.NippoStopDate" type="date" class="form-control" />
+                    <input asp-for="AppSetting.NippoStopDate" type="date" class="form-control app-input__textbox" />
                 </div>
             </div>
-            <div class="form-group">
-                <label class="control-label">MSテナントID</label>
-                <div>
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="AppSetting.MsTenantId" class="col-lg-2 col-form-label app-input__label ps-2">MSテナントID</label>
+                <div class="col-lg-5">
                     <span asp-validation-for="AppSetting.MsTenantId" class="text-danger"></span>
-                </div>
-                <div>
-                    <input asp-for="AppSetting.MsTenantId" type="text" class="form-control" />
+                    <input asp-for="AppSetting.MsTenantId" type="text" class="form-control app-input__textbox" />
                 </div>
             </div>
-            <div class="form-group">
-                <label class="control-label">MSクライアントID</label>
-                <div>
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="AppSetting.MsClientId" class="col-lg-2 col-form-label app-input__label ps-2">MSクライアントID</label>
+                <div class="col-lg-5">
                     <span asp-validation-for="AppSetting.MsClientId" class="text-danger"></span>
-                </div>
-                <div>
-                    <input asp-for="AppSetting.MsClientId" type="text" class="form-control" />
+                    <input asp-for="AppSetting.MsClientId" type="text" class="form-control app-input__textbox" />
                 </div>
             </div>
-            <div class="form-group">
-                <label class="control-label">MSクライアントシークレット</label>
-                <div>
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="AppSetting.MsClientSecret" class="col-lg-2 col-form-label app-input__label ps-2">MSクライアントシークレット</label>
+                <div class="col-lg-5">
                     <span asp-validation-for="AppSetting.MsClientSecret" class="text-danger"></span>
-                </div>
-                <div>
-                    <input asp-for="AppSetting.MsClientSecret" type="text" class="form-control" />
+                    <input asp-for="AppSetting.MsClientSecret" type="text" class="form-control app-input__textbox" />
                 </div>
             </div>
-            <div class="form-group">
-                <label class="control-label">SMTPユーザ</label>
-                <div>
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="AppSetting.SmtpUser" class="col-lg-2 col-form-label app-input__label ps-2">SMTPユーザ</label>
+                <div class="col-lg-5">
                     <span asp-validation-for="AppSetting.SmtpUser" class="text-danger"></span>
-                </div>
-                <div>
-                    <input asp-for="AppSetting.SmtpUser" type="text" class="form-control" />
+                    <input asp-for="AppSetting.SmtpUser" type="text" class="form-control app-input__textbox" />
                 </div>
             </div>
-            <div class="form-group">
-                <label class="control-label">SMTPパスワード</label>
-                <div>
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label asp-for="AppSetting.SmtpPassword" class="col-lg-2 col-form-label app-input__label ps-2">SMTPパスワード</label>
+                <div class="col-lg-5">
                     <span asp-validation-for="AppSetting.SmtpPassword" class="text-danger"></span>
-                </div>
-                <div>
-                    <input asp-for="AppSetting.SmtpPassword" type="text" class="form-control" />
+                    <input asp-for="AppSetting.SmtpPassword" type="text" class="form-control app-input__textbox" />
                 </div>
             </div>
-            <div class="form-group">
-                <input type="button" value="登録" class="btn btn-primary" id="registerBtn" />
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-primary app-btn__base" id="registerBtn">登録</button>
             </div>
         </form>
     </div>
@@ -101,12 +81,10 @@
                 return
             };
 
-        commonConfirm(actionName + 'します。よろしいですか？', null, function() {
-            // 登録処理
-            sendRegisterAjax(toUrl(handler), $('form').serializeArray(), function(data) {
-                registerSuccessSwal(actionName + 'しました', null, function() {
-                        closeCurrentIziModal();
-                    });
+            commonConfirm(actionName + 'します。よろしいですか？', null, function() {
+                // 登録処理
+                sendRegisterAjax(toUrl(handler), $('form').serializeArray(), function(data) {
+                    registerSuccessSwal(actionName + 'しました', null, function() { }); 
                 });
             });
         }

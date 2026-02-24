@@ -55,7 +55,7 @@ namespace ZouryokuTest.Pages.SyainSentaku
         /// <returns>Model</returns>
         protected IndexModel CreateModel(Syain? loginUser = null)
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine){
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider){
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
             };
@@ -109,9 +109,9 @@ namespace ZouryokuTest.Pages.SyainSentaku
         /// <param name="start">有効開始日</param>
         /// <param name="end">有効終了日</param>
         /// <returns></returns>
-        protected static Busyo AddBusyo(int id, string name, short jyunjyo, bool active, long? oyaId = null, int? start = null, int? end = null)
+        protected Busyo AddBusyo(int id, string name, short jyunjyo, bool active, long? oyaId = null, int? start = null, int? end = null)
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             // start || endがnullである場合、null, nullではない場合数値分の日付を追加
             DateOnly? startYmd = start == null ? null : today.AddDays(start.Value);
             DateOnly? endYmd = end == null ? null : today.AddDays(end.Value);
@@ -142,10 +142,10 @@ namespace ZouryokuTest.Pages.SyainSentaku
         /// <param name="start">有効開始日</param>
         /// <param name="end">有効終了日</param>
         /// <returns></returns>
-        protected static Syain AddSyain(long id, string name, string code, short? jyunjyo, 
+        protected Syain AddSyain(long id, string name, string code, short? jyunjyo, 
             bool? retired, long syainBaseId, long busyoId, int? start = null, int? end = null)
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             DateOnly? startYmd = start == null ? null : today.AddDays(start.Value);
             DateOnly? endYmd = end == null ? null : today.AddDays(end.Value);
 

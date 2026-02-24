@@ -184,8 +184,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             {
                 SyainBaseId = 1,
                 Name = expectedSekininSyaName ?? "取得されないデータ",
-                StartYmd = DateTime.Now.AddDays(startYmdOffset).ToDateOnly(),
-                EndYmd = DateTime.Now.AddDays(endYmdOffset).ToDateOnly(),
+                StartYmd = fakeTimeProvider.Today().AddDays(startYmdOffset),
+                EndYmd = fakeTimeProvider.Today().AddDays(endYmdOffset),
                 // 不要なNOT NULLカラムに適当に値を詰める
                 Code = string.Empty,
                 KanaName = string.Empty,

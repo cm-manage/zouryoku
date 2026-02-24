@@ -26,7 +26,6 @@
 
     @* 【表示項目】計画有給休暇の予定日入力欄 *********************************************************************@
     <form method="post">
-        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="LoginUsersYukyuKeikaku.Version" />
         <div class="app-area__body">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>

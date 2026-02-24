@@ -59,7 +59,6 @@ namespace ZouryokuTest.Pages.SyainSentaku
         /// <summary>
         /// 正常系：親ID取得
         /// </summary>
-        /// <param name="oyaId"></param>
         [TestMethod]
         public void BusyoViewModel_正常系_親ID取得()
         {

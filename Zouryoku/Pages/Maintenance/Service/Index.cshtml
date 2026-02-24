@@ -1,0 +1,80 @@
+﻿@page
+@using Model.Enums
+@model Zouryoku.Pages.Maintenance.Service.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "サービス稼働状況";
+}
+<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+
+<partial name="_ZouryokuHeader" model="Model" />
+<div class="app-screen--entry">
+    <div class="app-area__header"></div>
+    <div class="app-area__body">
+        <form method="post" id="service-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.AntiForgeryToken()
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label class="col-lg-2 col-form-label app-input__label ps-2">KINGS連携プログラム稼働</label>
+                <div class="col-lg-5 d-flex align-items-center">
+                    <input asp-for="ServiceExecuteData.KingsIntegrationProgram" type="checkbox" class="form-check-input me-2" id="kingsCheckbox" />
+                    <span asp-validation-for="ServiceExecuteData.KingsIntegrationProgram" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label class="col-lg-2 col-form-label app-input__label ps-2">過労運転防止</label>
+                <div class="col-lg-5 d-flex align-items-center">
+                    <input asp-for="ServiceExecuteData.DriverFatiguePrevention" type="checkbox" class="form-check-input me-2" id="fatigueCheckbox" />
+                    <span asp-validation-for="ServiceExecuteData.DriverFatiguePrevention" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label class="col-lg-2 col-form-label app-input__label ps-2">有給未取得アラート</label>
+                <div class="col-lg-5 d-flex align-items-center">
+                    <input asp-for="ServiceExecuteData.RestPrevention" type="checkbox" class="form-check-input me-2" id="restCheckbox" />
+                    <span asp-validation-for="ServiceExecuteData.RestPrevention" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row gx-0 gx-lg-4 mt-2 mt-lg-3">
+                <label class="col-lg-2 col-form-label app-input__label ps-2">チャット連携</label>
+                <div class="col-lg-5 d-flex align-items-center">
+                    <input asp-for="ServiceExecuteData.ChatPrevention" type="checkbox" class="form-check-input me-2" id="chatCheckbox" />
+                    <span asp-validation-for="ServiceExecuteData.ChatPrevention" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-primary app-btn__base" id="registerBtn">登録</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        // 登録ボタン
+        $('#registerBtn').on('click', function () {
+            register('登録', 'Register');
+        });
+
+        /** 登録 */
+        function register(actionName, handler) {
+            // クライアント側の検証でエラーがない場合のみ、登録処理を行う
+            if (!$('form').valid()) {
+                return;
+            };
+
+            commonConfirm(actionName + 'します。よろしいですか？', null, function() {
+                // 登録処理
+                sendRegisterAjax(toUrl(handler), $('form').serializeArray(), function(data) {
+                    registerSuccessSwal(actionName + 'しました', null, function() {
+                        closeCurrentIziModal();
+                    });
+                });
+            });
+        }
+    </script>
+}

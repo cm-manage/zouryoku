@@ -20,17 +20,17 @@ namespace ZouryokuTest.Api
         /// <summary>
         /// 当日日付
         /// </summary>
-        private static readonly DateOnly Today = DateTime.Today.ToDateOnly();
+        private DateOnly Today => fakeTimeProvider.Today();
 
         /// <summary>
         /// 有効開始日
         /// </summary>
-        private static readonly DateOnly ConstStartYmd = Today.AddDays(-10);
+        private DateOnly ConstStartYmd => Today.AddDays(-10);
 
         /// <summary>
         /// 有効終了日
         /// </summary>
-        private static readonly DateOnly ConstEndYmd = Today.AddDays(10);
+        private DateOnly ConstEndYmd => Today.AddDays(10);
 
 
         // ======================================
@@ -45,7 +45,7 @@ namespace ZouryokuTest.Api
         /// <returns>コントローラーのインスタンス</returns>
         private SinseiKensuBadgeController CreateController(Syain loginUser)
         {
-            SinseiKensuBadgeController controller = new(db);
+            SinseiKensuBadgeController controller = new(db, fakeTimeProvider);
 
             // HttpContextの取得
             var pageContext = GetPageContext();

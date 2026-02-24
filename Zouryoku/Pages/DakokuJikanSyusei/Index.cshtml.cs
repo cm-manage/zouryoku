@@ -1,4 +1,5 @@
 using CommonLibrary.Extensions;
+using LanguageExt;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,11 +11,12 @@ using Model.Model;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
+using Zouryoku.Data;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
+using static Model.Enums.ApprovalStatus;
 using static Model.Enums.DailyReportStatusClassification;
 using static Model.Enums.EmployeeWorkType;
-using static Model.Enums.ApprovalStatus;
 using static Model.Enums.InquiryType;
 
 namespace Zouryoku.Pages.DakokuJikanSyusei
@@ -295,7 +297,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             var workingHours = await GetWorkingHoursAsync(syainId, jissekiDate);
 
             // 表示する勤怠打刻が存在する場合、ViewModelへセットして返却
-            if (workingHours.Where(x => !x.Deleted).Any())
+            if (workingHours.Any())
             {
                 ViewModel = await BuildViewModelFromWorkingHours(syainId, jissekiDate, workingHours);
                 return Page();
@@ -314,14 +316,14 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         public async Task<IActionResult> OnPostRegisterAsync()
         {
             // 代理入力かどうかを確認
-            var loginUserInfo = await GetSyainAsync(LoginInfo.User.Id);
+            var kintaZokusei = await GetKintaiZokuseiAsync(LoginInfo.User.KintaiZokuseiId);
 
-            bool isNotDairi = (loginUserInfo.KintaiZokusei.Code == _3か月60時間 ||
-                loginUserInfo.KintaiZokusei.Code == 月45時間 ||
-                loginUserInfo.KintaiZokusei.Code == 管理) &&
-                (!loginUserInfo.IsInstructionApprover &&
-                !loginUserInfo.IsFinalInstructionApprover) &&
-                loginUserInfo.Id == ViewModel.SyainId;
+            bool isNotDairi = (kintaZokusei == _3か月60時間 ||
+                kintaZokusei == 月45時間 ||
+                kintaZokusei == 管理) &&
+                (!LoginInfo.User.IsInstructionApprover &&
+                !LoginInfo.User.IsFinalInstructionApprover) &&
+                LoginInfo.User.Id == ViewModel.SyainId;
 
             // 関連性チェック
             await ValidateRegister(isNotDairi);
@@ -424,17 +426,17 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         }
 
         /// <summary>
-        /// 社員情報を取得する。
+        /// 勤怠属性を取得する。
         /// </summary>
-        /// <param name="syainId">社員ID</param>
-        /// <returns>社員情報</returns>
-        private async Task<Syain> GetSyainAsync(long syainId)
+        /// <param name="kintaiZokuseiId">勤怠属性ID</param>
+        /// <returns>勤怠属性</returns>
+        private async Task<EmployeeWorkType> GetKintaiZokuseiAsync(long kintaiZokuseiId)
         {
-            // 社員情報を返却
-            return await db.Syains
-                .Include(x => x.KintaiZokusei)
-                .AsNoTracking()
-                .FirstAsync(x => x.Id == syainId);
+            // 勤怠属性を返却
+            return await db.KintaiZokuseis
+                .Where(x => x.Id == kintaiZokuseiId)
+                .Select(x => x.Code)
+                .FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -489,7 +491,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 UkagaiHeaderId = notDeletedWorkinghours
                 .Where(x => x.UkagaiHeaderId != null)
                 .Select(x => x.UkagaiHeaderId)
-                .FirstOrDefault() ?? null,
+                .FirstOrDefault(),
 
                 // 修正理由
                 SyuseiReason = notDeletedWorkinghours
@@ -507,15 +509,15 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 UkagaiShinseiVersions = notDeletedWorkinghours
                 .FirstOrDefault(x => x.UkagaiHeaderId != null)?
                 .UkagaiHeader?
-                .UkagaiShinseis
-                .Select(x => (uint?)x.Version)
+                .UkagaiShinseis?
+                .Select(x => (uint?)x.Version)?
                 .ToList() ?? new List<uint?>(),
 
                 // 登録状況区分
                 TorokuKubun = notDeletedWorkinghours
                 .FirstOrDefault()?
-                .Syain
-                .Nippous
+                .Syain?
+                .Nippous?
                 .FirstOrDefault()?
                 .TourokuKubun,
             };
@@ -830,7 +832,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 //    修正者の社員IDを登録
                 SyainId = LoginInfo.User.Id,
                 // 申請年月日
-                ShinseiYmd = DateTime.Now.ToDateOnly(),
+                ShinseiYmd = timeProvider.Now().ToDateOnly(),
                 // ステータス
                 Status = isNotDairi ? 承認待 : 承認,
                 // 作業日付

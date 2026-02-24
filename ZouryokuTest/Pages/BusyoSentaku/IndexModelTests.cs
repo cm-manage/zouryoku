@@ -19,7 +19,7 @@ namespace ZouryokuTest.Pages.BusyoSentaku
     {
         private IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options);
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, fakeTimeProvider);
             model.PageContext = GetPageContext();
             model.TempData = GetTempData();
             return model;
@@ -32,7 +32,7 @@ namespace ZouryokuTest.Pages.BusyoSentaku
         // 部署データを追加するヘルパーメソッド
         private Busyo AddBusyo(int id, string code, string name, short jyunjyo, bool active, int? parentId = null, int? start = null, int? end = null)
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = fakeTimeProvider.Today();
             DateOnly? startYmd = start == null ? null : today.AddDays(start.Value);
             DateOnly? endYmd = end == null ? null : today.AddDays(end.Value);
 

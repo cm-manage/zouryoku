@@ -18,8 +18,8 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceKensaku
     public class IndexModel : BasePageModel<IndexModel>
     {
         public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine) { }
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider? timeProvider = null)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets => true;
 
@@ -61,7 +61,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceKensaku
         /// <returns></returns>
         private async Task<List<BusyoViewModel>> GetBusyoListAsync()
         {
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
 
             var query = db.Busyos
                 .Include(b => b.BusyoBase)              // 部署 → 部署BASE → 部門長（社員）
@@ -189,6 +189,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceKensaku
         public string IsActiveDisplay
             => _busyo.IsActive ? string.Empty : "無効";
 
-        public int Depth {  get; set; }
+        /// <summary>階層</summary>
+        public int Depth { get; set; }
     }
 }

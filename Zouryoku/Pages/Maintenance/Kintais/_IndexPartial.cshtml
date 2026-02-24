@@ -1,0 +1,25 @@
+@model Zouryoku.Pages.Maintenance.Kintais.IndexModel.ViewModel
+
+@foreach (var item in Model.Rows)
+{
+    <tr>
+        <td>@item.DateText</td>
+        <td class="text-start">@item.SyukkinKubun</td>
+        <td class="text-start">
+            @foreach (var value in item.JuchuNumbers)
+            {
+                <div>@value</div>
+            }
+        </td>
+        @await Html.PartialAsync("_TimeCellPartial", item.SyukkinTimes)
+        @await Html.PartialAsync("_TimeCellPartial", item.TaisyutsuTimes)
+        <td>@(item.HZangyo?.ToString("0.##") ?? "")</td>
+        <td>@(item.HWarimashi?.ToString("0.##") ?? "")</td>
+        <td>@(item.HShinyaZangyo?.ToString("0.##") ?? "")</td>
+        <td>@(item.DZangyo?.ToString("0.##") ?? "")</td>
+        <td>@(item.DWarimashi?.ToString("0.##") ?? "")</td>
+        <td>@(item.DShinyaZangyo?.ToString("0.##") ?? "")</td>
+        <td>@(item.NJitsudou?.ToString("0.##") ?? "")</td>
+        <td>@(item.NShinya?.ToString("0.##") ?? "")</td>
+    </tr>
+}

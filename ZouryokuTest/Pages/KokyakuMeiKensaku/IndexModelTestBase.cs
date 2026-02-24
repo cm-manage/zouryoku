@@ -90,7 +90,7 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         protected IndexModel CreateModel()
         {
             // IndexModelのインスタンスを作成
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine)
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
@@ -158,12 +158,12 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
             var syains = CreateSyainList(7);
             // テストケースに併せてデータを変形する
             // NOTE: データのIDとリストのインデックスは1だけずれている
-            syains[(int)SyainIdForSearch.有効開始日_正常_境界値 - 1].StartYmd = DateTime.Now.AddDays(-1).ToDateOnly();
-            syains[(int)SyainIdForSearch.有効終了日_正常_境界値 - 1].EndYmd = DateTime.Now.AddDays(1).ToDateOnly();
-            syains[(int)SyainIdForSearch.有効開始日_不正_代表値 - 1].StartYmd = DateTime.Now.AddDays(15).ToDateOnly();
-            syains[(int)SyainIdForSearch.有効開始日_不正_境界値 - 1].StartYmd = DateTime.Now.AddDays(1).ToDateOnly();
-            syains[(int)SyainIdForSearch.有効終了日_不正_境界値 - 1].EndYmd = DateTime.Now.AddDays(-1).ToDateOnly();
-            syains[(int)SyainIdForSearch.有効終了日_不正_代表値 - 1].EndYmd = DateTime.Now.AddDays(-15).ToDateOnly();
+            syains[(int)SyainIdForSearch.有効開始日_正常_境界値 - 1].StartYmd = fakeTimeProvider.Now().AddDays(-1).ToDateOnly();
+            syains[(int)SyainIdForSearch.有効終了日_正常_境界値 - 1].EndYmd = fakeTimeProvider.Now().AddDays(1).ToDateOnly();
+            syains[(int)SyainIdForSearch.有効開始日_不正_代表値 - 1].StartYmd = fakeTimeProvider.Now().AddDays(15).ToDateOnly();
+            syains[(int)SyainIdForSearch.有効開始日_不正_境界値 - 1].StartYmd = fakeTimeProvider.Now().AddDays(1).ToDateOnly();
+            syains[(int)SyainIdForSearch.有効終了日_不正_境界値 - 1].EndYmd = fakeTimeProvider.Now().AddDays(-1).ToDateOnly();
+            syains[(int)SyainIdForSearch.有効終了日_不正_代表値 - 1].EndYmd = fakeTimeProvider.Now().AddDays(-15).ToDateOnly();
 
             // 顧客会社マスタ
             var kokyakus = CreateKokyakuKaishaList(10, true);
@@ -359,14 +359,14 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         /// <returns><see cref="KokyakuKaisyaSansyouRireki"/>のリスト</returns>
         private List<KokyakuKaisyaSansyouRireki> CreateKokyakuKaisyaSansyouRirekiList(int count)
         {
-            // 参照時間を呼び出し時点のシステム日付で固定する
-            var now = DateTime.Now;
+            // 参照時間をfakeTimeProviderの1日前で固定する（更新テストで差分を検出するため）
+            var pastTime = fakeTimeProvider.Now().AddDays(-1);
 
             return [..Enumerable.Range(1, count).Select(i => new KokyakuKaisyaSansyouRirekiBuilder()
                 .WithId(i)
                 .WithSyainBaseId(LoginUserSyainBaseId)
                 .WithKokyakuKaisyaId(i)
-                .WithSansyouTime(now)
+                .WithSansyouTime(pastTime)
                 .Build())];
         }
     }

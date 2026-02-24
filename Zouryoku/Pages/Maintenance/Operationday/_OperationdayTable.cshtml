@@ -1,0 +1,97 @@
+@model Zouryoku.Pages.Maintenance.Operationday.IndexModel
+@using Model.Enums
+
+<div class="table-container">
+    <form id="operationdayForm" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="UpdateModel.Year" value="@Model.SelectedYear" />
+        <table class="operation-day-table">
+            <thead class="table-primary">
+                <tr>
+                    <th style="width: 15%;">日付</th>
+                    <th style="width: 20%;">祝祭日区分</th>
+                    <th style="width: 20%;" class="syukusaijitsu-edit-column">祝祭日区分</th>
+                    <th style="width: 20%;">リフレッシュデー</th>
+                    <th style="width: 20%;">実績確定締め日</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.OperationDays.Count; i++)
+                {
+                    var operationDay = Model.OperationDays[i];
+                    var rowClass = operationDay.RowClass;
+
+                    <tr class="@rowClass" data-index="@i" data-date="@operationDay.Ymd.ToString("yyyy-MM-dd")">
+                        <td>
+                            @operationDay.DisplayYmd
+                        </td>
+                        <td>
+                            @if (operationDay.SyukusaijitsuDisplay == "祝日" || operationDay.SyukusaijitsuDisplay == "日曜" || operationDay.SyukusaijitsuDisplay == "土曜")
+                            {
+                                <span class="holiday-text">@operationDay.SyukusaijitsuDisplay</span>
+                            }
+                            else
+                            {
+                                @operationDay.SyukusaijitsuDisplay
+                            }
+                        </td>
+                        <td class="syukusaijitsu-edit-column">
+                            <!-- 表示モード -->
+                            <div class="view-mode-container">
+                                @if (operationDay.SyukusaijitsuDisplay == "祝日" || operationDay.SyukusaijitsuDisplay == "日曜" || operationDay.SyukusaijitsuDisplay == "土曜")
+                                {
+                                    <span class="holiday-text">@operationDay.SyukusaijitsuDisplay</span>
+                                }
+                                else
+                                {
+                                    @operationDay.SyukusaijitsuDisplay
+                                }
+                            </div>
+                            <!-- 編集モード -->
+                            <div class="edit-mode-container checkbox-cell">
+                                <input type="hidden"
+                                       name="UpdateModel.OperationDays[@i].Ymd"
+                                       value="@operationDay.Ymd.ToString("yyyy-MM-dd")" />
+                                <input type="checkbox"
+                                       class="edit-checkbox syukusaijitsu-checkbox"
+                                       name="UpdateModel.OperationDays[@i].IsSyukusaijitsu"
+                                       value="true"
+                                       @(operationDay.SyukusaijitsuFlag == HolidayFlag.祝祭日 ? "checked" : "") />
+                            </div>
+                        </td>
+                        <td>
+                            <!-- 表示モード -->
+                            <div class="view-mode-container">
+                                <span class="circle-display">@operationDay.RefreshDayDisplay</span>
+                            </div>
+                            <!-- 編集モード -->
+                            <div class="edit-mode-container checkbox-cell">
+                                <input type="checkbox"
+                                       class="edit-checkbox refreshday-checkbox"
+                                       name="UpdateModel.OperationDays[@i].IsRefreshDay"
+                                       value="true"
+                                       @(operationDay.RefreshDay == RefreshDayFlag.リフレッシュデー ? "checked" : "") />
+                            </div>
+                        </td>
+                        <td>
+                            <!-- 表示モード -->
+                            <div class="view-mode-container">
+                                <span class="circle-display">@operationDay.KakuteiKigenYmdDisplay</span>
+                            </div>
+                            <!-- 編集モード -->
+                            <div class="edit-mode-container checkbox-cell">
+                                <input type="checkbox"
+                                       class="edit-checkbox kakuteikigen-checkbox"
+                                       name="UpdateModel.OperationDays[@i].IsKakuteiKigen"
+                                       value="true"
+                                       data-index="@i"
+                                       @(!string.IsNullOrEmpty(operationDay.KakuteiKigenYmdDisplay) && operationDay.KakuteiKigenYmdDisplay == "○" ? "checked" : "") />
+                                <span asp-validation-for="UpdateModel.OperationDays[i].IsKakuteiKigen" class="text-danger form-errors"></span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>

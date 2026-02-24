@@ -15,7 +15,7 @@ namespace ZouryokuTest.Pages.Maintenance.PcLogs
     {
         private IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options);
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, fakeTimeProvider);
             model.PageContext = GetPageContext();
             model.TempData = GetTempData();
             return model;
@@ -28,6 +28,8 @@ namespace ZouryokuTest.Pages.Maintenance.PcLogs
         public async Task OnGetAsync_Populates_List_When_Records_Exist()
         {
             // Arrange
+            fakeTimeProvider.SetLocalNow(new DateTime(2025, 7, 1, 9, 0, 0));
+
             var syain = new Syain
             {
                 Id = 1,
@@ -38,8 +40,8 @@ namespace ZouryokuTest.Pages.Maintenance.PcLogs
                 KingsSyozoku = "00001"
             };
             db.Syains.Add(syain);
-            db.PcLogs.Add(new PcLog { Datetime = System.DateTime.UtcNow.AddMinutes(-5), PcName = "PC-1", UserName = "user1", SyainId = syain.Id });
-            db.PcLogs.Add(new PcLog { Datetime = System.DateTime.UtcNow.AddMinutes(-1), PcName = "PC-2", UserName = "user2", SyainId = syain.Id });
+            db.PcLogs.Add(new PcLog { Datetime = new DateTime(2025, 7, 1, 8, 55, 0), PcName = "PC-1", UserName = "user1", SyainId = syain.Id });
+            db.PcLogs.Add(new PcLog { Datetime = new DateTime(2025, 7, 1, 8, 59, 0), PcName = "PC-2", UserName = "user2", SyainId = syain.Id });
             await db.SaveChangesAsync();
 
             var model = CreateModel();

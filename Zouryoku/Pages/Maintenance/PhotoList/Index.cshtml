@@ -10,10 +10,6 @@
 <link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
 
 <style>
-    .photo-list-container {
-        padding: 20px 0;
-    }
-
     .busyo-section {
         margin-bottom: 40px;
     }
@@ -30,7 +26,7 @@
 
     .photo-grid {
         display: grid;
-        grid-template-columns: repeat(10, 1fr);
+        grid-template-columns: repeat(auto-fit, 100px);
         gap: 20px;
         margin-bottom: 20px;
     }
@@ -89,42 +85,82 @@
     }
 </style>
 
-<div class="photo-list-container">
-    <h2>顔写真一覧</h2>
+<partial name="_ZouryokuHeader" model="Model" />
+<div class="app-screen--search">
+    <div class="app-area__search-results">
+        @* 各部署をループ *@
+        @foreach (var busyoGroup in Model.BusyoPhotoGroups)
+        {
+            <div class="busyo-section">
+                <div class="busyo-title">@busyoGroup.BusyoName</div>
 
-    @* 各部署をループ *@
-    @foreach (var busyoGroup in Model.BusyoPhotoGroups)
-    {
-        <div class="busyo-section">
-            <div class="busyo-title">@busyoGroup.BusyoName</div>
-
-            @* 後端で分割済みのPhotoChunksをループ 1行に表示する写真数のグループ*@
-            @foreach (var chunk in busyoGroup.PhotoChunks)
-            {
-                <div class="photo-grid">
-                    @foreach (var photo in chunk)
-                    {
-                        <div class="photo-item">
-                            <div class="photo-container">
-                                @if (photo.HasPhoto)
-                                {
+                @* 後端で分割済みのPhotoChunksをループ 1行に表示する写真数のグループ*@
+                @foreach (var chunk in busyoGroup.PhotoChunks)
+                {
+                    <div class="photo-grid">
+                        @foreach (var photo in chunk)
+                        {
+                            <div class="photo-item">
+                                <div class="photo-container">
                                     <a href="javascript:void(0);"
-                                       style="cursor: pointer;">
-                                        <img src="/maintenance/photolist/downloadthumbnail?baseid=@photo.SyainBaseId&t=@photo.UploadTime.Ticks"
-                                             alt="@photo.SyainName"
-                                             loading="lazy" />
+                                        class="js-open-syain-detail"
+                                        data-syain-id="@photo.SyainBaseId"
+                                        style="cursor: pointer;">
+                                        @if (photo.HasPhoto)
+                                        {
+                                            <img src="/maintenance/photolist/downloadthumbnail?baseid=@photo.SyainBaseId&t=@photo.UploadTime.Ticks"
+                                                alt="@photo.SyainName"
+                                                loading="lazy" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/img/noimage.jpg" alt="@photo.SyainName" />
+                                        }
                                     </a>
-                                }
-                                else
-                                {
-                                    <div class="photo-placeholder" role="img" aria-label="@photo.SyainName の写真はありません">写真なし</div>
-                                }
+                                </div>
+                                <div class="syain-name">@photo.SyainName</div>
                             </div>
-                            <div class="syain-name">@photo.SyainName</div>
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-    }
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </div>
+
+@section scripts {
+    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
+    <!--iziModalUtil JavaScript -->
+    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
+    <script>
+        // 社員詳細モーダルを開く（PcLogs の openPcLogDetails を参考）
+        function openSyainDetails(id) {
+            const modalId = 'syainDetailsModal';
+            const url = '@Url.Page("./Details")';
+            const title = '社員詳細';
+
+            // 閉じた後の処理は特に不要なので空のコールバック
+            showInputModal(
+                modalId,
+                url,
+                id,
+                title,
+                function () { },
+                800,
+                800,
+                'var(--iframe-header-color)'
+            );
+        }
+
+        $(function () {
+            // サムネイルクリックで社員詳細をポップアップ表示
+            $(document).on('click', '.js-open-syain-detail', function () {
+                const syainId = $(this).data('syain-id');
+                if (!syainId) {
+                    return;
+                }
+                openSyainDetails(syainId);
+            });
+        });
+    </script>
+}

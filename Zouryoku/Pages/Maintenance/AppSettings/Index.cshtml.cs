@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Model.Data;
+using Model.Extensions;
+using Model.Model;
 using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
 using Zouryoku.Extensions;
@@ -11,16 +13,8 @@ using Zouryoku.Utils;
 namespace Zouryoku.Pages.Maintenance.AppSettings
 {
     [FunctionAuthorizationAttribute]
-    public class IndexModel : BasePageModel<IndexModel>
+    public class IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> optionsAccessor, TimeProvider? timeProvider = null) : BasePageModel<IndexModel>(db, logger, optionsAccessor, timeProvider)
     {
-        private readonly ZouContext context;
-
-        public IndexModel(ZouContext context, ILogger<IndexModel> logger, IOptions<AppConfig> options)
-            : base(context, logger, options)
-        {
-            this.context = context;
-        }
-
         /// <summary>
         /// 入力画面用共通CSS/JSをレイアウトで読み込むかどうかのフラグ
         /// </summary>
@@ -34,19 +28,29 @@ namespace Zouryoku.Pages.Maintenance.AppSettings
         public async Task<IActionResult> OnGetAsync()
         {
             // ApplicationConfigの最初のレコードを非同期で取得し、nullチェックを行う
-            var config = await context.ApplicationConfigs.FirstOrDefaultAsync();
-            if (config is not null)
+            var record = await db.ApplicationConfigs.AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            if (record is not null)
             {
                 AppSetting = new AppSettingModel()
                 {
-                    NippoStopDate = config?.NippoStopDate ?? default,
-                    MsClientId = config?.MsClientId ?? string.Empty,
-                    MsTenantId = config?.MsTenantId ?? string.Empty,
-                    MsClientSecret = config?.MsClientSecret ?? string.Empty,
-                    SmtpUser = config?.SmtpUser ?? string.Empty,
-                    SmtpPassword = config?.SmtpPassword ?? string.Empty
+                    NippoStopDate = record.NippoStopDate,
+                    MsClientId = record.MsClientId,
+                    MsTenantId = record.MsTenantId,
+                    MsClientSecret = record.MsClientSecret,
+                    SmtpUser = record.SmtpUser,
+                    SmtpPassword = record.SmtpPassword
                 };
             }
+            else
+            {
+                AppSetting = new AppSettingModel()
+                {
+                    NippoStopDate = DateOnly.FromDateTime(DateTime.Today)
+                };
+            }
+
             return Page();
         }
 
@@ -67,15 +71,16 @@ namespace Zouryoku.Pages.Maintenance.AppSettings
                 return errorJson;
             }
 
-            var appconfig = await context.ApplicationConfigs.FirstOrDefaultAsync();
-            appconfig.NippoStopDate = AppSetting.NippoStopDate;
-            appconfig.MsClientSecret = AppSetting.MsClientSecret;
-            appconfig.MsClientId = AppSetting.MsClientId;
-            appconfig.MsTenantId = AppSetting.MsTenantId;
-            appconfig.SmtpUser = AppSetting.SmtpUser;
-            appconfig.SmtpPassword = AppSetting.SmtpPassword;
+            var record = await db.ApplicationConfigs.FirstOrDefaultAsync()
+                ?? await db.ApplicationConfigs.AddReturnAsync(new ApplicationConfig());
+            record.NippoStopDate = AppSetting.NippoStopDate;
+            record.MsClientSecret = AppSetting.MsClientSecret;
+            record.MsClientId = AppSetting.MsClientId;
+            record.MsTenantId = AppSetting.MsTenantId;
+            record.SmtpUser = AppSetting.SmtpUser;
+            record.SmtpPassword = AppSetting.SmtpPassword;
 
-            await context.SaveChangesAsync();
+            await db.SaveChangesAsync();
             return Success();
         }
 
@@ -90,27 +95,27 @@ namespace Zouryoku.Pages.Maintenance.AppSettings
             /// <summary>MSテナントID</summary>
             [Display(Name = "MSテナントID")]
             [Required(ErrorMessage = Const.ErrorRequired)]
-            public string MsTenantId { get; set; } = null!;
+            public string MsTenantId { get; set; } = string.Empty;
 
             /// <summary>MSクライアントID</summary>
             [Display(Name = "MSクライアントID")]
             [Required(ErrorMessage = Const.ErrorRequired)]
-            public string MsClientId { get; set; } = null!;
+            public string MsClientId { get; set; } = string.Empty;
 
             /// <summary>MSクライアントシークレット</summary>
             [Display(Name = "MSクライアントシークレット")]
             [Required(ErrorMessage = Const.ErrorRequired)]
-            public string MsClientSecret { get; set; } = null!;
+            public string MsClientSecret { get; set; } = string.Empty;
 
             /// <summary>SMTPユーザ</summary>
             [Display(Name = "SMTPユーザ")]
             [Required(ErrorMessage = Const.ErrorRequired)]
-            public string SmtpUser { get; set; } = null!;
+            public string SmtpUser { get; set; } = string.Empty;
 
             /// <summary>SMTPパスワード</summary>
             [Display(Name = "SMTPパスワード")]
             [Required(ErrorMessage = Const.ErrorRequired)]
-            public string SmtpPassword { get; set; } = null!;
+            public string SmtpPassword { get; set; } = string.Empty;
         }
     }
 }

@@ -23,8 +23,8 @@ namespace Zouryoku.Pages.Maintenance.PcLogs
     {
         private readonly Model.Data.ZouContext _context;
 
-        public IndexModel(ZouContext context, ILogger<IndexModel> logger, IOptions<AppConfig> options)
-            : base(context, logger, options)
+        public IndexModel(ZouContext context, ILogger<IndexModel> logger, IOptions<AppConfig> options, TimeProvider? timeProvider = null)
+            : base(context, logger, options, timeProvider)
             => _context = context;
 
         public IList<PcLog> PcLog { get;set; } = default!;

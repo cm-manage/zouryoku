@@ -25,8 +25,9 @@ namespace Zouryoku.Pages.KokyakuJohoHyoji
         public IndexModel(
             ZouContext db,
             ILogger<IndexModel> logger,
-            IOptions<AppConfig> options)
-            : base(db, logger, options)
+            IOptions<AppConfig> options,
+            TimeProvider? timeProvider = null)
+            : base(db, logger, options, timeProvider)
         {
         }
 
@@ -64,9 +65,7 @@ namespace Zouryoku.Pages.KokyakuJohoHyoji
             // データが取得できなかった場合
             if (kokyakuData is null)
             {
-                ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                KokyakuView = new KokyakuViewModel();
-                return Page();
+                return RedirectToPage("/ErrorMessage", new { errorMessage = Const.ErrorSelectedDataNotExists });
             }
 
             // エンティティをViewModelに変換
@@ -76,11 +75,12 @@ namespace Zouryoku.Pages.KokyakuJohoHyoji
             };
 
             // 営業担当者の部署名を取得
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
             EigyouSyainBusyoName = await DepartmentHierarchy.GetDepartmentHierarchyStringAsync(db, today, KokyakuView.EigyouSyainBusyoId);
 
             // 条件を満たす場合、顧客会社参照履歴を登録/更新/削除処理を実行する
-            await MaintainKokyakuKaisyaSansyouRirekiAsync(db, id, LoginInfo.User.SyainBaseId);
+            var now = timeProvider.Now();
+            await MaintainKokyakuKaisyaSansyouRirekiAsync(db, id, LoginInfo.User.SyainBaseId, now);
 
             await db.SaveChangesAsync();
 
@@ -99,7 +99,7 @@ namespace Zouryoku.Pages.KokyakuJohoHyoji
         private async Task<KokyakuKaisha?> GetKokyakuKaishaAsync(long kokyakuId)
         {
             // 現在の日時を取得する
-            var today = DateTime.Now.ToDateOnly();
+            var today = timeProvider.Today();
 
             // 引数から顧客情報を取得
             return await db.KokyakuKaishas
@@ -126,70 +126,70 @@ namespace Zouryoku.Pages.KokyakuJohoHyoji
             /// <summary>
             /// 表示対象顧客情報（エンティティ）
             /// </summary>
-            public KokyakuKaisha? Kokyaku { private get; set; }
+            public KokyakuKaisha Kokyaku { private get; set; } = new KokyakuKaisha();
 
             /// <summary>ID</summary>
             [Display(Name = "ID")]
-            public long? Id => Kokyaku?.Id;
+            public long Id => Kokyaku.Id;
 
             /// <summary>コード</summary>
             [Display(Name = "コード")]
-            public string? Code => Kokyaku?.Code.ToString();
+            public string Code => Kokyaku.Code.ToString();
 
             /// <summary>顧客名</summary>
             [Display(Name = "顧客名")]
-            public string? Name => Kokyaku?.Name;
+            public string Name => Kokyaku.Name;
 
             /// <summary>カナ顧客名</summary>
             [Display(Name = "顧客名カナ")]
-            public string? NameKana => Kokyaku?.NameKana;
+            public string NameKana => Kokyaku.NameKana;
 
             /// <summary>略称</summary>
             [Display(Name = "顧客名略称")]
-            public string? Ryakusyou => Kokyaku?.Ryakusyou;
+            public string Ryakusyou => Kokyaku.Ryakusyou;
 
             /// <summary>支店</summary>
             [Display(Name = "支店")]
-            public string? Shiten => Kokyaku?.Shiten;
+            public string? Shiten => Kokyaku.Shiten;
 
             /// <summary>郵便番号</summary>
             [Display(Name = "郵便番号")]
-            public string? YuubinnBangou => Kokyaku?.YuubinBangou;
+            public string? YuubinnBangou => Kokyaku.YuubinBangou;
 
             /// <summary>住所１</summary>
             [Display(Name = "住所１")]
-            public string? Jyuusyo1 => Kokyaku?.Jyuusyo1;
+            public string? Jyuusyo1 => Kokyaku.Jyuusyo1;
 
             /// <summary>住所２</summary>
             [Display(Name = "住所２")]
-            public string? Jyuusyo2 => Kokyaku?.Jyuusyo2;
+            public string? Jyuusyo2 => Kokyaku.Jyuusyo2;
 
             /// <summary>電話番号</summary>
             [Display(Name = "電話番号")]
-            public string? Tel => Kokyaku?.Tel;
+            public string? Tel => Kokyaku.Tel;
 
             /// <summary>Fax</summary>
             [Display(Name = "FAX番号")]
-            public string? Fax => Kokyaku?.Fax;
+            public string? Fax => Kokyaku.Fax;
 
             /// <summary>メモ</summary>
             [Display(Name = "メモ")]
-            public string? Memo => Kokyaku?.Memo;
+            public string? Memo => Kokyaku.Memo;
 
             /// <summary>Url</summary>
             [Display(Name = "URL")]
-            public string? Url => Kokyaku?.Url;
+            public string? Url => Kokyaku.Url;
 
             /// <summary>業種名</summary>
             [Display(Name = "業種")]
-            public string? GyousyuName => Kokyaku?.Gyousyu?.Name;
+            public string? GyousyuName => Kokyaku.Gyousyu?.Name;
 
             /// <summary>営業社員名</summary>
             [Display(Name = "弊社営業担当")]
-            public string? EigyouSyainName => Kokyaku?.EigyoBaseSyain?.Syains.FirstOrDefault()?.Name;
+            public string? EigyouSyainName => Kokyaku.EigyoBaseSyain?.Syains.FirstOrDefault()?.Name;
 
             /// <summary>営業社員部署ID</summary>
-            public long? EigyouSyainBusyoId => Kokyaku?.EigyoBaseSyain?.Syains.FirstOrDefault()?.BusyoId;
+            public long? EigyouSyainBusyoId => Kokyaku.EigyoBaseSyain?.Syains.FirstOrDefault()?.BusyoId;
         }
     }
 }

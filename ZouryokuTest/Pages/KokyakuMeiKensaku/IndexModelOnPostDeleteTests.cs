@@ -1,3 +1,4 @@
+using CommonLibrary.Extensions;
 using ZouryokuTest.Builder;
 using static Zouryoku.Utils.Const;
 
@@ -130,7 +131,7 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
                 .WithId(3)
                 .WithSyainBaseId(1)
                 .WithKokyakuKaisyaId(3)
-                .WithSansyouTime(DateTime.Now.AddDays(-1))
+                .WithSansyouTime(fakeTimeProvider.Now().AddDays(-1))
                 .Build());
             db.SaveChanges();
             // 削除対象のデータが紐づく顧客会社ID

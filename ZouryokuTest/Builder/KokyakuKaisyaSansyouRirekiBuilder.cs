@@ -49,7 +49,7 @@ namespace ZouryokuTest.Builder
             {
                 KokyakuKaisyaId = _kokyakuKiasyaId ?? 1,
                 SyainBaseId = _syainBaseId ?? 1,
-                SansyouTime = _sansyouTime ?? DateTime.Now,
+                SansyouTime = _sansyouTime ?? new DateTime(2024, 1, 1),
                 Version = _version ?? 0,
             };
 

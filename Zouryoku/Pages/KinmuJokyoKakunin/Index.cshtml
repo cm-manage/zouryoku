@@ -48,19 +48,19 @@
 
             <!-- 期間 -->
             <div class="row align-items-center mt-3">
-                <div class="col-auto d-flex">
+                <div class="col-12 col-md-auto d-flex">
                     <label class="me-5 fw-bold">
                         期間 <span class="text-danger">*</span>
                     </label>
                 </div>
-                <div class="col-auto d-flex">
-                    <input type="month" id="search-from" class="form-control" value="@Model.SearchIndex.From" />
+                <div class="col-5 col-md-auto d-flex">
+                    <input type="month" asp-for="SearchIndex.From" id="search-from" class="form-control" />
                 </div>
-                <div class="col-auto d-flex">
+                <div class=" col-auto d-flex">
                     <span class="mx-2">〜</span>
                 </div>
-                <div class="col-auto d-flex">
-                    <input type="month" id="search-to" class="form-control" value="@Model.SearchIndex.To" />
+                <div class="col-5 col-md-auto d-flex">
+                    <input type="month" asp-for="SearchIndex.To" id="search-to" class="form-control" />
                 </div>
             </div>
 
@@ -83,11 +83,12 @@
 
                         <div class="form-check form-check-inline">
                             <input class="form-check-input"
+                            asp-for="SearchIndex.WarnLevel"
                                 type="radio"
                                 id="warnLevel_@radioItem"
                                 name="WarnLevel"
                                 value="@radioItem"
-                                   @(Model.SearchIndex.WarnLevel == radioItem ? "checked" : "") />
+                                   />
                             <label class="form-check-label" for="warnLevel_@radioItem">@display</label>
                         </div>
                     }
@@ -103,7 +104,7 @@
                 </div>
 
                 <!-- セレクトボックス -->
-                <div class="col-aut d-flex">
+                <div class="col-auto col-lg-2 d-flex">
                     <select id="busyo-mode" class="form-select">
                         <option value="all" selected>全社</option>
                         <option value="select">部署を選択する</option>

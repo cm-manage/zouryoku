@@ -1,8 +1,12 @@
 using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Model.Enums;
 using Model.Model;
+using static Model.Enums.BusinessTripRole;
+using static Model.Enums.DailyReportStatusClassification;
+using static Model.Enums.EmployeeAuthority;
+using static Model.Enums.InquiryType;
+using static Model.Enums.NippousCompanyCode;
 
 namespace ZouryokuTest.Pages.DakokuJikanSyusei
 {
@@ -145,11 +149,11 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 StartYmd = new DateOnly(2020, 4, 1),
                 EndYmd = new DateOnly(9999, 12, 31),
                 Kyusyoku = 1,
-                SyucyoSyokui = BusinessTripRole._2_6級,
+                SyucyoSyokui = _2_6級,
                 KingsSyozoku = "100",
                 KaisyaCode = 1,
                 IsGenkaRendou = true,
-                Kengen = EmployeeAuthority.None,
+                Kengen = None,
                 Jyunjyo = 1,
                 Retired = false,
                 SyainBaseId = 1,
@@ -164,9 +168,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyainId = syainId,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -213,7 +217,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsNull(model.ViewModel.UkagaiHeaderVersion);
             Assert.IsEmpty(model.ViewModel.UkagaiShinseiVersions);
             Assert.IsFalse(model.ViewModel.IsKakutei);
-            Assert.AreEqual(DailyReportStatusClassification.一時保存, model.ViewModel.TorokuKubun);
+            Assert.AreEqual(一時保存, model.ViewModel.TorokuKubun);
             Assert.IsNotEmpty(model.ViewModel.TimeSets);
         }
 
@@ -258,11 +262,11 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 StartYmd = new DateOnly(2020, 4, 1),
                 EndYmd = new DateOnly(9999, 12, 31),
                 Kyusyoku = 1,
-                SyucyoSyokui = BusinessTripRole._2_6級,
+                SyucyoSyokui = _2_6級,
                 KingsSyozoku = "100",
                 KaisyaCode = 1,
                 IsGenkaRendou = true,
-                Kengen = EmployeeAuthority.None,
+                Kengen = None,
                 Jyunjyo = 1,
                 Retired = false,
                 SyainBaseId = 1,
@@ -277,9 +281,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyainId = syainId,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -299,7 +303,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var ukagaiShinsei = new UkagaiShinsei()
             {
                 UkagaiHeader = ukagaiHeader,
-                UkagaiSyubetsu = InquiryType.打刻時間修正,
+                UkagaiSyubetsu = 打刻時間修正,
             };
 
             // 未削除の勤怠打刻情報を登録
@@ -371,7 +375,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.AreEqual(ukagaiHead.Version, model.ViewModel.UkagaiHeaderVersion);
             Assert.IsNotEmpty(model.ViewModel.UkagaiShinseiVersions);
             Assert.IsFalse(model.ViewModel.IsKakutei);
-            Assert.AreEqual(DailyReportStatusClassification.一時保存, model.ViewModel.TorokuKubun);
+            Assert.AreEqual(一時保存, model.ViewModel.TorokuKubun);
             Assert.IsNotEmpty(model.ViewModel.TimeSets);
         }
 
@@ -409,11 +413,11 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 StartYmd = new DateOnly(2020, 4, 1),
                 EndYmd = new DateOnly(9999, 12, 31),
                 Kyusyoku = 1,
-                SyucyoSyokui = BusinessTripRole._2_6級,
+                SyucyoSyokui = _2_6級,
                 KingsSyozoku = "100",
                 KaisyaCode = 1,
                 IsGenkaRendou = true,
-                Kengen = EmployeeAuthority.None,
+                Kengen = None,
                 Jyunjyo = 1,
                 Retired = false,
                 SyainBaseId = 1,
@@ -428,9 +432,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyainId = syainId,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -450,7 +454,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var ukagaiShinsei = new UkagaiShinsei()
             {
                 UkagaiHeader = ukagaiHeader,
-                UkagaiSyubetsu = InquiryType.打刻時間修正,
+                UkagaiSyubetsu = 打刻時間修正,
             };
 
             // 未削除の勤怠打刻情報を登録
@@ -510,11 +514,11 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 StartYmd = new DateOnly(2020, 4, 1),
                 EndYmd = new DateOnly(9999, 12, 31),
                 Kyusyoku = 1,
-                SyucyoSyokui = BusinessTripRole._2_6級,
+                SyucyoSyokui = _2_6級,
                 KingsSyozoku = "100",
                 KaisyaCode = 1,
                 IsGenkaRendou = true,
-                Kengen = EmployeeAuthority.None,
+                Kengen = None,
                 Jyunjyo = 1,
                 Retired = false,
                 SyainBaseId = 1,
@@ -529,9 +533,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyainId = syainId,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -583,11 +587,11 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 StartYmd = new DateOnly(2020, 4, 1),
                 EndYmd = new DateOnly(9999, 12, 31),
                 Kyusyoku = 1,
-                SyucyoSyokui = BusinessTripRole._2_6級,
+                SyucyoSyokui = _2_6級,
                 KingsSyozoku = "100",
                 KaisyaCode = 1,
                 IsGenkaRendou = true,
-                Kengen = EmployeeAuthority.None,
+                Kengen = None,
                 Jyunjyo = 1,
                 Retired = false,
                 SyainBaseId = 1,
@@ -602,9 +606,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyainId = syainId,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -636,7 +640,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsEmpty(model.ViewModel.UkagaiShinseiVersions);
             Assert.IsNull(model.ViewModel.UkagaiHeaderVersion);
             Assert.IsFalse(model.ViewModel.IsKakutei);
-            Assert.AreEqual(DailyReportStatusClassification.一時保存, model.ViewModel.TorokuKubun);
+            Assert.AreEqual(一時保存, model.ViewModel.TorokuKubun);
         }
 
         [TestMethod(DisplayName = "勤怠打刻情報に紐づく日報実績情報が存在しない → 日報実績情報を取得しない")]
@@ -663,11 +667,11 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 StartYmd = new DateOnly(2020, 4, 1),
                 EndYmd = new DateOnly(9999, 12, 31),
                 Kyusyoku = 1,
-                SyucyoSyokui = BusinessTripRole._2_6級,
+                SyucyoSyokui = _2_6級,
                 KingsSyozoku = "100",
                 KaisyaCode = 1,
                 IsGenkaRendou = true,
-                Kengen = EmployeeAuthority.None,
+                Kengen = None,
                 Jyunjyo = 1,
                 Retired = false,
                 SyainBaseId = 1,
@@ -692,7 +696,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var ukagaiShinsei = new UkagaiShinsei()
             {
                 UkagaiHeader = ukagaiHeader,
-                UkagaiSyubetsu = InquiryType.打刻時間修正,
+                UkagaiSyubetsu = 打刻時間修正,
             };
 
             // 未削除の勤怠打刻情報を登録

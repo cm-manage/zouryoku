@@ -1,10 +1,14 @@
 using CommonLibrary.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Model.Enums;
 using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Utils;
+using static Model.Enums.ApprovalStatus;
+using static Model.Enums.DailyReportStatusClassification;
+using static Model.Enums.EmployeeWorkType;
+using static Model.Enums.InquiryType;
+using static Model.Enums.NippousCompanyCode;
 
 namespace ZouryokuTest.Pages.DakokuJikanSyusei
 {
@@ -37,7 +41,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -113,7 +117,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -197,7 +201,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -297,7 +301,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.パート,
+                Code = パート,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -341,9 +345,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 Syain = syain,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -367,9 +371,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[0].End.Hour = 10;
             model.ViewModel.TimeSets[0].End.Minute = 00;
 
-            syukkinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 8, 30, 0));
+            syukkinTimeList.Add(baseDate.ToDateTime(new TimeOnly(8, 30, 0)));
 
-            taikinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 10, 0, 0));
+            taikinTimeList.Add(baseDate.ToDateTime(new TimeOnly(10, 0, 0)));
 
             if (1 < kintaiInputCount)
             {
@@ -378,9 +382,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 model.ViewModel.TimeSets[1].End.Hour = 12;
                 model.ViewModel.TimeSets[1].End.Minute = 0;
 
-                syukkinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 11, 0, 0));
+                syukkinTimeList.Add(baseDate.ToDateTime(new TimeOnly(11, 0, 0)));
 
-                taikinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 12, 0, 0));
+                taikinTimeList.Add(baseDate.ToDateTime(new TimeOnly(12, 0, 0)));
             }
 
             if (2 < kintaiInputCount)
@@ -390,9 +394,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 model.ViewModel.TimeSets[2].End.Hour = 21;
                 model.ViewModel.TimeSets[2].End.Minute = 0;
 
-                syukkinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 13, 0, 0));
+                syukkinTimeList.Add(baseDate.ToDateTime(new TimeOnly(13, 0, 0)));
 
-                taikinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 21, 0, 0));
+                taikinTimeList.Add(baseDate.ToDateTime(new TimeOnly(21, 0, 0)));
             }
 
             await model.OnPostRegisterAsync();
@@ -421,13 +425,13 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsNotEmpty(targetUkagaiShinsei);
             Assert.AreEqual(syain.Id, targetUkagaiHeader.SyainId);
             Assert.AreEqual(now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
-            Assert.AreEqual(ApprovalStatus.承認, targetUkagaiHeader.Status);
+            Assert.AreEqual(承認, targetUkagaiHeader.Status);
             Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
             Assert.IsFalse(targetUkagaiHeader.Invalid);
             Assert.HasCount(1, targetUkagaiShinsei);
             Assert.AreEqual(targetUkagaiHeader.Id, targetUkagaiShinsei[0].UkagaiHeaderId);
-            Assert.AreEqual(InquiryType.打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
+            Assert.AreEqual(打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
             Assert.HasCount(1, targetUkagaiShinsei);
             Assert.HasCount(kintaiInputCount, targetNotDeletedWorkinHour);
             for (int i = 0; i < kintaiInputCount; i++)
@@ -470,7 +474,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -514,9 +518,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 Syain = syain,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -565,8 +569,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[0].Start.Minute = 30;
             model.ViewModel.TimeSets[0].End.Hour = 10;
             model.ViewModel.TimeSets[0].End.Minute = 00;
-            syukkinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 8, 30, 0));
-            taikinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 10, 0, 0));
+            syukkinTimeList.Add(baseDate.ToDateTime(new TimeOnly(8, 30, 0)));
+            taikinTimeList.Add(baseDate.ToDateTime(new TimeOnly(10, 0, 0)));
 
             // 出退勤２
             if (1 < kintaiInputCount)
@@ -575,8 +579,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 model.ViewModel.TimeSets[1].Start.Minute = 0;
                 model.ViewModel.TimeSets[1].End.Hour = 12;
                 model.ViewModel.TimeSets[1].End.Minute = 0;
-                syukkinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 11, 0, 0));
-                taikinTimeList.Add(new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 12, 0, 0));
+                syukkinTimeList.Add(baseDate.ToDateTime(new TimeOnly(11, 0, 0)));
+                taikinTimeList.Add(baseDate.ToDateTime(new TimeOnly(12, 0, 0)));
             }
             // 未入力の場合nullを設定
             else
@@ -643,13 +647,13 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 Assert.IsTrue(targetNotDeletedWorkinHour[i].Edited);
             }
             Assert.AreEqual(now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
-            Assert.AreEqual(ApprovalStatus.承認待, targetUkagaiHeader.Status);
+            Assert.AreEqual(承認待, targetUkagaiHeader.Status);
             Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
             Assert.IsFalse(targetUkagaiHeader.Invalid);
             Assert.HasCount(1, targetUkagaiShinsei);
             Assert.AreEqual(targetUkagaiHeader.Id, targetUkagaiShinsei[0].UkagaiHeaderId);
-            Assert.AreEqual(InquiryType.打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
+            Assert.AreEqual(打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
         }
 
         [TestMethod(DisplayName = "２回目以降の修正時 → 入力値が登録される")]
@@ -666,7 +670,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -710,9 +714,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 Syain = syain,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -740,7 +744,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var ukagaiShinsei = new UkagaiShinsei()
             {
                 UkagaiHeader = ukagaiHeader,
-                UkagaiSyubetsu = InquiryType.打刻時間修正,
+                UkagaiSyubetsu = 打刻時間修正,
                 Version = 1, // ダミー
             };
 
@@ -753,8 +757,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyukkinLongitude = 0,
                 TaikinLatitude = 0,
                 TaikinLongitude = 0,
-                SyukkinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 9, 0, 0),
-                TaikinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 18, 0, 0),
+                SyukkinTime = baseDate.ToDateTime(new TimeOnly(9, 0, 0)),
+                TaikinTime = baseDate.ToDateTime(new TimeOnly(18, 0, 0)),
                 Edited = true,
                 Deleted = false,
                 UkagaiHeader = ukagaiHeader,
@@ -770,8 +774,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyukkinLongitude = 0,
                 TaikinLatitude = 0,
                 TaikinLongitude = 0,
-                SyukkinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 15, 0, 0),
-                TaikinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 21, 0, 0),
+                SyukkinTime = baseDate.ToDateTime(new TimeOnly(15, 0, 0)),
+                TaikinTime = baseDate.ToDateTime(new TimeOnly(21, 0, 0)),
                 Edited = false,
                 Deleted = true,
                 UkagaiHeader = ukagaiHeader,
@@ -789,8 +793,8 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[0].Start.Minute = 30;
             model.ViewModel.TimeSets[0].End.Hour = 10;
             model.ViewModel.TimeSets[0].End.Minute = 00;
-            var syukkinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 8, 30, 0);
-            var taikinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 10, 0, 0);
+            var syukkinTime = baseDate.ToDateTime(new TimeOnly(8, 30, 0));
+            var taikinTime = baseDate.ToDateTime(new TimeOnly(10, 0, 0));
 
             // 修正理由の設定
             model.ViewModel.SyuseiReason = "修正理由";
@@ -842,13 +846,13 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.AreEqual(afterUkagaiHeader.Id, afterNotDeletedWorkinHour[0].UkagaiHeaderId);
             Assert.IsFalse(afterNotDeletedWorkinHour[0].Deleted);
             Assert.AreEqual(now.ToDateOnly(), afterUkagaiHeader.ShinseiYmd);
-            Assert.AreEqual(ApprovalStatus.承認待, afterUkagaiHeader.Status);
+            Assert.AreEqual(承認待, afterUkagaiHeader.Status);
             Assert.AreEqual(baseDate, afterUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, afterUkagaiHeader.Biko);
             Assert.IsFalse(afterUkagaiHeader.Invalid);
             Assert.HasCount(1, afterUkagaiShinsei);
             Assert.AreEqual(afterUkagaiHeader.Id, afterUkagaiShinsei[0].UkagaiHeaderId);
-            Assert.AreEqual(InquiryType.打刻時間修正, afterUkagaiShinsei[0].UkagaiSyubetsu);
+            Assert.AreEqual(打刻時間修正, afterUkagaiShinsei[0].UkagaiSyubetsu);
         }
 
         [DataRow(null, null, 18, 0, DisplayName = "出勤時間が未入力 → 出勤時間がnullで登録される")]
@@ -871,7 +875,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.パート,
+                Code = パート,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -915,9 +919,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 Syain = syain,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -941,7 +945,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             DateTime? syukkinTime = new DateTime();
             if (syukkinHour is not null && syukkinMinute is not null)
             {
-                syukkinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, syukkinHour.Value, syukkinMinute.Value, 0);
+                syukkinTime = baseDate.ToDateTime(new TimeOnly(syukkinHour.Value, syukkinMinute.Value, 0));
             }
             else
             {
@@ -951,7 +955,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             DateTime? taikinTime = new DateTime();
             if (taikinHour is not null && taikinMinute is not null)
             {
-                taikinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, taikinHour.Value, taikinMinute.Value, 0);
+                taikinTime = baseDate.ToDateTime(new TimeOnly(taikinHour.Value, taikinMinute.Value, 0));
             }
             else
             {
@@ -984,13 +988,13 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsNotEmpty(targetUkagaiShinsei);
             Assert.AreEqual(syain.Id, targetUkagaiHeader.SyainId);
             Assert.AreEqual(now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
-            Assert.AreEqual(ApprovalStatus.承認, targetUkagaiHeader.Status);
+            Assert.AreEqual(承認, targetUkagaiHeader.Status);
             Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
             Assert.IsFalse(targetUkagaiHeader.Invalid);
             Assert.HasCount(1, targetUkagaiShinsei);
             Assert.AreEqual(targetUkagaiHeader.Id, targetUkagaiShinsei[0].UkagaiHeaderId);
-            Assert.AreEqual(InquiryType.打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
+            Assert.AreEqual(打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
             Assert.HasCount(1, targetUkagaiShinsei);
             Assert.AreEqual(model.ViewModel.SyainId, targetNotDeletedWorkinHour[0].SyainId);
             Assert.AreEqual(model.ViewModel.JissekiDate, targetNotDeletedWorkinHour[0].Hiduke);
@@ -1026,7 +1030,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.パート,
+                Code = パート,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1070,9 +1074,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 Syain = syain,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -1094,7 +1098,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[0].End.Minute = taikinMinute;
 
             DateTime syukkinTime = new DateTime();
-            syukkinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, syukkinHour, syukkinMinute, 0);
+            syukkinTime = baseDate.ToDateTime(new TimeOnly(syukkinHour, syukkinMinute, 0));
             
 
             DateTime taikinTime = new DateTime();
@@ -1104,7 +1108,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             }
             else
             {
-                taikinTime = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, taikinHour, taikinMinute, 0);
+                taikinTime = baseDate.ToDateTime(new TimeOnly(taikinHour, taikinMinute, 0));
             }
 
             await model.OnPostRegisterAsync();
@@ -1133,13 +1137,13 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             Assert.IsNotEmpty(targetUkagaiShinsei);
             Assert.AreEqual(syain.Id, targetUkagaiHeader.SyainId);
             Assert.AreEqual(now.ToDateOnly(), targetUkagaiHeader.ShinseiYmd);
-            Assert.AreEqual(ApprovalStatus.承認, targetUkagaiHeader.Status);
+            Assert.AreEqual(承認, targetUkagaiHeader.Status);
             Assert.AreEqual(baseDate, targetUkagaiHeader.WorkYmd);
             Assert.AreEqual(model.ViewModel.SyuseiReason, targetUkagaiHeader.Biko);
             Assert.IsFalse(targetUkagaiHeader.Invalid);
             Assert.HasCount(1, targetUkagaiShinsei);
             Assert.AreEqual(targetUkagaiHeader.Id, targetUkagaiShinsei[0].UkagaiHeaderId);
-            Assert.AreEqual(InquiryType.打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
+            Assert.AreEqual(打刻時間修正, targetUkagaiShinsei[0].UkagaiSyubetsu);
             Assert.HasCount(1, targetUkagaiShinsei);
             Assert.AreEqual(model.ViewModel.SyainId, targetNotDeletedWorkinHour[0].SyainId);
             Assert.AreEqual(model.ViewModel.JissekiDate, targetNotDeletedWorkinHour[0].Hiduke);
@@ -1179,7 +1183,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1252,7 +1256,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1333,7 +1337,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1413,7 +1417,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1501,7 +1505,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1587,7 +1591,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1673,7 +1677,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1770,7 +1774,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1856,7 +1860,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -1937,7 +1941,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.管理,
+                Code = 管理,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -2004,9 +2008,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 Syain = syain,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.確定保存,
+                TourokuKubun = 確定保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -2048,7 +2052,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.パート,
+                Code = パート,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -2132,9 +2136,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 SyainId = syain.Id,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -2213,7 +2217,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var kintaiZokusei = new KintaiZokusei()
             {
                 Name = "test",
-                Code = EmployeeWorkType.パート,
+                Code = パート,
                 SeigenTime = 0,
                 IsMinashi = false,
                 MaxLimitTime = 0,
@@ -2274,7 +2278,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             var ukagaiShinsei = new UkagaiShinsei()
             {
                 UkagaiHeader = ukagaiHeader,
-                UkagaiSyubetsu = InquiryType.打刻時間修正,
+                UkagaiSyubetsu = 打刻時間修正,
                 Version = 0, // ダミー
             };
 
@@ -2316,9 +2320,9 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
                 Syain = syain,
                 NippouYmd = baseDate,
                 Youbi = 1,
-                KaisyaCode = NippousCompanyCode.協和,
+                KaisyaCode = 協和,
                 IsRendouZumi = true,
-                TourokuKubun = DailyReportStatusClassification.一時保存,
+                TourokuKubun = 一時保存,
                 SyukkinKubunId1 = 1,
             };
 
@@ -2336,7 +2340,7 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             db.Add(new UkagaiShinsei()
             {
                 UkagaiHeader = ukagaiHeader,
-                UkagaiSyubetsu = InquiryType.打刻時間修正,
+                UkagaiSyubetsu = 打刻時間修正,
             });
 
             await db.SaveChangesAsync();

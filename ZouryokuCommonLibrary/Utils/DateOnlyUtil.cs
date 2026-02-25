@@ -18,6 +18,9 @@ namespace ZouryokuCommonLibrary.Utils
         /// <summary>
         /// 非稼働日テーブルを何日先まで検索するか。
         /// </summary>
+        /// <remarks>
+        /// 10連休等を考慮して、余裕をもって30日を設定する。
+        /// </remarks>
         private const int HikadoubiSearchLimit = 30;
 
         /// <summary>

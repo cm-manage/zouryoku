@@ -93,6 +93,8 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
 
             // 社員情報の作成
             List<Syain> syains = new List<Syain>();
+            var now = new DateTime(2026, 7, 1, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
             var today = fakeTimeProvider.Today();
 
             syains.Add(new SyainBuilder().WithId(1)
@@ -196,6 +198,8 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 現在の日付を取得
+            var now = new DateTime(2026, 7, 1, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
             var today = fakeTimeProvider.Today();
 
             // 顧客会社情報の作成
@@ -251,6 +255,8 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 現在の日付を取得
+            var now = new DateTime(2026, 7, 1, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
             var today = fakeTimeProvider.Today();
 
             // 顧客会社情報の作成
@@ -306,6 +312,9 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         public async Task OnGetAsync_履歴が存在する_参照時間を更新()
         {
             // ================ Arrange ================ //
+            var now = new DateTime(2026, 7, 1, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
+
             // 社員情報の作成
             var syainBase = CreateSyainBase(1);
             var busyo = CreateBusyo(1);
@@ -327,13 +336,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
             var model = CreateModel();
 
             // ================ Act ================ //
-            // 処理実行前の現在日時の取得
-            var beforeActTime = fakeTimeProvider.Now();
-
             await model.OnGetAsync(kokyaku.Id);
-
-            // 処理実行後の現在日時の取得
-            var afterActTime = fakeTimeProvider.Now();
 
             // ================ Assert ================ //
             // 確認対象の顧客会社参照履歴を取得
@@ -342,7 +345,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
 
             Assert.IsNotNull(targetRireki, "テストデータが作成されていません。");
 
-            AssertSansyouTime(targetRireki, beforeActTime, afterActTime);
+            AssertSansyouTime(targetRireki, now);
 
             // 件数が増加していないことを確認
             var allBeforeCount = idCount + otherUserRirekis.Count;
@@ -355,7 +358,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
                 .AsNoTracking()
                 .ToListAsync();
 
-            AssertOtherRirekiNotUpdated(others, beforeActTime, afterActTime);
+            AssertOtherRirekiNotUpdated(others, now);
         }
 
         // =============================================
@@ -412,6 +415,8 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 現在の日付を取得
+            var now = new DateTime(2026, 7, 1, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
             var today = fakeTimeProvider.Today();
 
             // 顧客会社情報の作成

@@ -35,5 +35,10 @@ namespace Zouryoku.Pages.Shared.Components
         /// 土日祝日の選択を許可するかどうかを指定します。
         /// </summary>
         public bool AllowSelectWeekendAndHoliday { get; init; } = true;
+
+        /// <summary>
+        /// 展開直後の月を、現在の月からどれだけオフセットするかを指定します。 (例: 0 → 現在の月、-1 → 前の月、1 → 次の月)
+        /// </summary>
+        public int DefaultMonthOffset { get; init; }
     }
 }

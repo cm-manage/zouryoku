@@ -1,5 +1,6 @@
 using Model.Enums;
 using NPOI.SS.Formula.Functions;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -67,6 +68,7 @@ namespace Model.Model
         /// <summary>
         /// 出退勤一覧の打刻時間修正権限所持
         /// </summary>
+        [Obsolete($"【変更先】{nameof(IsCheckStampPosition)}")]
         public bool IsCorrectingTimeStamps => Kengen.HasFlag(EmployeeAuthority.出退勤一覧の打刻時間修正);
 
         /// <summary>
@@ -92,6 +94,7 @@ namespace Model.Model
         /// <summary>
         /// 勤務日報未確定者への通知権限所持
         /// </summary>
+        [Obsolete($"【変更先】{nameof(IsCheckPendingReports)}")]
         public bool IsNotificationReportUnconfirmed => Kengen.HasFlag(EmployeeAuthority.勤務日報未確定者への通知);
 
         /// <summary>
@@ -110,13 +113,20 @@ namespace Model.Model
         public bool IsFinalInstructionApprover => Kengen.HasFlag(EmployeeAuthority.指示最終承認者);
 
         /// <summary>
+        /// 管理機能権限所持
+        /// </summary>
+        public bool IsManagementFunctions => Kengen.HasFlag(EmployeeAuthority.管理機能);
+
+        /// <summary>
         /// 管理機能利用_その他権限所持
         /// </summary>
+        [Obsolete($"【変更先】{nameof(IsManagementFunctions)}")]
         public bool IsManagementFunctionsOther => Kengen.HasFlag(EmployeeAuthority.管理機能利用_その他);
 
         /// <summary>
         /// 管理機能利用_人財向け権限所持
         /// </summary>
+        [Obsolete($"【変更先】{nameof(IsManagementFunctions)}")]
         public bool IsManagementFunctionsHumanResources => Kengen.HasFlag(EmployeeAuthority.管理機能利用_人財向け);
 
         /// <summary>
@@ -137,12 +147,22 @@ namespace Model.Model
         /// <summary>
         /// 有給・振替管理権限所持
         /// </summary>
-        public bool IsPayrollAndTransferManagement => Kengen.HasFlag(EmployeeAuthority.有給_振替管理);
+        public bool IsPayrollAndTransferManagement => Kengen.HasFlag(EmployeeAuthority.有給振替管理);
 
         /// <summary>
         /// 残業超過制限無効権限所持
         /// </summary>
         public bool IsOverTimeUnrestricted => Kengen.HasFlag(EmployeeAuthority.残業超過制限無効);
+
+        /// <summary>
+        /// 年次有給休暇更新権限所持
+        /// </summary>
+        public bool IsAnnualLeavePlanUpdate => Kengen.HasFlag(EmployeeAuthority.年次有給休暇更新);
+
+        /// <summary>
+        /// 代理入力権限所持
+        /// </summary>
+        public bool IsProxyInputAuthority => Kengen.HasFlag(EmployeeAuthority.代理入力権限);
 
         /// <summary>
         /// 権限設定

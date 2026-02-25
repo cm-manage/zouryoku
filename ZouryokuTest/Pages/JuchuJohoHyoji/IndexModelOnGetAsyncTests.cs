@@ -152,6 +152,9 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public async Task OnGetAsync_対象の受注参照履歴が存在する_参照時間を現在日時に更新()
         {
             // ================ Arrange ================ //
+            var now = new DateTime(2026, 2, 1, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
+
             // 受注情報の作成
             var juchu = CreateKingsJuchu(1);
 
@@ -163,31 +166,32 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
                 .WithId(1)
                 .WithKingsJuchuId(juchu.Id)
                 .WithSyainBaseId(LoggedInUserId)
-                .WithSansyouTime(new DateTime(2025, 4, 1, 19, 00, 00))
+                .WithSansyouTime(new DateTime(2026, 1, 1, 19, 00, 00))
+                .Build();
+
+            var juchuOtherSansyouRireki = new KingsJuchuSansyouRirekiBuilder()
+                .WithId(2)
+                .WithKingsJuchuId(juchu.Id)
+                .WithSyainBaseId(LoggedInUserId)
+                .WithSansyouTime(new DateTime(2026, 1, 1, 10, 00, 00))
                 .Build();
 
             // データ登録
-            SeedEntities(juchu, busyo, juchuSansyouRireki);
+            SeedEntities(juchu, busyo, juchuSansyouRireki, juchuOtherSansyouRireki);
 
             var model = CreateModel();
 
             // ================ Act ================ //
-            // 処理実行前の現在日時の取得
-            var beforeActTime = DateTime.Now;
-
             // 処理実行前の受注参照履歴の件数を取得
             var allBeforeCount = await db.KingsJuchuSansyouRirekis.CountAsync();
 
             await model.OnGetAsync(juchu.Id);
 
-            // 処理実行後の現在日時の取得
-            var afterActTime = DateTime.Now;
-
             // ================ Assert ================ //
             // 確認対象の受注参照履歴を取得
             var targetRireki = await db.KingsJuchuSansyouRirekis.FirstOrDefaultAsync(x => x.Id == juchu.Id);
             Assert.IsNotNull(targetRireki, "テストデータが作成されていません。");
-            AssertSansyouTime(targetRireki, beforeActTime, afterActTime);
+            AssertSansyouTime(targetRireki, now);
 
             // 件数が増加していないことを確認
             var allAfterCount = await db.KingsJuchuSansyouRirekis.CountAsync();
@@ -195,7 +199,7 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
 
             // 他の参照履歴に対して更新処理が実行されていないか確認
             var others = await db.KingsJuchuSansyouRirekis.Where(x => x.Id != juchu.Id).AsNoTracking().ToListAsync();
-            AssertOtherRirekiNotUpdated(others, beforeActTime, afterActTime);
+            AssertOtherRirekiNotUpdated(others, now);
         }
 
         // =============================================
@@ -207,10 +211,10 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         //      パラメータ.受注IDと一致する受注情報が存在しない場合
         // =============================================================
         /// <summary>
-        /// パラメータ.受注IDと一致する受注情報が存在しない場合、RedirectToResultが返却されることを確認
+        /// パラメータ.受注IDと一致する受注情報が存在しない場合、RedirectToPageResultが返却されることを確認
         /// </summary>
-        [TestMethod(DisplayName = "パラメータ.受注IDと一致する受注情報が存在しない → RedirectToResultが返却される")]
-        public async Task OnGetAsync_受注情報が取得されなかった場合_RedirectToResultを返却()
+        [TestMethod(DisplayName = "パラメータ.受注IDと一致する受注情報が存在しない → エラーページに遷移する")]
+        public async Task OnGetAsync_受注情報が取得されなかった場合_エラーページに遷移()
         {
             // ================ Arrange ================ //
             // 受注情報の作成

@@ -1,0 +1,99 @@
+@model Zouryoku.Pages.SyainMasterMaintenanceTouroku.IndexModel
+
+<div class="border border-dark rounded mb-4">
+    <div class="bg-primary text-white px-3 py-2 fw-bold fs-5 rounded-top">
+        権限
+    </div>
+    <div class="px-4 py-3 border-top border-dark rounded-bottom">
+
+        <!-- ロール -->
+        <div class="row mb-3 align-items-center">
+            <label asp-for="Input.UserRoleId" class="col-md-3 col-form-label fw-bold small">
+                ロール<span class="text-danger fw-bold">*</span>
+            </label>
+            <div class="col-md-4">
+                <select asp-for="Input.UserRoleId" asp-items="Model.RoleOptions"
+                        class="form-select form-select-sm" id="Input_UserRoleId">
+                </select>
+                <span asp-validation-for="Input.UserRoleId" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <!-- 権限 -->
+        <div class="row mb-3 align-items-start">
+            <label class="col-md-3 col-form-label fw-bold small">権限</label>
+            <div class="col-md-9">
+                <div class="row">
+                    <!-- 左列 -->
+                    <div class="col-md-6">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm1Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm1Checked">労働状況報告</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm2Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm2Checked">勤務日報未確定チェック</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm3Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm3Checked">出退勤一覧画面の部署選択</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm4Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm4Checked">出退勤一覧の打刻位置確認</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm5Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm5Checked">PCログ出力</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm6Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm6Checked">管理機能利用（人財向け）</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm7Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm7Checked">指示承認者</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm8Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm8Checked">計画休暇承認</label>
+                        </div>
+                    </div>
+
+                    <!-- 右列 -->
+                    <div class="col-md-6">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm9Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm9Checked">労働最終警告メール送信対象者</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm10Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm10Checked">勤務日報未確定者への通知</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm11Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm11Checked">出退勤一覧の打刻時間修正</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm12Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm12Checked">部門プロセス設定</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm13Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm13Checked">勤怠データ出力</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm14Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm14Checked">管理機能利用（その他）</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" asp-for="Input.Perm15Checked" />
+                            <label class="form-check-label" asp-for="Input.Perm15Checked">指示最終承認者</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

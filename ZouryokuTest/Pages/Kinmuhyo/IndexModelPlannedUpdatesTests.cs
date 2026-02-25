@@ -2,19 +2,16 @@ using Microsoft.AspNetCore.Mvc;
 using Model.Model;
 using Zouryoku.Pages.Kinmuhyo;
 using static Model.Enums.ResponseStatus;
+using CommonLibrary.Extensions;
 
 namespace ZouryokuTest.Pages.Kinmuhyo
 {
     [TestClass]
     public class IndexModelPlannedUpdatesTests : BaseInMemoryDbContextTest
     {
-        private static DateTime Today => new DateTime(2025, 7, 2);
-
-        private static DateOnly FixedToday => DateOnly.FromDateTime(Today);
-
         private IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine)
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
@@ -26,10 +23,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnPostUpdatePlannedWorkAsync_対象の予定データが存在しない_エラーを返す()
         {
             // Arrange
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var model = CreateModel();
 
             model.SyainId = 999;
-            model.YoteiYmd = FixedToday;
+            model.YoteiYmd = today;
 
             // Act
             var result = await model.OnPostUpdatePlannedWorkAsync();
@@ -47,12 +46,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnPostUpdatePlannedWorkAsync_対象の予定データが存在する_Workedを更新する()
         {
             // Arrange
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var syain = new Syain
             {
                 Id = 1,
                 Name = "T",
-                StartYmd = FixedToday.AddYears(-1),
-                EndYmd = FixedToday.AddYears(1),
+                StartYmd = today.AddYears(-1),
+                EndYmd = today.AddYears(1),
                 Code = "S0001",
                 BusyoCode = "B001",
                 KanaName = "ティー",
@@ -60,7 +61,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             };
             db.Syains.Add(syain);
 
-            var ymd = FixedToday;
+            var ymd = today;
             var yotei = new NippouYotei
             {
                 Id = 1,
@@ -96,11 +97,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnPostUpdatePlannedOvertimeAsync_対象の予定データが存在しない_エラーを返す()
         {
             // Arrange
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+
             var model = CreateModel();
-
-
             model.SyainId = 999;
-            model.YoteiYmd = FixedToday;
+            model.YoteiYmd = today;
             model.ZangyouJikan = 5;
 
             // Act
@@ -119,12 +121,15 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnPostUpdatePlannedOvertimeAsync_対象の予定データが存在する_ZangyouJikanを更新する()
         {
             // Arrange
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+
             var syain = new Syain
             {
                 Id = 2,
                 Name = "U",
-                StartYmd = FixedToday.AddYears(-1),
-                EndYmd = FixedToday.AddYears(1),
+                StartYmd = today.AddYears(-1),
+                EndYmd = today.AddYears(1),
                 Code = "S0002",
                 BusyoCode = "B001",
                 KanaName = "ユー",
@@ -132,7 +137,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             };
             db.Syains.Add(syain);
 
-            var ymd = FixedToday;
+            var ymd = today;
             var yotei = new NippouYotei
             {
                 Id = 2,

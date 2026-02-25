@@ -34,7 +34,7 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         /// </summary>
         protected IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options)
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData(),
@@ -177,12 +177,11 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         /// <param name="afterUpdateTime">更新後の時間</param>
         protected static void AssertSansyouTime(
             KingsJuchuSansyouRireki juchuSansyouRireki,
-            DateTime beforeUpdateTime,
-            DateTime afterUpdateTime)
+            DateTime now)
         {
-            Assert.IsTrue(
-                beforeUpdateTime.AddSeconds(-2) <= juchuSansyouRireki.SansyouTime
-                && juchuSansyouRireki.SansyouTime <= afterUpdateTime.AddSeconds(2),
+            Assert.AreEqual(
+                juchuSansyouRireki.SansyouTime,
+                now,
                 "参照時間が正しく更新されていません。"
                 );
         }
@@ -215,13 +214,13 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         /// 更新対象外の受注参照履歴.参照時間が更新されていないことを確認する
         /// </summary>
         /// <param name="juchuSansyouRirekis">確認対象の受注参照履歴リスト</param>
-        protected static void AssertOtherRirekiNotUpdated(List<KingsJuchuSansyouRireki> juchuSansyouRirekis, DateTime before, DateTime after)
+        protected static void AssertOtherRirekiNotUpdated(List<KingsJuchuSansyouRireki> juchuSansyouRirekis, DateTime now)
         {
             foreach (var other in juchuSansyouRirekis)
             {
-                Assert.IsFalse(
-                    before.AddSeconds(-2) < other.SansyouTime 
-                    && other.SansyouTime < after.AddSeconds(2),
+                Assert.AreNotEqual(
+                    now,
+                    other.SansyouTime,
                     "対象外の受注参照履歴が更新されています。"
                     );
             }

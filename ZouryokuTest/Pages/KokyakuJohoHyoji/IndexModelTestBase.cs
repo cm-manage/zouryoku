@@ -194,12 +194,11 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         /// <param name="afterUpdateTime">更新後の時間</param>
         protected static void AssertSansyouTime(
             KokyakuKaisyaSansyouRireki kokyakuKaisyaSansyouRireki,
-            DateTime beforeUpdateTime,
-            DateTime afterUpdateTime)
+            DateTime now)
         {
-            Assert.IsTrue(
-                beforeUpdateTime.AddSeconds(-2) <= kokyakuKaisyaSansyouRireki.SansyouTime
-                && kokyakuKaisyaSansyouRireki.SansyouTime <= afterUpdateTime.AddSeconds(2),
+            Assert.AreEqual(
+                now,
+                kokyakuKaisyaSansyouRireki.SansyouTime,
                 "参照時間が正しく更新されていません。"
                 );
         }
@@ -232,13 +231,13 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         /// 更新対象外の顧客会社参照履歴.参照時間が更新されていないことを確認する
         /// </summary>
         /// <param name="kokyakuKaisyaSansyouRirekis">確認対象の顧客会社参照履歴リスト</param>
-        protected static void AssertOtherRirekiNotUpdated(List<KokyakuKaisyaSansyouRireki> kokyakuKaisyaSansyouRirekis, DateTime before, DateTime after)
+        protected static void AssertOtherRirekiNotUpdated(List<KokyakuKaisyaSansyouRireki> kokyakuKaisyaSansyouRirekis, DateTime now)
         {
             foreach (var other in kokyakuKaisyaSansyouRirekis)
             {
-                Assert.IsFalse(
-                    before.AddSeconds(-2) < other.SansyouTime
-                    && other.SansyouTime < after.AddSeconds(2),
+                Assert.AreNotEqual(
+                    now,
+                    other.SansyouTime,
                     "対象外の顧客参照履歴が更新されています。"
                     );
             }

@@ -27,10 +27,17 @@
                 var offset = $(input).offset();
                 var height = $(input).outerHeight();
                 setTimeout(function() {
-                    // 初期表示の月のずれを修正する (最大12ヶ月)
-                    for (let i = 0; i < 12; i++) {
-                        // 前月ボタンは再生成されるため、毎回取得する必要がある。
-                        $('a[data-handler="prev"]').trigger('click');
+                    const defaultMonthOffset = @(Model.DefaultMonthOffset);
+                    if (defaultMonthOffset > 0) {
+                        for (let i = 0; i < defaultMonthOffset; i++) {
+                            // 次月ボタンは再生成されるため、毎回取得する必要がある。
+                            $('a[data-handler="next"]').trigger('click');
+                        }
+                    } else if (defaultMonthOffset < 0) {
+                        for (let i = 0; i < -defaultMonthOffset; i++) {
+                            // 前月ボタンは再生成されるため、毎回取得する必要がある。
+                            $('a[data-handler="prev"]').trigger('click');
+                        }
                     }
 
                     // カレンダーを縦横に並べると<input>の上に被るように表示されるため、appendToとbeforeShowで移動させる

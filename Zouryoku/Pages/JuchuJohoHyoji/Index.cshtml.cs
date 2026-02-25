@@ -29,8 +29,9 @@ namespace Zouryoku.Pages.JuchuJohoHyoji
         public IndexModel(
             ZouContext db,
             ILogger<IndexModel> logger,
-            IOptions<AppConfig> options)
-            : base(db, logger, options)
+            IOptions<AppConfig> options,
+            TimeProvider? timeProvider = null)
+            : base(db, logger, options, timeProvider)
         {
         }
 

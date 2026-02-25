@@ -17,7 +17,6 @@ using Zouryoku.Utils;
 using static Model.Enums.AttendanceClassification;
 using static Model.Enums.InquiryType;
 using static Model.Enums.LeaveBalanceFetchStatus;
-using static Model.Enums.ResponseStatus;
 using static Zouryoku.Pages.KinmuJokyoKakunin.WarnLevel;
 using FileUtil = Zouryoku.Utils.FileUtil;
 
@@ -33,6 +32,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         public override bool UseInputAssets => true;
 
         private const string SessionKey_StatusViewVm = "StatusView_TableViewModel";
+
+        private const string DateMustBeBefore = "{0}は{1}より前の日付を入力してください。";
 
         /// <summary>
         /// 検索条件欄 初期表示
@@ -63,6 +64,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// Excelテンプレートヘッダ行数
         /// </summary>
         public const int excelHeader = 2;
+
+        public string Dir { get; set; } = Directory.GetCurrentDirectory();
 
         /// <summary>
         /// 初期表示
@@ -104,9 +107,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         .GetCustomAttribute<DisplayAttribute>()?
                         .Name;
 
-                    // TODO:: do we need to place const in const files
-                    const string M_0108 = "{0}は{1}より前の日付を入力してください。";
-                    ModelState.AddModelError(nameof(Search.Busyo), string.Format(M_0108, fromDisplay, toDisplay));
+                    ModelState.AddModelError(nameof(Search.Busyo), string.Format(DateMustBeBefore, fromDisplay, toDisplay));
                     check = false;
                 }
 
@@ -132,11 +133,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     .ToList();
 
                 // 以降の処理を行わない
-                return new JsonResult(new
-                {
-                    status = エラー,
-                    message = string.Join("\n", errorMessages)
-                });
+                return ErrorJson(string.Join("\n", errorMessages));
             }
 
             // 画面表示モデル
@@ -282,7 +279,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         SyainName = s.Name,
                         ZokuseiName = s.KintaiZokusei?.Name ?? "",
                         YearMonth = m.YearMonth,
-                        Jitsudo = Math.Round(m.Jitsudo, 2),
+                        Jitsudo = m.Jitsudo,
 
                         ZangyoExceptHoliday = m.ZangyoExceptHoliday,
                         Zangyo = m.Zangyo,
@@ -406,11 +403,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             );
 
             var html = await PartialToJsonAsync("_IndexPartial", vm);
-            return new JsonResult(new
-            {
-                status = 正常,
-                data = html
-            });
+            return SuccessJson(data: html);
         }
 
         /// <summary>
@@ -700,10 +693,9 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                 return BadRequest("検索結果の取得に失敗しました。");
 
             // テンプレートファイル
-            var dir = Directory.GetCurrentDirectory();
             var folderPath = appSettings.TemplatesFolderPath;
             var file = appSettings.KinmuJokyoFileName;
-            var template = dir + folderPath + "/" + file;
+            var template = Dir + folderPath + "/" + file;
 
             // Excel作成（NPOI）
             byte[] bytes = ExcelUtil.Write(book =>

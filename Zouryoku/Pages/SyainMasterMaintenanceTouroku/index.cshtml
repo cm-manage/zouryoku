@@ -1,0 +1,444 @@
+﻿@page
+@using Zouryoku.Pages.Shared.Components
+@model Zouryoku.Pages.SyainMasterMaintenanceTouroku.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "社員マスタ登録";
+}
+
+<style>
+    .no-border {
+        border: none;
+        background: none;
+        width: auto;
+    }
+
+    .smmt-paid-leave-group {
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .smmt-paid-leave-item {
+        width: 120px;
+    }
+
+    .smmt-readonly-input {
+        background-color: #f8f9fa;
+    }
+
+    .smmt-overtime-ym {
+        width: 120px;
+    }
+</style>
+
+<div class="container bg-light pt-4">
+    <div class="d-flex align-items-start justify-content-between mb-3">
+        <div class="text-muted me-3">
+            履歴対象となる<span class="text-primary fw-bold">*</span>の項目を変更した場合、新たな社員情報が作られます。<br />
+            この時、適用開始日が新規データの有効開始日となります。<br />
+            再登録（適用開始日と有効開始日が同じ）の場合、履歴は発生せず上書きとなります。<br />
+            <span class="text-danger fw-bold">*</span>は必須入力です。<span class="text-primary fw-bold">*</span>は履歴対象です。
+        </div>
+    </div>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Input.IsCreate" />
+        <input type="hidden" asp-for="Input.Id" />
+        <input type="hidden" asp-for="Input.SyainBaseId" />
+        <input type="hidden" id="Kengen" name="Input.Kengen" value="0" />
+
+        <!-- 社員基本情報 -->
+        <div class="border border-dark rounded mb-4">
+            <div class="bg-primary text-white px-3 py-2 fw-bold fs-5 rounded-top">
+                社員基本情報
+            </div>
+
+            <div class="px-4 py-3 border-top border-dark rounded-bottom position-relative">
+                <div class="position-absolute top-0 end-0 me-4 mt-3 d-flex flex-column align-items-center">
+                    <img src="@Url.Content("~/images/user.svg")"
+                         alt="写真"
+                         class="border rounded mb-2"
+                         style="width:96px; height:96px; object-fit:cover;" />
+
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSetPhoto">写真設定</button>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.Code" class="col-md-3 col-form-label fw-bold small">
+                       <span class="text-danger fw-bold">*</span>
+                    </label>
+                    <div class="col-md-3">
+                        <input asp-for="Input.Code" class="form-control form-control-sm" />
+                        <span asp-validation-for="Input.Code" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.Name" class="col-md-3 col-form-label fw-bold small">
+                        社員氏名<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span>
+                    </label>
+                    <div class="col-md-5">
+                        <input asp-for="Input.Name" class="form-control form-control-sm" />
+                        <span asp-validation-for="Input.Name" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.KanaName" class="col-md-3 col-form-label fw-bold small">
+                        社員氏名カナ<span class="text-danger fw-bold">*</span>
+                    </label>
+                    <div class="col-md-5">
+                        <input asp-for="Input.KanaName" class="form-control form-control-sm" />
+                        <span asp-validation-for="Input.KanaName" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.NyuusyaYmd" class="col-md-3 col-form-label fw-bold small">
+                        入社年月日<span class="text-danger fw-bold">*</span>
+                    </label>
+                    <div class="col-md-3 position-relative d-flex align-items-center">
+                        <div class="input-group input-local w-100">
+                            <input type="text" asp-for="Input.NyuusyaYmd" class="form-control form-control-sm app-input__textbox" />
+                        </div>
+                        <span asp-validation-for="Input.NyuusyaYmd" class="text-danger small ms-2"></span>
+                        <partial name="Components/_Datepicker"
+                                 model="@(new DatepickerModel { Id = "Input_NyuusyaYmd" })" />
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label class="col-md-3 col-form-label fw-bold small">性別<span class="text-danger fw-bold">*</span></label>
+                    <div class="col-md-5">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="Input.Seibetsu" value="1" id="male" />
+                            <label class="form-check-label" for="male">男</label>
+                        </div>
+                        <div class="form-check form-check-inline ms-3">
+                            <input class="form-check-input" type="radio" asp-for="Input.Seibetsu" value="2" id="female" />
+                            <label class="form-check-label" for="female">女</label>
+                        </div>
+                        <span asp-validation-for="Input.Seibetsu" class="text-danger small d-block"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label class="col-md-3 col-form-label fw-bold small">部署<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <input asp-for="Input.BusyoName" class="form-control form-control-sm bg-light" readonly  />
+                            <input type="hidden" asp-for="Input.BusyoId" id="Input_BusyoId" />
+                            <input type="hidden" asp-for="Input.BusyoCode" id="Input_BusyoCode" />
+                            <button type="button" class="btn btn-primary btn-sm" id="btnSearchBusyo" title="検索">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Input.BusyoId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.GyoumuTypeId" class="col-md-3 col-form-label fw-bold small">業務種別</label>
+                    <div class="col-md-4">
+                        <select asp-for="Input.GyoumuTypeId" asp-items="Model.GyoumuTypeOptions" class="form-select form-select-sm"></select>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center position-relative">
+                    <label asp-for="Input.StartDate" class="col-md-3 col-form-label fw-bold small">
+                        適用開始日<span class="text-danger fw-bold">*</span>
+                    </label>
+                    <div class="col-md-3 position-relative d-flex align-items-center">
+                        <div class="input-group input-local w-100">
+                            <input type="text" asp-for="Input.StartDate" class="form-control form-control-sm app-input__textbox" />
+                        </div>
+                        <span asp-validation-for="Input.StartDate" class="text-danger small ms-2"></span>
+                        <partial name="Components/_Datepicker"
+                                 model="@(new DatepickerModel { Id = "Input_StartDate" })" />
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label class="col-md-3 col-form-label fw-bold small">有効開始日</label>
+                    <div class="col-md-3">
+                        <label style="font-family:'Yu Gothic','游ゴシック',sans-serif; font-size:14px;">
+                            @(Model.Input.StartYmd?.ToString("yyyy-MM-dd") ?? string.Empty)
+                        </label>
+                        <input type="hidden" asp-for="Input.StartYmd" />
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label class="col-md-3 col-form-label fw-bold small">有効終了日</label>
+                    <div class="col-md-3">
+                        <label style="font-family:'Yu Gothic','游ゴシック',sans-serif; font-size:14px;">
+                            @(Model.Input.EndYmd?.ToString("yyyy-MM-dd") ?? string.Empty)
+                        </label>
+                        <input type="hidden" asp-for="Input.EndYmd" />
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.Kyusyoku" class="col-md-3 col-form-label fw-bold small">
+                        級職<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span>
+                    </label>
+                    <div class="col-md-3">
+                        <input asp-for="Input.Kyusyoku" type="text" class="form-control form-control-sm" />
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.SyucyoSyokui" class="col-md-3 col-form-label fw-bold small">出張職位<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
+                    <div class="col-md-4">
+                        <select asp-for="Input.SyucyoSyokui" asp-items="Model.SyucyoSyokuiOptions" class="form-select form-select-sm" id="Input_SyucyoSyokui"></select>
+                        <span asp-validation-for="Input.SyucyoSyokui" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.KingsSyozoku" class="col-md-3 col-form-label fw-bold small">KINGS所属<span class="text-danger fw-bold">*</span></label>
+                    <div class="col-md-3">
+                        <input asp-for="Input.KingsSyozoku" class="form-control form-control-sm" />
+                        <span asp-validation-for="Input.KingsSyozoku" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.KintaiZokuseiId" class="col-md-3 col-form-label fw-bold small">勤怠属性<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
+                    <div class="col-md-4">
+                        <select asp-for="Input.KintaiZokuseiId" asp-items="Model.KintaiZokuseiOptions" class="form-select form-select-sm"></select>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.IsGenkaRendou" class="col-md-3 col-form-label fw-bold small mb-0">
+                        原価連動フラグ<span class="text-primary fw-bold">*</span>
+                    </label>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
+                            <input asp-for="Input.IsGenkaRendou" type="checkbox" class="form-check-input" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.KaisyaCode" class="col-md-3 col-form-label fw-bold small">利用会社<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
+                    <div class="col-md-4">
+                        <select asp-for="Input.KaisyaCode" asp-items="Model.CompanyOptions" class="form-select form-select-sm"></select>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.EMail" class="col-md-3 col-form-label fw-bold small">Email</label>
+                    <div class="col-md-4">
+                        <input asp-for="Input.EMail" class="form-control form-control-sm" />
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.KeitaiMail" class="col-md-3 col-form-label fw-bold small">携帯Mail</label>
+                    <div class="col-md-4">
+                        <input asp-for="Input.KeitaiMail" class="form-control form-control-sm" />
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.PhoneNumber" class="col-md-3 col-form-label fw-bold small">携帯番号</label>
+                    <div class="col-md-3">
+                        <input asp-for="Input.PhoneNumber" class="form-control form-control-sm" />
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Input.Retired" class="col-md-3 col-form-label fw-bold small mb-0">退職フラグ</label>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
+                            <input asp-for="Input.Retired" type="checkbox" class="form-check-input" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 社員関連情報 -->
+        <div class="border border-dark rounded mb-4">
+            <div class="bg-primary text-white px-3 py-2 fw-bold fs-5 rounded-top">
+                社員関連情報
+            </div>
+            <div class="px-4 py-3 border-top border-dark rounded-bottom">
+                <div class="d-flex align-items-center mb-3">
+                    <!-- 左側：有給ラベル -->
+                    <div class="fw-bold small me-3" style="width: 80px;">有給</div>
+
+                    <!-- 右側：4項目を横並び -->
+                    <div class="d-flex flex-grow-1 smmt-paid-leave-group align-items-end">
+                        <div class="smmt-paid-leave-item">
+                            <label class="form-label small">有給割当日数</label>
+                            <input asp-for="Input.Wariate" class="form-control form-control-sm" />
+                        </div>
+                        <div class="smmt-paid-leave-item">
+                            <label class="form-label small">有給繰越日数</label>
+                            <input asp-for="Input.Kurikoshi" class="form-control form-control-sm" />
+                        </div>
+                        <div class="smmt-paid-leave-item">
+                            <label class="form-label small">有給消化日数</label>
+                            <input asp-for="Input.Syouka" class="form-control form-control-sm" />
+                        </div>
+                        <div class="smmt-paid-leave-item">
+                            <label class="form-label small">半日有給消化回数</label>
+                            <input asp-for="Input.HannitiKaisuu" class="form-control form-control-sm smmt-readonly-input" readonly />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <label asp-for="Input.IsOvertimeExcessLimitStart" class="fw-bold small me-3 mb-0" style="width: 120px;">
+                        残業超過制限開始
+                    </label>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="form-check form-switch mb-0">
+                            <input asp-for="Input.IsOvertimeExcessLimitStart" type="checkbox" class="form-check-input" />
+                        </div>
+                        <div>
+                            <input asp-for="Input.OvertimeExcessLimitYm"
+                                   class="form-control form-control-sm smmt-overtime-ym"
+                                   placeholder="yyyy/MM"
+                                   maxlength="7" />
+                            <span asp-validation-for="Input.OvertimeExcessLimitYm" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 権限（ロール＋チェックボックス） -->
+        <div id="authority-section">
+            <partial name="_AuthoritySection" model="Model" />
+        </div>
+
+
+        <!-- 登録ボタン -->
+        <div class="fixed-bottom bg-white border-top border-dark px-3 py-2 text-end">
+            <button type="button" class="btn btn-primary" id="registerBtn"><i class="fa-solid fa-check text-white"></i>登録</button>
+        </div>
+    </form>
+</div>
+
+@section InputScripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(function () {
+            $('#btnSearchBusyo').on('click', openBusyoSearch);
+            const $overtimeStartSwitch = $('#Input_IsOvertimeExcessLimitStart');
+            const $overtimeStartYm = $('#Input_OvertimeExcessLimitYm');
+            let previousRoleId = $('#Input_UserRoleId').val();
+
+            toggleOvertimeExcessLimitYmInput();
+
+            $overtimeStartSwitch.on('change', toggleOvertimeExcessLimitYmInput);
+            $overtimeStartYm.on('blur', function () {
+                $(this).val(formatYearMonth($(this).val()));
+            });
+            $overtimeStartYm.on('input', function () {
+                this.value = this.value.replace(/[^\d\/-]/g, '');
+            });
+
+            // ロール選択時の上書き確認 → 既定権限反映
+            $(document).on('focus', '#Input_UserRoleId', function () {
+                previousRoleId = $(this).val();
+            });
+
+            $(document).on('change', '#Input_UserRoleId', function () {
+                const $currentRoleSelect = $(this);
+                const roleId = $currentRoleSelect.val();
+                if (!roleId) {
+                    previousRoleId = roleId;
+                    return;
+                }
+
+                commonConfirm(
+                    '権限のチェックをロールの初期権限で上書きします。よろしいですか？',
+                    null,
+                    function () {
+                        sendGetAjax('@Url.Page("./Index", "RoleDefaults")', { roleId: roleId }, function (partialView) {
+                            $('#authority-section').html(partialView);
+                            previousRoleId = roleId;
+                        }, false);
+                    },
+                    function () {
+                        $currentRoleSelect.val(previousRoleId);
+                    });
+            });
+
+
+            // 写真設定（ダイアログ起動等は後で実装）
+            $('#btnSetPhoto').on('click', function () {
+                const modalId = 'syain-photo-modal';
+                const url = '@Url.Page("/Maintenance/Syains/Index")';
+                showInputModal(modalId, url, null, '個人設定', null, 1000, 760, 'var(--iframe-header-color)');
+            });
+
+            // 登録
+            $('#registerBtn').on('click', function () {
+                register('登録', 'Register');
+            });
+        });
+
+        function toggleOvertimeExcessLimitYmInput() {
+            const enabled = $('#Input_IsOvertimeExcessLimitStart').is(':checked');
+            const $input = $('#Input_OvertimeExcessLimitYm');
+            $input.prop('readonly', !enabled);
+            $input.toggleClass('smmt-readonly-input', !enabled);
+            if (!enabled) {
+                $input.val('');
+            }
+        }
+
+        function formatYearMonth(value) {
+            if (!value) {
+                return '';
+            }
+
+            const digits = value.toString().replace(/\D/g, '');
+            if (digits.length < 6) {
+                return value.toString().replace('-', '/');
+            }
+
+            return `${digits.substring(0, 4)}/${digits.substring(4, 6)}`;
+        }
+
+        function openBusyoSearch() {
+            const modalId = 'BusyoSearchModal';
+            const url = '@Url.Page("/BusyoSentaku/Index", new { mode = "single" })';
+            const title = '部署選択';
+            showInputModal(modalId, url, null, title, null, 800, 480, 'var(--iframe-header-color)');
+        }
+
+        // 部署選択モーダルから返ってくる
+        window.receiveBusyoSelection = function (payload) {
+            if (!payload || payload.length === 0) return;
+
+            const busyo = payload[0];
+
+            document.getElementById("Input_BusyoName").value = busyo.name;
+            document.getElementById("Input_BusyoId").value = busyo.id;
+            document.getElementById("Input_BusyoCode").value = busyo.code;
+        };
+
+
+        /** 登録 */
+        function register(actionName, handler) {
+            commonConfirm(actionName + 'します。よろしいですか？', null, function () {
+                sendRegisterAjax(toUrl(handler), $('form').serializeArray(), function (data) {
+                    registerSuccessSwal(actionName + 'しました', null, function () {
+                        closeCurrentIziModal();
+                    });
+                });
+            });
+        }
+    </script>
+}

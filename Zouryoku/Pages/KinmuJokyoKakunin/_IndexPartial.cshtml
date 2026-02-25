@@ -34,7 +34,7 @@
                 <td>@row.SyainName</td>
                 <td>@row.ZokuseiName</td>
                 <td>@row.YearMonth</td>
-                <td class="text-end">@row.Jitsudo</td>
+                <td class="text-end">@row.Jitsudo.ToString("F2")</td>
                 <td class="text-end">@row.ZangyoExceptHoliday.ToString("F2")</td>
                 <td class="text-end @row.ZangyoWarnLevel">@row.Zangyo.ToString("F2")</td>
                 <td class="text-end @row.AverageMaxWarnLevel">@row.AverageMax.ToString("F2")</td>
@@ -80,7 +80,7 @@
                 <td>@row.SyainName</td>
                 <td>@row.ZokuseiName</td>
                 <td>@row.YearMonth</td>
-                <td class="text-end">@row.Jitsudo</td>
+                <td class="text-end">@row.Jitsudo.ToString("F2")</td>
 
                 <td class="text-end @row.PaidYearTotalWarnLevel">@row.PaidYearTotal.ToString("F1")</td>
                 <td class="text-end">@row.PaidRemain.ToString("F1")</td>

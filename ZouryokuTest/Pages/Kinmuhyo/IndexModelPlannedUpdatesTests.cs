@@ -1,15 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Model.Model;
-using System.ComponentModel;
 using Zouryoku.Pages.Kinmuhyo;
 using static Model.Enums.ResponseStatus;
-using CommonLibrary.Extensions;
 
 namespace ZouryokuTest.Pages.Kinmuhyo
 {
     [TestClass]
     public class IndexModelPlannedUpdatesTests : BaseInMemoryDbContextTest
     {
+        private static DateTime Today => new DateTime(2025, 7, 2);
+
+        private static DateOnly FixedToday => DateOnly.FromDateTime(Today);
+
         private IndexModel CreateModel()
         {
             var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine)
@@ -27,7 +29,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             model.SyainId = 999;
-            model.YoteiYmd = DateTime.Today.ToDateOnly();
+            model.YoteiYmd = FixedToday;
 
             // Act
             var result = await model.OnPostUpdatePlannedWorkAsync();
@@ -49,8 +51,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             {
                 Id = 1,
                 Name = "T",
-                StartYmd = DateTime.Today.AddYears(-1).ToDateOnly(),
-                EndYmd = DateTime.Today.AddYears(1).ToDateOnly(),
+                StartYmd = FixedToday.AddYears(-1),
+                EndYmd = FixedToday.AddYears(1),
                 Code = "S0001",
                 BusyoCode = "B001",
                 KanaName = "ティー",
@@ -58,7 +60,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             };
             db.Syains.Add(syain);
 
-            var ymd = DateTime.Today.ToDateOnly();
+            var ymd = FixedToday;
             var yotei = new NippouYotei
             {
                 Id = 1,
@@ -98,7 +100,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
 
             model.SyainId = 999;
-            model.YoteiYmd = DateTime.Today.ToDateOnly();
+            model.YoteiYmd = FixedToday;
             model.ZangyouJikan = 5;
 
             // Act
@@ -121,8 +123,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             {
                 Id = 2,
                 Name = "U",
-                StartYmd = DateTime.Today.AddYears(-1).ToDateOnly(),
-                EndYmd = DateTime.Today.AddYears(1).ToDateOnly(),
+                StartYmd = FixedToday.AddYears(-1),
+                EndYmd = FixedToday.AddYears(1),
                 Code = "S0002",
                 BusyoCode = "B001",
                 KanaName = "ユー",
@@ -130,7 +132,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             };
             db.Syains.Add(syain);
 
-            var ymd = DateTime.Today.ToDateOnly();
+            var ymd = FixedToday;
             var yotei = new NippouYotei
             {
                 Id = 2,

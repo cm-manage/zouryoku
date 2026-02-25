@@ -70,7 +70,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // Assert
             // ----------------------------------
 
-            // 部署ID
+            // 部署名
             Assert.AreEqual(LoginUser.Busyo.Name, model.SearchConditions.Busyo.Name);
         }
 
@@ -98,7 +98,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // Assert
             // ----------------------------------
 
-            // 部署ID
+            // 検索範囲
             Assert.AreEqual(部署, model.SearchConditions.Busyo.Range);
         }
 
@@ -134,7 +134,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // Assert
             // ----------------------------------
 
-            // 部署ID
+            // 日付
             Assert.AreEqual(new DateOnly(2026, 2, 15), model.SearchConditions.Date);
         }
 
@@ -149,7 +149,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
 
             // 確定期限の翌営業日
             fakeTimeProvider.SetLocalNow(new(2026, 2, 4));
-            var model = CreateIndexModel(勤務日報未確定者への通知);
+            var model = CreateIndexModel(勤務日報未確定チェック);
 
             // 先月分の確定期限をモックしておく
             db.Add(new JissekiKakuteiSimebi()
@@ -166,7 +166,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // Assert
             // ----------------------------------
 
-            // 部署ID
+            // 通知可能フラグ
             Assert.IsTrue(model.CanNotify);
         }
 
@@ -196,7 +196,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // Assert
             // ----------------------------------
 
-            // 部署ID
+            // 通知可能フラグ
             Assert.IsFalse(model.CanNotify);
         }
     }

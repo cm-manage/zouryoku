@@ -59,6 +59,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
         // ======================================
         // テスト
         // ======================================
+
         [TestMethod]
         [DataRow(みなし対象者, DisplayName = "みなし対象者")]
         [DataRow(_3か月60時間, DisplayName = "3か月60時間")]
@@ -171,8 +172,8 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // Arrange
             // ----------------------------------
 
-            fakeTimeProvider.SetLocalNow(new(2026, 7, 15));
-            var today = fakeTimeProvider.Today();
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var inputDate = new DateOnly(2026, 2, 15);
             var model = CreateIndexModel();
 
@@ -277,8 +278,8 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // Arrange
             // ----------------------------------
 
-            fakeTimeProvider.SetLocalNow(new(2026, 7, 15));
-            var today = fakeTimeProvider.Today();
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var inputDate = new DateOnly(2026, 2, 15);
             var model = CreateIndexModel();
 
@@ -1455,7 +1456,6 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // ----------------------------------
 
             fakeTimeProvider.SetLocalNow(new(2026, 7, 15));
-            var now = fakeTimeProvider.Now();
             var inputDate = new DateOnly(2026, 2, 15);
             var model = CreateIndexModel();
 
@@ -1589,7 +1589,6 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // ----------------------------------
 
             fakeTimeProvider.SetLocalNow(new(2026, 7, 15));
-            var now = fakeTimeProvider.Now();
             var inputDate = new DateOnly(2026, 2, 15);
             var model = CreateIndexModel();
 

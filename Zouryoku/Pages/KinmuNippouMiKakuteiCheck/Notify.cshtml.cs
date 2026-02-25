@@ -12,14 +12,14 @@ using static Model.Enums.AchievementClassification;
 using static Model.Enums.EmployeeAuthority;
 using static Model.Enums.FunctionalClassification;
 using static Zouryoku.Utils.Const;
-using static Zouryoku.Utils.MikakuteiTsuchiUtil;
+using static Zouryoku.Utils.JissekiKakuteiSimeUtil;
 
 namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 {
     /// <summary>
     /// 日報未確定通知画面のページモデル
     /// </summary>
-    [FunctionAuthorization(勤務日報未確定者への通知)]
+    [FunctionAuthorization(勤務日報未確定チェック)]
     public partial class NotifyModel : BasePageModel<NotifyModel>
     {
         /// <summary>
@@ -80,10 +80,11 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // ----------------------------------
 
             // 通知対象の実績期間
-            var jissekiSpan = await GetJissekiSpanAsync(db, today);
+            var jissekiSpan = await GetCanNotifyJissekiSpanAsync(db, today);
 
             // システム日付が通知可能期間外なら403へリダイレクト
-            if (!await IsInNotificationPeriodAsync(db, today, jissekiSpan))
+            if (!await IsInNotificationPeriodAsync(
+                db, today, jissekiSpan.JissekiSimebiYmd, jissekiSpan.JissekiKakuteiKigenInfo.KakuteiKigenYmd))
             {
                 return new RedirectResult("/page403/");
             }
@@ -128,10 +129,11 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // ----------------------------------
 
             // 通知対象の実績期間
-            var jissekiSpan = await GetJissekiSpanAsync(db, today);
+            var jissekiSpan = await GetCanNotifyJissekiSpanAsync(db, today);
 
             // システム日付が通知可能期間外なら403へリダイレクト
-            if (!await IsInNotificationPeriodAsync(db, today, jissekiSpan))
+            if (!await IsInNotificationPeriodAsync(
+                db, today, jissekiSpan.JissekiSimebiYmd, jissekiSpan.JissekiKakuteiKigenInfo.KakuteiKigenYmd))
             {
                 return new RedirectResult("/page403/");
             }

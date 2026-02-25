@@ -12,20 +12,26 @@
     {
         <input type="hidden" value="@syainBaseId" asp-for="@Model.ReceiveSyainBaseIds" />
     }
-    <div class="app-area__header">
-        <div class="mt-3">
-            <pre>@NippouMikakuteiTsuchiConfirmation</pre>
-        </div>
+    <div class="app-screen--single-form">
+        <div class="app-area__header">
+            <div class="mt-3">
+                <pre>@NippouMikakuteiTsuchiConfirmation</pre>
+            </div>
 
-        <label class="form-label app-input__label fw-bold mt-3" asp-for="SendMessage"></label>
-        <textarea class="app-input__textarea d-block" rows="3" cols="60" asp-for="SendMessage" readonly></textarea>
+            <label class="form-label app-input__label fw-bold mt-3" asp-for="SendMessage"></label>
+            <textarea class="app-input__textarea d-block" rows="3" cols="60" asp-for="SendMessage" readonly></textarea>
+        </div>
+        <div class="mt-3">
+            <partial name="_NotificationHistories" model="Model.MikakuteiTsuchiRirekis" />
+        </div>
+        <div class="app-area__footer">
+            <div class="text-end p-2">
+                <button id="send-btn" class="btn app-btn__base btn-success m-3" type="button">
+                    <i class="fa-solid fa-check"></i>通知を送信
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="app-area__body mt-3">
-        <partial name="_NotificationHistories" model="Model.MikakuteiTsuchiRirekis" />
-    </div>
-    <button id="send-btn" class="btn app-btn__base btn-success mt-3" type="button">
-        <i class="fa-solid fa-check"></i>通知を送信
-    </button>
 </form>
 
 @section Scripts {

@@ -16,7 +16,6 @@ using static Model.Enums.EmployeeWorkType;
 using static Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel.BusyoRange;
 using static ZouryokuCommonLibrary.Utils.DateOnlyUtil;
 using static Zouryoku.Utils.JissekiKakuteiSimeUtil;
-using static Zouryoku.Utils.MikakuteiTsuchiUtil;
 
 namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 {
@@ -107,7 +106,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // ----------------------------------
 
             // 通知対象の実績期間
-            var jissekiSpan = await GetJissekiSpanAsync(db, Today);
+            var jissekiSpan = await GetCanNotifyJissekiSpanAsync(db, Today);
 
             // 検索日付の初期条件
             var simebi = jissekiSpan.JissekiSimebiYmd;
@@ -125,8 +124,9 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // 通知可能かどうかのチェック
             // ----------------------------------
 
-            CanNotify = LoginInfo.User.IsNotificationReportUnconfirmed
-                && await IsInNotificationPeriodAsync(db, Today, jissekiSpan);
+            CanNotify = LoginInfo.User.IsCheckPendingReports
+                && await IsInNotificationPeriodAsync(db, Today, jissekiSpan.JissekiSimebiYmd, 
+                    jissekiSpan.JissekiKakuteiKigenInfo.KakuteiKigenYmd);
         }
 
         /// <summary>
@@ -287,14 +287,14 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             }
 
             // 次回締め日の年月
-            var nextSimebiYmd = simebi.GetStartOfMonth().AddMonths(1);
+            var nextSimebiYmd = simebi.GetEndOfMonth().AddMonths(1);
 
             var kakuteiKigenInfos = await GetKakuteiShimeKigenAsync(db, nextSimebiYmd);
 
             return new DateOnly(
                 nextSimebiYmd.Year,
                 nextSimebiYmd.Month,
-                kakuteiKigenInfos.Any(k => k.Kubun == 中締め) ? NakajimeDay : nextSimebiYmd.GetEndOfMonth().Day);
+                kakuteiKigenInfos.Any(k => k.Kubun == 中締め) ? NakajimeDay : nextSimebiYmd.Day);
         }
     }
 }

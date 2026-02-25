@@ -57,7 +57,11 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
 
         private IndexModel CreateModel()
         {
-            IndexModel model = new IndexModel(db, GetLogger<IndexModel>(), options = CreateOptions(), viewEngine, fakeTimeProvider)
+            IndexModel model = new IndexModel(
+                db, GetLogger<IndexModel>(),
+                options = CreateOptions(),
+                viewEngine,
+                fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData(),

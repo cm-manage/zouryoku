@@ -107,7 +107,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         .GetCustomAttribute<DisplayAttribute>()?
                         .Name;
 
-                    ModelState.AddModelError(nameof(Search.Busyo), string.Format(DateMustBeBefore, fromDisplay, toDisplay));
+                    ModelState.AddModelError(nameof(Search.Busyo),
+                        string.Format(DateMustBeBefore, fromDisplay, toDisplay));
                     check = false;
                 }
 
@@ -156,7 +157,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             var syains = await db.Syains
                     .AsNoTracking()
                     .Include(s => s.Busyo)
-                        .Where(x => selectedBusyoIds.Length == 0 || selectedBusyoIds.Contains(x.BusyoId)) // 「全社」or選択中の部署
+                        .Where(x => selectedBusyoIds.Length == 0 
+                            || selectedBusyoIds.Contains(x.BusyoId)) // 「全社」or選択中の部署
                     .Include(s => s.KintaiZokusei)
                     .Include(s => s.Nippous
                         .Where(n =>
@@ -286,13 +288,25 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         // TODO 残業の閾値について、未定
                         ZangyoWarnLevel = "",
                         AverageMax = avgMax,
-                        AverageMaxWarnLevel = GetWarnLevelCssByZangyoValue(avgMax, appSettings.AvgMaxWarn, appSettings.AvgMaxNotice),
+                        AverageMaxWarnLevel = GetWarnLevelCssByZangyoValue(
+                            avgMax,
+                            appSettings.AvgMaxWarn,
+                            appSettings.AvgMaxNotice),
                         YearTotal = yearTotalZangyoExceptHoliday,
-                        YearTotalWarnLevel = GetWarnLevelCssByZangyoValue(yearTotalZangyoExceptHoliday, appSettings.YearTotalZangyoExceptHolidayWarn, appSettings.YearTotalZangyoExceptHolidayNotice),
+                        YearTotalWarnLevel = GetWarnLevelCssByZangyoValue(
+                            yearTotalZangyoExceptHoliday,
+                            appSettings.YearTotalZangyoExceptHolidayWarn,
+                            appSettings.YearTotalZangyoExceptHolidayNotice),
                         OverLimitCount = c == 0 ? null : overLimitCount,// ※超えた月のみ表示
-                        OverLimitCountWarnLevel = GetWarnLevelCssByZangyoValue(overLimitCount, appSettings.OverLimitCountWarn, appSettings.OverLimitCountNotice),
+                        OverLimitCountWarnLevel = GetWarnLevelCssByZangyoValue(
+                            overLimitCount,
+                            appSettings.OverLimitCountWarn,
+                            appSettings.OverLimitCountNotice),
                         MaxConsecutiveWorkingDays = maxConsecutiveStr,
-                        MaxConsecutiveWorkingDaysWarnLevel = GetWarnLevelCssByZangyoValue(maxConsecutiveNum, appSettings.MaxConsecutiveWorkingDaysWarn, appSettings.MaxConsecutiveWorkingDaysNotice),
+                        MaxConsecutiveWorkingDaysWarnLevel = GetWarnLevelCssByZangyoValue(
+                            maxConsecutiveNum,
+                            appSettings.MaxConsecutiveWorkingDaysWarn,
+                            appSettings.MaxConsecutiveWorkingDaysNotice),
                     };
 
                     // 有給年度
@@ -336,7 +350,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     else
                     {
                         // 履歴テーブルを見る
-                        wariate = s.SyainBase.YukyuRirekis.SingleOrDefault(z => z.YukyuNendo.Nendo == yukyuNendo)?.Wariate ?? 0;
+                        wariate = s.SyainBase.YukyuRirekis
+                            .SingleOrDefault(z => z.YukyuNendo.Nendo == yukyuNendo)?.Wariate ?? 0;
                     }
 
                     // ■有給休暇_残日数
@@ -608,7 +623,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         }
 
         /// <summary>
-        /// 指定した年月を起点として、「直近2ヶ月～直近6ヶ月」の各期間における月平均残業時間を算出し、その最大値を返す。
+        /// 指定した年月を起点として、「直近2ヶ月～直近6ヶ月」の各期間における月平均残業時間を算出し、
+        /// その最大値を返す。
         /// ※対象期間内にデータが存在しない月は無視し、存在する月のみで平均を計算する。
         /// </summary>
         /// <param name="baseYear">集計対象の年</param>

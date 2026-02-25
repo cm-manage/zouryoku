@@ -1,7 +1,10 @@
 using Amazon.Auth.AccessControlPolicy;
+using LanguageExt;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Model.Enums;
 using Model.Model;
+using System.Threading.Tasks;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.SyainMasterMaintenanceKensaku;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
@@ -27,6 +30,11 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
         }
 
         /// <summary>
+        /// 保存するセッション名
+        /// </summary>
+        public const string SaveSessionName = "selectedBusyoId";
+
+        /// <summary>
         /// BASEテーブルの共通シード
         /// </summary>
         private void SeedBase()
@@ -38,20 +46,18 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
 
             // 勤怠属性
             var kintai3Months60Hours = new KintaiZokuseiBuilder()
-                .WithId((short) _3か月60時間)
+                .WithId((short)_3か月60時間)
                 .WithName("_3か月60時間")
                 .Build();
 
             var kintaiPartTime = new KintaiZokuseiBuilder()
-                .WithId((short) パート)
+                .WithId((short)パート)
                 .WithName("パート")
                 .Build();
 
             var kintaiMinashi = new KintaiZokuseiBuilder()
                 .WithId((short)みなし対象者)
                 .WithName("みなし対象者")
-                .WithIsMinashi(true)
-                .WithCode(みなし対象者)
                 .Build();
 
             db.AddRange(kintai3Months60Hours, kintaiPartTime, kintaiMinashi);
@@ -160,6 +166,19 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             db.AddRange(syain1, syain2, syain3);
         }
 
+        /// <summary>
+        /// 勤怠属性データ追加
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<KintaiZoukusei>> InitializeKintaiZokuseis()
+        {
+            return new List<KintaiZoukusei>
+            {
+                new KintaiZoukusei { Id = (long)みなし対象者, Name = みなし対象者.ToString() },
+                new KintaiZoukusei { Id = (long)_3か月60時間, Name = _3か月60時間.ToString() }
+            };
+        }
+
         // =====================================================================
         // OnGetAsync テスト
         // =====================================================================
@@ -172,6 +191,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
         {
             // Arrange
             SeedBase();
+            await InitializeKintaiZokuseis_勤怠属性にデータ追加();
             await db.SaveChangesAsync();
 
             var model = CreateModel();
@@ -311,6 +331,21 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
                 "返されること");
         }
 
+        /// <summary>
+        /// 勤怠属性にデータ取得
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod(DisplayName = "InitializeKintaiZokuseis_勤怠属性にデータ追加")]
+        public async Task InitializeKintaiZokuseis_勤怠属性にデータ追加()
+        {
+            var kintaiZokuseisList = await InitializeKintaiZokuseis();
+
+            var defaultKintaiZokuseiId = kintaiZokuseisList.FirstOrDefault(k => k.Id == (long)みなし対象者)?.Id;
+            var name = kintaiZokuseisList.FirstOrDefault(k => k.Id == (long)みなし対象者)?.Name;
+
+            Assert.AreEqual(1, defaultKintaiZokuseiId);
+            Assert.AreEqual("みなし対象者", name);
+        }
         // =====================================================================
         // OnGetSearchAsync テスト: フィルター条件
         // =====================================================================
@@ -405,10 +440,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
         /// <summary>
         /// ⑩-A 検索: 退職者OFF時に退職者が取得されないこと
         /// </summary>
-        [TestMethod(DisplayName =
-            "社員名で退職者を検索したとき、退職者OFFでは取得されないこと")]
-        public async Task
-            OnPostSearchAsync_社員名で退職者を検索_退職者OFFでは取得されないこと()
+        [TestMethod(DisplayName = "社員名で退職者を検索したとき、退職者OFFでは取得されないこと")]
+        public async Task OnPostSearchAsync_社員名で退職者を検索_退職者OFFでは取得されないこと()
         {
             // Arrange（準備）
             CreateConditionRecords();
@@ -429,10 +462,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
         /// <summary>
         /// ⑩-B 検索: 退職者ON時に退職者が取得されること
         /// </summary>
-        [TestMethod(DisplayName =
-            "社員名で退職者を検索したとき、退職者ONでは取得されること")]
-        public async Task
-            OnPostSearchAsync_社員名で退職者を検索_退職者ONでは取得されること()
+        [TestMethod(DisplayName = "社員名で退職者を検索したとき、退職者ONでは取得されること")]
+        public async Task OnPostSearchAsync_社員名で退職者を検索_退職者ONでは取得されること()
         {
             // Arrange（準備）
             CreateConditionRecords();
@@ -720,7 +751,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
                 Kyusyoku = 5,
                 Retired = true,
                 Busyo = new Busyo { Name = "テスト部署" },
-                KintaiZokusei = new KintaiZokusei { Name = "通常" },
+                KintaiZokusei = new Model.Model.KintaiZokusei { Name = "通常" },
                 UserRole = new UserRole { Name = "管理者" }
             };
 
@@ -754,7 +785,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
                 Kyusyoku = 2,
                 Retired = false,
                 Busyo = new Busyo { Name = "営業部" },
-                KintaiZokusei = new KintaiZokusei { Name = "シフト" },
+                KintaiZokusei = new Model.Model.KintaiZokusei { Name = "シフト" },
                 UserRole = new UserRole { Name = "一般" }
             };
 
@@ -792,6 +823,28 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
 
             // Assert
             Assert.AreSame(condition, model.Condition, "Conditionのsetter/getterで同一インスタンスが保持されること");
+        }
+
+        /// <summary>
+        /// 正常系：社員名リンク押下場合、セッションに最終選択社員BaseIdが格納されている
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod(DisplayName = "ValidateSelection_社員BaseIdをセッションに保存")]
+        public async Task ValidateSelection_社員BaseIdをセッションに保存()
+        {
+            // Arrange
+            var model = CreateModel();
+            var input = new IndexModel.ValidateSelectionRequest
+            {
+                SyainBaseId = 10
+            };
+
+            // Act
+            await model.OnPostValidateSelectionAsync(input);
+            var busyoId = model.HttpContext.Session.Get<long>(SaveSessionName);
+
+            // Assert
+            Assert.AreEqual(1, busyoId);
         }
     }
 }

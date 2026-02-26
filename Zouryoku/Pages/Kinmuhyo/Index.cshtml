@@ -67,24 +67,26 @@
     </div>
 
     <div class="d-flex align-items-center gap-1 px-0 mb-2">
-        <button id="prev-month-btn" class="btn btn-primary" type="button" aria-label="前月">
+        <button id="prev-month-btn" class="btn btn-primary" type="button" aria-label="previous month">
             <i class="fa-solid fa-angle-left"></i>
         </button>
-        <div class="month-wrapper">
-            <input type="month"
-                   id="month-native"
-                   class="form-control month-search"
-                   aria-label="表示年月"
-                   value="@Model.ViewModel.DisplayYearMonthDate.ToString("yyyy-MM")" />
-
-            <button type="button"
-                    id="openMonth"
-                    aria-label="月選択"
-                    class="btn btn-primary btn-lg position-absolute top-0 end-0 d-flex align-items-center justify-content-center rounded-start-0 month-selector">
+        <div class="input-group app-month-input">
+            <input id="target-ym-input"
+                   class="form-control app_input__textbox"
+                   type="text"
+                   value="@Model.ViewModel.DisplayYearMonth"
+                   readonly
+                   aria-label="display year month" />
+            <input id="target-ym-picker"
+                   class="visually-hidden"
+                   type="month"
+                   value="@Model.ViewModel.DisplayYearMonthDate.ToString("yyyy-MM")"
+                   tabindex="-1" />
+            <button id="target-ym-picker-btn" class="btn btn-primary" type="button" aria-label="select month">
                 <i class="fa-solid fa-calendar-days"></i>
             </button>
         </div>
-        <button id="next-month-btn" class="btn btn-primary" type="button" aria-label="次月">
+        <button id="next-month-btn" class="btn btn-primary" type="button" aria-label="next month">
             <i class="fa-solid fa-angle-right"></i>
         </button>
     </div>
@@ -257,9 +259,8 @@
         text-decoration: none;
     }
 
-    .month-wrapper {
-        position: relative;
-        width: 15rem;
+    .app-month-input {
+        width: 10rem;
     }
 
     .app-apply-btn {
@@ -295,6 +296,22 @@
         let breakTimeHours = @Model.ViewModel.BreakTimeHours; // C# 側で算出した休憩時間（時間単位）
 
         // ヘルパー: URL の SyainId と NippouYmd を更新（ブラウザ履歴は置換）
+        const $targetYmInput = $('#target-ym-input');
+        const $targetYmPicker = $('#target-ym-picker');
+
+        function syncTargetYmDisplay() {
+            const yyyy = String(currentYear).padStart(4, '0');
+            const mm = String(currentMonth).padStart(2, '0');
+            $targetYmInput.val(`${yyyy}/${mm}`);
+            $targetYmPicker.val(`${yyyy}-${mm}`);
+        }
+
+        function addTargetYmMonth(deltaMonths) {
+            const ym = new Date(currentYear, currentMonth - 1 + deltaMonths, 1);
+            currentYear = ym.getFullYear();
+            currentMonth = ym.getMonth() + 1;
+        }
+
         function updateBrowserUrl(syainId, year, month, day) {
             const d = day || 1;
             const mm = String(month).padStart(2, '0');
@@ -461,6 +478,7 @@
         $(function () {
             // 初期ボタン状態の更新
             updateEmployeeNavButtons();
+            syncTargetYmDisplay();
 
             // 予定ボタン切替（出/休） - use boolean data-work
             $(document).on('click', '.planned-work-btn', function () {
@@ -610,27 +628,26 @@
 
             // 月移動
             $(document).on('click', '#prev-month-btn', function () {
-                let y = currentYear;
-                let m = currentMonth - 1;
-                if (m < 1) { m = 12; y -= 1; }
-                currentYear = y; currentMonth = m;
-
-                const nativeVal = ('' + y) + '-' + (m.toString().padStart(2, '0'));
-                $('#month-native').val(nativeVal).trigger('change');
+                addTargetYmMonth(-1);
+                syncTargetYmDisplay();
+                const empId = $('#SyainId').val() || getEmpIdByIndex(findIndexById(currentSelectedId));
+                loadDisplayDataForEmp(empId, currentYear, currentMonth);
             });
 
             $(document).on('click', '#next-month-btn', function () {
-                let y = currentYear;
-                let m = currentMonth + 1;
-                if (m > 12) { m = 1; y += 1; }
-                currentYear = y; currentMonth = m;
-
-                const nativeVal = ('' + y) + '-' + (m.toString().padStart(2, '0'));
-                $('#month-native').val(nativeVal).trigger('change');
+                addTargetYmMonth(1);
+                syncTargetYmDisplay();
+                const empId = $('#SyainId').val() || getEmpIdByIndex(findIndexById(currentSelectedId));
+                loadDisplayDataForEmp(empId, currentYear, currentMonth);
             });
 
-            $(document).on('change', '#month-native', function () {
-                const val = $(this).val();
+            $(document).on('click', '#target-ym-input,#target-ym-picker-btn', function () {
+                syncTargetYmDisplay();
+                $targetYmPicker[0].showPicker?.();
+            });
+
+            $(document).on('change', '#target-ym-picker', function () {
+                const val = $targetYmPicker.val();
                 if (!val) return;
                 const parts = ('' + val).split('-');
                 if (parts.length !== 2) return;
@@ -639,13 +656,9 @@
                 const m = parseInt(parts[1], 10);
                 if (isNaN(y) || isNaN(m)) return;
                 currentYear = y; currentMonth = m;
+                syncTargetYmDisplay();
                 const empId = $('#SyainId').val() || getEmpIdByIndex(findIndexById(currentSelectedId));
                 loadDisplayDataForEmp(empId, currentYear, currentMonth);
-            });
-
-            $(document).on('click', '#openMonth', function () {
-                $('#month-native').focus();
-                $('#month-native')[0].showPicker?.();
             });
 
             // 社員検索モーダルを開く

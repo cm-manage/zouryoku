@@ -166,9 +166,16 @@ namespace Zouryoku.Pages.Kinmuhyo
 
             // 1. 残業時間行
             var totalHours = workStatus.TotalOvertimeHours.TotalHours;
+            var averageTotalHours = workStatus.AverageOvertime.TotalHours;
+            bool hasOvertime = workStatus.TotalOvertimeHours > TimeSpan.Zero;
+            bool hasAverageOvertime = workStatus.AverageOvertime > TimeSpan.Zero;
             string overTimeValue = $"{(int)totalHours:D2}:{workStatus.TotalOvertimeHours.Minutes:D2}";
-            var averagetotalHours = workStatus.AverageOvertime.TotalHours;
-            string averageOverTimeValue = $"{(int)averagetotalHours:D2}:{workStatus.AverageOvertime.Minutes:D2}";
+            string averageOverTimeValue = $"{(int)averageTotalHours:D2}:{workStatus.AverageOvertime.Minutes:D2}";
+            string timeValue = overTimeValue;
+            if (!hasOvertime && hasAverageOvertime)
+            {
+                timeValue = averageOverTimeValue;
+            }
             string? message = null;
             int titleLevel = LevelPrimary;
             int messageLevel = 0;
@@ -177,7 +184,7 @@ namespace Zouryoku.Pages.Kinmuhyo
 
             // 当月の残業アラート
             AddOvertimeAlert(
-                ref message, ref titleLevel,ref messageLevel, totalHours,
+                ref message, ref titleLevel, ref messageLevel, totalHours,
                 OvertimeRedThreshold100, OvertimeYellowThreshold100, Limit100,
                 workStatus.OvertimeExtensionStatus, 
                 isExempt);
@@ -203,10 +210,9 @@ namespace Zouryoku.Pages.Kinmuhyo
                     ? "-"
                     : string.Format(
                         OvertimeScheduledMessage, 
-                        overTimeValue, 
+                        timeValue, 
                         workStatus.OvertimeExtensionStatus);
             }
-
 
             // 2-6か月平均による残業アラート
             if (workStatus.AverageOvertime.TotalHours >= AverageOvertimeYellowThreshold)
@@ -225,7 +231,7 @@ namespace Zouryoku.Pages.Kinmuhyo
             rows.Add(
                 new KinmuJokyoRowViewModel(
                     Label: OvertimeLabel,
-                    Value: averageOverTimeValue,
+                    Value: timeValue,
                     Description: message ?? DashValue,
                     TitleLevel: titleLevel,
                     MessageLevel: messageLevel));

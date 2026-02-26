@@ -1,17 +1,20 @@
 @page
+@using System.Globalization
 @model Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae.IndexModel
 @{
     ViewData["Title"] = "部署順序並び替え";
 
     // CSSの階層ごとのスタイルを計算するためのパラメータと関数
-    var cssLightnessDecrement = 0.02; // 階層ごとの明度の減少量
-    var cssChromaIncrement = 0.04; // 階層ごとの彩度の増加量
-    var cssBorderWidthBase = 2.0; // 階層0のボーダー幅（px）
-    var cssBorderWidthDecrement = 0.25; // 階層ごとのボーダー幅の減少量（px）
-    var cssBorderWidthMin = 1.0; // ボーダー幅の最小値（px）
-    string GetLightnessMultiplier(int level) => $"{1 - level * cssLightnessDecrement:0.###}";
-    string GetChromaOffset(int level) => $"{0 + level * cssChromaIncrement:0.###}";
-    string GetBorderWidth(int level) => $"{Math.Max(cssBorderWidthBase - level * cssBorderWidthDecrement, cssBorderWidthMin):0.###}px";
+    const double CssLightnessDecrement = 0.02; // 階層ごとの明度の減少量
+    const double CssChromaIncrement = 0.04; // 階層ごとの彩度の増加量
+    const double CssBorderWidthBase = 2.0; // 階層0のボーダー幅（px）
+    const double CssBorderWidthDecrement = 0.25; // 階層ごとのボーダー幅の減少量（px）
+    const double CssBorderWidthMin = 1.0; // ボーダー幅の最小値（px）
+    const string CssBorderWidthHoverString = "6px"; // ホバー時のボーダー幅（px）
+    string GetLightnessMultiplier(int level) => (1 - level * CssLightnessDecrement).ToString("0.###", CultureInfo.InvariantCulture);
+    string GetChromaOffset(int level) => (0 + level * CssChromaIncrement).ToString("0.###", CultureInfo.InvariantCulture);
+    string GetBorderWidth(int level) => Math.Max(CssBorderWidthBase - level * CssBorderWidthDecrement, CssBorderWidthMin)
+        .ToString("0.###", CultureInfo.InvariantCulture) + "px";
 }
 
 <div class="app-screen--entry">
@@ -120,17 +123,34 @@
             var hoverChromaOffset = GetChromaOffset(i + 1);
             <text>
             .app-busyo-level-@cssLevel {
+                /* フォールバック（oklch未対応ブラウザ向け） */
+                background-color: var(--bs-primary-bg-subtle);
+                border: @borderWidth solid var(--bs-primary);
+                /* モダンブラウザ向け（oklch対応の場合はこちらが優先される） */
                 background-color: oklch(from var(--bs-primary-bg-subtle) calc(l * @lightnessMultiplier) calc(c + @chromaOffset) h);
                 border: @borderWidth solid oklch(from var(--bs-primary) calc(l * @lightnessMultiplier) c h);
                 /* ボーダー幅の変更で中身がずれないように補正 */
                 padding-left: calc(var(--bs-list-group-item-padding-x) - @borderWidth);
             }
-            /* ホバー時は1階層暗く表示する */
+            /* ホバー時は1階層暗く表示する（:has未対応ブラウザ向けのフォールバック） */
+            .app-busyo-level-@cssLevel:hover {
+                background-color: var(--bs-primary-bg-subtle);
+                border-left: @CssBorderWidthHoverString solid var(--bs-primary);
+                /* ボーダー幅の変更で中身がずれないように補正 */
+                padding-left: calc(var(--bs-list-group-item-padding-x) - @CssBorderWidthHoverString);
+            }
+            /* ホバー時は1階層暗く表示する（:has対応ブラウザ向けの詳細な指定） */
+            .app-busyo-level-@cssLevel:hover {
+                background-color: oklch(from var(--bs-primary-bg-subtle) calc(l * @lightnessMultiplier) calc(c + @chromaOffset) h);
+                border-left: @borderWidth solid var(--bs-primary);
+                /* ボーダー幅の変更で中身がずれないように補正 */
+                padding-left: calc(var(--bs-list-group-item-padding-x) - @borderWidth);
+            }
             .app-busyo-level-@cssLevel:hover:not(:has(.list-group-item:hover)) {
                 background-color: oklch(from var(--bs-primary-bg-subtle) calc(l * @hoverLightnessMultiplier) calc(c + @hoverChromaOffset) h);
-                border-left: 6px solid oklch(from var(--bs-primary) calc(l * @hoverLightnessMultiplier) c h);
+                border-left: @CssBorderWidthHoverString solid oklch(from var(--bs-primary) calc(l * @hoverLightnessMultiplier ) c h);
                 /* ボーダー幅の変更で中身がずれないように補正 */
-                padding-left: calc(var(--bs-list-group-item-padding-x) - 6px);
+                padding-left: calc(var(--bs-list-group-item-padding-x) - @CssBorderWidthHoverString);
             }
             </text>
         }

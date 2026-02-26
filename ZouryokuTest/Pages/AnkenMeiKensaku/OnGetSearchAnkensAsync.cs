@@ -38,6 +38,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         public async Task OnGetSearchAnkensAsync_各テーブルが外部結合されていること
             (long kokyakuKaisyaId, long ankenSyainBaseId, long syainBaseId, long kingsJuchuId)
         {
+            // Arrange
+            fakeTimeProvider.SetLocalNow(new(2026, 2, 15));
             var anken = new Anken()
             {
                 KokyakuKaisyaId = kokyakuKaisyaId,
@@ -82,7 +84,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             var kingsJuchu = new KingsJuchu()
             {
                 Id = 1,
-                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
+                Nendo = 2026,
                 // 不要なNOT NULLカラムに適当に値を詰める
                 JucYmd = DateOnly.MinValue,
                 EntYmd = DateOnly.MinValue,
@@ -144,6 +146,9 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         public async Task OnGetSearchAnkensAsync_データを取得していること(int startYmdOffset, int endYmdOffset, string? expectedSekininSyaName)
         {
             // Arrange
+            var now = new DateTime(2026, 2, 15);
+            fakeTimeProvider.SetLocalNow(now);
+
             var expectedAnkenId = 1;
             var expectedAnkenName = "案件名称";
             var expectedKokyakuName = "顧客名称";
@@ -180,8 +185,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             {
                 SyainBaseId = 1,
                 Name = expectedSekininSyaName ?? "取得されないデータ",
-                StartYmd = fakeTimeProvider.Today().AddDays(startYmdOffset),
-                EndYmd = fakeTimeProvider.Today().AddDays(endYmdOffset),
+                StartYmd = now.ToDateOnly().AddDays(startYmdOffset),
+                EndYmd = now.ToDateOnly().AddDays(endYmdOffset),
                 // 不要なNOT NULLカラムに適当に値を詰める
                 Code = string.Empty,
                 KanaName = string.Empty,
@@ -212,7 +217,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
                 JucKin = jucKin,
                 ChaYmd = chaYmd,
                 NsyYmd = nsyYmd,
-                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
+                Nendo = 2026,
                 // 不要なNOT NULLカラムに適当に値を詰める
                 JucYmd = DateOnly.MinValue,
                 EntYmd = DateOnly.MinValue,
@@ -289,6 +294,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             string? kokyakuName, string? ankenName, long? sekininSyaId, bool isOwnBusyoOnly, bool showGentaToketsu)
         {
             // Arrange
+            fakeTimeProvider.SetLocalNow(new(2026, 2, 15));
+
             var chaYmd = new DateOnly(2025, 1, 1);
             var anken = new Anken()
             {
@@ -340,7 +347,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
                 JuchuuNo = "受注番号",
                 JuchuuGyoNo = 1,
                 ChaYmd = new DateOnly(2025, 1, 1),
-                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
+                Nendo = 2026,
                 IsGenkaToketu = false,
                 SekouBumonCd = LoginUserBusyoCode,
                 // 不要なNOT NULLカラムに適当に値を詰める
@@ -421,6 +428,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             string? kokyakuName, string? ankenName, long? sekininSyaId, string sekouBumonCd, bool isGentaToketsu)
         {
             // Arrange
+            fakeTimeProvider.SetLocalNow(new(2026, 2, 15));
+
             var chaYmd = new DateOnly(2025, 1, 1);
             var anken = new Anken()
             {
@@ -471,8 +480,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
                 ProjectNo = "プロジェクト番号",
                 JuchuuNo = "受注番号",
                 JuchuuGyoNo = 1,
-                ChaYmd = new DateOnly(2025, 1, 1),
-                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
+                ChaYmd = chaYmd,
+                Nendo = 2026,
                 SekouBumonCd = sekouBumonCd,
                 IsGenkaToketu = isGentaToketsu,
                 // 不要なNOT NULLカラムに適当に値を詰める
@@ -539,6 +548,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         public async Task OnGetSearchAnkensAsync_検索条件が空のとき_年度がシステム日付のデータを取得する()
         {
             // Arrange
+            fakeTimeProvider.SetLocalNow(new(2026, 2, 15));
             var anken = new Anken()
             {
                 KingsJuchuId = 1,
@@ -549,7 +559,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             var kingsJuchu = new KingsJuchu()
             {
                 Id = 1,
-                Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
+                Nendo = 2026,
                 IsGenkaToketu = false,
                 // 不要なNOT NULLカラムに適当に値を詰める
                 SekouBumonCd = string.Empty,
@@ -590,6 +600,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         public async Task OnGetSearchAnkensAsync_検索条件が空のとき_年度がシステム日付でないデータを取得しない()
         {
             // Arrange
+            fakeTimeProvider.SetLocalNow(new(2026, 2, 15));
+
             var anken = new Anken()
             {
                 KingsJuchuId = 1,
@@ -600,7 +612,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             var kingsJuchu = new KingsJuchu()
             {
                 Id = 1,
-                Nendo = (short)(fakeTimeProvider.Today().GetFiscalYear() - 1),
+                Nendo = 2025,
                 IsGenkaToketu = false,
                 // 不要なNOT NULLカラムに適当に値を詰める
                 SekouBumonCd = string.Empty,
@@ -643,6 +655,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         public async Task OnGetSearchAnkensAsync_取得データの並び順が検索条件のもの(SortKeyList sortKey)
         {
             // Arrange
+            fakeTimeProvider.SetLocalNow(new(2026, 2, 15));
             var ankens = new List<Anken>();
             var kokyakus = new List<KokyakuKaisha>();
             var kingsJuchus = new List<KingsJuchu>();
@@ -674,7 +687,7 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
                 kingsJuchus.Add(new KingsJuchu()
                 {
                     Id = i,
-                    Nendo = (short)fakeTimeProvider.Today().GetFiscalYear(),
+                    Nendo = 2026,
                     // NOTE: (案件ID, 着工日) = (1, 2025/1/1), (2, 2025/1/2), (3, 2025/1/3)となるので、
                     //       着工日の降順で案件IDが[3, 2, 1]と並ぶ
                     ChaYmd = new DateOnly(2025, 1, 1).AddDays((i + 2) % 3),

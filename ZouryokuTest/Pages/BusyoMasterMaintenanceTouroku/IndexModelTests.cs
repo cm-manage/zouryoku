@@ -487,7 +487,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             Assert.IsTrue(results.Any(r => r.MemberNames.Contains("BusyoCode")), "部署番号のエラーが含まれているはずです。");
             Assert.IsTrue(results.Any(r => r.MemberNames.Contains("BusyoName")), "部署名称のエラーが含まれているはずです。");
             Assert.IsTrue(results.Any(r => r.MemberNames.Contains("BusyoKanaName")), "部署名称カナのエラーが含まれているはずです。");
-            Assert.IsTrue(results.Any(r => r.MemberNames.Contains("OyaCode")), "親部署番号のエラーが含まれているはずです。");
+            Assert.IsTrue(results.Any(r => r.MemberNames.Contains("OyaName")), "親部署のエラーが含まれているはずです。");
             Assert.IsTrue(results.Any(r => r.MemberNames.Contains("KasyoCode")), "箇所コードのエラーが含まれているはずです。");
             Assert.IsTrue(results.Any(r => r.MemberNames.Contains("KaikeiCode")), "会計コードのエラーが含まれているはずです。");
 
@@ -502,7 +502,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 results.First(r => r.MemberNames.Contains("BusyoKanaName")).ErrorMessage,
                 "部署名称カナのエラーメッセージが一致しません。");
             Assert.AreEqual(string.Format(Const.ErrorRequired, "親部署"),
-                results.First(r => r.MemberNames.Contains("OyaCode")).ErrorMessage,
+                results.First(r => r.MemberNames.Contains("OyaName")).ErrorMessage,
                 "親部署のエラーメッセージが一致しません。");
             Assert.AreEqual(string.Format(Const.ErrorRequired, "箇所コード"),
                 results.First(r => r.MemberNames.Contains("KasyoCode")).ErrorMessage,

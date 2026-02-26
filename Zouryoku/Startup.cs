@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Zouryoku.Middleware;
-using Zouryoku.Sevices;
+using Zouryoku.Services;
 using ZouryokuCommonLibrary;
 using ZouryokuCommonLibrary.Attributes;
 

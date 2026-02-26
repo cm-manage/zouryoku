@@ -32,7 +32,7 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
         // ============================================================
 
         // 検索結果最大件数
-        private const int SearchResultMaxCount = 4000;
+        public const int SearchResultMaxCount = 4000;
 
         // クッキー有効期限(日)
         private const int CookieExpiresDays = 30;

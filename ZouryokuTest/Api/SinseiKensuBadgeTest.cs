@@ -586,7 +586,7 @@ namespace ZouryokuTest.Api
             var grandChildSinseiUser = new Syain
             {
                 Id = 6,
-                BusyoId = childBusyo.Id,
+                BusyoId = grandChildBusyo.Id,
                 Kengen = None,
                 StartYmd = ConstStartYmd,
                 EndYmd = ConstEndYmd,

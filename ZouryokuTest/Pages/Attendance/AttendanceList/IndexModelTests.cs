@@ -32,9 +32,6 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
     [TestClass]
     public class IndexModelTests : BaseInMemoryDbContextTest
     {
-        // 検索結果最大件数
-        private const int SearchResultMaxCount = 4000;
-
         /// <summary>
         /// 出退勤一覧用のindexModelを生成し、テスト実行に必要なコンテキスト情報を設定します。
         /// </summary>
@@ -47,6 +44,8 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
             };
+
+            fakeTimeProvider.SetLocalNow(new(2026, 2, 10));
             // セッション保存
             model.HttpContext.Session.Set(new LoginInfo { User = loginUser });
             // クッキークリア

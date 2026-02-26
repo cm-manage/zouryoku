@@ -2,7 +2,7 @@ using Model.Enums;
 using Model.Model;
 using Zouryoku.Enums;
 using Zouryoku.Models.Menu;
-using Zouryoku.Sevices;
+using Zouryoku.Services;
 
 using static Model.Enums.EmployeeAuthority;
 using static Zouryoku.Enums.MenuCode;

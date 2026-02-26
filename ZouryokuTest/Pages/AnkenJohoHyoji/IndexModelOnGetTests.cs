@@ -1,4 +1,5 @@
 using CommonLibrary.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
@@ -424,11 +425,11 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
 
         // =================================================================
         /// <summary>
-        /// 初期表示: 存在しないID指定の場合、Pageを返し、ModelStateにエラーが設定されることを確認
+        /// 初期表示: 存在しないID指定の場合、RedirectToPageResultが返却されることを確認
         /// </summary>
         // =================================================================
         [TestMethod]
-        public async Task OnGetAsync_存在しない案件ID指定_ModelStateにエラー設定()
+        public async Task OnGetAsync_存在しない案件ID指定_エラーページに遷移()
         {
             // ---------- Arrange ----------
             // シード：案件エンティティ（表示対象）
@@ -449,24 +450,16 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
             var result = await model.OnGetAsync(nonexistentId, false);
 
             // ---------- Assert ----------
-            Assert.IsInstanceOfType<PageResult>(result);
+            var redirect = result as RedirectToPageResult;
 
-            // ModelStateにエラーが設定されていること
-            Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsNotNull(model.ModelState[string.Empty], "ModelStateにキーがemptyのエラーが存在するはずです。");
-
-            // エラーメッセージの確認
-            var messages = model.ModelState[string.Empty]!.Errors.Select(e => e.ErrorMessage).ToList();
-            Assert.HasCount(1, messages, "ModelStateにはエラーが1件設定されているはずです。");
-            Assert.AreEqual(Const.ErrorSelectedDataNotExists, messages[0], "エラーメッセージが一致しません。");
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual("/ErrorMessage", redirect.PageName);
+            Assert.AreEqual(Const.ErrorSelectedDataNotExists, redirect.RouteValues?["errorMessage"]);
 
             var viewModel = model.IndexViewModel;
 
             // ViewModelの設定内容の確認
-            Assert.IsNotNull(viewModel);
-            Assert.IsFalse(viewModel.CanAdd, "Falseのはずです。");
-            Assert.AreEqual(syainLogin.Id, viewModel.LoginInfo.User.Id, "ログイン情報が一致しません。");
-            Assert.IsNull(viewModel.Id, "案件IDはNULLのはずです。");
+            Assert.IsNull(viewModel);
 
             // 案件参照履歴が登録されていないこと
             var count = await db.AnkenSansyouRirekis.CountAsync();

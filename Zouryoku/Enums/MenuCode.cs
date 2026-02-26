@@ -147,78 +147,78 @@ namespace Zouryoku.Enums
 
         [MenuInfo(
             title: "代理ログイン",
-            kengen: EmployeeAuthority.管理機能利用_その他)]
+            kengen: EmployeeAuthority.管理機能)]
         代理ログイン,
 
         [MenuInfo(
             title: "日報確定解除",
-            kengen: EmployeeAuthority.管理機能利用_その他)]
+            kengen: EmployeeAuthority.管理機能)]
         日報確定解除,
 
         [MenuInfo(
             title: "社員マスタメンテナンス",
             url: "/SyainMasterMaintenanceKensaku/Index",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.管理機能利用_その他)]
+            kengen: EmployeeAuthority.管理機能)]
         社員マスタメンテナンス,
 
         [MenuInfo(
             title: "部署マスタメンテナンス",
             url: "/BusyoMasterMaintenanceKensaku/Index",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.管理機能利用_その他)]
+            kengen: EmployeeAuthority.管理機能)]
         部署マスタメンテナンス,
 
         [MenuInfo(
             title: "プロセス会社項目設定",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.管理機能利用_その他)]
+            kengen: EmployeeAuthority.管理機能)]
         プロセス会社項目設定,
 
         [MenuInfo(
             title: "稼働日マスタメンテナンス",
             url: "/Maintenance/Operationday/Index",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.管理機能利用_その他)]
+            kengen: EmployeeAuthority.管理機能)]
         稼働日マスタメンテナンス,
 
         [MenuInfo(
             title: "KINGS連携プログラム稼働状況",
-            url: "Maintenance/ServiceHistory/Index",
+            url: "/Maintenance/ServiceHistory/Index",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.管理機能利用_その他)]
+            kengen: EmployeeAuthority.管理機能)]
         KINGS連携プログラム稼働状況,
 
         [MenuInfo(
             title: "年次有給休暇更新画面",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.管理機能利用_人財向け)]
+            kengen: EmployeeAuthority.年次有給休暇更新)]
         年次有給休暇更新画面,
 
         [MenuInfo(
             title: "有給・振休管理",
-            url: "Maintenance/Kintais/Index",
+            url: "/Maintenance/Kintais/Index",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.有給_振替管理)]
+            kengen: EmployeeAuthority.有給振替管理)]
         有給_振休管理,
 
         [MenuInfo(
             title: "ロールメンテナンス",
             url: "/RoleDefaultKengen/Index",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.管理機能利用_その他)]
+            kengen: EmployeeAuthority.管理機能)]
         ロールメンテナンス,
 
         [MenuInfo(
             title: "アプリケーション設定",
             url: "/Maintenance/AppSettings/Index",
             canDisplayMobile: false,
-            kengen: EmployeeAuthority.管理機能利用_その他)]
+            kengen: EmployeeAuthority.管理機能)]
         アプリケーション設定,
 
         [MenuInfo(
             title: "改訂履歴",
-            url: "RevisionHistory/Index")]
+            url: "/RevisionHistory/Index")]
         改訂履歴,
 
         [MenuInfo(

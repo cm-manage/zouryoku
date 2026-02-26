@@ -1,16 +1,27 @@
-using Microsoft.EntityFrameworkCore;
 using Model.Enums;
+using Model.Extensions;
 using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.YukyuKeikakuToroku;
-using ZouryokuTest.Builder;
 using static Model.Enums.LeavePlanStatus;
 
 namespace ZouryokuTest.Pages.YukyuKeikakuToroku
 {
     public abstract class IndexModelTestsBase : BaseInMemoryDbContextTest
     {
+        /// <summary>
+        /// テストデータのNOT NULL制約を満たす以外に意味を持たない文字列です。
+        /// </summary>
+        /// <remarks>
+        /// この定数は、事業部や社員エンティティのテストデータ作成時に、
+        /// テストの本質的な検証に関係しない必須項目を埋める目的でのみ使用します。
+        /// テストがこの値の内容に依存しないよう、業務的な意味を持つ値に変更してはなりません。
+        /// また、関連するエンティティのカラムに最大長さ制約が設定されていることを想定し、
+        /// その制約に抵触しないよう「N/A」という短めの文字列を設定しています。
+        /// </remarks>
+        private const string NotNullConstraintPlaceholder = "N/A";
+
         /// <summary>
         /// 計画有給休暇登録画面用の <see cref="IndexModel"/> を生成し、テスト実行に必要なコンテキスト情報を設定します。
         /// </summary>
@@ -39,51 +50,97 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
         /// テストコードから直接呼び出すことは想定していません。社員データの追加が必要な場合は、整合性を保つために
         /// <see cref="AddNewSyain"/> を使用してください。
         /// </remarks>
-        private SyainBasis AddNewSyainBasis() => db.Add(new SyainBasisBuilder().Build()).Entity;
+        private SyainBasis AddNewSyainBasis() => db.SyainBases.AddReturn(new SyainBasis
+        {
+            Id = default,
+            Name = default,
+            Code = NotNullConstraintPlaceholder
+        });
 
         /// <summary>
         /// IDを自動採番した新しい社員情報をDBに追加して返します。
         /// </summary>
-        protected Syain AddNewSyain() => db.Add(new SyainBuilder()
-            .WithSyainBaseId(AddNewSyainBasis().Id)
-            .Build()).Entity;
+        protected Syain AddNewSyain() => db.Syains.AddReturn(new Syain
+        {
+            Id = default,
+            Code = NotNullConstraintPlaceholder,
+            Name = NotNullConstraintPlaceholder,
+            KanaName = NotNullConstraintPlaceholder,
+            Seibetsu = default,
+            BusyoCode = NotNullConstraintPlaceholder,
+            SyokusyuCode = default,
+            SyokusyuBunruiCode = default,
+            NyuusyaYmd = default,
+            StartYmd = default,
+            EndYmd = default,
+            Kyusyoku = default,
+            SyucyoSyokui = default,
+            KingsSyozoku = NotNullConstraintPlaceholder,
+            KaisyaCode = default,
+            IsGenkaRendou = default,
+            EMail = default,
+            KeitaiMail = default,
+            Kengen = default,
+            Jyunjyo = default,
+            Retired = default,
+            GyoumuTypeId = default,
+            PhoneNumber = default,
+            SyainBaseId = default,
+            BusyoId = default,
+            KintaiZokuseiId = default,
+            UserRoleId = default,
+            SyainBase = AddNewSyainBasis()
+        });
 
         /// <summary>
         /// 今年の有給年度情報をDBに追加して返します。
         /// </summary>
-        protected YukyuNendo AddYukyuNendoOfThisYear() => db.Add(new YukyuNendoBuilder()
-            .WithStartDate(new DateOnly(2024, 1, 1))
-            .WithEndDate(new DateOnly(2024, 12, 31))
-            .WithIsThisYear(true)
-            .Build()).Entity;
+        protected YukyuNendo AddYukyuNendoOfThisYear() => db.YukyuNendos.AddReturn(new YukyuNendo
+        {
+            Id = default,
+            Nendo = default,
+            StartDate = new DateOnly(2024, 4, 1),
+            EndDate = new DateOnly(2025, 3, 31),
+            IsThisYear = true,
+            Updated = default
+        });
 
         /// <summary>
         /// 今年ではない有給年度情報をDBに追加して返します。
         /// </summary>
-        protected YukyuNendo AddYukyuNendoOfNotThisYear() => db.Add(new YukyuNendoBuilder()
-            .WithStartDate(new DateOnly(2023, 1, 1))
-            .WithEndDate(new DateOnly(2023, 12, 31))
-            .WithIsThisYear(false)
-            .Build()).Entity;
+        protected YukyuNendo AddYukyuNendoOfNotThisYear() => db.YukyuNendos.AddReturn(new YukyuNendo
+        {
+            Id = default,
+            Nendo = default,
+            StartDate = new DateOnly(2023, 4, 1),
+            EndDate = new DateOnly(2024, 3, 31),
+            IsThisYear = false,
+            Updated = default
+        });
 
         /// <summary>
         /// シャッフルされた <see cref="YukyuKeikakuMeisai.Ymd"/> を持つ計画有給休暇明細と計画有給休暇情報をDBに追加して返します。
         /// </summary>
         protected YukyuKeikaku AddYukyuKeikakuAndMeisaiWithShuffledYmds(LeavePlanStatus status, Syain syain, YukyuNendo yukyuNendo) =>
-            db.Add(new YukyuKeikakuBuilder()
-                .WithStatus(status)
-                .WithSyainBaseId(syain.SyainBase.Id)
-                .WithYukyuNendoId(yukyuNendo.Id)
-                .WithYukyuKeikakuMeisais(
-                    // 検索結果の順序が正しいことをテストするため、適当な日付順で登録
+            db.YukyuKeikakus.AddReturn(new YukyuKeikaku
+            {
+                Id = default,
+                YukyuNendoId = default,
+                SyainBaseId = default,
+                SyainBase = syain.SyainBase,
+                YukyuNendo = yukyuNendo,
+                Status = status,
+                YukyuKeikakuMeisais =
+                [
                     new YukyuKeikakuMeisai { Ymd = new DateOnly(2024, 11, 7), IsTokukyu = true },
                     new YukyuKeikakuMeisai { Ymd = new DateOnly(2024, 11, 6), IsTokukyu = true },
                     new YukyuKeikakuMeisai { Ymd = new DateOnly(2024, 11, 2), IsTokukyu = false },
                     new YukyuKeikakuMeisai { Ymd = new DateOnly(2024, 11, 4), IsTokukyu = false },
                     new YukyuKeikakuMeisai { Ymd = new DateOnly(2024, 11, 3), IsTokukyu = false },
                     new YukyuKeikakuMeisai { Ymd = new DateOnly(2024, 11, 5), IsTokukyu = false },
-                    new YukyuKeikakuMeisai { Ymd = new DateOnly(2024, 11, 1), IsTokukyu = false })
-                .Build()).Entity;
+                    new YukyuKeikakuMeisai { Ymd = new DateOnly(2024, 11, 1), IsTokukyu = false }
+                ]
+            });
 
         /// <summary>
         /// シャッフルされた <see cref="YukyuKeikakuMeisai.Ymd"/> を持つ計画有給休暇明細と計画有給休暇情報をDBに追加して返します。
@@ -97,7 +154,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
         // Arrange用ヘルパーメソッド
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected static IndexModel.YukyuKeikakuViewModel CreateRequest(uint version, params IReadOnlyList<IndexModel.Meisai> meisais) => new()
+        protected static IndexModel.YukyuKeikakuViewModel CreateRequest(
+            uint version, params IReadOnlyList<IndexModel.Meisai> meisais) => new()
         {
             YukyuKeikakuStatus = default,
             YukyuNendoStartDate = default,

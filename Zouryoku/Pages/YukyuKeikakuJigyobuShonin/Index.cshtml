@@ -6,32 +6,30 @@
 }
 <partial name="_ZouryokuHeader" />
 
-<div class="container w-75">
-    <div class="app-screen--search">
-        <div class="app-area__tool-button">
-            <div class="d-flex align-items-center gap-3">
-                <div class="d-flex flex-column gap-1">
-                    <div class="app-text-normal-ymd">日付黒色：有給休暇</div>
-                    <div class="app-text-tokukyu-ymd">日付青色：特別休暇</div>
-                </div>
-                @if (Model.LoginUserJigyoubuShoninViewModel.ButtonsAreVisible)
-                {
-                    <button id="send-back-btn" class="btn btn-danger app-btn__base" type="button"
-                            aria-label="選択した計画有給休暇を差し戻す">
-                        <i class="fa-solid fa-circle-xmark"></i>差し戻し
-                    </button>
-                    <button id="approve-btn" class="btn btn-success app-btn__base" type="button"
-                            aria-label="選択した計画有給休暇を承認する">
-                        <i class="fa-solid fa-circle-check"></i>承認
-                    </button>
-                }
+<div class="app-screen--search">
+    <div class="app-area__tool-button">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex flex-column gap-1">
+                <div class="app-text-normal-ymd">日付黒色：有給休暇</div>
+                <div class="app-text-tokukyu-ymd">日付青色：特別休暇</div>
             </div>
+            @if (Model.LoginUserJigyoubuShoninViewModel.ButtonsAreVisible)
+            {
+                <button id="send-back-btn" class="btn btn-danger app-btn__base" type="button"
+                        aria-label="選択した計画有給休暇を差し戻す">
+                    <i class="fa-solid fa-circle-xmark"></i>差し戻し
+                </button>
+                <button id="approve-btn" class="btn btn-success app-btn__base" type="button"
+                        aria-label="選択した計画有給休暇を承認する">
+                    <i class="fa-solid fa-circle-check"></i>承認
+                </button>
+            }
         </div>
-
-        <main id="partial-yukyu-keikaku-list" class="app-area__search-results mt-2">
-            <partial name="_YukyuKeikakuList" model="Model.LoginUserJigyoubuShoninViewModel" />
-        </main>
     </div>
+
+    <main id="partial-yukyu-keikaku-list" class="app-area__search-results mt-2">
+        <partial name="_YukyuKeikakuList" model="Model.LoginUserJigyoubuShoninViewModel" />
+    </main>
 </div>
 
 @section InputScripts {
@@ -159,29 +157,31 @@
             width: @(Model.LoginUserJigyoubuShoninViewModel.MeisaiColumnWidthPercentage);
         }
 
+        /* テーブル内フォントカラークラス */
+        /* Bootstrap .table の優先度が高いため !important で強制する */
         /* 未入力 */
         .app-text-not-entered {
-            color: var(--bs-danger);
+            color: var(--bs-danger) !important;
         }
 
         /* 未申請 */
         .app-text-not-registered {
-            color: var(--bs-primary);
+            color: var(--bs-primary) !important;
         }
 
         /* 事業部承認待ち or 人財承認待ち or 承認済 */
         .app-text-processed {
-            color: var(--bs-body-color);
+            color: var(--bs-body-color) !important;
         }
 
         /* 特別休暇の日付 */
         .app-text-tokukyu-ymd {
-            color: var(--bs-primary);
+            color: var(--bs-primary) !important;
         }
 
         /* 特別休暇ではない日付 */
         .app-text-normal-ymd {
-            color: var(--bs-body-color);
+            color: var(--bs-body-color) !important;
         }
     </style>
 }

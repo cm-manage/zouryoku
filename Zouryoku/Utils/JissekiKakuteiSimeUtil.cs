@@ -2,6 +2,8 @@ using CommonLibrary.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Model.Data;
 using Model.Enums;
+using static Model.Enums.AchievementClassification;
+using static ZouryokuCommonLibrary.Utils.DateOnlyUtil;
 
 namespace Zouryoku.Utils;
 
@@ -12,6 +14,11 @@ namespace Zouryoku.Utils;
 /// <param name="KakuteiKigenYmd">確定期限</param>
 /// <param name="Kubun">区分</param>
 public record JissekiKakuteiKigenInfo(long JissekiKakuteiSimebiId, DateOnly KakuteiKigenYmd, AchievementClassification Kubun);
+
+/// <summary>
+/// 実績期間と確定期限情報をラッパーしたレコード。
+/// </summary>
+public record JissekiSpan(DateOnly JissekiStartYmd, DateOnly JissekiSimebiYmd, JissekiKakuteiKigenInfo JissekiKakuteiKigenInfo);
 
 /// <summary>
 /// 実績確定期限ユーティリティ
@@ -83,5 +90,71 @@ public static class JissekiKakuteiSimeUtil
 
             return new JissekiKakuteiKigenInfo(s.Id, s.KakuteiKigenYmd, kubun);
         }).ToList();
+    }
+
+    /// <summary>
+    /// 基準日付が対象実績期間の通知可能期間に含まれるかどうかを判定する。
+    /// </summary>
+    /// <param name="db">DBコンテキスト</param>
+    /// <param name="baseDate">基準日付</param>
+    /// <param name="simebiYmd">対象実績期間の締め日</param>
+    /// <param name="kakuteiKigenYmd">対象実績期間の確定期限</param>
+    /// <returns><paramref name="baseDate"/>が通知可能期間に含まれていれば<c>true</c></returns>
+    public static async Task<bool> IsInNotificationPeriodAsync(ZouContext db, DateOnly baseDate, DateOnly simebiYmd, DateOnly kakuteiKigenYmd)
+    {
+        // 実績締め日の翌日（通知可能期間の開始日）
+        var startYmd = simebiYmd.AddDays(1);
+        // 確定期限の翌営業日（通知可能期間の終了日）
+        var endYmd = await GetNextBusinessDayAsync(db, kakuteiKigenYmd);
+
+        return (startYmd <= baseDate && baseDate <= endYmd);
+    }
+
+    /// <summary>
+    /// 基準日付から見て通知対象となる実績期間を取得する。
+    /// </summary>
+    /// <param name="db">DBコンテキスト</param>
+    /// <param name="baseDate">基準日付</param>
+    /// <returns>通知対象の実績期間情報</returns>
+    /// <exception cref="InvalidOperationException">DB内の実績確定締め日データが不正な場合</exception>
+    public static async Task<JissekiSpan> GetCanNotifyJissekiSpanAsync(ZouContext db, DateOnly baseDate)
+    {
+        try
+        {
+            // 基準月の中締め情報
+            // nullなら通知対象の実績期間は月末締めor一か月締めになる
+            var nakajimeInfo = (await GetKakuteiShimeKigenAsync(db, baseDate))
+                .SingleOrDefault(k => k.Kubun == 中締め);
+            DateOnly jissekiSimebi;
+
+            // 基準月に中締めが存在して、基準日付が中締め日以前でないなら、基準月の中締めで確定する
+            if (nakajimeInfo is not null && NakajimeDay < baseDate.Day)
+            {
+                jissekiSimebi = baseDate.GetDateDesignatedDay(NakajimeDay);
+                return new JissekiSpan(jissekiSimebi.GetStartOfMonth(), jissekiSimebi, nakajimeInfo);
+            }
+
+            // 通知対象となる実績期間の締め日
+            // 基準月の先月の月末
+            jissekiSimebi = baseDate.AddMonths(-1).GetEndOfMonth();
+            // 基準月の先月の実績確定期限情報
+            // 月末締めか一か月締めの情報を取得する
+            var jissekiKakuteiKigenInfo = (await GetKakuteiShimeKigenAsync(db, jissekiSimebi))
+                .SingleOrDefault(k => k.Kubun == 月末締め || k.Kubun == 一か月締め);
+
+            if (jissekiKakuteiKigenInfo is null)
+            {
+                throw new InvalidOperationException("実績確定締め日データが存在しません。");
+            }
+
+            return new JissekiSpan(
+                jissekiSimebi.GetDateDesignatedDay(jissekiKakuteiKigenInfo.Kubun == 一か月締め ? 1 : NakajimeDay + 1),
+                jissekiSimebi,
+                jissekiKakuteiKigenInfo);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException("実績確定締め日データに不整合があります。", ex);
+        }
     }
 }

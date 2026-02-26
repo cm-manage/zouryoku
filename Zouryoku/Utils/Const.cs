@@ -80,6 +80,8 @@ namespace Zouryoku.Utils
         public const string ErrorReadReload = ErrorRead + Reload;
         /// <summary> {0}を設定してください。</summary>
         public const string ErrorSet = "{0}を設定してください。";
+        /// <summary> {0}は{1}～{2}の範囲で入力してください。</summary>
+        public const string ErrorRange = "{0}は{1}～{2}の範囲で入力してください。";
         /// <summary> {0}を入力してください。</summary>
         public const string ErrorInputRequired = "{0}を入力してください。";
         /// <summary> {0}が反対です。</summary>

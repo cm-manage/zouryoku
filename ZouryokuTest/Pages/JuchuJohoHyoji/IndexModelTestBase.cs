@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore;
 using Model.Model;
-using System.Globalization;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.JuchuJohoHyoji;
@@ -120,56 +118,6 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         }
 
         /// <summary>
-        /// シード: 受注参照履歴作成
-        /// </summary>
-        protected static KingsJuchuSansyouRireki CreateKingsJuchuSansyouRireki(long id)
-        {
-            return new KingsJuchuSansyouRirekiBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: 受注参照履歴を複数生成
-        /// </summary>
-        /// <param name="syainBaseId">社員BaseID</param>
-        /// <param name="count">生成件数</param>
-        protected static List<KingsJuchuSansyouRireki> CreateKingsJuchuSansyouRireki(long syainBaseId, int count)
-        {
-            var baseTime = DateTime.ParseExact(
-                "2025/04/01 09:00",
-                "yyyy/MM/dd HH:mm",
-                CultureInfo.InvariantCulture
-                );
-
-            return Enumerable.Range(1, count)
-                .Select(i => new KingsJuchuSansyouRirekiBuilder()
-                    .WithId(i)
-                    .WithKingsJuchuId(i)
-                    .WithSyainBaseId(syainBaseId)
-                    .WithSansyouTime(baseTime.AddMinutes(i - 1))
-                    .Build()
-                    )
-                .ToList();
-        }
-
-        /// <summary>
-        /// シード: 別ユーザーの受注参照履歴を複数生成
-        /// </summary>
-        /// <param name="juchuId">受注ID</param>
-        /// <param name="startId">一番最初の参照履歴ID</param>
-        protected static List<KingsJuchuSansyouRireki> CreateOtherKingsJuchuSansyouRireki(long juchuId, int startId)
-        {
-            return new KingsJuchuSansyouRirekiBuilder()
-                .WithKingsJuchuId(juchuId)
-                .WithSyainBaseId(0) // ダミー
-                .BuildMany(startId, 3, data =>
-                {
-                    data.SansyouTime = DateTime.Now.AddMinutes(+data.Id); // IDの小さい順に古い日時とする
-                });
-        }
-
-        /// <summary>
         /// 参照時間が指定範囲内であることを確認する
         /// </summary>
         /// <param name="juchuSansyouRireki">確認対象の受注参照履歴</param>
@@ -184,30 +132,6 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
                 now,
                 "参照時間が正しく更新されていません。"
                 );
-        }
-
-        /// <summary>
-        /// 別ユーザーの参照履歴件数を確認する
-        /// </summary>
-        /// <param name="loginSyainBaseId">ログインユーザーの社員BaseID</param>
-        /// <param name="expectedCount">期待する別ユーザーの参照履歴件数</param>
-        protected async Task AssertOtherUserRirekiCountAsync(long loginSyainBaseId, int expectedCount)
-        {
-            var count = await db.KingsJuchuSansyouRirekis
-                .CountAsync(x => x.SyainBaseId != loginSyainBaseId);
-            Assert.AreEqual(expectedCount, count, "別ユーザーの参照履歴に変化があります。");
-        }
-
-        /// <summary>
-        /// 最も古い履歴が削除されていることを確認する
-        /// </summary>
-        /// <param name="juchuSansyouRirekis">確認対象の受注参照履歴リスト</param>
-        protected async Task AssertOldestRirekiDeletedAsync(List<KingsJuchuSansyouRireki> juchuSansyouRirekis)
-        {
-            var oldestRireki = juchuSansyouRirekis.OrderBy(x => x.SansyouTime).First();
-            var existsOldest = await db.KingsJuchuSansyouRirekis
-                .AnyAsync(x => x.Id == oldestRireki.Id);
-            Assert.IsFalse(existsOldest, "最も古い履歴が削除されていません。");
         }
 
         /// <summary>

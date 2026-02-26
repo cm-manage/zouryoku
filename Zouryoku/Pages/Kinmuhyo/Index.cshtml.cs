@@ -546,7 +546,7 @@ namespace Zouryoku.Pages.Kinmuhyo
 
             // 過去2-6か月の平均残業時間を計算
             info.AverageOvertime = await CalculateAverageOvertime2To6MonthsAsync(employee, systemYearMonth);
-
+            
             return info;
         }
 
@@ -772,28 +772,22 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <returns>合計残業時間</returns>
         private TimeSpan CalculateTotalOvertime(List<Nippou> nippous, List<WorkingHour> workingHours, bool isSystemMonth)
         {
-            var totalHours = nippous.Sum(r =>
-                (r.HZangyo ?? 0m) +
-                (r.HShinyaZangyo ?? 0m) +
-                (r.DJitsudou ?? 0m) +
-                (r.DZangyo ?? 0m) +
-                (r.DShinyaZangyo ?? 0m) +
-                (r.NJitsudou ?? 0m) +
-                (r.NShinya ?? 0m));
+            var totalMinutes = nippous.Sum(r => r.TotalZangyo ?? 0m);
 
             if (isSystemMonth && workingHours != null)
             {
-                totalHours += workingHours
+                totalMinutes += workingHours
                     .Where(p => p.SyukkinTime.HasValue && p.TaikinTime.HasValue)
                     .Select(p =>
                     {
                         var workedMinutes = Common.TimeCalculator.CalcJitsudouTimes(p.SyukkinTime!.Value.ToString("HHmm"), 
                             p.TaikinTime!.Value.ToString("HHmm"));
-                        return Math.Max(0, workedMinutes - Common.Time.kitei) / 60m;
+                        return (decimal)Math.Max(0, workedMinutes - Common.Time.kitei);
                     })
                     .Sum();
             }
 
+            var totalHours = totalMinutes / 60m;
             return TimeSpan.FromHours((double)totalHours);
         }
 
@@ -831,27 +825,20 @@ namespace Zouryoku.Pages.Kinmuhyo
             var nippous = await GetNippouListAsync(employee, startDate, endDate);
 
             // 月ごとに残業時間を集計
-            var monthlyOvertime = nippous
+            var monthlyOvertimeMinutes = nippous
                 .GroupBy(r => r.NippouYmd.GetStartOfMonth())
                 .ToDictionary(
                     g => g.Key,
-                    g => g.Sum(r =>
-                        (r.HZangyo ?? 0m) +
-                        (r.HShinyaZangyo ?? 0m) +
-                        (r.DJitsudou ?? 0m) +
-                        (r.DZangyo ?? 0m) +
-                        (r.DShinyaZangyo ?? 0m) +
-                        (r.NJitsudou ?? 0m) +
-                        (r.NShinya ?? 0m))
+                    g => g.Sum(r => r.TotalZangyo ?? 0m)
                 );
 
-            if (monthlyOvertime.Count < 2)
+            if (monthlyOvertimeMinutes.Count < 2)
             {
                 return TimeSpan.FromHours(0);
             }
 
             // 過去2-6か月の平均を計算
-            var recentMonthsValues = monthlyOvertime.OrderByDescending(k => k.Key)
+            var recentMonthsValues = monthlyOvertimeMinutes.OrderByDescending(k => k.Key)
                 .Select(k => k.Value)
                 .ToList();
 
@@ -861,7 +848,8 @@ namespace Zouryoku.Pages.Kinmuhyo
                 .Select(months => recentMonthsValues.Take(months).Average())
                 .ToList();
 
-            var maxAverageHours = averages.Any() ? (double)averages.Max() : 0.0;
+            var maxAverageMinutes = averages.Any() ? averages.Max() : 0m;
+            var maxAverageHours = (double)(maxAverageMinutes / 60m);
             return TimeSpan.FromHours(maxAverageHours);
         }
     }

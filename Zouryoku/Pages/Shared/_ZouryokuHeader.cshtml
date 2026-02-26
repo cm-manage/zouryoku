@@ -1,4 +1,4 @@
-﻿@{
+@{
     var title = (string?)ViewData["Title"] ?? "タイトル未設定";
     var titleIcon = (string?)ViewData["TitleIcon"] ?? "fa-solid fa-list-check";
     var loginInfo = Model?.LoginInfo ?? Model;
@@ -62,8 +62,8 @@
         </div>
 
         @* ハンバーガーメニュー *@
-        <a id="menu-button" class="hamburger-container" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-menu"
-           aria-controls="offcanvasMenu" title="メニュー">
+        <a id="menu-button" role="button" class="hamburger-container" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-menu"
+           aria-controls="offcanvas-menu" title="メニュー">
             <i class="fa-solid fa-bars"></i>
         </a>
         @await Component.InvokeAsync("Menu")

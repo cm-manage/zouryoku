@@ -7,6 +7,7 @@ using Model.Data;
 using Model.Model;
 using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
+using Zouryoku.Utils;
 
 namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
 {
@@ -34,12 +35,15 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         /// 部署ID（選択された部署）
         /// </summary>
         [BindProperty(SupportsGet = true)]
-        public SearchCondition Condition { get; set; }
+        public SearchCondition Condition { get; set; } = new SearchCondition();
 
         /// <summary>
         /// 表示用社員リスト
         /// </summary>
         public IList<SyainViewModel> Syains { get; set; } = [];
+
+        // 排他エラーメッセージ
+        public static string ErrorConflictSyain { get; } = string.Format(Const.ErrorConflictReload, "社員マスタ");
 
         /// <summary>
         /// 初期表示
@@ -68,13 +72,15 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
 
             foreach (var dto in syains)
             {
-                if (targetSyains.TryGetValue(dto.Id, out var syain))
-                {
-                    syain.Jyunjyo = dto.Jyunjyo;
-                }
+                // 並び替え操作中に部署マスタが削除されている可能性があるため、存在を確認する
+                if (!targetSyains.TryGetValue(dto.Id, out var syain))
+                    return Error(ErrorConflictSyain);
+
+                syain.Jyunjyo = dto.Jyunjyo;
             }
 
-            await db.SaveChangesAsync();
+            // 更新を保存
+            await SaveWithConcurrencyCheckAsync(ErrorConflictSyain);
             return Success();
         }
 
@@ -166,4 +172,5 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         /// </summary>
         public short Jyunjyo { get; set; }
     }
- }
+
+}

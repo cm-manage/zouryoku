@@ -1,15 +1,15 @@
 @model Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae.IndexModel
 
 <ul data-js="sections" class="list-group">
-    @{ int i = 0; }
-    @foreach (var s in Model.Syains)
+    @for (int i = 0; i < Model.Syains.Count; i++)
     {
-        <li class="list-group-item bg-primary-subtle border border-info app-my-border-collapse"
+        var s = Model.Syains[i];
+        <li class="list-group-item bg-primary-subtle border border-primary app-my-border-collapse"
             data-id="@s.Id"
             data-js="syain"
         >
-            <input type="hidden" name="syains[@i].Id" value="@s.Id" />
-            <input type="hidden" name="syains[@i].Jyunjyo" value="@s.Jyunjyo" class="syain-order" />
+            <input type="hidden" asp-for="Syains[@i].Id" />
+            <input type="hidden" asp-for="Syains[@i].Jyunjyo" class="syain-order" />
 
             <div class="d-flex align-items-center">
                 <span class="app-handle me-2" data-js="handle">
@@ -18,6 +18,5 @@
                 <span class="fw-bold">@s.Name</span>
             </div>
         </li>
-        i++;
     }
 </ul>

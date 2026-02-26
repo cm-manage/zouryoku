@@ -59,7 +59,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
 
         private IndexModel CreateModel()
         {
-            IndexModel model = new IndexModel(db, GetLogger<IndexModel>(), options = CreateOptions(), viewEngine)
+            IndexModel model = new IndexModel(db, GetLogger<IndexModel>(), options = CreateOptions(), viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData(),
@@ -81,13 +81,16 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
         {
             // Arrange
             IndexModel model = CreateModel();
+            var today = new DateOnly(2026, 2, 26);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            string expectedPrefix = today.ToString("yyyy-MM");
+
 
             // Act
             model.OnGet();
 
             // Assert
             Assert.IsNotNull(model.SearchIndex);
-            string expectedPrefix = DateTime.Today.ToDateOnly().ToString("yyyy-MM");
             Assert.StartsWith(expectedPrefix, model.SearchIndex.From);
             Assert.StartsWith(expectedPrefix, model.SearchIndex.To);
             Assert.AreEqual(All, model.SearchIndex.WarnLevel);

@@ -106,7 +106,7 @@ namespace Zouryoku.Api
         /// <param name="busyoId">ログインユーザーが所属している部署ID</param>
         /// <param name="today">指定日</param>
         /// <returns>ログインユーザーが承認を行う必要がある部署IDのHashSet情報</returns>
-        public async Task<HashSet<long>> GetImpactDepartmentIdsAsync(long busyoId, DateOnly today)
+        private async Task<HashSet<long>> GetImpactDepartmentIdsAsync(long busyoId, DateOnly today)
         {
             // 有効な部署を全件取得
             List<Busyo> allBusyos = await FetchActiveBusyosAsync(today);

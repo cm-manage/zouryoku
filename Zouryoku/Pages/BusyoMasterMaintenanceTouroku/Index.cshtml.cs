@@ -540,6 +540,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
 
             /// <summary>親部署名称(表示のみ)</summary>
             [Display(Name = "親部署")]
+            [Required(ErrorMessage = Const.ErrorRequired)]
             public string? OyaName { get; set; }
 
             /// <summary>親部署ID(非表示)</summary>

@@ -195,6 +195,32 @@
                 }, false, null, false);
             }
 
+            // -----------------------------
+            // 打刻時間修正画面呼び出し
+            // -----------------------------
+            function openDakokuJikanSyusei(syainId, jissekiDate) {
+                const modalId = 'parent-modal';
+                // 呼び出し元パラメータ
+                const params = new URLSearchParams({
+                    syainId,                // 社員ID
+                    jissekiDate,            // 実績日
+                });
+                
+                const url = `${'@Url.Page("../../DakokuJikanSyusei/Index")'}?${params.toString()}`;
+                const title = '打刻時間修正';
+
+                showInputModal(
+                    modalId,
+                    url,
+                    null,
+                    title,
+                    function(){setTimeout(() => $("#btn-kinmu-search").trigger('click'));},
+                    992,
+                    550,
+                    'var(--iframe-header-color)'
+                );
+            }
+
             // ツールチップ初期化
             function initTooltip(){
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -227,12 +253,13 @@
             });
 
             // 日付リンククリック時イベント
-            $("#kinmuhyo-body").on("click", ".link", function(e) {
+            $("#kinmuhyo").on("click", ".link", function(e) {
+                e.preventDefault(); // デフォルトのリンク移動を止める
                 var tds = $(this).closest("tr").find("td").map(function(){
                     return $(this).text().trim();
                 }).get();
-                e.preventDefault(); // デフォルトのリンク移動を止める
-                alert("打刻修正は未実装\r\nクリックした行\r\n" + tds);
+                // 打刻時間修正画面
+                openDakokuJikanSyusei(tds[0], tds[1]);
             });
 
             // ドロップダウン変更時イベント

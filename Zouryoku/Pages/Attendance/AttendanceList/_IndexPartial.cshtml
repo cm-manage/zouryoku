@@ -29,7 +29,7 @@
         <th colspan="2" class="th-kinmu-time">勤務時間３</th>
     </tr>
 </thead>
-<tbody id="kinmuhyo-body">
+<tbody>
 
 @foreach (var item in Model.KinmuDataList)
 {
@@ -48,7 +48,7 @@
     <tr class="@item.GetYoubisyoku()">
     
         <td class="d-none">@item.SyainData.Id</td>
-        <td class="d-none">@item.SyainData.Code</td>
+        <td class="d-none">@item.Hiduke</td>
         <td class="text-start">@item.SyainData.Name</td>
 
         <td class="app-day-no">

@@ -29,7 +29,7 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
         public static int RequiredYukyuKeikakuMeisaiCount => ConstRequiredYukyuKeikakuMeisaiCount;
         public static int RequiredTokukyuCount => 2;
 
-        public static string ErrorConflictYukyuKeikaku => string.Format(Const.ErrorConflict, "計画有給休暇");
+        public static string ErrorConflictYukyuKeikaku { get; } = string.Format(Const.ErrorConflict, "計画有給休暇");
 
         // ---------------------------------------------
         // 2. DI（サービス、DB、ロガーなど）
@@ -76,8 +76,8 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
             if (errorJson is not null) return errorJson;
 
             // 複合項目チェック
-            ValidateThereAreNotExactly2Tokukyus(loginUsersYukyuKeikaku);
-            ValidateYmdDuplicate(loginUsersYukyuKeikaku);
+            ValidateTokukyuCountIsExactly2(loginUsersYukyuKeikaku);
+            ValidateYmdNoDuplicate(loginUsersYukyuKeikaku);
             if (!ModelState.IsValid) return CommonErrorResponse();
 
             // 登録・更新条件の設定
@@ -295,7 +295,7 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
         /// <summary>
         /// チェック仕様_特別休暇が2日分ちょうどチェックされているか確認する。
         /// </summary>
-        private void ValidateThereAreNotExactly2Tokukyus(YukyuKeikakuViewModel yukyuKeikakuViewModel)
+        private void ValidateTokukyuCountIsExactly2(YukyuKeikakuViewModel yukyuKeikakuViewModel)
         {
             var tokukyuCount = yukyuKeikakuViewModel.Meisais.Count(m => m.IsTokukyu);
             if (tokukyuCount != RequiredTokukyuCount)
@@ -307,7 +307,7 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
         /// <summary>
         /// チェック仕様_休暇予定日に同じ日付が入力されていないか確認する。
         /// </summary>
-        private void ValidateYmdDuplicate(YukyuKeikakuViewModel yukyuKeikakuViewModel)
+        private void ValidateYmdNoDuplicate(YukyuKeikakuViewModel yukyuKeikakuViewModel)
         {
             var duplicateExists = yukyuKeikakuViewModel.Meisais
                 .Where(m => m.Ymd is not null)

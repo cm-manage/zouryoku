@@ -354,6 +354,65 @@ namespace ZouryokuTest.Pages.SyainSentaku
         }
 
         /// <summary>
+        /// 正常系：部署と社員が検索対象である場合、部署階層の昇順で社員一覧に表示される
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task OnGetSyainAsync_部署と社員が検索対象である場合_部署階層の昇順で社員一覧に表示される()
+        {
+            // Arrange
+            var busyo1 = AddBusyo(1, "親部署", 1, true, null);
+            var busyo2 = AddBusyo(2, "子部署1", 1, true, 1);
+            var busyo3 = AddBusyo(3, "子部署2", 2, true, 1);
+            var busyo4 = AddBusyo(4, "孫部署1", 1, true, 2);
+            var busyo5 = AddBusyo(5, "孫部署2", 2, true, 3);
+            var syain1 = AddSyain(10, "社員1", "01", null, false, 1, 1);
+            var syain2 = AddSyain(20, "社員2", "02", null, false, 2, 2);
+            var syain3 = AddSyain(30, "社員3", "03", null, false, 3, 3);
+            var syain4 = AddSyain(40, "社員4", "04", null, false, 4, 4);
+            var syain5 = AddSyain(50, "社員5", "05", null, false, 5, 5);
+            var syainBase1 = AddSyainBase(1, "社員1", "01");
+            var syainBase2 = AddSyainBase(2, "社員2", "02");
+            var syainBase3 = AddSyainBase(3, "社員3", "03");
+            var syainBase4 = AddSyainBase(4, "社員4", "04");
+            var syainBase5 = AddSyainBase(5, "社員5", "05");
+
+            SeedEntities(busyo1, busyo2, busyo3, busyo4, busyo5,
+                syain1, syain2, syain3, syain4, syain5,
+                syainBase1, syainBase2, syainBase3, syainBase4, syainBase5
+            );
+            var model = CreateModel();
+            model.SyainName = "社員";
+
+            // Act
+            await model.OnGetSearchAsync(true);
+
+            // Assert
+            Assert.IsNotNull(model.SyainListPage);
+            Assert.IsNotNull(model.SyainListPage.BusyoList);
+            // 部署リストの1番目に"親部署"が入っている、その中に"社員1"が入っているか確認
+            Assert.AreEqual(1, model.SyainListPage.BusyoList[0].Id);
+            Assert.IsNotNull(model.SyainListPage.BusyoList[0].Syains);
+            Assert.AreEqual(1, model.SyainListPage.BusyoList[0].Syains![0].SyainBaseId);
+            // 部署リストの2番目に"子部署1"が入っている、その中に"社員2"が入っているか確認
+            Assert.AreEqual(2, model.SyainListPage.BusyoList[1].Id);
+            Assert.IsNotNull(model.SyainListPage.BusyoList[1].Syains);
+            Assert.AreEqual(2, model.SyainListPage.BusyoList[1].Syains![0].SyainBaseId);
+            // 部署リストの3番目に"孫部署1"が入っている、その中に"社員4"が入っているか確認
+            Assert.AreEqual(4, model.SyainListPage.BusyoList[2].Id);
+            Assert.IsNotNull(model.SyainListPage.BusyoList[2].Syains);
+            Assert.AreEqual(4, model.SyainListPage.BusyoList[2].Syains![0].SyainBaseId);
+            // 部署リストの4番目に"子部署2"が入っている、その中に"社員3"が入っているか確認
+            Assert.AreEqual(3, model.SyainListPage.BusyoList[3].Id);
+            Assert.IsNotNull(model.SyainListPage.BusyoList[3].Syains);
+            Assert.AreEqual(3, model.SyainListPage.BusyoList[3].Syains![0].SyainBaseId);
+            // 部署リストの5番目に"孫部署2"が入っている、その中に"社員5"が入っているか確認
+            Assert.AreEqual(5, model.SyainListPage.BusyoList[4].Id);
+            Assert.IsNotNull(model.SyainListPage.BusyoList[4].Syains);
+            Assert.AreEqual(5, model.SyainListPage.BusyoList[4].Syains![0].SyainBaseId);
+        }
+
+        /// <summary>
         /// 正常系：社員名が複数人一致する場合、昇順で社員が表示される
         /// </summary>
         /// <returns></returns>

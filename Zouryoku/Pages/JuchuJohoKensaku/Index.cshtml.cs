@@ -9,7 +9,6 @@ using Model.Extensions;
 using Model.Model;
 using Zouryoku.Attributes;
 using Zouryoku.Data;
-using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 using static Model.Enums.ContractClassification;
@@ -144,30 +143,10 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
         /// <returns>検索結果</returns>
         public async Task<IActionResult> OnGetSearchJuchusAsync()
         {
-            if (!string.IsNullOrWhiteSpace(SearchConditions.JucKin))
+            // 入力チェック
+            if (!ModelState.IsValid)
             {
-                // 受注金額の整形（カンマ除去 → long変換）
-                var noComma = SearchConditions.JucKin.Replace(",", "");
-
-                if (!long.TryParse(noComma, out var kin))
-                {
-                    ModelState.AddModelError(
-                        nameof(SearchConditions.JucKin),
-                        string.Format(ErrorNumberRangeLessThan, "受注金額", long.MaxValue.ToString("N0"))
-                    );
-                    return CommonErrorResponse();
-                }
-                else
-                {
-                    SearchConditions.JucKinLong = kin;
-                }
-            }
-
-            // 入力値チェック
-            var errorJson = ModelState.ErrorJson();
-            if (errorJson is not null)
-            {
-                return errorJson;
+                return Page();
             }
 
             // 履歴参照フラグをfalseにする
@@ -307,7 +286,8 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             }
 
             // 登録または更新を行い、参照履歴超過分を削除
-            //await MaintainKingsJuchuSansyouRirekiAsync(db, juchuId, LoginInfo.User.SyainBaseId);
+            var now = timeProvider.Now();
+            await MaintainKingsJuchuSansyouRirekiAsync(db, juchuId, LoginInfo.User.SyainBaseId, now);
 
             await db.SaveChangesAsync();
 
@@ -428,6 +408,11 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             {
                 // 画面.検索条件の各項目が空白ではない場合に、条件を追加する
 
+                // 受注金額のパース
+                // NOTE: Model側でバリデーションをかけているため、ここに到達する場合は正常な数値が入っているはず
+                var normalized = SearchConditions.JucKin?.Replace(",", "") ?? "0";
+                _ = long.TryParse(normalized, out var amount);
+
                 // 日付の範囲指定をFrom < Toに補正する
                 model.ChaYmd.NormalizeDateRange();
 
@@ -479,9 +464,9 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
                     query = query.Where(j => j.OkrTanCd1 == model.OkrTanCd1);
                 }
                 // 受注金額
-                if (model.JucKinLong != null)
+                if (!string.IsNullOrWhiteSpace(model.JucKin))
                 {
-                    query = query.Where(j => model.JucKinLong <= j.JucKin);
+                    query = query.Where(j => amount <= j.JucKin);
                 }
                 // 顧客名
                 if (!string.IsNullOrWhiteSpace(model.KokyakuName))

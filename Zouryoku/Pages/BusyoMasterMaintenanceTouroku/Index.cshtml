@@ -444,6 +444,14 @@
                 $(fields.id).val(busyo.id);
                 // コードはコードフィールドがある場合のみ
                 if (fields.code) $(fields.code).val(busyo.code);
+
+                // 親部署選択時に必須エラーを消す
+                if (selectedBusyoTarget === BusyoTarget.OYA) {
+                    const $oyaName = $('#Input_OyaName');
+
+                    // jQuery Validate に再チェックさせる
+                    $oyaName.valid();
+                }
             }
 
             // -----------------------------

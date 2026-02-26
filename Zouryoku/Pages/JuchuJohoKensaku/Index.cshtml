@@ -57,7 +57,7 @@
                              model="@(new DatepickerModel { 
                                  Id = Html.IdFor(model => model.SearchConditions.ChaYmd.From)
                              })" />
-                    <div class="col-auto align-content-center">～</div>
+                    <div class="col-auto align-content-center app-input__label">～</div>
                     <div class="input-group col">
                         <input class="form-control app-input__textbox" asp-for="SearchConditions.ChaYmd.To"  />
                     </div>
@@ -137,7 +137,7 @@
                 <div class="col d-flex flex-column">
                     <span class="text-danger" asp-validation-for="SearchConditions.JucKin"></span>
                     <div class="d-flex align-items-center">
-                        <input class="form-control app-input__textbox" type="text" asp-for="SearchConditions.JucKin" />
+                        <input class="form-control numeric comma app-input__textbox" type="text" autocomplete="off" asp-for="SearchConditions.JucKin" integer-digit="19" />
                         <span class="ms-2 app-input__label">～</span>
                     </div>
                 </div>
@@ -222,6 +222,11 @@
             // 入力欄
             const $kokyakuNameInput = $('#@Html.IdFor(model => model.SearchConditions.KokyakuName)');
             const $bukkenInput = $('#@Html.IdFor(model => model.SearchConditions.Bukken)');
+
+            // バリデーション設定
+            // ----------------------------------
+
+            initValidation("#search-form");
 
             // URL
             // ----------------------------------
@@ -312,9 +317,6 @@
             $('#search-btn').on('click', async function() {
                 // 既存のバリデーションエラー表示をクリア
                 clearErrors(SELECTOR_SEARCH_FORM);
-
-                // 共通エラーをクリア
-                $("#message-notification").empty();
 
                 // クライアント側バリデーション
                 if (!$searchForm.valid())

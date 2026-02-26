@@ -1,4 +1,4 @@
-﻿@page
+@page
 @using static Zouryoku.Utils.Const;
 @model Zouryoku.Pages.KinmuNippouMiKakuteiCheck.NotifyModel
 @{
@@ -8,9 +8,9 @@
 
 <form id="notify-form">
     @Html.AntiForgeryToken()
-    @foreach (var syainBaseId in Model.ReceiveSyainBaseIds)
+    @for (int i = 0; i < Model.ReceiveSyainBaseIds.Count(); i++)
     {
-        <input type="hidden" value="@syainBaseId" asp-for="@Model.ReceiveSyainBaseIds" />
+        <input type="hidden" asp-for="@Model.ReceiveSyainBaseIds[i]" />
     }
     <div class="app-screen--single-form">
         <div class="app-area__header">

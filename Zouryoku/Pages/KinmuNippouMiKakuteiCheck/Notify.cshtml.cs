@@ -96,7 +96,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             ReceiveSyainBaseIds = syainBaseIds;
 
             // 未確定通知送信履歴
-            MikakuteiTsuchiRirekis = await GetNippousAsync();
+            MikakuteiTsuchiRirekis = await GetMikakuteiTsuchiRirekisAsync();
 
             // 送信予定メッセージ
 
@@ -160,11 +160,8 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             };
             await db.AddAsync(rireki);
 
-            // 登録した未確定通知送信履歴データのID
-            var rirekiId = db.Entry(rireki).Property(r => r.Id).CurrentValue;
-
             // 中間テーブル（社員⇔未確定通知履歴）へデータを登録
-            await AddSyainTsuchiRirekiRelsAsync(rirekiId, ReceiveSyainBaseIds);
+            await AddSyainTsuchiRirekiRelsAsync(rireki, ReceiveSyainBaseIds);
 
             // 古い未確定通知送信履歴データの削除
             // ----------------------------------
@@ -195,7 +192,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         /// 未確定通知履歴を全件取得する。
         /// </summary>
         /// <returns>未確定通知履歴のリスト</returns>
-        private async Task<List<MikakuteiTsuchiRirekiViewModel>> GetNippousAsync()
+        private async Task<List<MikakuteiTsuchiRirekiViewModel>> GetMikakuteiTsuchiRirekisAsync()
         {
             return await db.MikakuteiTsuchiRirekis
                 .AsSplitQuery()
@@ -211,9 +208,9 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         /// <summary>
         /// 社員⇔未確定通知履歴テーブルにデータを追加する。
         /// </summary>
-        /// <param name="rirekiId">未確定通知履歴ID</param>
+        /// <param name="rireki">親となる未確定通知履歴エンティティ</param>
         /// <param name="receivedSyainBaseIds">通知対象社員の社員BaseIDの配列</param>
-        private async Task AddSyainTsuchiRirekiRelsAsync(long rirekiId, long[] receivedSyainBaseIds)
+        private async Task AddSyainTsuchiRirekiRelsAsync(MikakuteiTsuchiRireki rireki, long[] receivedSyainBaseIds)
         {
             // 挿入するデータのリスト
             var rels = new List<SyainTsuchiRirekiRel>();
@@ -222,7 +219,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             {
                 rels.Add(new SyainTsuchiRirekiRel()
                 {
-                    MikakuteiTsuchiRirekiId = rirekiId,
+                    MikakuteiTsuchiRireki = rireki,
                     TsuchiSyainBaseId = syainBaseId,
                 });
             }

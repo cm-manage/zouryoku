@@ -3,7 +3,7 @@ using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Enums;
 using Zouryoku.Extensions;
-using Zouryoku.Sevices;
+using Zouryoku.Services;
 using Zouryoku.Utils;
 
 using static Zouryoku.Enums.DeviceType;
@@ -47,13 +47,16 @@ namespace Zouryoku.Components.ViewComponents
         // ---------------------------------------------
         // InvokeAsync
         // ---------------------------------------------
-        public async Task<IViewComponentResult> InvokeAsync()
+        public Task<IViewComponentResult> InvokeAsync()
         {
             // ログインユーザー情報を取得
             Syain loginUser = LoginInfo.User;
 
             // メニュー情報を取得してビューに渡す
-            return View(_menuService.FilterMenus(_menuService.CreateMenu(loginUser), loginUser, DeviceType));
+            // Component.InvokeAsyncはTask<IViewComponentResult>を返却する必要があるため、
+            // 同期処理結果を即座に返却する
+            return Task.FromResult<IViewComponentResult>
+                (View(_menuService.FilterMenus(_menuService.CreateMenu(loginUser), loginUser, DeviceType)));
         }
     }
 }

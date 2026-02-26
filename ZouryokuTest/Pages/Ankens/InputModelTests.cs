@@ -255,11 +255,11 @@ namespace ZouryokuTest.Pages.Ankens
 
         // =================================================================
         /// <summary>
-        /// 初期表示: ID指定が存在しない場合、Pageを返し、ModelStateにエラーが設定されることを確認
+        /// 初期表示: ID指定が存在しない場合、RedirectToPageResultが返却されることを確認
         /// </summary>
         // =================================================================
-        [TestMethod(DisplayName = "#07 ID指定が存在しない → ModelStateにエラー設定")]
-        public async Task OnGetAsync_WhenIdNotExists_ThenModelStateError()
+        [TestMethod(DisplayName = "#07 ID指定が存在しない → エラーページに遷移する")]
+        public async Task OnGetAsync_WhenIdNotExists_ThenReturnsRedirectToPageResult()
         {
             // ---------- Arrange ----------
             var model = CreateModel();
@@ -269,16 +269,11 @@ namespace ZouryokuTest.Pages.Ankens
             var result = await model.OnGetAsync(9999);
 
             // ---------- Assert ----------
-            Assert.IsInstanceOfType<PageResult>(result);
+            var redirect = result as RedirectToPageResult;
 
-            // ModelStateにエラーが設定されていること
-            Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsNotNull(model.ModelState[string.Empty], "ModelStateにキーがemptyのエラーが存在するはずです。");
-
-            // エラーメッセージの確認
-            var messages = model.ModelState[string.Empty]!.Errors.Select(e => e.ErrorMessage).ToList();
-            Assert.HasCount(1, messages, "ModelStateにはエラーが1件設定されているはずです。");
-            Assert.AreEqual(Const.ErrorSelectedDataNotExists, messages[0], "エラーメッセージが一致しません。");
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual("/ErrorMessage", redirect.PageName);
+            Assert.AreEqual(Const.ErrorSelectedDataNotExists, redirect.RouteValues?["errorMessage"]);
         }
 
         // ---------------------------------------------------------------------

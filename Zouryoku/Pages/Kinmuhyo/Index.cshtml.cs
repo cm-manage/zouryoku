@@ -586,7 +586,6 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="nippouYoteisNextMonth">翌月の予定リスト</param>
         /// <param name="nippous">全ての実績日報リスト</param>
         /// <param name="systemDate">基準日</param>
-        /// <param name="actualContinuousDays">実績ベースの連続日数（未使用）</param>
         /// <returns>実績連続日数と予定連続日数のタプル</returns>
         private (int actualContinuousCount, int plannedContinuousCount) CountContinuousWorkDaysPlanned(
             List<NippouYotei> nippouYoteisCurrent,

@@ -563,7 +563,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             // Assert
             Assert.IsNotNull(model.ViewModel.DepartmentEmployees, "DepartmentEmployees が設定されているべきです。");
-            Assert.IsGreaterThanOrEqualTo(2, model.ViewModel.DepartmentEmployees.Count, "DepartmentEmployees は最低2人（自分を含む）以上あるべきです。");
+            Assert.IsTrue(model.ViewModel.DepartmentEmployees.Count >= 2, "DepartmentEmployees は最低2人（自分を含む）以上あるべきです。");
 
             // 選択中の社員が含まれていることを確認
             var selectedEmployee = model.ViewModel.DepartmentEmployees.FirstOrDefault(e => e.Id == syain.Id);
@@ -647,7 +647,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await model.OnGetAsync();
 
             // Assert
-            Assert.IsNotEmpty(model.ViewModel.KinmuJokyoRows, "KinmuJokyoRows にデータが存在するべきです。");
+            Assert.IsTrue(model.ViewModel.KarendaHyojiRows.Count > 0, "KarendaHyojiRows にデータが存在するべきです。");
 
             // 残業行の確認
             var overtimeRow = model.ViewModel.KinmuJokyoRows.FirstOrDefault(r => r.Label == "残業");

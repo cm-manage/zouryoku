@@ -26,8 +26,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
     public partial class IndexModel : BasePageModel<IndexModel>
     {
         public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine) { }
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider timeProvider)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets => true;
 
@@ -72,8 +72,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// </summary>
         public void OnGet()
         {
-            SearchIndex.From = DateTime.Today.ToDateOnly().ToString("yyyy-MM");
-            SearchIndex.To = DateTime.Today.ToDateOnly().ToString("yyyy-MM");
+            SearchIndex.From = timeProvider.Today().ToString("yyyy-MM");
+            SearchIndex.To = timeProvider.Today().ToString("yyyy-MM");
             SearchIndex.WarnLevel = All;
         }
 
@@ -338,7 +338,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
                     // 年度初めの有給日数
                     decimal wariate;
-                    var today = DateTime.Today.ToDateOnly();
+                    var today = timeProvider.Today();
                     // 現在の有給年度
                     var currentNendo = today.Month >= yukyuMonth ? today.Year : today.Year - 1;
 
@@ -401,9 +401,9 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     };
 
                     // 検索条件.警告レベルでの絞り込み
-                    if (Search.WarnLevel == WarnLevel.All ||
-                        Search.WarnLevel == WarnLevel.Warn && includesWarn ||
-                        Search.WarnLevel == WarnLevel.Notice && includesNotice)
+                    if (Search.WarnLevel == All ||
+                        Search.WarnLevel == Warn && includesWarn ||
+                        Search.WarnLevel == Notice && includesNotice)
                     {
                         vm.WorkList.Add(zangyoRow);
                         vm.HolidayList.Add(yukyuRow);
@@ -447,19 +447,19 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         private string GetWarnLevelCssByZangyoValue(decimal? value, decimal warn, decimal notice)
         {
             // 警告レベルを判定
-            WarnLevel level = WarnLevel.All;
+            WarnLevel level = All;
             if (!value.HasValue)
             {
-                level = WarnLevel.All;
+                level = All;
             }
             else if (warn <= value)
             {
-                level = WarnLevel.Warn;
+                level = Warn;
                 includesWarn = true;
             }
             else if (notice <= value)
             {
-                level = WarnLevel.Notice;
+                level = Notice;
                 includesNotice = true;
             }
 

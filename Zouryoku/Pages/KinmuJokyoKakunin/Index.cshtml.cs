@@ -72,8 +72,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// </summary>
         public void OnGet()
         {
-            SearchIndex.From = timeProvider.Now().ToString("yyyy-MM");
-            SearchIndex.To = timeProvider.Now().ToString("yyyy-MM");
+            SearchIndex.From = timeProvider.Today().ToString("yyyy-MM");
+            SearchIndex.To = timeProvider.Today().ToString("yyyy-MM");
             SearchIndex.WarnLevel = All;
         }
 
@@ -401,9 +401,9 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     };
 
                     // 検索条件.警告レベルでの絞り込み
-                    if (Search.WarnLevel == WarnLevel.All ||
-                        Search.WarnLevel == WarnLevel.Warn && includesWarn ||
-                        Search.WarnLevel == WarnLevel.Notice && includesNotice)
+                    if (Search.WarnLevel == All ||
+                        Search.WarnLevel == Warn && includesWarn ||
+                        Search.WarnLevel == Notice && includesNotice)
                     {
                         vm.WorkList.Add(zangyoRow);
                         vm.HolidayList.Add(yukyuRow);
@@ -447,19 +447,19 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         private string GetWarnLevelCssByZangyoValue(decimal? value, decimal warn, decimal notice)
         {
             // 警告レベルを判定
-            WarnLevel level = WarnLevel.All;
+            WarnLevel level = All;
             if (!value.HasValue)
             {
-                level = WarnLevel.All;
+                level = All;
             }
             else if (warn <= value)
             {
-                level = WarnLevel.Warn;
+                level = Warn;
                 includesWarn = true;
             }
             else if (notice <= value)
             {
-                level = WarnLevel.Notice;
+                level = Notice;
                 includesNotice = true;
             }
 

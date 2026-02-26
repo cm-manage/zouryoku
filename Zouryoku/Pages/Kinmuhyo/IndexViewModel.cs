@@ -448,10 +448,9 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <summary>
         /// 日付別の表示スタイルを取得
         /// </summary>
-        /// <param name="d">対象日付</param>
+        /// <param name="date">対象日付</param>
         /// <param name="plannedWork">出勤予定フラグ</param>
-        /// <param name="hd">非稼働日情報</param>
-        /// <param name="today">当日日付</param>
+        /// <param name="hikadoubi">非稼働日情報</param>
         /// <returns>行クラスと日付クラスのタプル</returns>
         private string GetStyles(
             DateOnly date, 

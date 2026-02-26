@@ -10,6 +10,8 @@ using Zouryoku.Pages.KinmuJokyoKakunin;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
 using static Zouryoku.Pages.KinmuJokyoKakunin.WarnLevel;
+using static Model.Enums.ResponseStatus;
+using static Model.Enums.LeaveBalanceFetchStatus;
 
 namespace ZouryokuTest.Pages.KinmuJokyoKakunin
 {
@@ -57,11 +59,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
 
         private IndexModel CreateModel()
         {
-            IndexModel model = new IndexModel(
-                db, GetLogger<IndexModel>(),
-                options = CreateOptions(),
-                viewEngine,
-                fakeTimeProvider)
+            IndexModel model = new IndexModel(db, GetLogger<IndexModel>(), options = CreateOptions(), viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData(),
@@ -83,13 +81,16 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
         {
             // Arrange
             IndexModel model = CreateModel();
+            var today = new DateOnly(2026, 2, 26);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            string expectedPrefix = today.ToString("yyyy-MM");
+
 
             // Act
             model.OnGet();
 
             // Assert
             Assert.IsNotNull(model.SearchIndex);
-            string expectedPrefix = fakeTimeProvider.Now().ToDateOnly().ToString("yyyy-MM");
             Assert.StartsWith(expectedPrefix, model.SearchIndex.From);
             Assert.StartsWith(expectedPrefix, model.SearchIndex.To);
             Assert.AreEqual(All, model.SearchIndex.WarnLevel);
@@ -117,7 +118,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 To = "2026-02",
                 BusyoMode = "all",
                 Busyo = "[]",
-                WarnLevel = WarnLevel.All
+                WarnLevel = All
             };
 
             // Act
@@ -128,7 +129,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
             JsonResult json = (JsonResult)result;
             ResponseStatus status = GetResponseStatus(json);
             string? message = GetMessage(json);
-            Assert.AreEqual(ResponseStatus.エラー, status);
+            Assert.AreEqual(エラー, status);
             Assert.IsNotNull(message);
         }
 
@@ -148,8 +149,8 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 From = "2026-02",
                 To = "2026-02",
                 BusyoMode = "select",
-                Busyo = "", // invalid when mode is not 'all'
-                WarnLevel = WarnLevel.All
+                Busyo = "",
+                WarnLevel = All
             };
 
             // Act
@@ -160,7 +161,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
             JsonResult json = (JsonResult)result;
             ResponseStatus status = GetResponseStatus(json);
             string? message = GetMessage(json);
-            Assert.AreEqual(ResponseStatus.エラー, status);
+            Assert.AreEqual(エラー, status);
             Assert.IsNotNull(message);
         }
 
@@ -274,7 +275,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 .WithSyukkinKubunId2(syukkinKubun2.Id)
                 .Build();
             db.Nippous.Add(nippou);
-            
+
             Nippou nippou2 = new NippouBuilder()
                 .WithId(2)
                 .WithSyainId(syain.Id)
@@ -291,7 +292,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 .WithWorkYmd(DateOnly.Parse("2024/2/5"))
                 .Build();
             db.UkagaiHeaders.Add(ukagaiHeader);
-            
+
             UkagaiShinsei ukagaiShinsei = new UkagaiShinseiBuilder()
                 .WithId(1)
                 .WithUkagaiHeaderId(ukagaiHeader.Id)
@@ -333,7 +334,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 KyuujitsuSyukkinYmd = DateOnly.Parse("2024/2/11"),
                 DaikyuuKigenYmd = DateOnly.Parse("2027/12/31"),
                 IsOneDay = true,
-                SyutokuState = LeaveBalanceFetchStatus.未
+                SyutokuState = 未
             };
             db.FurikyuuZans.Add(furikyuu);
 
@@ -344,7 +345,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 KyuujitsuSyukkinYmd = DateOnly.Parse("2024/2/11"),
                 DaikyuuKigenYmd = DateOnly.Parse("2027/12/31"),
                 IsOneDay = true,
-                SyutokuState = LeaveBalanceFetchStatus.半日
+                SyutokuState = 半日
             };
             db.FurikyuuZans.Add(furikyuu2);
 
@@ -355,7 +356,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 KyuujitsuSyukkinYmd = DateOnly.Parse("2024/2/11"),
                 DaikyuuKigenYmd = DateOnly.Parse("2027/12/31"),
                 IsOneDay = false,
-                SyutokuState = LeaveBalanceFetchStatus.未
+                SyutokuState = 未
             };
             db.FurikyuuZans.Add(furikyuu3);
 
@@ -366,7 +367,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 KyuujitsuSyukkinYmd = DateOnly.Parse("2024/2/11"),
                 DaikyuuKigenYmd = DateOnly.Parse("2027/12/31"),
                 IsOneDay = false,
-                SyutokuState = LeaveBalanceFetchStatus._1日
+                SyutokuState = _1日
             };
             db.FurikyuuZans.Add(furikyuu4);
 
@@ -454,6 +455,25 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 .WithSyukkinKubunId2(syukkinKubun2.Id)
                 .Build();
             db.Nippous.Add(nippou3Syain2);
+
+
+            Nippou nippou4Syain2 = new NippouBuilder()
+                .WithId(43)
+                .WithSyainId(syain2.Id)
+                .WithNippouYmd(DateOnly.Parse("2024/2/5"))
+                .WithSyukkinKubunId1(syukkinKubun1.Id)
+                .WithSyukkinKubunId2(syukkinKubun2.Id)
+                .Build();
+            db.Nippous.Add(nippou4Syain2);
+
+            Nippou nippou5Syain2 = new NippouBuilder()
+                .WithId(44)
+                .WithSyainId(syain2.Id)
+                .WithNippouYmd(DateOnly.Parse("2024/2/6"))
+                .WithSyukkinKubunId1(syukkinKubun5.Id)
+                .WithSyukkinKubunId2(syukkinKubun2.Id)
+                .Build();
+            db.Nippous.Add(nippou5Syain2);
 
             Nippou nippouConsecutive1 = new NippouBuilder()
                 .WithId(6)
@@ -599,7 +619,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
             Assert.IsInstanceOfType(result, typeof(JsonResult));
             JsonResult json = (JsonResult)result;
             ResponseStatus status = GetResponseStatus(json);
-            Assert.AreEqual(ResponseStatus.正常, status);
+            Assert.AreEqual(正常, status);
 
             object val = json.Value ?? throw new AssertFailedException("JSON の値が null です");
 

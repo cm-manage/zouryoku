@@ -27,12 +27,14 @@
         <td>
             @if (r.IsLink)
             {
+                var isZero = r.PlannedOvertimeRaw == 0;
                 <div class="overtime-input-wrapper d-inline-flex align-items-center gap-3">
                     <button type="button"
                             class="btn btn-primary btn-sm d-none d-lg-inline-block btn-planned-overtime-dec"
                             id="planned-overtime-dec-@r.DateIso"
                             data-date="@r.DateIso"
-                            aria-label="残業を減らす">
+                            aria-label="残業を減らす"
+                            disabled="@isZero">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                     <span class="planned-overtime-value">@r.PlannedOvertimeRaw</span>
@@ -40,7 +42,8 @@
                             class="btn btn-primary btn-sm d-none d-lg-inline-block btn-planned-overtime-inc"
                             id="planned-overtime-inc-@r.DateIso"
                             data-date="@r.DateIso"
-                            aria-label="残業を増やす">
+                            aria-label="残業を増やす"
+                            disabled="@isZero">
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
                 </div>

@@ -1,5 +1,4 @@
 using CommonLibrary.Extensions;
-using LanguageExt;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -164,6 +163,10 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 }
             }
 
+            /// <summary>
+            /// 削除済みの出退勤時間をセット
+            /// </summary>
+            /// <param name="ranges">出退勤時間範囲配列</param>
             public void SetDeletedTimeRanges(TimeRange[] ranges)
             {
                 var timeSets = new List<TimeSet>();
@@ -299,7 +302,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             // 表示する勤怠打刻が存在する場合、ViewModelへセットして返却
             if (workingHours.Any())
             {
-                ViewModel = await BuildViewModelFromWorkingHours(syainId, jissekiDate, workingHours);
+                ViewModel = BuildViewModelFromWorkingHours(syainId, jissekiDate, workingHours);
                 return Page();
             }
 
@@ -365,11 +368,11 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             // 削除フラグがTrueの勤怠打刻情報が存在する場合、削除フラグがFalseの勤怠打刻情報を削除する。
             if (0 < deletedWorkingHours.Count)
             {
-                await DeleteWorkingHoursAsync(notDeletedWorkingHours);
+                DeleteWorkingHoursAsync(notDeletedWorkingHours);
             }
 
             // 入力値をDBに登録
-            await RegisterWorkingHoursAsync(workingHours, isNotDairi);
+            RegisterWorkingHoursAsync(workingHours, isNotDairi);
 
             await SaveWithConcurrencyCheckAsync(string.Format(Const.ErrorConflictReload, "打刻情報"));
             
@@ -473,7 +476,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         /// <param name="jissekiDate">実績日</param>
         /// <param name="workingHours">勤怠打刻情報</param>
         /// <returns>Viewモデル</returns>
-        private async Task<DakokuJikanSyuseiViewModel> BuildViewModelFromWorkingHours(
+        private DakokuJikanSyuseiViewModel BuildViewModelFromWorkingHours(
             long syainId,
             DateOnly jissekiDate,
             List<WorkingHour> workingHours)
@@ -589,9 +592,24 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 var set = ViewModel.TimeSets[i];
                 ValidateInputTimeCheck(set.Start, set.End, $"出退勤{i + 1}");
             }
+            if (!ModelState.IsValid)
+            {
+                return; 
+            }
 
             // 出勤時間と退勤時間の重複を確認
             ValidateWorkingHourOverlaps(ViewModel.TimeSets, ViewModel.JissekiDate);
+            if (!ModelState.IsValid)
+            {
+                return;
+            }
+
+            // 出勤時間と退勤時間の逆転を確認
+            ValidateWorkingHourOrder(ViewModel.TimeSets);
+            if (!ModelState.IsValid)
+            {
+                return;
+            }
 
             // 出退勤が全て未入力の場合
             var isAllEmpty =
@@ -735,6 +753,24 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         }
 
         /// <summary>
+        /// 出勤時間と退勤時間の逆転を確認する。
+        /// </summary>
+        /// <param name="timeSets">入力された出退勤時間</param>
+        private void ValidateWorkingHourOrder(List<TimeSet> timeSets)
+        {
+            for (int i = 0; i < timeSets.Count - 1; i++)
+            {
+                var currentTimeSet = timeSets[i];
+                var nextTimeSet = timeSets[i + 1];
+                if (currentTimeSet.End.AsTimeOnly > nextTimeSet.Start.AsTimeOnly)
+                {
+                    ModelState.AddModelError(string.Empty, string.Format(Const.ErrorReverse, $"出退勤{i + 1}と出退勤{i + 2}"));
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
         /// バージョン件数を確認
         /// </summary>
         /// <param name="workingHours">勤怠打刻情報</param>
@@ -773,7 +809,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         /// </summary>
         /// <param name="workingHours">勤怠打刻情報</param>
         /// <param name="ukagaiHeaderId">伺いヘッダID</param>
-        private async Task DeleteWorkingHoursAsync(List<WorkingHour> notDeletedWorkingHours)
+        private void DeleteWorkingHoursAsync(List<WorkingHour> notDeletedWorkingHours)
         {
             // 勤怠打刻を削除
             var targetWorkingHours = notDeletedWorkingHours
@@ -823,7 +859,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         /// </summary>
         /// <param name="workingHours">勤怠打刻情報</param>
         /// <param name="isNotDairi">代理入力かどうか</param>
-        private async Task RegisterWorkingHoursAsync(List<WorkingHour> workingHours, bool isNotDairi)
+        private void RegisterWorkingHoursAsync(List<WorkingHour> workingHours, bool isNotDairi)
         {
             // 伺い入力ヘッダを新規作成
             UkagaiHeader ukagaiHeader = new()

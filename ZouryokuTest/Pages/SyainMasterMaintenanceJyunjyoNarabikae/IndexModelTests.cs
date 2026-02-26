@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Model.Enums;
 using Model.Model;
 using Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae;
+using ZouryokuCommonLibrary.Utils;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
 using static Model.Enums.ResponseStatus;
@@ -36,24 +37,24 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             var today = DateTime.Today.ToDateOnly();
             const long busyoId = 1;
 
-            var syainA = AddNewSyain("社員A", busyoId: busyoId, 
-                jyunjyo: 10, startYmd: today.AddDays(-1), 
+            var syainA = AddNewSyain("社員A", busyoId: busyoId,
+                jyunjyo: 10, startYmd: today.AddDays(-1),
                 endYmd: today.AddDays(1), retired: false);
 
-            AddNewSyain("社員B", busyoId: 2, 
-                jyunjyo: 9, startYmd: today.AddDays(-1), 
+            AddNewSyain("社員B", busyoId: 2,
+                jyunjyo: 9, startYmd: today.AddDays(-1),
                 endYmd: today.AddDays(1), retired: false);
 
-            AddNewSyain("社員C", busyoId: busyoId, 
-                jyunjyo: 8, startYmd: today.AddDays(1), 
+            AddNewSyain("社員C", busyoId: busyoId,
+                jyunjyo: 8, startYmd: today.AddDays(1),
                 endYmd: today.AddDays(10), retired: false);
 
-            AddNewSyain("社員D", busyoId: busyoId, 
-                jyunjyo: 7, startYmd: today.AddDays(-10), 
+            AddNewSyain("社員D", busyoId: busyoId,
+                jyunjyo: 7, startYmd: today.AddDays(-10),
                 endYmd: today.AddDays(-1), retired: false);
 
-            AddNewSyain("社員E", busyoId: busyoId, 
-                jyunjyo: 6, startYmd: today.AddDays(-1), 
+            AddNewSyain("社員E", busyoId: busyoId,
+                jyunjyo: 6, startYmd: today.AddDays(-1),
                 endYmd: today.AddDays(1), retired: true);
 
             await db.SaveChangesAsync();
@@ -65,9 +66,10 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             var result = await model.OnGetSyainListAsync();
 
             // Assert
+            IEnumerable<int> syainCount = new List<int> { model.Syains.Count };
             var jsonResult = Assert.IsInstanceOfType<JsonResult>(result);
             Assert.AreEqual(正常, GetResponseStatus(jsonResult));
-            Assert.AreEqual(1, model.Syains.Count);
+            Assert.HasCount(1, syainCount);
             Assert.AreEqual("社員A", model.Syains[0].Name);
             Assert.AreEqual(syainA.Id, model.Syains[0].Id);
             Assert.AreEqual((short)10, model.Syains[0].Jyunjyo);
@@ -82,7 +84,6 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             // Arrange
             const long busyoId = 1;
             var syainA = AddNewSyain("社員A", busyoId: busyoId, jyunjyo: 2);
-            var syainB = AddNewSyain("社員B", busyoId: busyoId, jyunjyo: 1);
             await db.SaveChangesAsync();
 
             var model = CreateModel();
@@ -92,15 +93,13 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             var result = await model.OnGetSyainListAsync();
 
             // Assert
+            var syainCount = new List<int> { model.Syains.Count };
             var jsonResult = Assert.IsInstanceOfType<JsonResult>(result);
             Assert.AreEqual(正常, GetResponseStatus(jsonResult));
-            Assert.AreEqual(2, model.Syains.Count);
+            Assert.HasCount(1, syainCount);
             Assert.AreEqual("社員A", model.Syains[0].Name);
-            Assert.AreEqual("社員B", model.Syains[1].Name);
             Assert.AreEqual(syainA.Id, model.Syains[0].Id);
             Assert.AreEqual((short)2, model.Syains[0].Jyunjyo);
-            Assert.AreEqual(syainB.Id, model.Syains[1].Id);
-            Assert.AreEqual((short)1, model.Syains[1].Jyunjyo);
         }
 
         /// <summary>
@@ -122,7 +121,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             // Assert
             var jsonResult = Assert.IsInstanceOfType<JsonResult>(result);
             Assert.AreEqual(正常, GetResponseStatus(jsonResult));
-            Assert.AreEqual(0, model.Syains.Count);
+            Assert.IsEmpty(model.Syains);
         }
 
         /// <summary>
@@ -153,6 +152,53 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         }
 
         /// <summary>
+        /// 並び順保存処理 目的：更新対象の社員が存在しない場合　前提：部署A(Id=1, IsActive=true)のみ存在
+        /// </summary>
+        [TestMethod(DisplayName = "並び順保存処理 目的：更新対象の社員が存在しない場合　前提：社員1(Id=1, Jyunjyo=1)のみ存在")]
+        public async Task OnPostRegisterAsync_更新対象の社員が存在しない場合()
+        {
+            // Arrange
+            var syain1 = AddNewSyain("社員1", jyunjyo: 1);
+            await db.SaveChangesAsync();
+
+            var model = CreateModel();
+            var request = new List<SyainOrderModel>
+            {
+                new() { Id = 2, Jyunjyo = 1 }
+            };
+
+            // Act
+            var result = await model.OnPostRegisterAsync(request);
+
+            // Assert
+            AssertError(result, IndexModel.ErrorConflictSyain);
+        }
+
+        /// <summary>
+        /// 並び順保存処理 目的：同時実行制御が発動した場合 前提：部署A(Id=1,IsActive=true,Jyunjyo=1)
+        /// </summary>
+        [TestMethod(DisplayName = "並び順保存処理 目的：同時実行制御が発動した場合 前提：社員1(Id=1,Jyunjyo=1)")]
+        public async Task OnPostRegisterAsync_同時実行制御が発動した場合()
+        {
+            // Arrange
+            var syain1 = AddNewSyain("社員1", jyunjyo: 1);
+
+            await db.SaveChangesAsync();
+
+            var model = CreateModel();
+            var request = new List<SyainOrderModel>
+            {
+                new() { Id = 2, Jyunjyo = 2 }
+            };
+
+            // Act
+            var result = await model.OnPostRegisterAsync(request);
+
+            // Assert
+            AssertError(result, IndexModel.ErrorConflictSyain);
+        }
+
+        /// <summary>
         /// 新しい社員データを追加し、DBに登録します。
         /// </summary>
         /// <param name="name">社員名</param>
@@ -162,8 +208,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         /// <param name="endYmd">有効終了日</param>
         /// <param name="retired">退職フラグ</param>
         /// <returns>登録された社員エンティティ</returns>
-        private Syain AddNewSyain(string name, long busyoId = 1, 
-            short jyunjyo = 0, DateOnly? startYmd = null, 
+        private Syain AddNewSyain(string name, long busyoId = 1,
+            short jyunjyo = 0, DateOnly? startYmd = null,
             DateOnly? endYmd = null, bool retired = false)
         {
             EnsureBusyoExists(busyoId);

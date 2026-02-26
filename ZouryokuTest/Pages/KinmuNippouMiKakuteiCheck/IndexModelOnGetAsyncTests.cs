@@ -179,7 +179,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
             // ----------------------------------
 
             fakeTimeProvider.SetLocalNow(new(2026, 2, nowDay));
-            var model = CreateIndexModel(hasAuthority ? 勤務日報未確定者への通知 : None);
+            var model = CreateIndexModel(hasAuthority ? 勤務日報未確定チェック : None);
 
             // 先月分の確定期限をモックしておく
             db.Add(new JissekiKakuteiSimebi()

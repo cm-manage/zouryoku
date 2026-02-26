@@ -65,6 +65,9 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public async Task OnGetAsync_パラメータの受注IDと一致する受注情報が存在する_受注情報を返却()
         {
             // ================ Arrange ================ //
+            var now = new DateTime(2026, 2, 1, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
+
             // 受注情報の作成
             var juchu = new KingsJuchuBuilder()
                 .WithProjectNo("00000")
@@ -92,7 +95,7 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
                 .Build();
 
             // 部署情報の作成
-            var today = DateTime.Now.ToDateOnly();
+            var today = fakeTimeProvider.Today();
 
             var busyo = new BusyoBuilder()
                 .WithName("部署A")

@@ -141,6 +141,9 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         public async Task OnGetReferenceHistoryAsync_データを取得していること(int startYmdOffset, int endYmdOffset, string? expectedSekininSyaName)
         {
             // Arrange
+            var now = new DateTime(2026, 2, 15);
+            fakeTimeProvider.SetLocalNow(now);
+
             var expectedAnkenId = 1;
             var expectedAnkenName = "案件名称";
             var expectedKokyakuName = "顧客名称";
@@ -184,8 +187,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             {
                 SyainBaseId = 1,
                 Name = expectedSekininSyaName ?? "取得されないデータ",
-                StartYmd = fakeTimeProvider.Today().AddDays(startYmdOffset),
-                EndYmd = fakeTimeProvider.Today().AddDays(endYmdOffset),
+                StartYmd = now.ToDateOnly().AddDays(startYmdOffset),
+                EndYmd = now.ToDateOnly().AddDays(endYmdOffset),
                 // 不要なNOT NULLカラムに適当に値を詰める
                 Code = string.Empty,
                 KanaName = string.Empty,

@@ -17,7 +17,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
         [DataRow(15, DisplayName = "境界値: 実績締め日")]
         [DataRow(19, DisplayName = "境界値: 確定期限の翌営業日の翌日")]
         [DataRow(24, DisplayName = "代表値: 確定期限の翌営業日の翌々日以降")]
-        public async Task OnGetAsync_通知可能期間でない_403ページへのリダイレクトを返却する(int nowDay)
+        public async Task OnPostNotifyAsync_通知可能期間でない_403ページへのリダイレクトを返却する(int nowDay)
         {
             // Arrange
             // ----------------------------------
@@ -57,7 +57,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
         // --------------------------------------
 
         [TestMethod]
-        public async Task OnGetAsync_送信内容テーブル_データを登録する()
+        public async Task OnPostNotifyAsync_送信内容テーブル_データを登録する()
         {
             // Arrange
             // ----------------------------------
@@ -107,7 +107,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
         }
 
         [TestMethod]
-        public async Task OnGetAsync_未確定通知履歴テーブル_データを登録する()
+        public async Task OnPostNotifyAsync_未確定通知履歴テーブル_データを登録する()
         {
             // Arrange
             // ----------------------------------
@@ -164,7 +164,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
         }
 
         [TestMethod]
-        public async Task OnGetAsync_社員_未確定通知履歴中間テーブル_データを登録する()
+        public async Task OnPostNotifyAsync_社員_未確定通知履歴中間テーブル_データを登録する()
         {
             // Arrange
             // ----------------------------------
@@ -232,7 +232,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
         [DataRow(0, DisplayName = "限界値: 登録後の件数が1件")]
         [DataRow(3, DisplayName = "代表値: 登録後の件数")]
         [DataRow(MaxMikakuteiTsuchiRirekiCount - 1, DisplayName = "境界値: 登録後の件数が上限")]
-        public async Task OnGetAsync_登録後の通知履歴データが上限以下_データを削除しない(int beforeCount)
+        public async Task OnPostNotifyAsync_登録後の通知履歴データが上限以下_データを削除しない(int beforeCount)
         {
             // Arrange
             // ----------------------------------
@@ -302,7 +302,7 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
         [TestMethod]
         [DataRow(MaxMikakuteiTsuchiRirekiCount, DisplayName = "境界値: 登録後の件数が上限 + 1件")]
         [DataRow(MaxMikakuteiTsuchiRirekiCount + 5, DisplayName = "代表値")]
-        public async Task OnGetAsync_登録後の通知履歴データが上限超過_古いデータを削除する(int beforeCount)
+        public async Task OnPostNotifyAsync_登録後の通知履歴データが上限超過_古いデータを削除する(int beforeCount)
         {
             // Arrange
             // ----------------------------------

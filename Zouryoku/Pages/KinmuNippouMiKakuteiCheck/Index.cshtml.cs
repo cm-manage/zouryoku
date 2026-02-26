@@ -20,7 +20,7 @@ using static Zouryoku.Utils.JissekiKakuteiSimeUtil;
 namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 {
     /// <summary>
-    /// 日報未確定通知画面のモデル。
+    /// 日報未確定チェック画面のモデル。
     /// </summary>
     [FunctionAuthorization]
     public partial class IndexModel : BasePageModel<IndexModel>
@@ -155,12 +155,11 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // NOTE: 不正データ = 指定日付から過去一か月間内の、確定状態でない日報
 
             // 指定日付から過去一か月間の確定日報をIncludeした社員のリスト
-            var syainsWithKakutei = await GetSyainsWithKakuteiNippousAsync(inputDate.AddMonths(-1), inputDate, Today, busyoId);
+            var syainsWithKakutei = await GetSyainsWithKakuteiNippousAsync(inputDate.AddMonths(-1), Today, busyoId);
 
             // 未確定者のIDリスト
-            var mikakuteiSyainBaseIds = MikakuteiSyains
-                .Select(s => s.SyainBaseId)
-                .ToList();
+            // NOTE: Contains高速化のためHashSetを使用
+            var mikakuteiSyainBaseIds = new HashSet<long>(MikakuteiSyains.Select(s => s.SyainBaseId));
 
             foreach (var syain in syainsWithKakutei)
             {
@@ -229,14 +228,13 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
         }
 
         /// <summary>
-        /// <paramref name="baseDate"/>時点で有効な社員を、指定期間内の確定済み日報とともに取得する。
+        /// <paramref name="baseDate"/>時点で有効な社員を、指定開始年月日以降の確定済み日報とともに取得する。
         /// </summary>
-        /// <param name="startYmd">指定期間の開始年月日</param>
-        /// <param name="endYmd">指定期間の終了年月日</param>
+        /// <param name="startYmd">開始年月日</param>
         /// <param name="baseDate">基準日付</param>
         /// <param name="busyoId">検索対象の部署のID（nullのときは全社検索）</param>
         /// <returns>確定済み日報のデータを含んだ有効社員のリスト</returns>
-        private async Task<List<Syain>> GetSyainsWithKakuteiNippousAsync(DateOnly startYmd, DateOnly endYmd, DateOnly baseDate, long? busyoId = null)
+        private async Task<List<Syain>> GetSyainsWithKakuteiNippousAsync(DateOnly startYmd, DateOnly baseDate, long? busyoId = null)
         {
             var query = CreateQueryForFetchValidStandardSyain(baseDate).AsNoTracking()
                 .Include(s => s.Nippous

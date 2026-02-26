@@ -54,12 +54,12 @@ namespace Zouryoku.Models.Menu
         /// </summary>
         /// <param name="menuCode">子要素のメニューコード</param>
         /// <param name="iconClass">子要素のアイコンCSSクラス</param>
-        /// <param name="isOpneModal">子要素をモーダルで開くかどうか</param>
+        /// <param name="isOpenModal">子要素をモーダルで開くかどうか</param>
         /// <param name="param">子要素の画面遷移時に必要な引数</param>
         /// <returns>子要素を追加した親要素のインスタンス</returns>
-        public ParentMenu AddChildMenu(MenuCode menuCode, string iconClass, bool isOpneModal, IDictionary<string, string>? param = null)
+        public ParentMenu AddChildMenu(MenuCode menuCode, string iconClass, bool isOpenModal, IDictionary<string, string>? param = null)
         {
-            ChildMenus.Add(new(menuCode, iconClass, isOpneModal, param));
+            ChildMenus.Add(new(menuCode, iconClass, isOpenModal, param));
             return this;
         }
 

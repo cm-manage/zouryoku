@@ -1,12 +1,23 @@
-using ZouryokuTest.Pages.Builder;
-using Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae;
 using Model.Model;
+using Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae;
 
 namespace ZouryokuTest.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
 {
     [TestClass]
     public class IndexModelTests : BaseInMemoryDbContextTest
     {
+        /// <summary>
+        /// テストデータのNOT NULL制約を満たす以外に意味を持たない文字列です。
+        /// </summary>
+        /// <remarks>
+        /// この定数は、事業部や社員エンティティのテストデータ作成時に、
+        /// テストの本質的な検証に関係しない必須項目を埋める目的でのみ使用します。
+        /// テストがこの値の内容に依存しないよう、業務的な意味を持つ値に変更してはなりません。
+        /// また、関連するエンティティのカラムに最大長さ制約が設定されていることを想定し、
+        /// その制約に抵触しないよう「N/A」という短めの文字列を設定しています。
+        /// </remarks>
+        private const string NotNullConstraintPlaceholder = "N/A";
+
         private IndexModel CreateModel() => new(db, GetLogger<IndexModel>(), options)
         {
             PageContext = GetPageContext(),
@@ -250,16 +261,35 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
         /// <returns>作成され、コンテキストに追加された <see cref="Busyo"/> エンティティ。</returns>
         private Busyo AddNewBusyo(string name, short jyunjyo = 0, bool isActive = true, Busyo? oya = null)
         {
-            var busyoBase = new BusyoBasisBuilder().Build();
+            var busyoBase = new BusyoBasis
+            {
+                Id = default,
+                Name = NotNullConstraintPlaceholder,
+                BumoncyoId = default
+            };
             db.BusyoBases.Add(busyoBase);
 
-            var busyo = new BusyoBuilder()
-                .WithName(name)
-                .WithJyunjyo(jyunjyo)
-                .WithIsActive(isActive)
-                .WithBusyoBaseId(busyoBase.Id)
-                .WithOyaId(oya?.Id)
-                .Build();
+            var busyo = new Busyo
+            {
+                Id = default,
+                Code = NotNullConstraintPlaceholder,
+                Name = name,
+                KanaName = NotNullConstraintPlaceholder,
+                OyaCode = NotNullConstraintPlaceholder,
+                StartYmd = default,
+                EndYmd = default,
+                Jyunjyo = jyunjyo,
+                KasyoCode = NotNullConstraintPlaceholder,
+                KaikeiCode = NotNullConstraintPlaceholder,
+                KeiriCode = default,
+                IsActive = isActive,
+                Ryakusyou = default,
+                BusyoBaseId = default,
+                OyaId = default,
+                ShoninBusyoId = default,
+                BusyoBase = busyoBase,
+                Oya = oya
+            };
             db.Busyos.Add(busyo);
             return busyo;
         }

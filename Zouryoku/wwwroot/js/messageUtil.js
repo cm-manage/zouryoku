@@ -130,76 +130,92 @@ function timeoutError() {
     clearValidation();
     errorMessage("タイムアウトしました。管理者に問い合わせてください。");
 }
+
 /**
- * エラーメッセージを表示する
- * @param {any} msg
+ * メッセージ本文をHTMLエスケープする
+ * @param {string} str
+ * @returns {string}
  */
-function errorMessage(msg, isAdd) {
-    //var errorNotification =
-    //    "<div class='alert alert-danger form-errors'>" + msg + "</div > "
-    let list = msg.split(/\r\n|\n/);
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"'`]/g, function (match) {
+        const escape = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '`': '&#96;'
+        };
+        return escape[match];
+    });
+}
+
+/**
+ * メッセージを表示する共通処理
+ * @param {string} msg メッセージ本文
+ * @param {string} type メッセージ種別: 'error' | 'info' | 'warning'
+ * @param {boolean} [isAdd] エラー時のみ追加表示
+ */
+function showMessage(msg, type, isAdd) {
+    const alertClass = {
+        error: 'alert-danger alert-errors',
+        info: 'alert-success alert-infos',
+        warning: 'alert-warning alert-warnings'
+    }[type] || 'alert-danger alert-errors';
+
+    const alertIcon = {
+        error: 'fa-exclamation-triangle',
+        info: 'fa-info-circle',
+        warning: 'fa-exclamation-circle'
+    }[type] || 'fa-exclamation-triangle';
+
+    const list = msg.split(/\r\n|\n/);
     let msgHtm = "";
     list.forEach(m => {
         if (m.length) {
-            msgHtm += "<li>" + m + "</li>";
+            msgHtm += "<li>" + escapeHtml(m) + "</li>";
         }
     });
-    if (isAdd && $(".form-errors").length > 0) {
+
+    if (type === 'error' && isAdd && $(".form-errors").length > 0) {
         $(".form-errors").children("ul").append(msgHtm);
         return;
     }
-    let errorNotification =
-        "<div class='alert alert-danger alert-errors'>" +
-        '   <div style="margin: auto; "><i class="fas fa-exclamation-triangle fa-fw"></i></div > ' +
+
+    const notification =
+        `<div class='alert ${alertClass}'>` +
+        `   <div style="margin: auto; "><i class="fas ${alertIcon} fa-fw"></i></div > ` +
         "   <ul style='margin: unset; width: 100%; list-style: inside;  padding: unset; padding-left: 15px; max-height: 200px; overflow-y: auto;'>" + msgHtm + "</ul>" +
-        "   <button type='button' class='close' data-dismiss='alert' aria-label='Close' style='background-color: transparent; cursor: pointer; align-items: start; display: flex;' onclick='messageClose(this)'><span aria-hidden='true'>×</span></button>" +
+        "   <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close' style='background-color: transparent; cursor: pointer; align-items: start; display: flex;' onclick='messageClose(this)'><span aria-hidden='true'>×</span></button>" +
         "</div > ";
-    $("#message-notification").html(errorNotification);
-    $("#modal-message-notification").html(errorNotification);
+    $("#message-notification").html(notification);
+    $("#modal-message-notification").html(notification);
+}
+
+/**
+ * エラーメッセージを表示する
+ * @param {any} msg
+ * @param {boolean} [isAdd]
+ */
+function errorMessage(msg, isAdd) {
+    showMessage(msg, 'error', isAdd);
 }
 
 /**
  * 情報メッセージを表示する
- * @@param {string} msg
+ * @param {string} msg
  */
 function infoMessage(msg) {
-    const list = msg.split(/\r\n|\n/);
-    let msgHtm = "";
-    list.forEach(m => {
-        if (m.length) {
-            msgHtm += "<li>" + m + "</li>";
-        }
-    });
-    const infoNotification =
-        "<div class='alert alert-success alert-infos'>" +
-        '   <div style="margin: auto; "><i class="fas fa-exclamation-triangle fa-fw"></i></div > ' +
-        "   <ul style='margin: unset; width: 100%; list-style: inside;  padding: unset; padding-left: 15px; max-height: 200px; overflow-y: auto;'>" + msgHtm + "</ul>" +
-        "   <button type='button' class='close' data-dismiss='alert' aria-label='Close' style='background-color: transparent; cursor: pointer; align-items: start; display: flex;' onclick='messageClose(this)'><span aria-hidden='true'>×</span></button>" +
-        "</div > ";
-    $("#message-notification").html(infoNotification);
-    $("#modal-message-notification").html(infoNotification);
+    showMessage(msg, 'info');
 }
 
 /**
  * 警告メッセージを表示する
- * @@param {string} msg
+ * @param {string} msg
  */
 function warningMessage(msg) {
-    const list = msg.split(/\r\n|\n/);
-    let msgHtm = "";
-    list.forEach(m => {
-        if (m.length) {
-            msgHtm += "<li>" + m + "</li>";
-        }
-    });
-    const warningNotification =
-        "<div class='alert alert-warning alert-warnings'>" +
-        '   <div style="margin: auto; "><i class="fas fa-exclamation-triangle fa-fw"></i></div > ' +
-        "   <ul style='margin: unset; width: 100%; list-style: inside;  padding: unset; padding-left: 15px; max-height: 200px; overflow-y: auto;'>" + msgHtm + "</ul>" +
-        "   <button type='button' class='close' data-dismiss='alert' aria-label='Close' style='background-color: transparent; cursor: pointer; align-items: start; display: flex;' onclick='messageClose(this)'><span aria-hidden='true'>×</span></button>" +
-        "</div > ";
-    $("#message-notification").html(warningNotification);
-    $("#modal-message-notification").html(warningNotification);
+    showMessage(msg, 'warning');
 }
 
 function messageClose(obj) {

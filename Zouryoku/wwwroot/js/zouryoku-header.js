@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     // --------------------------------------------------------------
     // 定数
     // --------------------------------------------------------------

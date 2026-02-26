@@ -11,7 +11,9 @@
 ======================================== */
 :root {
   --iframe-header-color: #003686; /* iziModalで使用 */
-  --header-color: rgb(110 162 243);
+  --header-bg-color1: rgba(45, 65, 118);
+  --header-bg-color2: rgba(29, 85, 143);
+  --accordion-btn-icon-width: 1.25rem;
   --screen-bg-color: #f8f9fa;
   --area-bg-white: #fff;
   --line-height: 1.4;
@@ -477,7 +479,6 @@ textarea[readonly]:focus {
   padding-left: 0.4rem;
   padding-right: 0.4rem;
   /* テーブル各列の幅がtbodyの影響を受けずに指定できるようゼロを指定 */
-  max-width: 0;
   border: 1px solid #73A6D4;
   white-space: normal;
   word-break: break-word;
@@ -595,22 +596,21 @@ textarea[readonly]:focus {
 }
 
 .app-screen--header-area {
-  --zouryoku-header-height: 60px;
   /* ===== スマホ対応 ===== */
 }
 .app-screen--header-area body {
-  padding-top: var(--zouryoku-header-height); /* ヘッダーの縦幅だけコンテンツを下に寄せる */
+  padding-top: var(--zouryoku-header-height);
 }
 .app-screen--header-area .app-header-bar {
-  background: linear-gradient(90deg, rgb(45, 65, 118) 0%, rgb(29, 85, 143) 100%);
+  background: linear-gradient(90deg, --header-bg-color1 0%, --header-bg-color2 100%);
   color: #fff;
-  padding: 6px 16px; /* ← 余白を狭くしたまま */
-  position: fixed; /* ヘッダーを画面に固定 */
+  padding: 6px 16px;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%; /* ビューポート幅いっぱいに */
+  width: 100%;
   height: var(--zouryoku-header-height);
-  z-index: 200; /* 他のコンテンツより前面に表示 */
+  z-index: 1030;
 }
 .app-screen--header-area .system-name {
   font-size: 1.2rem;
@@ -650,8 +650,11 @@ textarea[readonly]:focus {
   flex-direction: column;
   align-items: center;
   color: #fff;
-  position: relative; /* バッジ表示用 */
+  position: relative;
   text-decoration: none;
+}
+.app-screen--header-area icon-item:focus {
+  outline: 2px solid #fff;
 }
 .app-screen--header-area .icon-item:hover {
   color: #cce0ff;
@@ -674,16 +677,13 @@ textarea[readonly]:focus {
 .app-screen--header-area .hamburger-container:hover {
   color: #cce0ff;
 }
+.app-screen--header-area .hamburger-container:focus {
+  outline: 2px solid #fff;
+}
 .app-screen--header-area .badge {
   font-size: 0.55rem;
 }
 @media (max-width: 768px) {
-  .app-screen--header-area {
-    /* 部署名を非表示 */
-  }
-  .app-screen--header-area .icon-group {
-    display: none !important;
-  }
   .app-screen--header-area .user-texts > div:first-child {
     display: none;
   }
@@ -740,10 +740,10 @@ textarea[readonly]:focus {
   text-decoration: none;
 }
 .app-screen--menu .accordion-header .app-badge {
-  right: calc(var(--bs-accordion-btn-icon-width) * 3);
+  right: calc(var(--accordion-btn-icon-width) * 3);
 }
 .app-screen--menu .accordion-body .app-badge {
-  right: calc(var(--bs-accordion-btn-icon-width));
+  right: calc(var(--accordion-btn-icon-width));
 }
 
 .app-screen--entry {
@@ -849,6 +849,14 @@ textarea[readonly]:focus {
   background-color: var(--area-bg-white);
   border: 1.5px solid #ccc;
   border-radius: 10px;
+}
+.app-screen--single-form .app-area__footer {
+  background-color: var(--screen-bg-color);
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1030;
 }
 
 .app-screen--others2 {
@@ -1053,7 +1061,6 @@ textarea[readonly]:focus {
   .app-icon-group {
     display: none !important;
   }
-  /* 部署名を非表示 */
   .app-user-texts > div:first-child {
     display: none;
   }

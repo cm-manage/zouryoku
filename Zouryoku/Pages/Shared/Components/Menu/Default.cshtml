@@ -1,4 +1,4 @@
-﻿@using Zouryoku.Enums;
+@using Zouryoku.Enums;
 @using Zouryoku.Models.Menu;
 @using static Zouryoku.Enums.MenuCode;
 @model List<ParentMenu>
@@ -49,7 +49,7 @@
                                 <span>@menu.DisplayOwnName</span>
                                 @if (menu.DisplayOwnName == "申請管理")
                                 {
-                                    <span id="badge-parent-menu" class="badge bg-primary rounded-3 app-badge"></span>
+                                    <span id="badge-parent-menu" class="badge bg-primary rounded-3 app-badge d-none"></span>
                                 }
                                 
                             </button>
@@ -61,12 +61,17 @@
                             <div class="accordion-body">
                                 <!-- 子メニューをループで設定 -->
                                 <ul class="list-unstyled">
+                                    @{
+                                        // 子メニュー内連番
+                                        var childIndex = 0;
+                                    }
                                     @foreach (var childMenu in menu.ChildMenus)
                                     {
+                                        childIndex++;
                                         <li>
                                             @if (childMenu.IsOpenModal)
                                             {
-                                                var modalId = $"modal_{index}";
+                                                var modalId = $"modal_{index}_{childIndex}";
                                                 var url = Url.Page(childMenu.Url, childMenu.Param);
 
                                                 <button type="button"
@@ -79,7 +84,7 @@
                                                     <span class="app-menu_link">@childMenu.DisplayName</span>
                                                     @if (@childMenu.MenuCode == 申請確認)
                                                     {
-                                                        <span id="badge-child-menu" class="badge bg-primary rounded-3 app-badge"></span>
+                                                        <span id="badge-child-menu" class="badge bg-primary rounded-3 app-badge d-none"></span>
                                                     }
                                                 </button>
                                             }

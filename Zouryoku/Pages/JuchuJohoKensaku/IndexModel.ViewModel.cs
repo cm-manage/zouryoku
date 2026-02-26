@@ -1,6 +1,7 @@
 using CommonLibrary.Extensions;
 using Model.Model;
 using System.ComponentModel.DataAnnotations;
+using Zouryoku.Attributes;
 using static Zouryoku.Utils.Const;
 
 namespace Zouryoku.Pages.JuchuJohoKensaku
@@ -67,13 +68,8 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             /// 受注金額
             /// </summary>
             [Display(Name = "受注金額")]
-            [RegularExpression(@"^[0-9,]+$", ErrorMessage = ErrorInvalidInput)]
+            [CurrencyRange(0, long.MaxValue, ErrorMessage = ErrorRange)]
             public string? JucKin { get; set; }
-
-            /// <summary>
-            /// 受注金額(long型)
-            /// </summary>
-            public long? JucKinLong { get; set; }
 
             /// <summary>
             /// 並び順
@@ -215,7 +211,7 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
                 /// </summary>
                 [Display(Name = "受注行番号")]
                 // NOTE: Range属性で整数値以外を禁止する
-                [Range(0, short.MaxValue, ErrorMessage = ErrorNumberRangeMoreThanEqual)]
+                [Range(0, short.MaxValue, ErrorMessage = ErrorRange)]
                 public short? JuchuuGyoNo { get; set; }
             }
         }
@@ -303,16 +299,16 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             public string JucKin => string.Format("{0:#,0}", Source.JucKin);
 
             /// <summary>
-            /// 契約先顧客
+            /// 着工日
             /// </summary>
-            [Display(Name = "契約先顧客")]
+            [Display(Name = "着工日")]
             public string ChaYmd => Source.ChaYmd.YMDSlash();
 
             /// <summary>
             /// 受注日
             /// </summary>
             [Display(Name = "受注日")]
-            public string NsyYmd => Source.JucYmd.YMDSlash();
+            public string JucYmd => Source.JucYmd.YMDSlash();
 
             /// <summary>
             /// 受注取消

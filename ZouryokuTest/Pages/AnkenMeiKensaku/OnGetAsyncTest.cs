@@ -205,12 +205,15 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         [TestMethod]
         public async Task OnGetAsync_検索条件が初期化されていること()
         {
+            // Arrange
+            fakeTimeProvider.SetLocalNow(new DateTime(2026, 2, 15));
+
             // Act
             await Model!.OnGetAsync(false, false);
 
             // Assert
-            Assert.AreEqual(new DateOnly(fakeTimeProvider.Now().AddYears(-2).Year, 1, 1), Model.SearchConditions.ChaYmd.From);
-            Assert.AreEqual(fakeTimeProvider.Today().GetEndOfMonth(), Model.SearchConditions.ChaYmd.To);
+            Assert.AreEqual(new DateOnly(2024, 1, 1), Model.SearchConditions.ChaYmd.From);
+            Assert.AreEqual(new DateOnly(2026, 2, 28), Model.SearchConditions.ChaYmd.To);
             Assert.IsTrue(Model.SearchConditions.IsOwnBusyoOnly);
             Assert.IsFalse(Model.SearchConditions.ShowGenkaToketu);
             Assert.AreEqual(IndexModel.AnkenSearchModel.SortKeyList.顧客名, Model.SearchConditions.SortKey);
@@ -334,6 +337,9 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         public async Task OnGetAsync_データを取得していること(int startYmdOffset, int endYmdOffset, string? expectedSekininSyaName)
         {
             // Arrange
+            var now = new DateTime(2026, 2, 15);
+            fakeTimeProvider.SetLocalNow(now);
+
             var expectedAnkenId = 1;
             var expectedAnkenName = "案件名称";
             var expectedKokyakuName = "顧客名称";
@@ -377,8 +383,8 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             {
                 SyainBaseId = 1,
                 Name = expectedSekininSyaName ?? "取得されないデータ",
-                StartYmd = fakeTimeProvider.Today().AddDays(startYmdOffset),
-                EndYmd = fakeTimeProvider.Today().AddDays(endYmdOffset),
+                StartYmd = now.ToDateOnly().AddDays(startYmdOffset),
+                EndYmd = now.ToDateOnly().AddDays(endYmdOffset),
                 // 不要なNOT NULLカラムに適当に値を詰める
                 Code = string.Empty,
                 KanaName = string.Empty,

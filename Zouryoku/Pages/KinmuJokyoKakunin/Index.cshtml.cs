@@ -26,8 +26,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
     public partial class IndexModel : BasePageModel<IndexModel>
     {
         public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider timeProvider)
-            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
+            : base(db, logger, optionsAccessor, viewEngine) { }
 
         public override bool UseInputAssets => true;
 
@@ -72,8 +72,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// </summary>
         public void OnGet()
         {
-            SearchIndex.From = timeProvider.Now().ToString("yyyy-MM");
-            SearchIndex.To = timeProvider.Now().ToString("yyyy-MM");
+            SearchIndex.From = DateTime.Today.ToDateOnly().ToString("yyyy-MM");
+            SearchIndex.To = DateTime.Today.ToDateOnly().ToString("yyyy-MM");
             SearchIndex.WarnLevel = All;
         }
 
@@ -338,7 +338,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
                     // 年度初めの有給日数
                     decimal wariate;
-                    var today = timeProvider.Today();
+                    var today = DateTime.Today.ToDateOnly();
                     // 現在の有給年度
                     var currentNendo = today.Month >= yukyuMonth ? today.Year : today.Year - 1;
 

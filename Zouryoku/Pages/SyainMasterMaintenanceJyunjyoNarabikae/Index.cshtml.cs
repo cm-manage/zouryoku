@@ -105,7 +105,7 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             Syains = syains.Select(SyainViewModel.FromEntity).ToList();
 
             var html = await PartialToJsonAsync("_SyainListPartial", this);
-            return SuccessJson(data: html); 
+            return SuccessJson(data: html);
         }
     }
 

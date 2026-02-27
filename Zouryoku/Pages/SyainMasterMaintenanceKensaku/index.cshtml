@@ -54,7 +54,7 @@
                 <div class="col-md-6">
                     <div class="row mb-2">
                         <label asp-for="Condition.SyainNo"
-                            class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                            class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
                             <input asp-for="Condition.SyainNo" class="form-control" />
                         </div>
@@ -62,7 +62,7 @@
 
                     <div class="row mb-2 align-items-center">
                         <label asp-for="Condition.BusyoName"
-                             class="col-2 col-form-label fw-bold app-input__label"></label>
+                             class="col-2 col-form-label app-input__label"></label>
                         <div class="col">
                             <div class="input-group">
                                 <!-- 表示用：部署名 -->
@@ -80,7 +80,7 @@
 
                     <div class="row mb-2">
                         <label asp-for="Condition.Grade"
-                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                             class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
                             <input asp-for="Condition.Grade" type="text" class="form-control w-50" />
                         </div>
@@ -88,7 +88,7 @@
 
                     <div class="row mb-2">
                         <label asp-for="Condition.UserRoleId"
-                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                             class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
                             <select asp-for="Condition.UserRoleId" asp-items="Model.Condition.UserRoleOptions"
                                 class="form-select">
@@ -102,7 +102,7 @@
                 <div class="col-md-6">
                     <div class="row mb-2">
                         <label asp-for="Condition.SyainName"
-                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                             class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
                             <input asp-for="Condition.SyainName" class="form-control" />
                         </div>
@@ -110,17 +110,17 @@
 
                     <div class="row mb-2">
                         <label asp-for="Condition.IncludeRetired"
-                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                             class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col d-flex align-items-center">
                             <div class="form-check form-switch m-0">
-                                <input asp-for="Condition.IncludeRetired" class="form-check-input" type="checkbox" />
+                                <input asp-for="Condition.IncludeRetired" class="form-check-input" />
                             </div>
                         </div>
                     </div>
 
                     <div class="row mb-2">
                         <label asp-for="Condition.KintaiZokuseiId"
-                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                             class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
                             <select 
                                  asp-for="Condition.KintaiZokuseiId" 
@@ -134,7 +134,7 @@
 
                     <div class="row mb-2">
                         <label asp-for="Condition.Kengen"
-                             class="col-2 col-form-label fw-bold text-nowrap app-input__label"></label>
+                             class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
                             <select asp-for="Condition.Kengen"
                                 class="form-select" asp-items="Model.Condition.KengenOptions">
@@ -176,7 +176,7 @@
     <script>
         $(function() {
             // -----------------------------
-            // 初期データ
+            // 初期データを表している定数ではないため、jQueryオブジェクトと言う方が適切です。
             // -----------------------------
             const $searchForm = $('#syain-search-form');
             const $partialPage = $('#syain-search-results');
@@ -230,12 +230,13 @@
             // -----------------------------
             // 検索
             // -----------------------------
-            async function searchSyain(form) {
+            function searchSyain(form) {
                 return new Promise(resolve => {
                     sendGetAjax(toUrl('Search'), form.serializeArray(), data => resolve(data), false);
                 });
             }
 
+            // -----------------------------
             // 検索ボタン押下
             // -----------------------------
             $('#search-btn').on('click', async function () {
@@ -285,43 +286,53 @@
             }
 
             // Enter キーで検索
-            $searchForm.on('keypress', function(e) {
-                if(e.which === 13) {
-                   $('#search-btn').click();
-                   return false;
-                }
-            });
+            $(document).on('submit', $searchForm, () => {
+                $('#search-btn').click();
+                return false;
+            })
 
             window.addEventListener("message", function (event) {
+             //　セキュリティチェック
+             if(event.origin !== window.location.origin)
+               return;
 
-            const data = event.data;
-            if (!data) return;
+             const data = event.data;
+             if (!data) return;
+             //　部署選択したこと
+             if (data.type === "busyoSelected")
+             {
+                 // payloadから部署を取得する
+                 const busyo = data.payload;
+                 if (!busyo) return;
 
-            if (data.type === "busyoSelected") {
-                const busyo = data.payload;
-                if (!busyo) return;
+                 // 検索欄の部署名を取る
+                 const nameInput = $('[name="Condition.BusyoName"]');
+                 if (nameInput)
+                 {
+                     nameInput.value = busyo.name ?? busyo.Name ?? "";
+                     nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+                 }
 
-                const nameInput = document.querySelector('[name="Condition.BusyoName"]');
-                if (nameInput) {
-                    nameInput.value = busyo.name ?? busyo.Name ?? "";
-                    nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-
-                const idInput = document.querySelector('[name="Condition.BusyoId"]');
-                if (idInput) {
-                    idInput.value = busyo.id ?? busyo.Id ?? "";
-                } else {
-                    const form = document.querySelector('form[asp-page-handler="Search"]') || document.querySelector('form');
-                    if (form) {
-                        const hidden = document.createElement('input');
-                        hidden.type = 'hidden';
-                        hidden.name = 'Condition.BusyoId';
-                        hidden.value = busyo.id ?? busyo.Id ?? "";
-                        form.appendChild(hidden);
-                    }
-                }
-            }
-        });
+                 //　検索欄の部署Idを取る
+                 const idInput = $('[name="Condition.BusyoId"]');
+                 if (idInput)
+                 {
+                     idInput.value = busyo.id ?? busyo.Id ?? "";
+                 } else {
+                     //　Search Handlerをセレクト、
+                     // ない場合、form 後退する
+                     const form = $('form[asp-page-handler="Search"]') || $('form');
+                     if (form)
+                     {
+                         const hidden = document.createElement('input');
+                         hidden.type = 'hidden';
+                         hidden.name = 'Condition.BusyoId';
+                         hidden.value = busyo.id ?? busyo.Id ?? "";
+                         form.appendChild(hidden);
+                     }
+                 }
+             }
+            });
     });
     </script>
 }

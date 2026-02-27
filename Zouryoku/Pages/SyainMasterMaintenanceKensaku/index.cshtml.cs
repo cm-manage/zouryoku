@@ -80,10 +80,10 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
         {
             // 勤怠属性一覧
             var kintaiList = await InitializeKintaiZokuseis();
-            var defaultKintaiZokuseiId = kintaiList.FirstOrDefault(k => k.Id == (short)みなし対象者)?.Id;
-            if (!Condition.KintaiZokuseiId.HasValue && defaultKintaiZokuseiId.HasValue)
+            var defaultKintaiZokusei = kintaiList.FirstOrDefault(k => k.Id == (long)みなし対象者);
+            if (!Condition.KintaiZokuseiId.HasValue && defaultKintaiZokusei != null)
             {
-                Condition.KintaiZokuseiId = defaultKintaiZokuseiId.Value;
+                Condition.KintaiZokuseiId = defaultKintaiZokusei.Id;
             }
 
             Condition.KintaiZokuseiOptions = new SelectList(

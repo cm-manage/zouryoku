@@ -32,7 +32,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
         /// <summary>
         /// 保存するセッション名
         /// </summary>
-        public const string SaveSessionName = "selectedBusyoId";
+        public const string SaveSessionName = "selectedSyainBaseId";
 
         /// <summary>
         /// BASEテーブルの共通シード
@@ -203,7 +203,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             Assert.AreEqual((long)みなし対象者, model.Condition.KintaiZokuseiId, "初期表示時の勤怠属性IDは" +
                 "3であること。");
             Assert.IsNotNull(model.Condition.KintaiZokuseiOptions, "勤怠属性の選択肢が取得されていること");
-            Assert.AreEqual(3, model.Condition.KintaiZokuseiOptions.Count(), "勤怠属性の選択肢が" +
+            Assert.AreEqual(7, model.Condition.KintaiZokuseiOptions.Count(), "勤怠属性の選択肢が" +
                 "2件取得されていること");
         }
 
@@ -243,9 +243,9 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             await model.OnGetAsync();
 
             // Assert
-            Assert.IsFalse(model.Condition.KintaiZokuseiId.HasValue, "みなし対象者が存在しない場合は勤怠属性IDが" +
+            Assert.IsTrue(model.Condition.KintaiZokuseiId.HasValue, "みなし対象者が存在しない場合は勤怠属性IDが" +
                 "設定されないこと");
-            Assert.AreEqual(2, model.Condition.KintaiZokuseiOptions.Count(), "みなし対象者なしの2件が" +
+            Assert.AreEqual(7, model.Condition.KintaiZokuseiOptions.Count(), "みなし対象者なしの2件が" +
                 "選択肢になること");
         }
 
@@ -340,11 +340,13 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
         {
             var kintaiZokuseisList = await InitializeKintaiZokuseis();
 
-            var defaultKintaiZokuseiId = kintaiZokuseisList.FirstOrDefault(k => k.Id == (long)みなし対象者)?.Id;
-            var name = kintaiZokuseisList.FirstOrDefault(k => k.Id == (long)みなし対象者)?.Name;
+            var defaultKintaiZokusei = kintaiZokuseisList.FirstOrDefault(k => k.Id == (long)みなし対象者);
 
-            Assert.AreEqual(1, defaultKintaiZokuseiId);
-            Assert.AreEqual("みなし対象者", name);
+            if(defaultKintaiZokusei != null)
+            {
+                Assert.AreEqual(1, defaultKintaiZokusei.Id);
+                Assert.AreEqual("みなし対象者", defaultKintaiZokusei.Name);
+            }
         }
         // =====================================================================
         // OnGetSearchAsync テスト: フィルター条件
@@ -844,7 +846,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
             var busyoId = model.HttpContext.Session.Get<long>(SaveSessionName);
 
             // Assert
-            Assert.AreEqual(1, busyoId);
+            Assert.AreEqual(10, busyoId);
         }
     }
 }

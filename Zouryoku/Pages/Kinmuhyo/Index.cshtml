@@ -505,6 +505,7 @@
                         .addClass('app-apply-btn-planned-work-off');
                 }
 
+                const originalLineClass = $row.attr('class');
                 const $dateCell = $row.find('td:first');
 
                 // 元の曜日情報を data 属性から取得 (日曜日=0, 土曜日=6)
@@ -533,6 +534,11 @@
                             $row.addClass('app-line--today');
                         }
                     }
+                }
+
+                // 予定の出/休切替では背景色を変更しない
+                if (originalLineClass !== undefined) {
+                    $row.attr('class', originalLineClass);
                 }
 
                 $('#YoteiYmd').val(date);

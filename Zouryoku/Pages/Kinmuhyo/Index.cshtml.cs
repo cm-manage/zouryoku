@@ -776,8 +776,15 @@ namespace Zouryoku.Pages.Kinmuhyo
 
             if (isSystemMonth && workingHours != null)
             {
+                var nippouDates = nippous
+                    .Select(r => r.NippouYmd)
+                    .ToHashSet();
+
                 totalMinutes += workingHours
-                    .Where(p => p.SyukkinTime.HasValue && p.TaikinTime.HasValue)
+                    .Where(p =>
+                        p.SyukkinTime.HasValue &&
+                        p.TaikinTime.HasValue &&
+                        !nippouDates.Contains(p.Hiduke))
                     .Select(p =>
                     {
                         var workedMinutes = Common.TimeCalculator.CalcJitsudouTimes(p.SyukkinTime!.Value.ToString("HHmm"), 

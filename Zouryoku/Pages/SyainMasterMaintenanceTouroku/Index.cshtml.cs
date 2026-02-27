@@ -17,13 +17,13 @@ using Zouryoku.Utils;
 namespace Zouryoku.Pages.SyainMasterMaintenanceTouroku;
 
 /// <summary>
-/// 遉ｾ蜩｡繝槭せ繧ｿ逋ｻ骭ｲ逕ｻ髱｢繝｢繝・Ν
+/// 社員マスタ登録画面モデル
 /// </summary>
 [FunctionAuthorizationAttribute]
 public class IndexModel : BasePageModel<IndexModel>
 {
     /// <summary>
-    /// 譛牙柑邨ゆｺ・律縺ｮ譛螟ｧ蛟､
+    /// 有効終了日の最大値
     /// </summary>
     private static readonly DateOnly MaxEndYmd = new(9999, 12, 31);
 
@@ -38,30 +38,30 @@ public class IndexModel : BasePageModel<IndexModel>
     public override bool UseInputAssets { get; } = true;
 
     /// <summary>
-    /// 蜈･蜉帙Δ繝・Ν
+    /// 入力モデル
     /// </summary>
     [BindProperty]
     public SyainInputModel Input { get; set; } = new();
 
-    /// <summary>讌ｭ蜍咏ｨｮ蛻･驕ｸ謚櫁い</summary>
+    /// <summary>業務種別選択肢</summary>
     public IEnumerable<SelectListItem> GyoumuTypeOptions { get; private set; } = [];
 
-    /// <summary>蜍､諤螻樊ｧ驕ｸ謚櫁い</summary>
+    /// <summary>勤怠属性選択肢</summary>
     public IEnumerable<SelectListItem> KintaiZokuseiOptions { get; private set; } = [];
 
-    /// <summary>蛻ｩ逕ｨ莨夂､ｾ驕ｸ謚櫁い</summary>
+    /// <summary>利用会社選択肢</summary>
     public IEnumerable<SelectListItem> CompanyOptions { get; private set; } = [];
 
-    /// <summary>繝ｭ繝ｼ繝ｫ驕ｸ謚櫁い</summary>
+    /// <summary>ロール選択肢</summary>
     public IEnumerable<SelectListItem> RoleOptions { get; private set; } = [];
 
-    /// <summary>蜃ｺ蠑ｵ閨ｷ菴埼∈謚櫁い</summary>
+    /// <summary>出張職位選択肢</summary>
     public IEnumerable<SelectListItem> SyucyoSyokuiOptions { get; private set; } = [];
 
     /// <summary>
-    /// 蛻晄悄陦ｨ遉ｺ
+    /// 初期表示
     /// </summary>
-    /// <param name="id">遉ｾ蜩｡BASE繝槭せ繧ｿID</param>
+    /// <param name="id">社員BASEマスタID</param>
     public async Task<IActionResult> OnGetAsync(long? id)
     {
         await LoadOptionsAsync();
@@ -102,7 +102,7 @@ public class IndexModel : BasePageModel<IndexModel>
     }
 
     /// <summary>
-    /// 逋ｻ骭ｲ
+    /// 登録
     /// </summary>
     public async Task<IActionResult> OnPostRegisterAsync()
     {
@@ -127,7 +127,7 @@ public class IndexModel : BasePageModel<IndexModel>
             {
                 ModelState.AddModelError(
                     nameof(Input.Code),
-                    string.Format(Const.ErrorUnique, "遉ｾ蜩｡逡ｪ蜿ｷ", Input.Code));
+                    string.Format(Const.ErrorUnique, "社員番号", Input.Code));
                 return CommonErrorResponse();
             }
 
@@ -138,14 +138,14 @@ public class IndexModel : BasePageModel<IndexModel>
             var syain = await db.Syains.SingleOrDefaultAsync(s => s.Id == Input.Id);
             if (syain is null)
             {
-                ModelState.AddModelError(nameof(Input.Id), $"syainId:{Input.Id} 縺ｮ遉ｾ蜩｡縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ縲・");
+                ModelState.AddModelError(nameof(Input.Id), $"syainId:{Input.Id} の社員が見つかりません。");
                 return CommonErrorResponse();
             }
 
             var syainBase = await db.SyainBases.SingleOrDefaultAsync(sb => sb.Id == Input.SyainBaseId);
             if (syainBase is null)
             {
-                ModelState.AddModelError(nameof(Input.SyainBaseId), $"syainBaseId:{Input.SyainBaseId} 縺ｮ遉ｾ蜩｡縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ縲・");
+                ModelState.AddModelError(nameof(Input.SyainBaseId), $"syainBaseId:{Input.SyainBaseId} の社員が見つかりません。");
                 return CommonErrorResponse();
             }
 
@@ -156,7 +156,7 @@ public class IndexModel : BasePageModel<IndexModel>
             {
                 ModelState.AddModelError(
                     nameof(Input.Code),
-                    string.Format(Const.ErrorUnique, "遉ｾ蜩｡逡ｪ蜿ｷ", Input.Code));
+                    string.Format(Const.ErrorUnique, "社員番号", Input.Code));
                 return CommonErrorResponse();
             }
 
@@ -165,7 +165,7 @@ public class IndexModel : BasePageModel<IndexModel>
             {
                 ModelState.AddModelError(
                     nameof(Input.StartDate),
-                    string.Format(Const.ErrorMoreThanDateTime, "驕ｩ逕ｨ髢句ｧ区律", "譛牙柑髢句ｧ区律"));
+                    string.Format(Const.ErrorMoreThanDateTime, "適用開始日", "有効開始日"));
                 return CommonErrorResponse();
             }
 
@@ -177,8 +177,9 @@ public class IndexModel : BasePageModel<IndexModel>
     }
 
     /// <summary>
-    /// 繝ｭ繝ｼ繝ｫ譌｢螳壽ｨｩ髯仙叙蠕・    /// </summary>
-    /// <param name="roleId">繝ｭ繝ｼ繝ｫID</param>
+    /// ロール既定権限取得
+    /// </summary>
+    /// <param name="roleId">ロールID</param>
     public async Task<IActionResult> OnGetRoleDefaultsAsync(long roleId)
     {
         var role = await db.UserRoles
@@ -202,7 +203,7 @@ public class IndexModel : BasePageModel<IndexModel>
     {
         if (!Input.BusyoId.HasValue)
         {
-            ModelState.AddModelError(nameof(Input.BusyoId), string.Format(Const.ErrorSelectRequired, "驛ｨ鄂ｲ"));
+            ModelState.AddModelError(nameof(Input.BusyoId), string.Format(Const.ErrorSelectRequired, "部署"));
             return null;
         }
 
@@ -212,7 +213,7 @@ public class IndexModel : BasePageModel<IndexModel>
 
         if (busyo is null)
         {
-            ModelState.AddModelError(nameof(Input.BusyoId), string.Format(Const.ErrorNotExists, "驛ｨ鄂ｲ", Input.BusyoId.Value));
+            ModelState.AddModelError(nameof(Input.BusyoId), string.Format(Const.ErrorNotExists, "部署", Input.BusyoId.Value));
             return null;
         }
 
@@ -223,7 +224,7 @@ public class IndexModel : BasePageModel<IndexModel>
             {
                 ModelState.AddModelError(
                     nameof(Input.KintaiZokuseiId),
-                    string.Format(Const.ErrorNotExists, "蜍､諤螻樊ｧ", Input.KintaiZokuseiId.Value));
+                    string.Format(Const.ErrorNotExists, "勤怠属性", Input.KintaiZokuseiId.Value));
             }
         }
 
@@ -234,7 +235,7 @@ public class IndexModel : BasePageModel<IndexModel>
             {
                 ModelState.AddModelError(
                     nameof(Input.UserRoleId),
-                    string.Format(Const.ErrorNotExists, "繝ｭ繝ｼ繝ｫ", Input.UserRoleId.Value));
+                    string.Format(Const.ErrorNotExists, "ロール", Input.UserRoleId.Value));
             }
         }
 
@@ -245,7 +246,7 @@ public class IndexModel : BasePageModel<IndexModel>
             {
                 ModelState.AddModelError(
                     nameof(Input.GyoumuTypeId),
-                    string.Format(Const.ErrorNotExists, "讌ｭ蜍咏ｨｮ蛻･", Input.GyoumuTypeId.Value));
+                    string.Format(Const.ErrorNotExists, "業務種別", Input.GyoumuTypeId.Value));
             }
         }
 
@@ -367,7 +368,8 @@ public class IndexModel : BasePageModel<IndexModel>
 
         if (!TryParseOvertimeExcessLimitYm(Input.OvertimeExcessLimitYm, out var disabledYm))
         {
-            // 蜈･蜉帶､懆ｨｼ貂医∩縺縺後∽ｸ・′荳繝代・繧ｹ縺ｧ縺阪↑縺・ｴ蜷医・菴輔ｂ譖ｴ譁ｰ縺励↑縺・・            return;
+            // 入力検証済みだが、万一パースできない場合は何も更新しない。
+            return;
         }
 
         OvertimeExcessLimit? existingLimit = null;
@@ -426,7 +428,7 @@ public class IndexModel : BasePageModel<IndexModel>
         {
             ModelState.AddModelError(
                 nameof(Input.OvertimeExcessLimitYm),
-                string.Format(Const.ErrorRequired, "谿区･ｭ雜・℃蛻ｶ髯宣幕蟋句ｹｴ譛・"));
+                string.Format(Const.ErrorRequired, "残業超過制限開始年月"));
             return;
         }
 
@@ -434,7 +436,7 @@ public class IndexModel : BasePageModel<IndexModel>
         {
             ModelState.AddModelError(
                 nameof(Input.OvertimeExcessLimitYm),
-                string.Format(Const.ErrorInvalidInput, "谿区･ｭ雜・℃蛻ｶ髯宣幕蟋句ｹｴ譛・"));
+                string.Format(Const.ErrorInvalidInput, "残業超過制限開始年月"));
             return;
         }
 
@@ -627,11 +629,11 @@ public class IndexModel : BasePageModel<IndexModel>
             })
             .ToList();
 
-        GyoumuTypeOptions = AddEmptyOption(gyoumuTypeItems, "譛ｪ驕ｸ謚・");
-        KintaiZokuseiOptions = AddEmptyOption(kintaiZokuseiItems, "驕ｸ謚槭＠縺ｦ縺上□縺輔＞");
-        RoleOptions = AddEmptyOption(roleItems, "驕ｸ謚槭＠縺ｦ縺上□縺輔＞");
-        CompanyOptions = AddEmptyOption(companyItems, "驕ｸ謚槭＠縺ｦ縺上□縺輔＞");
-        SyucyoSyokuiOptions = AddEmptyOption(syucyoSyokuiItems, "驕ｸ謚槭＠縺ｦ縺上□縺輔＞");
+        GyoumuTypeOptions = AddEmptyOption(gyoumuTypeItems, "未選択");
+        KintaiZokuseiOptions = AddEmptyOption(kintaiZokuseiItems, "選択してください");
+        RoleOptions = AddEmptyOption(roleItems, "選択してください");
+        CompanyOptions = AddEmptyOption(companyItems, "選択してください");
+        SyucyoSyokuiOptions = AddEmptyOption(syucyoSyokuiItems, "選択してください");
     }
 
     private static IEnumerable<SelectListItem> AddEmptyOption(IEnumerable<SelectListItem> items, string emptyText)
@@ -648,7 +650,7 @@ public class IndexModel : BasePageModel<IndexModel>
         => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     /// <summary>
-    /// 逕ｻ髱｢蜈･蜉帙Δ繝・Ν
+    /// 画面入力モデル
     /// </summary>
     public class SyainInputModel
     {
@@ -658,31 +660,31 @@ public class IndexModel : BasePageModel<IndexModel>
 
         public long SyainBaseId { get; set; }
 
-        [Display(Name = "遉ｾ蜩｡逡ｪ蜿ｷ")]
+        [Display(Name = "社員番号")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         [StringLength(5, ErrorMessage = Const.ErrorLength)]
         [RegularExpression(@"^\d+$", ErrorMessage = Const.ErrorNumber)]
         public string Code { get; set; } = string.Empty;
 
-        [Display(Name = "遉ｾ蜩｡豌丞錐")]
+        [Display(Name = "社員氏名")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         [StringLength(32, ErrorMessage = Const.ErrorLength)]
         public string Name { get; set; } = string.Empty;
 
-        [Display(Name = "遉ｾ蜩｡豌丞錐繧ｫ繝・")]
+        [Display(Name = "社員氏名カナ")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         [StringLength(32, ErrorMessage = Const.ErrorLength)]
         public string KanaName { get; set; } = string.Empty;
 
-        [Display(Name = "蜈･遉ｾ蟷ｴ譛域律")]
+        [Display(Name = "入社年月日")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         public DateOnly? NyuusyaYmd { get; set; }
 
-        [Display(Name = "諤ｧ蛻･")]
+        [Display(Name = "性別")]
         [Required(ErrorMessage = Const.ErrorSelectRequired)]
         public char? Seibetsu { get; set; }
 
-        [Display(Name = "驛ｨ鄂ｲ")]
+        [Display(Name = "部署")]
         [Required(ErrorMessage = Const.ErrorSelectRequired)]
         public long? BusyoId { get; set; }
 
@@ -690,41 +692,41 @@ public class IndexModel : BasePageModel<IndexModel>
 
         public string BusyoCode { get; set; } = string.Empty;
 
-        [Display(Name = "讌ｭ蜍咏ｨｮ蛻･")]
+        [Display(Name = "業務種別")]
         public long? GyoumuTypeId { get; set; }
 
-        [Display(Name = "驕ｩ逕ｨ髢句ｧ区律")]
+        [Display(Name = "適用開始日")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         public DateOnly? StartDate { get; set; }
 
-        [Display(Name = "譛牙柑髢句ｧ区律")]
+        [Display(Name = "有効開始日")]
         public DateOnly? StartYmd { get; set; }
 
-        [Display(Name = "譛牙柑邨ゆｺ・律")]
+        [Display(Name = "有効終了日")]
         public DateOnly? EndYmd { get; set; }
 
-        [Display(Name = "邏夊・")]
+        [Display(Name = "級職")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         [Range(0, short.MaxValue, ErrorMessage = Const.ErrorNumberRangeMoreThanEqual)]
         public short? Kyusyoku { get; set; }
 
-        [Display(Name = "蜃ｺ蠑ｵ閨ｷ菴・")]
+        [Display(Name = "出張職位")]
         [Required(ErrorMessage = Const.ErrorSelectRequired)]
         public BusinessTripRole? SyucyoSyokui { get; set; }
 
-        [Display(Name = "KINGS謇螻・")]
+        [Display(Name = "KINGS所属")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         [StringLength(5, ErrorMessage = Const.ErrorLength)]
         [RegularExpression(@"^\d+$", ErrorMessage = Const.ErrorNumber)]
         public string KingsSyozoku { get; set; } = string.Empty;
 
-        [Display(Name = "蜍､諤螻樊ｧ")]
+        [Display(Name = "勤怠属性")]
         [Required(ErrorMessage = Const.ErrorSelectRequired)]
         public long? KintaiZokuseiId { get; set; }
 
         public bool IsGenkaRendou { get; set; }
 
-        [Display(Name = "蛻ｩ逕ｨ莨夂､ｾ")]
+        [Display(Name = "利用会社")]
         [Required(ErrorMessage = Const.ErrorSelectRequired)]
         public short? KaisyaCode { get; set; }
 
@@ -733,38 +735,38 @@ public class IndexModel : BasePageModel<IndexModel>
         [EmailAddress(ErrorMessage = Const.ErrorInvalidInput)]
         public string? EMail { get; set; }
 
-        [Display(Name = "謳ｺ蟶ｯMail")]
+        [Display(Name = "携帯Mail")]
         [StringLength(50, ErrorMessage = Const.ErrorLength)]
         [EmailAddress(ErrorMessage = Const.ErrorInvalidInput)]
         public string? KeitaiMail { get; set; }
 
-        [Display(Name = "謳ｺ蟶ｯ逡ｪ蜿ｷ")]
+        [Display(Name = "携帯番号")]
         [StringLength(15, ErrorMessage = Const.ErrorLength)]
         [RegularExpression(@"^\d{3}-\d{4}-\d{4}$", ErrorMessage = Const.ErrorInvalidInput)]
         public string? PhoneNumber { get; set; }
 
         public bool Retired { get; set; }
 
-        [Display(Name = "譛臥ｵｦ蜑ｲ蠖捺律謨ｰ")]
+        [Display(Name = "有給割当日数")]
         [Range(typeof(decimal), "0", "99", ErrorMessage = Const.ErrorNumberRangeLessThanEqual)]
         public decimal? Wariate { get; set; }
 
-        [Display(Name = "譛臥ｵｦ郢ｰ雜頑律謨ｰ")]
+        [Display(Name = "有給繰越日数")]
         public decimal? Kurikoshi { get; set; }
 
-        [Display(Name = "譛臥ｵｦ豸亥喧譌･謨ｰ")]
+        [Display(Name = "有給消化日数")]
         public decimal? Syouka { get; set; }
 
-        [Display(Name = "蜊頑律譛臥ｵｦ豸亥喧蝗樊焚")]
+        [Display(Name = "半日有給消化回数")]
         public short HannitiKaisuu { get; set; }
 
-        [Display(Name = "谿区･ｭ雜・℃蛻ｶ髯宣幕蟋・")]
+        [Display(Name = "残業超過制限開始")]
         public bool IsOvertimeExcessLimitStart { get; set; }
 
-        [Display(Name = "谿区･ｭ雜・℃蛻ｶ髯宣幕蟋句ｹｴ譛・")]
+        [Display(Name = "残業超過制限開始年月")]
         public string? OvertimeExcessLimitYm { get; set; }
 
-        [Display(Name = "繝ｭ繝ｼ繝ｫ")]
+        [Display(Name = "ロール")]
         [Required(ErrorMessage = Const.ErrorSelectRequired)]
         public long? UserRoleId { get; set; }
 

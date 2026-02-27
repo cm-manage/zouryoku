@@ -9,6 +9,9 @@ using ZouryokuTest.Pages.Builder;
 
 namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
 {
+    /// <summary>
+    /// 社員マスタ登録 画面モデルテスト
+    /// </summary>
     [TestClass]
     public class IndexModelTests : BaseInMemoryDbContextTest
     {

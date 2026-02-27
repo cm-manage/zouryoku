@@ -40,7 +40,7 @@ namespace Zouryoku.Pages.Kinmuhyo
         // ============================================================
         // プロパティ
         // ==========================================================
-        
+
         /// <summary>
         /// 社員ID
         /// </summary>
@@ -182,9 +182,9 @@ namespace Zouryoku.Pages.Kinmuhyo
             // 勤務状況情報取得（アラート作成）
             var systemNippous = await GetNippouListAsync(syain, systemYearMonth, systemYearMonth.GetEndOfMonth());
 
-            var systemWorkingHours = await GetWorkingHourListAsync(syain, 
-                systemYearMonth, 
-                systemYearMonth.GetEndOfMonth(), 
+            var systemWorkingHours = await GetWorkingHourListAsync(syain,
+                systemYearMonth,
+                systemYearMonth.GetEndOfMonth(),
                 systemYearMonth);
 
             var workStatus = await GenerateWorkStatusInfoAsync(syain, nippouYoteis, systemNippous, systemWorkingHours, today);
@@ -192,14 +192,14 @@ namespace Zouryoku.Pages.Kinmuhyo
             ViewModel.KinmuJokyoRows = ViewModel.BuildKinmuJokyoRows(workStatus, syain, systemYearMonth);
 
             ViewModel.KarendaHyojiRows = ViewModel.BuildKarendaHyojiRows(
-                nippouYoteis, 
-                nippous, 
-                workingHours, 
-                ukagaiHeaders, 
-                yukyuKeikakuMeisais, 
-                furikyuuZans, 
-                hikadoubis, 
-                today, 
+                nippouYoteis,
+                nippous,
+                workingHours,
+                ukagaiHeaders,
+                yukyuKeikakuMeisais,
+                furikyuuZans,
+                hikadoubis,
+                today,
                 syain);
 
             return syain;
@@ -238,8 +238,8 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="yoteiYmd">予定年月日</param>
         /// <param name="updateAction">更新内容の処理</param>
         /// <returns>アクション結果</returns>
-        private async Task<IActionResult> UpdateNippouYoteiAsync(long syainId, 
-            DateOnly yoteiYmd, 
+        private async Task<IActionResult> UpdateNippouYoteiAsync(long syainId,
+            DateOnly yoteiYmd,
             Action<NippouYotei> updateAction)
         {
             var nippouYotei = await db.NippouYoteis
@@ -270,10 +270,10 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="displayStart">表示開始日</param>
         /// <param name="displayEnd">表示終了日</param>
         /// <returns>作成・登録後の予定リスト</returns>
-        private async Task<List<NippouYotei>> InitializePlannedWorkAsync(Syain employee, 
-            List<YukyuKeikakuMeisai> yukyuKeikakuMeisais, 
-            List<FurikyuuZan> furikyuuZans, 
-            DateOnly displayStart, 
+        private async Task<List<NippouYotei>> InitializePlannedWorkAsync(Syain employee,
+            List<YukyuKeikakuMeisai> yukyuKeikakuMeisais,
+            List<FurikyuuZan> furikyuuZans,
+            DateOnly displayStart,
             DateOnly displayEnd)
         {
             // 非稼働日取得
@@ -360,9 +360,9 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="displayEnd">表示終了日</param>
         /// <param name="systemYearMonth">システムの当月1日</param>
         /// <returns>申請リスト</returns>
-        private async Task<List<UkagaiHeader>> GetUkagaiHeaderListAsync(Syain employee, 
-            DateOnly displayStart, 
-            DateOnly displayEnd, 
+        private async Task<List<UkagaiHeader>> GetUkagaiHeaderListAsync(Syain employee,
+            DateOnly displayStart,
+            DateOnly displayEnd,
             DateOnly systemYearMonth)
         {
             // 未来月なら取得しない
@@ -404,9 +404,9 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="displayEnd">表示終了日</param>
         /// <param name="systemYearMonth">システムの当月1日</param>
         /// <returns>打刻情報リスト</returns>
-        private async Task<List<WorkingHour>> GetWorkingHourListAsync(Syain employee, 
-            DateOnly displayStart, 
-            DateOnly displayEnd, 
+        private async Task<List<WorkingHour>> GetWorkingHourListAsync(Syain employee,
+            DateOnly displayStart,
+            DateOnly displayEnd,
             DateOnly systemYearMonth)
         {
             // システム年月または前月のみ実行
@@ -428,8 +428,8 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="displayYearMonth">基準年月</param>
         /// <param name="monthOffset">月オフセット（前月なら-1、翌月なら1）</param>
         /// <returns>実績日報リスト</returns>
-        private async Task<List<Nippou>> GetNippouListByMonthOffsetAsync(Syain employee, 
-            DateOnly displayYearMonth, 
+        private async Task<List<Nippou>> GetNippouListByMonthOffsetAsync(Syain employee,
+            DateOnly displayYearMonth,
             int monthOffset)
         {
             var targetMonthStart = displayYearMonth.GetStartOfMonth().AddMonths(monthOffset);
@@ -454,8 +454,8 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="displayYearMonth">基準年月</param>
         /// <param name="monthOffset">月オフセット（前月なら-1、翌月なら1）</param>
         /// <returns>予定リスト</returns>
-        private async Task<List<NippouYotei>> GetNippouYoteiListByMonthOffsetAsync(Syain employee, 
-            DateOnly displayYearMonth, 
+        private async Task<List<NippouYotei>> GetNippouYoteiListByMonthOffsetAsync(Syain employee,
+            DateOnly displayYearMonth,
             int monthOffset)
         {
             var targetMonthStart = displayYearMonth.GetStartOfMonth().AddMonths(monthOffset);
@@ -472,10 +472,10 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="workingHours">打刻情報リスト</param>
         /// <param name="today">今日の日付</param>
         /// <returns>勤務状況情報</returns>
-        private async Task<WorkStatusInfo> GenerateWorkStatusInfoAsync(Syain employee, 
-            List<NippouYotei> nippouYoteis, 
-            List<Nippou> nippous, 
-            List<WorkingHour> workingHours, 
+        private async Task<WorkStatusInfo> GenerateWorkStatusInfoAsync(Syain employee,
+            List<NippouYotei> nippouYoteis,
+            List<Nippou> nippous,
+            List<WorkingHour> workingHours,
             DateOnly today)
         {
             var info = new WorkStatusInfo();
@@ -491,18 +491,18 @@ namespace Zouryoku.Pages.Kinmuhyo
             var nippouYoteisPrevMonth = await GetNippouYoteiListByMonthOffsetAsync(employee, systemYearMonth, -1);
             var nippouYoteisNextMonth = await GetNippouYoteiListByMonthOffsetAsync(employee, systemYearMonth, 1);
 
-            var nippouYoteisCurrent = await GetNippouYoteiListAsync(employee, 
-                systemYearMonth, 
+            var nippouYoteisCurrent = await GetNippouYoteiListAsync(employee,
+                systemYearMonth,
                 systemYearMonth.GetEndOfMonth());
 
             var workingHoursPrevMonth = await GetWorkingHourListByMonthOffsetAsync(employee, systemYearMonth, -1);
             var workingHoursNextMonth = await GetWorkingHourListByMonthOffsetAsync(employee, systemYearMonth, 1);
             var allWorkingHours = workingHoursPrevMonth.Concat(workingHours).Concat(workingHoursNextMonth).ToList();
 
-            info.ContinuousWorkDaysPlanned = CountContinuousWorkDaysPlanned(nippouYoteisCurrent, 
-                nippouYoteisPrevMonth, 
-                nippouYoteisNextMonth, 
-                allWorkingHours, 
+            info.ContinuousWorkDaysPlanned = CountContinuousWorkDaysPlanned(nippouYoteisCurrent,
+                nippouYoteisPrevMonth,
+                nippouYoteisNextMonth,
+                allWorkingHours,
                 today);
 
             // 残業時間の計算
@@ -560,7 +560,7 @@ namespace Zouryoku.Pages.Kinmuhyo
 
             // 過去2-6か月の平均残業時間を計算
             info.AverageOvertime = await CalculateAverageOvertime2To6MonthsAsync(employee, systemYearMonth);
-            
+
             return info;
         }
 
@@ -799,7 +799,7 @@ namespace Zouryoku.Pages.Kinmuhyo
                         !nippouDates.Contains(p.Hiduke))
                     .Select(p =>
                     {
-                        var workedMinutes = Common.TimeCalculator.CalcJitsudouTimes(p.SyukkinTime!.Value.ToString("HHmm"), 
+                        var workedMinutes = Common.TimeCalculator.CalcJitsudouTimes(p.SyukkinTime!.Value.ToString("HHmm"),
                             p.TaikinTime!.Value.ToString("HHmm"));
                         return (decimal)Math.Max(0, workedMinutes - Common.Time.kitei);
                     })

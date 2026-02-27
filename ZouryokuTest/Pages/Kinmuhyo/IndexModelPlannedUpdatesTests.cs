@@ -1,8 +1,8 @@
+using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Model.Model;
 using Zouryoku.Pages.Kinmuhyo;
 using static Model.Enums.ResponseStatus;
-using CommonLibrary.Extensions;
 
 namespace ZouryokuTest.Pages.Kinmuhyo
 {

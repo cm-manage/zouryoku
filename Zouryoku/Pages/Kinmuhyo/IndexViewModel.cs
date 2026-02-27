@@ -80,7 +80,7 @@ namespace Zouryoku.Pages.Kinmuhyo
         private const string PaidLeaveHalfFormat = "({0:F1}日)";
         private const string ZeroDayValue = "0日";
         private const string DashValue = "-";
-        
+
         // メッセージフォーマット
         private const string DeadlineFirstHalfMessage =
             "日報締切　{0}月前半の日報は、{1}までに確定処理をお願いします。";
@@ -106,7 +106,7 @@ namespace Zouryoku.Pages.Kinmuhyo
             "連続勤務{0}日間の予定になっています。勤務予定を調整してください。";
         private const string CompensatoryExpiringThisMonthMessage =
             "今月失効する振替休日が{0}日あります。必ず取得してください。";
-        private const string CompensatoryExpired3MonthMessage = 
+        private const string CompensatoryExpired3MonthMessage =
             "3か月期限以内に取得していない振替休日が{0}日あります。必ず取得してください。";
 
         // 内部データ
@@ -158,8 +158,8 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="systemYearMonth">基準年月</param>
         /// <returns>勤務状況行リスト</returns>
         public List<KinmuJokyoRowViewModel> BuildKinmuJokyoRows(
-            WorkStatusInfo workStatus, 
-            Syain syain, 
+            WorkStatusInfo workStatus,
+            Syain syain,
             DateOnly systemYearMonth)
         {
             var rows = new List<KinmuJokyoRowViewModel>();
@@ -186,21 +186,21 @@ namespace Zouryoku.Pages.Kinmuhyo
             AddOvertimeAlert(
                 ref message, ref titleLevel, ref messageLevel, totalHours,
                 OvertimeRedThreshold100, OvertimeYellowThreshold100, Limit100,
-                workStatus.OvertimeExtensionStatus, 
+                workStatus.OvertimeExtensionStatus,
                 isExempt);
 
             if (!workStatus.IsOvertimeLimitUnlimited)
             {
                 AddOvertimeAlert(
                     ref message, ref titleLevel, ref messageLevel, totalHours,
-                    OvertimeRedThreshold80, OvertimeYellowThreshold80, 
-                    Limit80, workStatus.OvertimeExtensionStatus, 
+                    OvertimeRedThreshold80, OvertimeYellowThreshold80,
+                    Limit80, workStatus.OvertimeExtensionStatus,
                     isExempt);
 
                 AddOvertimeAlert(
                     ref message, ref titleLevel, ref messageLevel, totalHours,
-                    OvertimeRedThreshold45, OvertimeYellowThreshold45, 
-                    Limit45, workStatus.OvertimeExtensionStatus, 
+                    OvertimeRedThreshold45, OvertimeYellowThreshold45,
+                    Limit45, workStatus.OvertimeExtensionStatus,
                     isExempt);
             }
 
@@ -209,8 +209,8 @@ namespace Zouryoku.Pages.Kinmuhyo
                 message = isExempt
                     ? "-"
                     : string.Format(
-                        OvertimeScheduledMessage, 
-                        timeValue, 
+                        OvertimeScheduledMessage,
+                        timeValue,
                         workStatus.OvertimeExtensionStatus);
             }
 
@@ -218,12 +218,12 @@ namespace Zouryoku.Pages.Kinmuhyo
             if (workStatus.AverageOvertime.TotalHours >= AverageOvertimeYellowThreshold)
             {
                 message = string.Format(
-                    OvertimeLimitMessage, 
-                    Limit80, 
+                    OvertimeLimitMessage,
+                    Limit80,
                     workStatus.OvertimeExtensionStatus);
-                messageLevel = workStatus.AverageOvertime.TotalHours 
-                    >= AverageOvertimeRedThreshold 
-                    ? LevelDanger 
+                messageLevel = workStatus.AverageOvertime.TotalHours
+                    >= AverageOvertimeRedThreshold
+                    ? LevelDanger
                     : LevelWarn;
                 titleLevel = LevelPrimary;
             }
@@ -294,10 +294,10 @@ namespace Zouryoku.Pages.Kinmuhyo
                 ContinuousWorkPlannedRedThreshold,
                 ContinuousWorkYellowThreshold,
                 string.Format(
-                    ContinuousWorkPlannedAdjustmentMessage, 
+                    ContinuousWorkPlannedAdjustmentMessage,
                     workStatus.ContinuousWorkDaysPlanned.Item2),
                 string.Format(
-                    ContinuousWorkPlannedAdjustmentMessage, 
+                    ContinuousWorkPlannedAdjustmentMessage,
                     workStatus.ContinuousWorkDaysPlanned.Item2));
 
             // 6. 振替休暇アラート（当月失効）
@@ -335,16 +335,16 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// 条件に応じてアラート行を追加します
         /// </summary>
         private void AddAlertRow(
-            List<KinmuJokyoRowViewModel> rows, 
-            string label, 
-            string value, 
-            decimal currentVal, 
-            decimal redThreshold, 
-            decimal yellowThreshold, 
-            string redDesc, 
+            List<KinmuJokyoRowViewModel> rows,
+            string label,
+            string value,
+            decimal currentVal,
+            decimal redThreshold,
+            decimal yellowThreshold,
+            string redDesc,
             string yellowDesc)
         {
-                if (currentVal >= redThreshold)
+            if (currentVal >= redThreshold)
             {
                 rows.Add(new KinmuJokyoRowViewModel(label, value, redDesc, LevelDanger, LevelDanger));
             }
@@ -358,14 +358,14 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// 残業アラートの判定とメッセージ設定
         /// </summary>
         private void AddOvertimeAlert(
-            ref string? message, 
+            ref string? message,
             ref int titleLevel,
             ref int messageLevel,
-            double totalHours, 
-            double redThreshold, 
-            double yellowThreshold, 
-            string? limitLabel, 
-            string? extensionStatus, 
+            double totalHours,
+            double redThreshold,
+            double yellowThreshold,
+            string? limitLabel,
+            string? extensionStatus,
             bool isExempt)
         {
             if (totalHours >= redThreshold)
@@ -460,8 +460,8 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="hikadoubi">非稼働日情報</param>
         /// <returns>行クラスと日付クラスのタプル</returns>
         private string GetStyles(
-            DateOnly date, 
-            bool hasPlannedLeave, 
+            DateOnly date,
+            bool hasPlannedLeave,
             Hikadoubi? hikadoubi)
         {
             // 祝祭日判定を最優先
@@ -610,8 +610,8 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// 指定日の日報実績と打刻情報を取得します
         /// </summary>
         private (Nippou? nippou, WorkingHour? workingHour) FindDailyRecords(
-            DateOnly date, 
-            List<Nippou> nippous, 
+            DateOnly date,
+            List<Nippou> nippous,
             List<WorkingHour> workingHours)
         {
             var nippou = nippous.FirstOrDefault(n => n.NippouYmd == date);
@@ -695,8 +695,8 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <param name="furikyuuZans">振休残リスト</param>
         /// <returns>休暇ラベル文字列</returns>
         private string GetPlannedLabel(
-            DateOnly nippouYmd, 
-            List<YukyuKeikakuMeisai> yukyuKeikakuMeisais, 
+            DateOnly nippouYmd,
+            List<YukyuKeikakuMeisai> yukyuKeikakuMeisais,
             List<FurikyuuZan> furikyuuZans)
         {
             var furiKyuuYoteiSet = furikyuuZans
@@ -751,15 +751,15 @@ namespace Zouryoku.Pages.Kinmuhyo
         }
 
         public sealed record WorkTimeDisplayInfo(
-            string? DisplayValue, 
-            bool IsConfirmed, 
-            TimeOnly? SyukkinJikan, 
+            string? DisplayValue,
+            bool IsConfirmed,
+            TimeOnly? SyukkinJikan,
             string? JitsuDoJikan);
 
         public sealed record ReportStatusDisplayInfo(
-            string? DisplayText, 
-            bool IsLink, 
-            bool HasProxyInput, 
+            string? DisplayText,
+            bool IsLink,
+            bool HasProxyInput,
             string? StatusType);
 
         public sealed record ApplicationStatusInfo(
@@ -770,7 +770,7 @@ namespace Zouryoku.Pages.Kinmuhyo
             bool ShowTypeButton
         );
 
-        public List<EmployeeViewModel> DepartmentEmployees => 
+        public List<EmployeeViewModel> DepartmentEmployees =>
             DepartmentEmployeesRaw.Select(d => new EmployeeViewModel(
             d.Id,
             d.Name,
@@ -792,9 +792,9 @@ namespace Zouryoku.Pages.Kinmuhyo
     /// 勤務状況 1 行 ViewModel（残業・有給残・振休・連勤等）
     /// </summary>
     public sealed record KinmuJokyoRowViewModel(
-        string? Label, 
-        string? Value, 
-        string Description, 
+        string? Label,
+        string? Value,
+        string Description,
         int TitleLevel,
         int MessageLevel);
 
@@ -850,9 +850,9 @@ namespace Zouryoku.Pages.Kinmuhyo
     /// 部署社員 1 件 ViewModel
     /// </summary>
     public sealed record EmployeeViewModel(
-        long Id, 
-        string Name, 
-        string BusyoCode, 
-        long SyainBaseId, 
+        long Id,
+        string Name,
+        string BusyoCode,
+        long SyainBaseId,
         string Code);
 }

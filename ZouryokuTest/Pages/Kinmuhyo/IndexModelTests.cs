@@ -1,5 +1,4 @@
 using CommonLibrary.Extensions;
-using Microsoft.Extensions.Time.Testing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -524,7 +523,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
             var today = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            
+
             model.SyainId = syain.Id;
             model.NippouYmd = today;
             // Act
@@ -1218,7 +1217,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var (syain, _) = InitializeTestData();
-            
+
             // 免除社員設定 (標準社員外)
             var zokusei = await db.KintaiZokuseis.FirstAsync();
             zokusei.Code = 標準社員外;
@@ -2401,7 +2400,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
             var today = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            
+
             var systemMonth = today.GetStartOfMonth();
 
             model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
@@ -2813,7 +2812,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var today = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var targetDate = today.GetEndOfMonth().AddDays(-1);
-            
+
             var nippou = new NippouBuilder()
                 .WithId(7101)
                 .WithSyainId(syain.Id)
@@ -2884,7 +2883,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var today = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var targetDate = today.GetStartOfMonth().AddDays(1);
-            
+
             var wh = new WorkingHoursBuilder()
                 .WithId(7101)
                 .WithSyainId(syain.Id)
@@ -2920,7 +2919,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var today = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var targetDate = today.GetStartOfMonth().AddDays(2);
-            
+
             var ukagai = new UkagaiHeaderBuilder()
                 .WithId(7101)
                 .WithSyainId(syain.Id)
@@ -2956,7 +2955,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var today = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var targetDate = today.GetStartOfMonth().AddDays(9);
-            
+
             var ukagai = new UkagaiHeaderBuilder()
                 .WithId(7102)
                 .WithSyainId(syain.Id)
@@ -2991,7 +2990,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var today = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var targetDate = today.GetStartOfMonth().AddDays(4);
-            
+
             var ukagai = new UkagaiHeaderBuilder()
                 .WithId(7103)
                 .WithSyainId(syain.Id)
@@ -3026,7 +3025,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var today = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var targetDate = today.GetStartOfMonth().AddDays(5);
-            
+
             var nippou = new NippouBuilder()
                 .WithId(7103)
                 .WithSyainId(syain.Id)
@@ -3070,7 +3069,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             var targetDate = today.GetStartOfMonth().AddDays(6);
-            
+
             var nendo = new YukyuNendoBuilder().WithId(7101).WithIsThisYear(true).Build();
             db.YukyuNendos.Add(nendo);
             var yk = new YukyuKeikakuBuilder().WithId(7101).WithYukyuNendoId(7101).WithSyainBaseId(syain.SyainBaseId).Build();
@@ -3105,7 +3104,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             var targetDate = today.GetStartOfMonth().AddDays(7);
-            
+
             var nendo = new YukyuNendoBuilder().WithId(7101).WithIsThisYear(true).Build();
             db.YukyuNendos.Add(nendo);
             var yk = new YukyuKeikakuBuilder().WithId(7101).WithYukyuNendoId(7101).WithSyainBaseId(syain.SyainBaseId).Build();
@@ -3139,7 +3138,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var today = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var targetDate = today.GetStartOfMonth().AddDays(8);
-            
+
             var furikyu = new FurikyuuZan { Id = 7101, SyainId = syain.Id, SyutokuYoteiYmd = targetDate };
             db.FurikyuuZans.Add(furikyu);
             await db.SaveChangesAsync();

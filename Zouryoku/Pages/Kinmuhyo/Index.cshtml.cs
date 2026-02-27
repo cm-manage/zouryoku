@@ -784,7 +784,14 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <returns>合計残業時間</returns>
         private TimeSpan CalculateTotalOvertime(List<Nippou> nippous, List<WorkingHour> workingHours, bool isSystemMonth)
         {
-            var totalMinutes = nippous.Sum(r => r.TotalZangyo ?? 0m);
+            var totalMinutes = nippous.Sum(r =>
+                (r.HZangyo ?? 0m) +
+                (r.HShinyaZangyo ?? 0m) +
+                (r.DJitsudou ?? 0m) +
+                (r.DZangyo ?? 0m) +
+                (r.DShinyaZangyo ?? 0m) +
+                (r.NJitsudou ?? 0m) +
+                (r.NShinya ?? 0m));
 
             if (isSystemMonth && workingHours != null)
             {
@@ -848,7 +855,14 @@ namespace Zouryoku.Pages.Kinmuhyo
                 .GroupBy(r => r.NippouYmd.GetStartOfMonth())
                 .ToDictionary(
                     g => g.Key,
-                    g => g.Sum(r => r.TotalZangyo ?? 0m)
+                    g => g.Sum(r =>
+                        (r.HZangyo ?? 0m) +
+                        (r.HShinyaZangyo ?? 0m) +
+                        (r.DJitsudou ?? 0m) +
+                        (r.DZangyo ?? 0m) +
+                        (r.DShinyaZangyo ?? 0m) +
+                        (r.NJitsudou ?? 0m) +
+                        (r.NShinya ?? 0m))
                 );
 
             if (monthlyOvertimeMinutes.Count < 2)

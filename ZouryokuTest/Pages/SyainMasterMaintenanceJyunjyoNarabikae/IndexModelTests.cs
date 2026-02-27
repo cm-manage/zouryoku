@@ -20,7 +20,12 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         /// テスト対象の IndexModel を生成します。
         /// </summary>
         /// <returns>生成された IndexModel</returns>
-        private IndexModel CreateModel() => new(db, GetLogger<IndexModel>(), options, viewEngine)
+        private IndexModel CreateModel() => new(
+          db,
+          GetLogger<IndexModel>(),
+          options,
+          viewEngine,
+          fakeTimeProvider)
         {
             PageContext = GetPageContext(),
             TempData = GetTempData(),
@@ -34,26 +39,27 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         public async Task OnGetSyainListAsync_有効期間内かつ未退職の社員のみ取得()
         {
             // Arrange
-            var today = DateTime.Today.ToDateOnly();
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
             const long busyoId = 1;
 
-            var syainA = AddNewSyain("社員A", busyoId: busyoId,
+            var syainA = AddNewSyain(today: today, "社員A", busyoId: busyoId,
                 jyunjyo: 10, startYmd: today.AddDays(-1),
                 endYmd: today.AddDays(1), retired: false);
 
-            AddNewSyain("社員B", busyoId: 2,
+            AddNewSyain(today: today, "社員B", busyoId: 2,
                 jyunjyo: 9, startYmd: today.AddDays(-1),
                 endYmd: today.AddDays(1), retired: false);
 
-            AddNewSyain("社員C", busyoId: busyoId,
+            AddNewSyain(today: today, "社員C", busyoId: busyoId,
                 jyunjyo: 8, startYmd: today.AddDays(1),
                 endYmd: today.AddDays(10), retired: false);
 
-            AddNewSyain("社員D", busyoId: busyoId,
+            AddNewSyain(today: today, "社員D", busyoId: busyoId,
                 jyunjyo: 7, startYmd: today.AddDays(-10),
                 endYmd: today.AddDays(-1), retired: false);
 
-            AddNewSyain("社員E", busyoId: busyoId,
+            AddNewSyain(today: today, "社員E", busyoId: busyoId,
                 jyunjyo: 6, startYmd: today.AddDays(-1),
                 endYmd: today.AddDays(1), retired: true);
 
@@ -82,8 +88,10 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         public async Task OnGetSyainListAsync_Jyunjyoの降順で並ぶ()
         {
             // Arrange
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
             const long busyoId = 1;
-            var syainA = AddNewSyain("社員A", busyoId: busyoId, jyunjyo: 2);
+            var syainA = AddNewSyain(today: today, "社員A", busyoId: busyoId, jyunjyo: 2);
             await db.SaveChangesAsync();
 
             var model = CreateModel();
@@ -109,7 +117,9 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         public async Task OnGetSyainListAsync_対象部署の社員が0件でも空一覧を返す()
         {
             // Arrange
-            AddNewSyain("社員A", busyoId: 2, jyunjyo: 1);
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            AddNewSyain(today: today, "社員A", busyoId: 2, jyunjyo: 1);
             await db.SaveChangesAsync();
 
             var model = CreateModel();
@@ -131,8 +141,10 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         public async Task OnPostRegisterAsync_指定した社員のJyunjyoを更新する()
         {
             // Arrange
-            var syain1 = AddNewSyain("社員1", jyunjyo: 1);
-            var syain2 = AddNewSyain("社員2", jyunjyo: 2);
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var syain1 = AddNewSyain(today: today, "社員1", jyunjyo: 1);
+            var syain2 = AddNewSyain(today: today, "社員2", jyunjyo: 2);
             await db.SaveChangesAsync();
 
             var model = CreateModel();
@@ -154,11 +166,14 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         /// <summary>
         /// 並び順保存処理 目的：更新対象の社員が存在しない場合　前提：部署A(Id=1, IsActive=true)のみ存在
         /// </summary>
-        [TestMethod(DisplayName = "並び順保存処理 目的：更新対象の社員が存在しない場合　前提：社員1(Id=1, Jyunjyo=1)のみ存在")]
+        [TestMethod(DisplayName = "並び順保存処理 目的：更新対象の社員が存在しない場合　前提：" +
+            "社員1(Id=1, Jyunjyo=1)のみ存在")]
         public async Task OnPostRegisterAsync_更新対象の社員が存在しない場合()
         {
             // Arrange
-            var syain1 = AddNewSyain("社員1", jyunjyo: 1);
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var syain1 = AddNewSyain(today: today, "社員1", jyunjyo: 1);
             await db.SaveChangesAsync();
 
             var model = CreateModel();
@@ -181,8 +196,9 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         public async Task OnPostRegisterAsync_同時実行制御が発動した場合()
         {
             // Arrange
-            var syain1 = AddNewSyain("社員1", jyunjyo: 1);
-
+            var today = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var syain1 = AddNewSyain(today: today, "社員1", jyunjyo: 1);
             await db.SaveChangesAsync();
 
             var model = CreateModel();
@@ -208,7 +224,9 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         /// <param name="endYmd">有効終了日</param>
         /// <param name="retired">退職フラグ</param>
         /// <returns>登録された社員エンティティ</returns>
-        private Syain AddNewSyain(string name, long busyoId = 1,
+        private Syain AddNewSyain(
+            DateOnly today,
+            string name = "", long busyoId = 1,
             short jyunjyo = 0, DateOnly? startYmd = null,
             DateOnly? endYmd = null, bool retired = false)
         {
@@ -230,8 +248,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
                 .WithBusyoCode(busyoId.ToString("000"))
                 .WithBusyoId(busyoId)
                 .WithJyunjyo(jyunjyo)
-                .WithStartYmd(startYmd ?? DateTime.Today.AddMonths(-1).ToDateOnly())
-                .WithEndYmd(endYmd ?? DateTime.Today.AddMonths(1).ToDateOnly())
+                .WithStartYmd(startYmd ?? today.AddMonths(-1))
+                .WithEndYmd(endYmd ?? today.AddMonths(1))
                 .WithRetired(retired)
                 .WithUserRoleId(1)
                 .WithKintaiZokuseiId(1)

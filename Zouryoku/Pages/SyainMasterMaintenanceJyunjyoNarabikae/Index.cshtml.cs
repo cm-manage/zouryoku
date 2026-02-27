@@ -21,8 +21,9 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             ZouContext db,
             ILogger<IndexModel> logger,
             IOptions<AppConfig> options,
-            ICompositeViewEngine viewEngine)
-            : base(db, logger, options, viewEngine)
+            ICompositeViewEngine viewEngine,
+            TimeProvider? timeProvider = null)
+            : base(db, logger, options, viewEngine, timeProvider)
         {
         }
 
@@ -90,7 +91,8 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
         /// <returns>社員リスト（JSON）</returns>
         public async Task<IActionResult> OnGetSyainListAsync()
         {
-            var today = DateTime.Today.ToDateOnly();
+            var now = timeProvider.Now();
+            var today = now.ToDateOnly();
 
             var syains = await db.Syains
                 .Include(s => s.Busyo)
@@ -105,7 +107,7 @@ namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
             Syains = syains.Select(SyainViewModel.FromEntity).ToList();
 
             var html = await PartialToJsonAsync("_SyainListPartial", this);
-            return SuccessJson(data: html); 
+            return SuccessJson(data: html);
         }
     }
 

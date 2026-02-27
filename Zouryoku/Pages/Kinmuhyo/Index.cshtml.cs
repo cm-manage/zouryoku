@@ -437,6 +437,16 @@ namespace Zouryoku.Pages.Kinmuhyo
             return await GetNippouListAsync(employee, targetMonthStart, targetMonthEnd);
         }
 
+        private async Task<List<WorkingHour>> GetWorkingHourListByMonthOffsetAsync(
+            Syain employee,
+            DateOnly displayYearMonth,
+            int monthOffset)
+        {
+            var targetMonthStart = displayYearMonth.GetStartOfMonth().AddMonths(monthOffset);
+            var targetMonthEnd = targetMonthStart.GetEndOfMonth();
+            return await GetWorkingHourListAsync(employee, targetMonthStart, targetMonthEnd, displayYearMonth);
+        }
+
         /// <summary>
         /// 指定月の予定リストを取得します
         /// </summary>
@@ -485,10 +495,14 @@ namespace Zouryoku.Pages.Kinmuhyo
                 systemYearMonth, 
                 systemYearMonth.GetEndOfMonth());
 
+            var workingHoursPrevMonth = await GetWorkingHourListByMonthOffsetAsync(employee, systemYearMonth, -1);
+            var workingHoursNextMonth = await GetWorkingHourListByMonthOffsetAsync(employee, systemYearMonth, 1);
+            var allWorkingHours = workingHoursPrevMonth.Concat(workingHours).Concat(workingHoursNextMonth).ToList();
+
             info.ContinuousWorkDaysPlanned = CountContinuousWorkDaysPlanned(nippouYoteisCurrent, 
                 nippouYoteisPrevMonth, 
                 nippouYoteisNextMonth, 
-                allNippous, 
+                allWorkingHours, 
                 today);
 
             // 残業時間の計算
@@ -591,7 +605,7 @@ namespace Zouryoku.Pages.Kinmuhyo
             List<NippouYotei> nippouYoteisCurrent,
             List<NippouYotei> nippouYoteisPrevMonth,
             List<NippouYotei> nippouYoteisNextMonth,
-            List<Nippou> nippous,
+            List<WorkingHour> workingHours,
             DateOnly systemDate)
         {
             // 前月・当月・翌月の予定を結合（出勤予定のみ）
@@ -606,13 +620,11 @@ namespace Zouryoku.Pages.Kinmuhyo
 
             // 実績出勤日のセット
             var actualWorkedDateSet = new HashSet<DateOnly>(
-                nippous
-                    .Where(n =>
-                        n.SyukkinHm1.HasValue ||
-                        n.HJitsudou.HasValue ||
-                        n.DJitsudou.HasValue ||
-                        n.NJitsudou.HasValue)
-                    .Select(n => n.NippouYmd)
+                workingHours
+                    .Where(w =>
+                        w.Hiduke <= systemDate &&
+                        (w.SyukkinTime.HasValue || w.TaikinTime.HasValue))
+                    .Select(w => w.Hiduke)
             );
 
             // 連続した予定勤務グループを作成し評価（予定 > 実績のみ対象）
@@ -772,7 +784,14 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// <returns>合計残業時間</returns>
         private TimeSpan CalculateTotalOvertime(List<Nippou> nippous, List<WorkingHour> workingHours, bool isSystemMonth)
         {
-            var totalMinutes = nippous.Sum(r => r.TotalZangyo ?? 0m);
+            var totalMinutes = nippous.Sum(r =>
+                (r.HZangyo ?? 0m) +
+                (r.HShinyaZangyo ?? 0m) +
+                (r.DJitsudou ?? 0m) +
+                (r.DZangyo ?? 0m) +
+                (r.DShinyaZangyo ?? 0m) +
+                (r.NJitsudou ?? 0m) +
+                (r.NShinya ?? 0m));
 
             if (isSystemMonth && workingHours != null)
             {
@@ -836,7 +855,14 @@ namespace Zouryoku.Pages.Kinmuhyo
                 .GroupBy(r => r.NippouYmd.GetStartOfMonth())
                 .ToDictionary(
                     g => g.Key,
-                    g => g.Sum(r => r.TotalZangyo ?? 0m)
+                    g => g.Sum(r =>
+                        (r.HZangyo ?? 0m) +
+                        (r.HShinyaZangyo ?? 0m) +
+                        (r.DJitsudou ?? 0m) +
+                        (r.DZangyo ?? 0m) +
+                        (r.DShinyaZangyo ?? 0m) +
+                        (r.NJitsudou ?? 0m) +
+                        (r.NShinya ?? 0m))
                 );
 
             if (monthlyOvertimeMinutes.Count < 2)

@@ -422,7 +422,8 @@ namespace Zouryoku.Pages.Kinmuhyo
                 var plannedLabel = GetPlannedLabel(nippouYotei.NippouYoteiYmd, plannedPaidLeaves, furikyuuZans);
 
                 hikadoubiDict.TryGetValue(nippouYotei.NippouYoteiYmd, out var hikadoubi);
-                var lineClass = GetStyles(nippouYotei.NippouYoteiYmd, nippouYotei.Worked, hikadoubi);
+                var hasPlannedLeave = !string.IsNullOrEmpty(plannedLabel);
+                var lineClass = GetStyles(nippouYotei.NippouYoteiYmd, hasPlannedLeave, hikadoubi);
 
                 return new KarendaHyojiRowViewModel(
                     PlannedWork: nippouYotei.Worked,
@@ -455,12 +456,12 @@ namespace Zouryoku.Pages.Kinmuhyo
         /// 日付別の表示スタイルを取得
         /// </summary>
         /// <param name="date">対象日付</param>
-        /// <param name="plannedWork">出勤予定フラグ</param>
+        /// <param name="hasPlannedLeave">休暇予定有無フラグ</param>
         /// <param name="hikadoubi">非稼働日情報</param>
         /// <returns>行クラスと日付クラスのタプル</returns>
         private string GetStyles(
             DateOnly date, 
-            bool plannedWork, 
+            bool hasPlannedLeave, 
             Hikadoubi? hikadoubi)
         {
             // 祝祭日判定を最優先
@@ -470,7 +471,7 @@ namespace Zouryoku.Pages.Kinmuhyo
             }
 
             // 背景色判定
-            if (!plannedWork)
+            if (hasPlannedLeave)
             {
                 return StyleLineClasses.Sunday;
             }

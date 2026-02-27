@@ -777,7 +777,7 @@ namespace Zouryoku.Pages.Kinmuhyo
             if (isSystemMonth && workingHours != null)
             {
                 var nippouDates = nippous
-                    .Select(r => r. )
+                    .Select(r => r.NippouYmd)
                     .ToHashSet();
 
                 totalMinutes += workingHours

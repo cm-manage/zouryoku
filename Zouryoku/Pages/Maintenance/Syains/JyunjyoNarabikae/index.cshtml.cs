@@ -9,7 +9,7 @@ using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 
-namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
+namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
 {
     /// <summary>
     /// 社員並び替えページモデル

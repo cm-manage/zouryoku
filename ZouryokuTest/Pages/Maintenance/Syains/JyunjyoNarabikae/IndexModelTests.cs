@@ -2,13 +2,13 @@ using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Model.Enums;
 using Model.Model;
-using Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae;
+using Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae;
 using ZouryokuCommonLibrary.Utils;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
 using static Model.Enums.ResponseStatus;
 
-namespace ZouryokuTest.Pages.SyainMasterMaintenanceJyunjyoNarabikae
+namespace ZouryokuTest.Pages.Maintenance.Syains.JyunjyoNarabikae
 {
     [TestClass]
     public class IndexModelTests : BaseInMemoryDbContextTest

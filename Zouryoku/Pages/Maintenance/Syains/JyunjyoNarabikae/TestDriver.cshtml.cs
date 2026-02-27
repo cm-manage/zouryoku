@@ -3,7 +3,7 @@ using Model.Data;
 using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
 
-namespace Zouryoku.Pages.SyainMasterMaintenanceJyunjyoNarabikae
+namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
 {
     /// <summary>
     /// 部署選択ドライバページモデル

@@ -59,7 +59,11 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
 
         private IndexModel CreateModel()
         {
-            IndexModel model = new IndexModel(db, GetLogger<IndexModel>(), options = CreateOptions(), viewEngine, fakeTimeProvider)
+            IndexModel model = new IndexModel(
+                db, GetLogger<IndexModel>(),
+                options = CreateOptions(),
+                viewEngine, 
+                fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData(),
@@ -84,7 +88,6 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
             var today = new DateOnly(2026, 2, 26);
             fakeTimeProvider.SetLocalNow(today.ToDateTime());
             string expectedPrefix = today.ToString("yyyy-MM");
-
 
             // Act
             model.OnGet();

@@ -25,8 +25,12 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 {
     public partial class IndexModel : BasePageModel<IndexModel>
     {
-        public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider timeProvider)
+        public IndexModel(
+            ZouContext db,
+            ILogger<IndexModel> logger,
+            IOptions<AppConfig> optionsAccessor,
+            ICompositeViewEngine viewEngine,
+            TimeProvider timeProvider)
             : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets => true;

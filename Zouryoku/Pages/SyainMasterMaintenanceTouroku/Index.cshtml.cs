@@ -1,4 +1,4 @@
-﻿using CommonLibrary.Extensions;
+using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
@@ -145,7 +145,8 @@ public class IndexModel : BasePageModel<IndexModel>
             var syainBase = await db.SyainBases.SingleOrDefaultAsync(sb => sb.Id == Input.SyainBaseId);
             if (syainBase is null)
             {
-                ModelState.AddModelError(nameof(Input.SyainBaseId), $"syainBaseId:{Input.SyainBaseId} の社員が見つかりません。");
+                ModelState.AddModelError(nameof(Input.SyainBaseId), $"syainBaseId:{Input.SyainBaseId} の" +
+                    $"社員が見つかりません。");
                 return CommonErrorResponse();
             }
 
@@ -213,7 +214,8 @@ public class IndexModel : BasePageModel<IndexModel>
 
         if (busyo is null)
         {
-            ModelState.AddModelError(nameof(Input.BusyoId), string.Format(Const.ErrorNotExists, "部署", Input.BusyoId.Value));
+            ModelState.AddModelError(nameof(Input.BusyoId), string.Format(Const.ErrorNotExists, "部署",
+                Input.BusyoId.Value));
             return null;
         }
 

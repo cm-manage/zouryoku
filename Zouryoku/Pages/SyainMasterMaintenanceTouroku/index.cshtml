@@ -1,4 +1,4 @@
-﻿@page
+@page
 @using Zouryoku.Pages.Shared.Components
 @model Zouryoku.Pages.SyainMasterMaintenanceTouroku.IndexModel
 @{
@@ -124,7 +124,8 @@
                 </div>
 
                 <div class="row mb-3 align-items-center">
-                    <label class="col-md-3 col-form-label fw-bold small">部署<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
+                    <label class="col-md-3 col-form-label fw-bold small">部署<span class="text-danger fw-bold">*</span>
+                        <span class="text-primary fw-bold">*</span></label>
                     <div class="col-md-5">
                         <div class="input-group">
                             <input asp-for="Input.BusyoName" class="form-control form-control-sm bg-light" readonly  />
@@ -189,15 +190,18 @@
                 </div>
 
                 <div class="row mb-3 align-items-center">
-                    <label asp-for="Input.SyucyoSyokui" class="col-md-3 col-form-label fw-bold small">出張職位<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
+                    <label asp-for="Input.SyucyoSyokui"class="col-md-3 col-form-label fw-bold small">出張職位
+                        <span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
                     <div class="col-md-4">
-                        <select asp-for="Input.SyucyoSyokui" asp-items="Model.SyucyoSyokuiOptions" class="form-select form-select-sm" id="Input_SyucyoSyokui"></select>
+                        <select asp-for="Input.SyucyoSyokui" asp-items="Model.SyucyoSyokuiOptions" 
+                            class="form-select form-select-sm" id="Input_SyucyoSyokui"></select>
                         <span asp-validation-for="Input.SyucyoSyokui" class="text-danger small"></span>
                     </div>
                 </div>
 
                 <div class="row mb-3 align-items-center">
-                    <label asp-for="Input.KingsSyozoku" class="col-md-3 col-form-label fw-bold small">KINGS所属<span class="text-danger fw-bold">*</span></label>
+                    <label asp-for="Input.KingsSyozoku" class="col-md-3 col-form-label fw-bold small">KINGS所属
+                        <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-3">
                         <input asp-for="Input.KingsSyozoku" class="form-control form-control-sm" />
                         <span asp-validation-for="Input.KingsSyozoku" class="text-danger small"></span>
@@ -205,7 +209,8 @@
                 </div>
 
                 <div class="row mb-3 align-items-center">
-                    <label asp-for="Input.KintaiZokuseiId" class="col-md-3 col-form-label fw-bold small">勤怠属性<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
+                    <label asp-for="Input.KintaiZokuseiId" class="col-md-3 col-form-label fw-bold small">勤怠属性
+                        <span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
                     <div class="col-md-4">
                         <select asp-for="Input.KintaiZokuseiId" asp-items="Model.KintaiZokuseiOptions" class="form-select form-select-sm"></select>
                     </div>
@@ -223,7 +228,8 @@
                 </div>
 
                 <div class="row mb-3 align-items-center">
-                    <label asp-for="Input.KaisyaCode" class="col-md-3 col-form-label fw-bold small">利用会社<span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
+                    <label asp-for="Input.KaisyaCode" class="col-md-3 col-form-label fw-bold small">利用会社
+                        <span class="text-danger fw-bold">*</span><span class="text-primary fw-bold">*</span></label>
                     <div class="col-md-4">
                         <select asp-for="Input.KaisyaCode" asp-items="Model.CompanyOptions" class="form-select form-select-sm"></select>
                     </div>

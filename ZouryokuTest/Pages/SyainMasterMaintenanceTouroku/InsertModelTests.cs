@@ -167,7 +167,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             };
         }
 
-        [TestMethod(DisplayName = "初期表示 目的：id未指定時に新規作成初期値と選択肢を設定すること 前提：部署Id=1,2・勤怠属性Id=1,2・ロールId=1,2・業務種別Id=1,2が登録済み")]
+        [TestMethod(DisplayName = "初期表示 目的：id未指定時に新規作成初期値と選択肢を設定すること 前提：" +
+            "部署Id=1,2・勤怠属性Id=1,2・ロールId=1,2・業務種別Id=1,2が登録済み")]
         public async Task OnGetAsync_id未指定時に新規初期値が設定されること()
         {
             SeedMasters();
@@ -188,7 +189,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.IsTrue(model.SyucyoSyokuiOptions.Any());
         }
 
-        [TestMethod(DisplayName = "初期表示 目的：社員BaseId指定時に現行社員と有給残を読込むこと 前提：社員BaseId=10,社員Id=100,社員番号=10001,有給残Id=1が登録済み")]
+        [TestMethod(DisplayName = "初期表示 目的：社員BaseId指定時に現行社員と有給残を読込むこと 前提：" +
+            "社員BaseId=10,社員Id=100,社員番号=10001,有給残Id=1が登録済み")]
         public async Task OnGetAsync_id指定時に既存社員情報を読込むこと()
         {
             SeedMasters();
@@ -233,7 +235,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.IsFalse(model.Input.Perm2Checked);
         }
 
-        [TestMethod(DisplayName = "初期表示 目的：存在しない社員BaseId指定時にモデルエラーを設定すること 前提：社員BaseId=999に対応する社員データが存在しない")]
+        [TestMethod(DisplayName = "初期表示 目的：存在しない社員BaseId指定時にモデルエラーを設定すること 前提：" +
+            "社員BaseId=999に対応する社員データが存在しない")]
         public async Task OnGetAsync_存在しない社員BaseId指定時にモデルエラーとなること()
         {
             SeedMasters();
@@ -248,7 +251,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.IsTrue(model.Input.IsCreate);
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：ModelState不正時に検証エラーJsonを返すこと 前提：Input.Codeに手動エラーinvalidを追加した状態で新規入力を設定")]
+        [TestMethod(DisplayName = "登録処理 目的：ModelState不正時に検証エラーJsonを返すこと 前提：" +
+            "Input.Codeに手動エラーinvalidを追加した状態で新規入力を設定")]
         public async Task OnPostRegisterAsync_ModelState不正時にエラーJsonを返すこと()
         {
             var model = CreateModel();
@@ -261,7 +265,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.IsNotNull(GetErrors(json, "Input.Code"));
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：新規登録時に部署未存在ならエラー応答を返すこと 前提：入力のBusyoId=999,BusyoCode=999で部署Id=999は未登録")]
+        [TestMethod(DisplayName = "登録処理 目的：新規登録時に部署未存在ならエラー応答を返すこと 前提：" +
+            "入力のBusyoId=999,BusyoCode=999で部署Id=999は未登録")]
         public async Task OnPostRegisterAsync_新規登録時に部署未存在ならエラーとなること()
         {
             SeedMasters();
@@ -277,7 +282,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual(0, await db.Syains.CountAsync());
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：新規登録時に社員番号重複ならエラー応答を返すこと 前提：社員BaseId=10に社員Id=100,社員番号=10001が登録済み")]
+        [TestMethod(DisplayName = "登録処理 目的：新規登録時に社員番号重複ならエラー応答を返すこと 前提：" +
+            "社員BaseId=10に社員Id=100,社員番号=10001が登録済み")]
         public async Task OnPostRegisterAsync_新規登録時に社員番号重複ならエラーとなること()
         {
             SeedMasters();
@@ -294,7 +300,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual(1, await db.Syains.CountAsync());
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：新規登録成功時に社員Base・社員・有給残を1件ずつ追加すること 前提：社員番号=10001が未登録で参照マスタId=1系は有効")]
+        [TestMethod(DisplayName = "登録処理 目的：新規登録成功時に社員Base・社員・有給残を1件ずつ追加すること 前提：" +
+            "社員番号=10001が未登録で参照マスタId=1系は有効")]
         public async Task OnPostRegisterAsync_新規登録成功時に社員関連データを追加すること()
         {
             SeedMasters();
@@ -321,7 +328,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual(new DateOnly(2026, 1, 1), (await db.OvertimeExcessLimits.SingleAsync()).DisabledYm);
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：更新時に社員未存在ならエラー応答を返すこと 前提：社員BaseId=10は登録済みで更新対象社員Id=999は未登録")]
+        [TestMethod(DisplayName = "登録処理 目的：更新時に社員未存在ならエラー応答を返すこと 前提：" +
+            "社員BaseId=10は登録済みで更新対象社員Id=999は未登録")]
         public async Task OnPostRegisterAsync_更新時に社員未存在ならエラーとなること()
         {
             SeedMasters();
@@ -336,7 +344,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：更新時に社員Base未存在ならエラー応答を返すこと 前提：社員Id=100は登録済みで更新対象社員BaseId=999は未登録")]
+        [TestMethod(DisplayName = "登録処理 目的：更新時に社員Base未存在ならエラー応答を返すこと 前提：" +
+            "社員Id=100は登録済みで更新対象社員BaseId=999は未登録")]
         public async Task OnPostRegisterAsync_更新時に社員Base未存在ならエラーとなること()
         {
             SeedMasters();
@@ -351,7 +360,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：更新時に他社員と社員番号重複ならエラー応答を返すこと 前提：社員BaseId=10の社員Id=100は社員番号10001,社員BaseId=20の社員Id=200は社員番号20000で登録済み")]
+        [TestMethod(DisplayName = "登録処理 目的：更新時に他社員と社員番号重複ならエラー応答を返すこと 前提：" +
+            "社員BaseId=10の社員Id=100は社員番号10001,社員BaseId=20の社員Id=200は社員番号20000で登録済み")]
         public async Task OnPostRegisterAsync_更新時に他社員と社員番号重複ならエラーとなること()
         {
             SeedMasters();
@@ -371,7 +381,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual("10001", target.Code);
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：履歴対象変更かつ適用開始日が有効開始日より前ならエラー応答を返すこと 前提：社員Id=100の有効開始日=2025-02-01で入力の適用開始日=2025-01-01かつ氏名変更あり")]
+        [TestMethod(DisplayName = "登録処理 目的：履歴対象変更かつ適用開始日が有効開始日より前ならエラー応答を" +
+            "返すこと 前提：社員Id=100の有効開始日=2025-02-01で入力の適用開始日=2025-01-01かつ氏名変更あり")]
         public async Task OnPostRegisterAsync_履歴変更かつ適用開始日が有効開始日より前ならエラーとなること()
         {
             SeedMasters();
@@ -396,7 +407,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual(MaxEndYmd, current.EndYmd);
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：履歴対象変更なしの更新で現行社員と有給残を更新すること 前提：社員BaseId=10の社員Id=100と有給残Id=1が登録済みで入力の履歴対象項目は既存値と同一")]
+        [TestMethod(DisplayName = "登録処理 目的：履歴対象変更なしの更新で現行社員と有給残を更新すること 前提：" +
+            "社員BaseId=10の社員Id=100と有給残Id=1が登録済みで入力の履歴対象項目は既存値と同一")]
         public async Task OnPostRegisterAsync_履歴変更なし更新で現行社員と有給残を更新すること()
         {
             SeedMasters();
@@ -457,7 +469,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual(new DateOnly(2026, 2, 1), overtimeLimit.DisabledYm);
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：残業超過制限開始フラグがOFFなら対象社員の残業超過制限設定を削除すること 前提：社員BaseId=10の残業超過制限が1件存在する")]
+        [TestMethod(DisplayName = "登録処理 目的：残業超過制限開始フラグがOFFなら対象社員の残業超過制限設定を" +
+            "削除すること 前提：社員BaseId=10の残業超過制限が1件存在する")]
         public async Task OnPostRegisterAsync_残業超過制限開始フラグオフで残業超過制限を削除すること()
         {
             SeedMasters();
@@ -482,7 +495,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual(0, await db.OvertimeExcessLimits.CountAsync());
         }
 
-        [TestMethod(DisplayName = "登録処理 目的：履歴対象変更ありの更新で既存終了日を調整し新規履歴を追加すること 前提：社員Id=100の有効開始日=2025-01-01,適用開始日=2025-02-10,部署をId=1からId=2へ変更")]
+        [TestMethod(DisplayName = "登録処理 目的：履歴対象変更ありの更新で既存終了日を調整し新規履歴を" +
+            "追加すること 前提：社員Id=100の有効開始日=2025-01-01,適用開始日=2025-02-10,部署をId=1からId=2へ変更")]
         public async Task OnPostRegisterAsync_履歴変更あり更新で履歴分割して新規社員を追加すること()
         {
             SeedMasters();
@@ -519,7 +533,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual(1, await db.YuukyuuZans.CountAsync());
         }
 
-        [TestMethod(DisplayName = "ロール既定権限取得 目的：ロール未存在時にエラーJsonを返すこと 前提：検索ロールId=999が未登録")]
+        [TestMethod(DisplayName = "ロール既定権限取得 目的：ロール未存在時にエラーJsonを返すこと 前提：" +
+            "検索ロールId=999が未登録")]
         public async Task OnGetRoleDefaultsAsync_ロール未存在ならエラーJsonを返すこと()
         {
             var model = CreateModel();
@@ -532,7 +547,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.IsFalse(string.IsNullOrWhiteSpace(message));
         }
 
-        [TestMethod(DisplayName = "ロール既定権限取得 目的：ロール存在時に権限ビットを真偽値へ展開して返すこと 前提：ロールId=50の権限はbit0,bit4,bit14を保持")]
+        [TestMethod(DisplayName = "ロール既定権限取得 目的：ロール存在時に権限ビットを真偽値へ展開して返すこと 前提：" +
+            "ロールId=50の権限はbit0,bit4,bit14を保持")]
         public async Task OnGetRoleDefaultsAsync_ロール存在時に権限ビットを返すこと()
         {
             db.UserRoles.Add(new UserRole

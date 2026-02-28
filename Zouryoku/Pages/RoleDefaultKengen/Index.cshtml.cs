@@ -28,8 +28,9 @@ namespace Zouryoku.Pages.RoleDefaultKengen
             ZouContext db,
             ILogger<IndexModel> logger,
             IOptions<AppConfig> optionsAccessor,
-            ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine)
+            ICompositeViewEngine viewEngine,
+            TimeProvider? timeProvider = null)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider)
         {
         }
 

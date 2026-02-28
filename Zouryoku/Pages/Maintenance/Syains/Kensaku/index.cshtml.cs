@@ -11,7 +11,7 @@ using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
 using static Model.Enums.EmployeeWorkType;
 
-namespace Zouryoku.Pages.SyainMasterMaintenanceKensaku
+namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
 {
     /// <summary>
     /// 社員検索ページモデル

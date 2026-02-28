@@ -2,13 +2,13 @@ using Amazon.Auth.AccessControlPolicy;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Model.Enums;
 using Model.Model;
-using Zouryoku.Pages.SyainMasterMaintenanceKensaku;
+using Zouryoku.Pages.Maintenance.Syains.Kensaku;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
 using static Model.Enums.EmployeeAuthority;
 using static Model.Enums.EmployeeWorkType;
 
-namespace ZouryokuTest.Pages.SyainMasterMaintenanceKensaku
+namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
 {
     /// <summary>
     /// 社員マスタメンテナンス検索画面のユニットテスト

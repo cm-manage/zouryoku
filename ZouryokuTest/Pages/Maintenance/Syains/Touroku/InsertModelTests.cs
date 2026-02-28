@@ -1,13 +1,14 @@
+using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Model.Enums;
 using Model.Model;
-using Zouryoku.Pages.SyainMasterMaintenanceTouroku;
+using Zouryoku.Pages.Maintenance.Syains.Touroku;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
 
-namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
+namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 {
     /// <summary>
     /// 社員マスタ登録 画面モデルテスト
@@ -20,7 +21,12 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
 
         private IndexModel CreateModel()
         {
-            return new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
+            return new IndexModel(
+              db,
+              GetLogger<IndexModel>(),
+              options,
+              viewEngine,
+              fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
@@ -193,6 +199,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             "社員BaseId=10,社員Id=100,社員番号=10001,有給残Id=1が登録済み")]
         public async Task OnGetAsync_id指定時に既存社員情報を読込むこと()
         {
+            var dateYmd = new DateOnly(2026, 1, 1);
+            // fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "NAME-1");
             AddCurrentSyain(100, syainBase.Id, "10001");
@@ -211,7 +219,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             {
                 Id = 1,
                 SyainBaseId = syainBase.Id,
-                DisabledYm = new DateOnly(2026, 1, 1)
+                DisabledYm = dateYmd
             });
             await db.SaveChangesAsync();
 
@@ -304,6 +312,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             "社員番号=10001が未登録で参照マスタId=1系は有効")]
         public async Task OnPostRegisterAsync_新規登録成功時に社員関連データを追加すること()
         {
+            var dateYmd = new DateOnly(2026, 1, 1);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             await db.SaveChangesAsync();
 
@@ -325,7 +335,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual(expected, inserted.Kengen);
             Assert.AreEqual(1L, inserted.BusyoId);
             Assert.AreEqual((short)1, inserted.KaisyaCode);
-            Assert.AreEqual(new DateOnly(2026, 1, 1), (await db.OvertimeExcessLimits.SingleAsync()).DisabledYm);
+            Assert.AreEqual(dateYmd, (await db.OvertimeExcessLimits.SingleAsync()).DisabledYm);
         }
 
         [TestMethod(DisplayName = "登録処理 目的：更新時に社員未存在ならエラー応答を返すこと 前提：" +
@@ -385,9 +395,11 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             "返すこと 前提：社員Id=100の有効開始日=2025-02-01で入力の適用開始日=2025-01-01かつ氏名変更あり")]
         public async Task OnPostRegisterAsync_履歴変更かつ適用開始日が有効開始日より前ならエラーとなること()
         {
+            var dateYmd = new DateOnly(2025, 2, 1);
+            // fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "BASE");
-            AddCurrentSyain(100, syainBase.Id, "10001", startYmd: new DateOnly(2025, 2, 1));
+            AddCurrentSyain(100, syainBase.Id, "10001", startYmd: dateYmd);
             await db.SaveChangesAsync();
 
             var model = CreateModel();
@@ -396,8 +408,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
                 id: 100,
                 syainBaseId: 10,
                 name: "CHANGED-NAME",
-                startDate: new DateOnly(2025, 1, 1),
-                startYmd: new DateOnly(2025, 2, 1));
+                startDate: dateYmd.AddMonths(-1),
+                startYmd: dateYmd);
 
             var result = await model.OnPostRegisterAsync();
 
@@ -411,6 +423,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             "社員BaseId=10の社員Id=100と有給残Id=1が登録済みで入力の履歴対象項目は既存値と同一")]
         public async Task OnPostRegisterAsync_履歴変更なし更新で現行社員と有給残を更新すること()
         {
+            var dateYmd = new DateOnly(2025, 1, 1);
+            // fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "BASE");
             AddCurrentSyain(100, syainBase.Id, "10001");
@@ -429,7 +443,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             {
                 Id = 1,
                 SyainBaseId = syainBase.Id,
-                DisabledYm = new DateOnly(2025, 12, 1)
+                DisabledYm = dateYmd.AddMonths(11)
             });
             await db.SaveChangesAsync();
 
@@ -440,8 +454,8 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
                 syainBaseId: 10,
                 code: "10001",
                 name: "NAME-1",
-                startDate: new DateOnly(2025, 3, 1),
-                startYmd: new DateOnly(2025, 1, 1),
+                startDate: dateYmd.AddMonths(2),
+                startYmd: dateYmd,
                 endYmd: MaxEndYmd);
             model.Input.EMail = "updated@example.com";
             model.Input.Wariate = 9m;
@@ -457,7 +471,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
 
             var syain = await db.Syains.SingleAsync(x => x.Id == 100);
             Assert.AreEqual("updated@example.com", syain.EMail);
-            Assert.AreEqual(new DateOnly(2025, 1, 1), syain.StartYmd);
+            Assert.AreEqual(dateYmd, syain.StartYmd);
             Assert.AreEqual(MaxEndYmd, syain.EndYmd);
 
             var leave = await db.YuukyuuZans.SingleAsync(x => x.SyainBaseId == 10);
@@ -466,13 +480,15 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             Assert.AreEqual(2m, leave.Syouka);
 
             var overtimeLimit = await db.OvertimeExcessLimits.SingleAsync(x => x.SyainBaseId == 10);
-            Assert.AreEqual(new DateOnly(2026, 2, 1), overtimeLimit.DisabledYm);
+            Assert.AreEqual(dateYmd.AddMonths(13), overtimeLimit.DisabledYm);
         }
 
         [TestMethod(DisplayName = "登録処理 目的：残業超過制限開始フラグがOFFなら対象社員の残業超過制限設定を" +
             "削除すること 前提：社員BaseId=10の残業超過制限が1件存在する")]
         public async Task OnPostRegisterAsync_残業超過制限開始フラグオフで残業超過制限を削除すること()
         {
+            var dateYmd = new DateOnly(2025, 12, 1);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "BASE");
             AddCurrentSyain(100, syainBase.Id, "10001");
@@ -480,7 +496,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             {
                 Id = 1,
                 SyainBaseId = syainBase.Id,
-                DisabledYm = new DateOnly(2025, 12, 1)
+                DisabledYm = dateYmd
             });
             await db.SaveChangesAsync();
 
@@ -499,9 +515,11 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
             "追加すること 前提：社員Id=100の有効開始日=2025-01-01,適用開始日=2025-02-10,部署をId=1からId=2へ変更")]
         public async Task OnPostRegisterAsync_履歴変更あり更新で履歴分割して新規社員を追加すること()
         {
+            var dateYmd = new DateOnly(2025, 1, 1);
+            // fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "BASE");
-            AddCurrentSyain(100, syainBase.Id, "10001", busyoId: 1, startYmd: new DateOnly(2025, 1, 1));
+            AddCurrentSyain(100, syainBase.Id, "10001", busyoId: 1, startYmd: dateYmd);
             await db.SaveChangesAsync();
 
             var applyDate = new DateOnly(2025, 2, 10);
@@ -515,7 +533,7 @@ namespace ZouryokuTest.Pages.SyainMasterMaintenanceTouroku
                 busyoId: 2,
                 busyoCode: "102",
                 startDate: applyDate,
-                startYmd: new DateOnly(2025, 1, 1),
+                startYmd: dateYmd,
                 endYmd: MaxEndYmd);
 
             var result = await model.OnPostRegisterAsync();

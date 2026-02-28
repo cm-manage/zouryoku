@@ -117,9 +117,9 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var (syain, _) = InitializeTestData();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var futureMonth = today.AddMonths(2);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var futureMonth = dateYmd.AddMonths(2);
             var model = CreateModel();
             model.SyainId = syain.Id;
             model.NippouYmd = futureMonth;
@@ -151,8 +151,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         /// </summary>
         private (Syain syain, Busyo busyo) InitializeTestData()
         {
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             // 部署データ作成
             var busyoBase = new BusyoBasisBuilder()
@@ -229,13 +229,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var (syain, _) = InitializeTestData();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var model = CreateModel();
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             var result = await model.OnGetAsync();
 
             // Assert
@@ -260,20 +260,20 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
 
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             var model = CreateModel();
-            var beforeCall = today.ToDateTime();
+            var beforeCall = dateYmd.ToDateTime();
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             // Assert
             Assert.IsTrue(model.ViewModel.CurrentTime >= beforeCall.AddSeconds(-1), "CurrentTime が現在時刻に近い値であるべきです。");
-            Assert.IsTrue(model.ViewModel.CurrentTime <= today.ToDateTime().AddSeconds(1), "CurrentTime が現在時刻に近い値であるべきです。");
+            Assert.IsTrue(model.ViewModel.CurrentTime <= dateYmd.ToDateTime().AddSeconds(1), "CurrentTime が現在時刻に近い値であるべきです。");
         }
 
         /// <summary>
@@ -286,13 +286,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var (syain, busyo) = InitializeTestData();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var model = CreateModel();
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             // Assert
@@ -311,13 +311,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
 
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             var model = CreateModel();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -336,12 +336,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var (syain, _) = InitializeTestData();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var model = CreateModel();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -362,8 +362,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var targetDate = new DateOnly(2025, 6, 15);
             var expectedDate = targetDate.ToString("yyyy/MM");
 
@@ -387,10 +387,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_社員が存在する_DisplayYearMonthDateが設定される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
             var targetDate = new DateOnly(2025, 6, 15);
             var expectedMonthStart = targetDate.GetStartOfMonth();
 
@@ -413,14 +413,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_当月_IsEditableMonthがtrue()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-
+            
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             // Assert
@@ -436,11 +436,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_過去月_IsEditableMonthがfalse()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var pastMonth = today.AddMonths(-1);
+            var pastMonth = dateYmd.AddMonths(-1);
 
             // Act
             model.SyainId = syain.Id;
@@ -460,10 +460,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_BreakTimeHoursが設定される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             var totalBreakTime = Common.Time.休憩時間List.Sum(b => b.Item2 - b.Item1);
 
@@ -471,7 +471,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             // Assert
@@ -487,14 +487,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_KinmuJokyoRowsが設定される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             // Assert
@@ -519,13 +519,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_KarendaHyojiRowsが設定される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             // Act
             await model.OnGetAsync();
 
@@ -550,14 +550,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_DepartmentEmployeesが設定される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             // Assert
@@ -579,14 +579,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_AlertBannerが設定される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             // Assert
@@ -602,14 +602,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_KarendaHyojiRowsの各プロパティが正しく設定される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             // Assert
@@ -635,14 +635,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_KinmuJokyoRowsの各プロパティが正しく設定される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             // Assert
@@ -674,17 +674,17 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnPostRefreshCalendarAsync_社員が存在する_ViewModelの全プロパティが設定される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, busyo) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             var totalBreakTime = Common.Time.休憩時間List.Sum(b => b.Item2 - b.Item1);
             var breakTimeHours = totalBreakTime / 60m; // 分を時間に変換
 
             // Act
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             var result = await model.OnPostRefreshCalendarAsync();
 
             // Assert
@@ -747,22 +747,22 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_予定データがない場合_InitializePlannedWorkAsyncが実行される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // 休日マスタ（祝日）を作成
             var holiday = new HikadoubiBuilder()
                 .WithId(1)
-                .WithYmd(today.GetStartOfMonth().AddDays(5)) // 6日目（5日後）を祝日とする
+                .WithYmd(dateYmd.GetStartOfMonth().AddDays(5)) // 6日目（5日後）を祝日とする
                 .WithSyukusaijitsuFlag(祝祭日)
                 .Build();
             db.Hikadoubis.Add(holiday);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -796,11 +796,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_休暇管理と振替出勤がある場合_InitializePlannedWorkAsyncに反映される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var monthStart = today.GetStartOfMonth();
+            var monthStart = dateYmd.GetStartOfMonth();
 
             // 1. 休暇管理 (2日目を休暇とする) -> worked = false
             var leaveDate = monthStart.AddDays(1);
@@ -855,12 +855,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_実績データがある場合_KarendaHyojiRowsに勤務時間が反映される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
-            var targetDate = today.GetStartOfMonth().AddDays(10);
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(10);
 
             // 日報実績データ作成（確定済み）
             var nippou = new NippouBuilder()
@@ -897,12 +897,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_打刻データのみある場合_KarendaHyojiRowsに打刻時間が反映される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-
-            var targetDate = today.GetStartOfMonth().AddDays(11);
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(11);
 
             // 打刻データ作成
             var workingHour = new WorkingHoursBuilder()
@@ -937,19 +936,18 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_申請データがある場合_KarendaHyojiRowsに申請状況が反映される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-
-            var targetDate = today.GetStartOfMonth().AddDays(15);
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(15);
 
             // 申請データ作成（残業・承認済み）
             var ukagai = new UkagaiHeaderBuilder()
                 .WithSyainId(syain.Id)
                 .WithWorkYmd(targetDate)
                 .WithStatus(承認)
-                .WithLastShoninYmd(today)
+                .WithLastShoninYmd(dateYmd)
                 .Build();
             ukagai.UkagaiShinseis = new List<UkagaiShinsei>
             {
@@ -959,7 +957,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -980,10 +978,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_有給残がある場合_KinmuJokyoRowsに有給残日数が反映される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // 有給残データ作成
             var yuukyuu = new YuukyuuZan
@@ -998,7 +996,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1019,26 +1017,26 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_振替休暇残がある場合_KinmuJokyoRowsに振替休暇が反映される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // 振替休暇残データ作成
             var furi = new FurikyuuZan
             {
                 SyainId = syain.Id,
-                KyuujitsuSyukkinYmd = today.AddMonths(-1), // 1ヶ月前休日出勤
-                DaikyuuKigenYmd = today.AddMonths(2),      // 期限はまだ先
+                KyuujitsuSyukkinYmd = dateYmd.AddMonths(-1), // 1ヶ月前休日出勤
+                DaikyuuKigenYmd = dateYmd.AddMonths(2),      // 期限はまだ先
                 SyutokuState = 未,
                 IsOneDay = true,
-                SyutokuYoteiYmd = today.AddDays(5) // 今月取得予定
+                SyutokuYoteiYmd = dateYmd.AddDays(5) // 今月取得予定
             };
             db.FurikyuuZans.Add(furi);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1059,12 +1057,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_連続勤務日数がアラート閾値を超える場合_赤アラート()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
-            var systemMonth = today.GetStartOfMonth();
+            var systemMonth = dateYmd.GetStartOfMonth();
 
             // 11日連続出勤の実績を作成
             for (int i = 0; i < 11; i++)
@@ -1073,7 +1071,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
                 var nippou = new NippouBuilder()
                     .WithId(100 + i) // IDを一意にする
                     .WithSyainId(syain.Id)
-                    .WithNippouYmd(today.AddDays(-i))
+                    .WithNippouYmd(dateYmd.AddDays(-i))
                     .WithHJitsudou(8)
                     .Build();
                 db.Nippous.Add(nippou);
@@ -1081,7 +1079,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1103,10 +1101,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_連続勤務日数が警告閾値を超える場合_黄アラート()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // 7日連続出勤の実績を作成
             for (int i = 0; i < 7; i++)
@@ -1114,7 +1112,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
                 var nippou = new NippouBuilder()
                     .WithId(200 + i) // IDを一意にする
                     .WithSyainId(syain.Id)
-                    .WithNippouYmd(today.AddDays(-i))
+                    .WithNippouYmd(dateYmd.AddDays(-i))
                     .WithHJitsudou(8)
                     .Build();
                 db.Nippous.Add(nippou);
@@ -1122,7 +1120,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1144,22 +1142,22 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_残業時間がアラート閾値を超える場合_残業アラート()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // 45時間残業の実績(1日)
             var nippou = new NippouBuilder()
                 .WithSyainId(syain.Id)
-                .WithNippouYmd(today.GetStartOfMonth())
+                .WithNippouYmd(dateYmd.GetStartOfMonth())
                 .WithHZangyo(45)
                 .Build();
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1180,22 +1178,22 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_残業時間が警告閾値を超える場合_残業黄アラート()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // 35時間残業の実績(1日)
             var nippou = new NippouBuilder()
                 .WithSyainId(syain.Id)
-                .WithNippouYmd(today.GetStartOfMonth())
+                .WithNippouYmd(dateYmd.GetStartOfMonth())
                 .WithHZangyo(35)
                 .Build();
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1216,6 +1214,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_残業時間が警告閾値を超える場合_免除社員_メッセージが横棒になる()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
 
             // 免除社員設定 (標準社員外)
@@ -1224,20 +1224,18 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // 35時間残業
             var nippou = new NippouBuilder()
                 .WithSyainId(syain.Id)
-                .WithNippouYmd(today.GetStartOfMonth())
+                .WithNippouYmd(dateYmd.GetStartOfMonth())
                 .WithHZangyo(35)
                 .Build();
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1258,6 +1256,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_残業制限解除かつ警告閾値を超える場合_100時間リミットの黄アラート()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
 
             // 制限解除・通常社員
@@ -1267,20 +1267,18 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // 90時間残業
             var nippou = new NippouBuilder()
                 .WithSyainId(syain.Id)
-                .WithNippouYmd(today.GetStartOfMonth())
+                .WithNippouYmd(dateYmd.GetStartOfMonth())
                 .WithHZangyo(90)
                 .Build();
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1302,6 +1300,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         [TestMethod(DisplayName = "残業105h (100hリミット) → 赤アラート (LevelDanger)")]
         public async Task OnGetAsync_残業制限解除かつレッド閾値を超える場合_100時間リミットの赤アラート()
         {
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var zokusei = await db.KintaiZokuseis.FirstAsync();
             zokusei.SeigenTime = 0m;
@@ -1309,14 +1309,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-
-            db.Nippous.Add(new NippouBuilder().WithSyainId(syain.Id).WithNippouYmd(today.GetStartOfMonth()).WithHZangyo(105).Build());
+          
+            db.Nippous.Add(new NippouBuilder().WithSyainId(syain.Id).WithNippouYmd(dateYmd.GetStartOfMonth()).WithHZangyo(105).Build());
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             var row = model.ViewModel.KinmuJokyoRows.FirstOrDefault(r => r.Label == "残業");
@@ -1333,6 +1331,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         [TestMethod(DisplayName = "残業105h (100hリミット)・免除社員 → 赤アラート・メッセージ横棒")]
         public async Task OnGetAsync_残業制限解除かつレッド閾値を超える場合_免除社員_メッセージが横棒になる()
         {
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var zokusei = await db.KintaiZokuseis.FirstAsync();
             zokusei.SeigenTime = 0m;
@@ -1340,14 +1340,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
-            db.Nippous.Add(new NippouBuilder().WithSyainId(syain.Id).WithNippouYmd(today.GetStartOfMonth()).WithHZangyo(105).Build());
+            db.Nippous.Add(new NippouBuilder().WithSyainId(syain.Id).WithNippouYmd(dateYmd.GetStartOfMonth()).WithHZangyo(105).Build());
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
             await model.OnGetAsync();
 
             var row = model.ViewModel.KinmuJokyoRows.FirstOrDefault(r => r.Label == "残業");
@@ -1366,11 +1364,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_祝日がある場合_GetStylesで祝日スタイルが適用される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var holidayDate = today.GetStartOfMonth(); // 月初を祝日に
+            var holidayDate = dateYmd.GetStartOfMonth(); // 月初を祝日に
 
             var holiday = new HikadoubiBuilder()
                 .WithYmd(holidayDate)
@@ -1380,7 +1378,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1400,10 +1398,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         public async Task OnGetAsync_土曜日_GetStylesで土曜スタイルが適用される()
         {
             // Arrange
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
 
             // 2026/01/01は木曜。2026/01/03は土曜。
             var targetDate = new DateOnly(2026, 1, 3);

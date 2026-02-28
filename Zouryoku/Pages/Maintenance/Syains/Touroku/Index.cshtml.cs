@@ -7,14 +7,14 @@ using Microsoft.Extensions.Options;
 using Model.Data;
 using Model.Enums;
 using Model.Model;
-using System.Globalization;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using Zouryoku.Attributes;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 
-namespace Zouryoku.Pages.SyainMasterMaintenanceTouroku;
+namespace Zouryoku.Pages.Maintenance.Syains.Touroku;
 
 /// <summary>
 /// 社員マスタ登録画面モデル
@@ -65,7 +65,7 @@ public class IndexModel : BasePageModel<IndexModel>
     public async Task<IActionResult> OnGetAsync(long? id)
     {
         await LoadOptionsAsync();
-        var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+        var today = timeProvider.Today();
 
         if (!id.HasValue)
         {
@@ -96,7 +96,7 @@ public class IndexModel : BasePageModel<IndexModel>
             syain,
             yuukyuuZan,
             overtimeExcessLimit,
-            DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime));
+            today);
 
         return Page();
     }
@@ -807,56 +807,55 @@ public class IndexModel : BasePageModel<IndexModel>
             YuukyuuZan? yuukyuuZan,
             OvertimeExcessLimit? overtimeExcessLimit,
             DateOnly today) => new()
-        {
-            IsCreate = false,
-            Id = syain.Id,
-            SyainBaseId = syain.SyainBaseId,
-            Code = syain.Code,
-            Name = syain.Name,
-            KanaName = syain.KanaName,
-            NyuusyaYmd = syain.NyuusyaYmd,
-            Seibetsu = syain.Seibetsu,
-            BusyoId = syain.BusyoId,
-            BusyoName = syain.Busyo.Name,
-            BusyoCode = syain.Busyo.Code,
-            GyoumuTypeId = syain.GyoumuTypeId,
-            StartDate = today,
-            StartYmd = syain.StartYmd,
-            EndYmd = syain.EndYmd,
-            Kyusyoku = syain.Kyusyoku,
-            SyucyoSyokui = syain.SyucyoSyokui,
-            KingsSyozoku = syain.KingsSyozoku,
-            KintaiZokuseiId = syain.KintaiZokuseiId,
-            IsGenkaRendou = syain.IsGenkaRendou,
-            KaisyaCode = syain.KaisyaCode,
-            EMail = syain.EMail,
-            KeitaiMail = syain.KeitaiMail,
-            PhoneNumber = syain.PhoneNumber,
-            Retired = syain.Retired,
-            Wariate = yuukyuuZan?.Wariate,
-            Kurikoshi = yuukyuuZan?.Kurikoshi,
-            Syouka = yuukyuuZan?.Syouka,
-            HannitiKaisuu = yuukyuuZan?.HannitiKaisuu ?? 0,
-            IsOvertimeExcessLimitStart = overtimeExcessLimit is not null,
-            OvertimeExcessLimitYm = overtimeExcessLimit?.DisabledYm.ToString("yyyy/MM"),
-            UserRoleId = syain.UserRoleId,
-            Kengen = (long)syain.Kengen,
-            Perm1Checked = HasAuthority(syain.Kengen, 0),
-            Perm2Checked = HasAuthority(syain.Kengen, 1),
-            Perm3Checked = HasAuthority(syain.Kengen, 2),
-            Perm4Checked = HasAuthority(syain.Kengen, 3),
-            Perm5Checked = HasAuthority(syain.Kengen, 4),
-            Perm6Checked = HasAuthority(syain.Kengen, 5),
-            Perm7Checked = HasAuthority(syain.Kengen, 6),
-            Perm8Checked = HasAuthority(syain.Kengen, 7),
-            Perm9Checked = HasAuthority(syain.Kengen, 8),
-            Perm10Checked = HasAuthority(syain.Kengen, 9),
-            Perm11Checked = HasAuthority(syain.Kengen, 10),
-            Perm12Checked = HasAuthority(syain.Kengen, 11),
-            Perm13Checked = HasAuthority(syain.Kengen, 12),
-            Perm14Checked = HasAuthority(syain.Kengen, 13),
-            Perm15Checked = HasAuthority(syain.Kengen, 14),
-        };
+            {
+                IsCreate = false,
+                Id = syain.Id,
+                SyainBaseId = syain.SyainBaseId,
+                Code = syain.Code,
+                Name = syain.Name,
+                KanaName = syain.KanaName,
+                NyuusyaYmd = syain.NyuusyaYmd,
+                Seibetsu = syain.Seibetsu,
+                BusyoId = syain.BusyoId,
+                BusyoName = syain.Busyo.Name,
+                BusyoCode = syain.Busyo.Code,
+                GyoumuTypeId = syain.GyoumuTypeId,
+                StartDate = today,
+                StartYmd = syain.StartYmd,
+                EndYmd = syain.EndYmd,
+                Kyusyoku = syain.Kyusyoku,
+                SyucyoSyokui = syain.SyucyoSyokui,
+                KingsSyozoku = syain.KingsSyozoku,
+                KintaiZokuseiId = syain.KintaiZokuseiId,
+                IsGenkaRendou = syain.IsGenkaRendou,
+                KaisyaCode = syain.KaisyaCode,
+                EMail = syain.EMail,
+                KeitaiMail = syain.KeitaiMail,
+                PhoneNumber = syain.PhoneNumber,
+                Retired = syain.Retired,
+                Wariate = yuukyuuZan?.Wariate,
+                Kurikoshi = yuukyuuZan?.Kurikoshi,
+                Syouka = yuukyuuZan?.Syouka,
+                HannitiKaisuu = yuukyuuZan?.HannitiKaisuu ?? 0,
+                IsOvertimeExcessLimitStart = overtimeExcessLimit is not null,
+                OvertimeExcessLimitYm = overtimeExcessLimit?.DisabledYm.ToString("yyyy/MM"),
+                UserRoleId = syain.UserRoleId,
+                Kengen = (long)syain.Kengen,
+                Perm1Checked = HasAuthority(syain.Kengen, 0),
+                Perm2Checked = HasAuthority(syain.Kengen, 1),
+                Perm3Checked = HasAuthority(syain.Kengen, 2),
+                Perm4Checked = HasAuthority(syain.Kengen, 3),
+                Perm5Checked = HasAuthority(syain.Kengen, 4),
+                Perm6Checked = HasAuthority(syain.Kengen, 5),
+                Perm7Checked = HasAuthority(syain.Kengen, 6),
+                Perm8Checked = HasAuthority(syain.Kengen, 7),
+                Perm9Checked = HasAuthority(syain.Kengen, 8),
+                Perm10Checked = HasAuthority(syain.Kengen, 9),
+                Perm11Checked = HasAuthority(syain.Kengen, 10),
+                Perm12Checked = HasAuthority(syain.Kengen, 11),
+                Perm13Checked = HasAuthority(syain.Kengen, 12),
+                Perm14Checked = HasAuthority(syain.Kengen, 13),
+                Perm15Checked = HasAuthority(syain.Kengen, 14),
+            };
     }
 }
-

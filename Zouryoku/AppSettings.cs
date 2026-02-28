@@ -71,5 +71,17 @@ namespace Zouryoku
 
         /// <summary>有給休暇年間累計 通知(2月～3月)の上限</summary>
         public decimal PaidYearTotalNotice2To3 { get; set; }
+
+        /// <summary>振替休暇残日数増加アラートの閾値となる日数</summary>
+        public decimal FurikyuAlertThresholdDays { get; set; }
+
+        /// <summary>計画有給休暇の取得上限日数</summary>
+        public short MaxKeikakuYuukyuuDays { get; set; }
+
+        /// <summary>計画特別休暇の取得上限数</summary>
+        public short MaxKeikakuTokukyuuDays { get; set; }
+
+        /// <summary>半日有給休暇の取得上限数</summary>
+        public short MaxHannichiYuukyuuDays { get; set; }
     }
 }

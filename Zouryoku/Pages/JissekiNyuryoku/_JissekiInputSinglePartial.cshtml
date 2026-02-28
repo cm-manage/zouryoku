@@ -1,0 +1,9 @@
+﻿@model Zouryoku.Pages.JissekiNyuryoku.JissekiInputViewModel
+
+@{
+    var prefix = $"NippouInput.JissekiInputs[{Model.Index}]";
+        var vd = new ViewDataDictionary(ViewData);
+        vd.TemplateInfo.HtmlFieldPrefix = prefix;
+        
+        @await Html.PartialAsync("_JissekiInputPartial", Model, vd)
+}

@@ -45,7 +45,7 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
         /// <summary>
         /// 本日の日付
         /// </summary>
-        private static DateOnly Today => DateTime.Today.ToDateOnly();
+        private DateOnly Today => timeProvider.Today();
 
         // ---------------------------------------------
         // OnGet

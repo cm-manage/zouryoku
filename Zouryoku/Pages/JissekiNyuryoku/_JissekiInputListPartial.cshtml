@@ -1,0 +1,12 @@
+﻿@model IEnumerable<Zouryoku.Pages.JissekiNyuryoku.JissekiInputViewModel>
+
+@{
+    foreach (var jissekiInput in Model)
+    {
+        var prefix = $"NippouInput.JissekiInputs[{jissekiInput.Index}]";
+        var vd = new ViewDataDictionary(ViewData);
+        vd.TemplateInfo.HtmlFieldPrefix = prefix;
+        
+        @await Html.PartialAsync("_JissekiInputPartial", jissekiInput, vd)
+    }
+}

@@ -22,10 +22,9 @@
             </div>
         </div>
 
-        <p
-            class="mb-2 show-label"
-            hidden
-        >社員名をドラッグ＆ドロップして順序を変更できます。ハンドルを掴んで移動してください。</p>
+        <p class="mb-2 show-label" hidden>
+            社員名をドラッグ＆ドロップして順序を変更できます。ハンドルを掴んで移動してください。
+        </p>
 
         <div id="syain-sort-result">
             <partial name="_SyainListPartial" model="Model" />
@@ -93,19 +92,19 @@
                 const data = $form.find(':input[name^="Condition."]').serializeArray();
                 return new Promise(resolve => {
                     sendGetAjax(toUrl('SyainList'), data, function(result) {
-                    var tempDiv = $('<div>').html(result); // HTML string から DOMとして変更
-                    var itemCount = tempDiv.find('li').length; // <li> elementsのカウントと取得
+                        let $tempDiv = $('<div>').html(result); // HTML string から DOMとして変更
+                        let itemCount = $tempDiv.find('li').length; // <li> elementsのカウントと取得
 
-                    if(itemCount > 0){
-                        $('.show-label').prop('hidden',false); // ラベル非表示解除
-                        $('#btn-sort-register').prop('disabled',false); // 登録ボタン非表示解除
-                        resolve(result);
-                    }
-                    else{
-                        $('.show-label').prop('hidden',true); // ラベル表示解除
-                        $('#btn-sort-register').prop('disabled',true); // 登録ボタン表示解除
-                        resolve([]);
-                    }},false)
+                        if (0 < itemCount) {
+                            $('.show-label').prop('hidden', false); // ラベル非表示解除
+                            $('#btn-sort-register').prop('disabled', false); // 登録ボタン無効化解除
+                            resolve(result);
+                        } else {
+                            $('.show-label').prop('hidden', true); // ラベル非表示
+                            $('#btn-sort-register').prop('disabled', true); // 登録ボタン無効化
+                            resolve([]);
+                        }
+                    }, false)
                 });
             }
 
@@ -126,21 +125,8 @@
                 const busyo = data.payload;
                 if (!busyo) return;
 
-                const nameInput = document.querySelector('#BusyoName');
-                if (nameInput) {
-                    nameInput.value = busyo.name ?? busyo.Name ?? '';
-                }
-
-                const idInput = document.querySelector('[name="Condition.BusyoId"]');
-                if (idInput) {
-                    idInput.value = busyo.id ?? busyo.Id ?? '';
-                } else {
-                    const hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.name = 'Condition.BusyoId';
-                    hidden.value = busyo.id ?? busyo.Id ?? '';
-                    $sortForm[0].appendChild(hidden);
-                }
+                $('#BusyoName').val(busyo.name);
+                $('[name="Condition.BusyoId"]').val(busyo.id);
 
                 const html = await loadSyains($sortForm);
                 $partialPage.html(html);
@@ -178,12 +164,9 @@
                     const result = await commonSendRegisterAjax(toUrl('Register'));
 
                     if (!result) return;
-
-                    registerSuccessSwal('登録しました', null, async function() {
-                        // 再検索して表示を更新
-                        const html = await loadSyains($sortForm);
-                        $partialPage.html(html);
-                        initSortable();
+                    
+                    registerSuccessSwal('登録しました', null, function() {
+                        closeCurrentIziModal();
                     });
                 });
             });

@@ -1,5 +1,5 @@
+using Model.Model;
 using Zouryoku.Utils;
-using ZouryokuTest.Builder;
 
 namespace ZouryokuTest.Pages.AnkenJohoHyoji
 {
@@ -19,9 +19,14 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：顧客会社データ
-            var kokyaku = new KokyakuKaishaBuilder()
-                .WithId(1)
-                .Build();
+            var kokyaku = new KokyakuKaisha(){
+                Id = 1,
+                Name = "",
+                NameKana = "",
+                Ryakusyou = "",
+                SearchName = "",
+                SearchNameKana = "",
+            };
 
             // 必要データ登録
             SeedEntities(kokyaku);
@@ -49,9 +54,14 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：顧客会社データ
-            var kokyaku = new KokyakuKaishaBuilder()
-                .WithId(1)
-                .Build();
+            var kokyaku = new KokyakuKaisha(){
+                Id = 1,
+                Name = "",
+                NameKana = "",
+                Ryakusyou = "",
+                SearchName = "",
+                SearchNameKana = "",
+            };
 
             // 必要データ登録
             SeedEntities(kokyaku);

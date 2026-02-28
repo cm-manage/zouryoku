@@ -9,8 +9,7 @@
     <div class="app-area__search-criteria">
         @* 全社＞〇〇〇〇〇部：〇〇　一郎 *@
         <div class="fw-bold mt-3">
-            全社＞
-            <span id="target-syain-hierarchical-busyo-name">@Model.TargetDaysViewModel.TargetSyainJoinedBusyoName</span>
+            全社＞<span id="target-syain-hierarchical-busyo-name">@Model.TargetDaysViewModel.TargetSyainJoinedBusyoName</span>
             ：
             <span id="target-syain-name">@Model.TargetDaysViewModel.TargetSyainName</span>
         </div>
@@ -27,7 +26,7 @@
                         <i class="fa-solid fa-angle-left"></i>
                     </button>
                     @* 社員選択欄 *@
-                    <div class="input-group app-input">
+                    <div class="input-group app-input-target-syain">
                         <input id="target-syain-input" class="form-control app-input__textbox" type="text"
                                value="@Model.TargetDaysViewModel.TargetSyainName" readonly />
                         <input asp-for="TargetDaysQuery.TargetSyainId" type="hidden" />
@@ -55,7 +54,7 @@
                         <i class="fa-solid fa-angle-left"></i>
                     </button>
                     @* 対象年月選択欄 *@
-                    <div class="input-group app-input">
+                    <div class="input-group app-input-target-ym">
                         <input id="target-ym-input" class="form-control app-input__textbox" type="text"
                                value="@Model.TargetDaysQuery.TargetYmText" readonly aria-label="表示年月" />
                         <input asp-for="TargetDaysQuery.TargetYm" type="hidden" asp-format="{0:yyyy-MM-dd}" />
@@ -143,7 +142,7 @@
                 errorClear();
                 $targetYmInput.val($targetYm.val().slice(0, 7).replace(/-/g, '/')); // 年月表示「YYYY/MM」を更新する
                 sendGetAjax(toUrl('Search'), $searchForm.serializeArray(), function (data) {
-                    $targetSyainHierarchicalBusyoName.text(data.targetSyainHierarchicalBusyoName);
+                    $targetSyainHierarchicalBusyoName.text(data.targetSyainJoinedBusyoName);
                     $targetSyainName.text(data.targetSyainName);
                     $targetSyainInput.val(data.targetSyainName);
                     $daysPartial.html(data.daysPartial);
@@ -257,10 +256,14 @@
             /* 詳細表示時に表示、簡易表示時に非表示 */
             display: var(--app-column-details-display);
         }
-
-        /* テキストボックス */
-        .app-input {
-            width: 10rem;
+        
+        /* 対象社員テキストボックス */
+        .app-input-target-syain {
+            width: 14rem;
+        }
+        /* 対象年月テキストボックス */
+        .app-input-target-ym {
+            width: 8rem;
         }
 
         /* tbody の文字を上寄せで表示 */

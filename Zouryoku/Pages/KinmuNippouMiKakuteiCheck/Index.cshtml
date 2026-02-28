@@ -61,7 +61,10 @@
                         <input type="text" class="form-control app-input__textbox" asp-for="SearchConditions.Date" />
                     </div>
                     <partial name="Components/_Datepicker"
-                             model="@(new DatepickerModel { Id = Html.IdFor(model => model.SearchConditions.Date) })" />
+                             model="@(new DatepickerModel {
+                                 Id = Html.IdFor(model => model.SearchConditions.Date),
+                                 MinDate = new DateOnly(2001, 1, 1),
+                                 MaxDate = new DateOnly(2099, 12, 31)})" />
                 </div>
             </div>
 

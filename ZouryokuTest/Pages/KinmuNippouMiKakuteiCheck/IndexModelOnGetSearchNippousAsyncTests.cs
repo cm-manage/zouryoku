@@ -1222,7 +1222,8 @@ namespace ZouryokuTest.Pages.KinmuNippouMiKakuteiCheck
                 }
             };
             // 過去一か月間の日数
-            var cnt = GetDayCount(inputDate.AddMonths(-1), inputDate);
+            // 2026/01/15~2026/02/15
+            var cnt = 32;
             DateOnly nippouYmd;
             // 過去一か月間の日報データを作成
             for (int i = 0; i < cnt + nippousCountOffset - 1; i++)

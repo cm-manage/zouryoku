@@ -364,29 +364,15 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
         }
 
         /// <summary>
-        /// <paramref name="modelState"/> がエラー (<see cref="ModelStateDictionary.IsValid"/>) == false)
-        /// かつ期待するデータであることを検証します。
+        /// <paramref name="actualResult"/> がエラーかつ期待するデータであることを検証します。
         /// </summary>
-        /// <param name="expectedSyainId">期待するエラーメッセージ</param>
-        /// <param name="actualResult">検証する <see cref="ModelStateDictionary"/></param>
-        protected static void AssertModelStateErrors(string expectedErrorMessage, ModelStateDictionary modelState)
+        /// <param name="expectedErrorMessage">期待するエラーメッセージ</param>
+        /// <param name="actualResult">検証する <see cref="IActionResult"/></param>
+        protected static void AssertRedirectError(string expectedErrorMessage, IActionResult actualResult)
         {
-            var expectedErrors = new Dictionary<string, string[]>
-            {
-                [""] = [expectedErrorMessage]
-            };
-            var actualErrors = modelState.Errors();
-            Assert.HasCount(expectedErrors.Count, actualErrors, "エラー件数が一致しません。");
-            foreach (var expectedError in expectedErrors)
-            {
-                if (!actualErrors.TryGetValue(expectedError.Key, out var actualErrorMessages))
-                {
-                    Assert.Fail($"エラーキー '{expectedError.Key}' が見つかりません。");
-                }
-
-                CollectionAssert.AreEquivalent(
-                    expectedError.Value, actualErrorMessages, $"エラーキー '{expectedError.Key}' のエラーメッセージが一致しません。");
-            }
+            var redirect = Assert.IsInstanceOfType<RedirectToPageResult>(actualResult);
+            Assert.AreEqual("/ErrorMessage", redirect.PageName);
+            Assert.AreEqual(expectedErrorMessage, redirect.RouteValues?["errorMessage"]);
         }
     }
 }

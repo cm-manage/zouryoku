@@ -1,7 +1,6 @@
 using Model.Enums;
 using Model.Model;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
+using static Model.Enums.ContractClassification;
 using static Zouryoku.Pages.JuchuJohoHyoji.IndexModel;
 
 namespace ZouryokuTest.Pages.JuchuJohoHyoji
@@ -39,39 +38,8 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         private const bool GenkaToketu = false;
         private const string ToketuYmd = "2025/04/06";
         private const string Biko = "備考";
-        private const ContractClassification KeiyakuJotaiKbn = ContractClassification.受注_自営;
+        private const ContractClassification KeiyakuJotaiKbn = 受注_自営;
         private const long BusyoId = 1;
-
-        // ======================================
-        // 補助メソッド
-        // ======================================
-        /// <summary>
-        /// テスト用のエンティティを作成する
-        /// </summary>
-        /// <returns>リレーションを含むKings受注のエンティティ</returns>
-        private KingsJuchu CreateEntityForViewModelTest()
-        {
-            // 受注
-            var juchu = new KingsJuchuBuilder()
-                .WithId(JuchuId)
-                .WithJucYmd(DateOnly.Parse(JuchuYmd))
-                .WithBukken(Bukken)
-                .WithJucKin(JuchuKin)
-                .WithChaYmd(DateOnly.Parse(ChaYmd))
-                .WithProjectNo(ProjectNo)
-                .WithHiyouShubetuCdName(HiyoShubetuName)
-                .WithIsGenkaToketu(GenkaToketu)
-                .WithBusyoId(BusyoId)
-                .Build();
-
-            // 部署
-            juchu.Busyo = new BusyoBuilder()
-                .WithId(BusyoId)
-                .WithName(SekoBumon)
-                .Build();
-
-            return juchu;
-        }
 
         // ======================================
         // 正常系
@@ -83,7 +51,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_受注IDを取得()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // ================ Act ================ //
             var viewModel = new JuchuViewModel()
@@ -102,7 +105,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_プロジェクト番号を取得()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // ================ Act ================ //
             var viewModel = new JuchuViewModel()
@@ -121,7 +159,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_施工部門名を取得()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // ================ Act ================ //
             var viewModel = new JuchuViewModel()
@@ -140,7 +213,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_受注日を取得()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // ================ Act ================ //
             var viewModel = new JuchuViewModel()
@@ -159,7 +267,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_物件名を取得()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // ================ Act ================ //
             var viewModel = new JuchuViewModel()
@@ -178,7 +321,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_費用種別名を取得()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // ================ Act ================ //
             var viewModel = new JuchuViewModel()
@@ -197,7 +375,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_受注金額を取得()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // ================ Act ================ //
             var viewModel = new JuchuViewModel()
@@ -216,7 +429,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_着工日を取得()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // ================ Act ================ //
             var viewModel = new JuchuViewModel()
@@ -237,7 +485,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_受注番号を取得(string? juchuNo)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.JuchuuNo = juchuNo;
 
             // ================ Act ================ //
@@ -266,7 +550,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_受注行番号を取得(short? juchuGyoBangou)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.JuchuuGyoNo = juchuGyoBangou;
 
             // ================ Act ================ //
@@ -295,7 +615,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_契約状態を取得(string? keiyakuJotai)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.KeiyakuJoutaiKbnName = keiyakuJotai;
 
             // ================ Act ================ //
@@ -324,7 +680,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_契約先を取得(string? keiNm)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.KeiNm = keiNm;
 
             // ================ Act ================ //
@@ -353,7 +745,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_受注先を取得(string? juchuNm)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.JucNm = juchuNm;
 
             // ================ Act ================ //
@@ -382,7 +810,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_商品名を取得(string? shohinName)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.ShouhinName = shohinName;
 
             // ================ Act ================ //
@@ -411,7 +875,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_送担当者を取得(string? okrTanName)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.OkrTanNm1 = okrTanName;
 
             // ================ Act ================ //
@@ -440,7 +940,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_担当者を取得(string? tanName)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.OkrTanNm1 = tanName;
 
             // ================ Act ================ //
@@ -469,7 +1005,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_受担当者を取得(string? ukTanName)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.UkeTanNm1 = ukTanName;
 
             // ================ Act ================ //
@@ -498,7 +1070,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_納期竣工を取得(string? nsyYmd)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             if (nsyYmd != null)
                 juchu.NsyYmd = DateOnly.Parse(nsyYmd);
@@ -529,7 +1136,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_売上計画日を取得(string? kurYmd)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             if (kurYmd != null)
                 juchu.KurYmd = DateOnly.Parse(kurYmd);
@@ -560,7 +1202,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_入金計画日を取得(string? knyYmd)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             if (knyYmd != null)
                 juchu.KnyYmd = DateOnly.Parse(knyYmd);
@@ -591,7 +1268,42 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_原価凍結日を取得(string? toketuYmd)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             if (toketuYmd != null)
                 juchu.ToketuYmd = DateOnly.Parse(toketuYmd);
@@ -603,7 +1315,7 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
             };
 
             // ================ Assert ================ //
-            if (toketuYmd  == null)
+            if (toketuYmd == null)
             {
                 Assert.IsNull(viewModel.ToketuYmd);
             }
@@ -622,7 +1334,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_備考を取得(string? biko)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.Biko = biko;
 
             // ================ Act ================ //
@@ -651,7 +1399,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化_契約状態区分を取得(ContractClassification? keiyakuJotaiKbn)
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.KeiyakuJoutaiKbn = keiyakuJotaiKbn;
 
             // ================ Act ================ //
@@ -671,7 +1455,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化時に原価凍結がTrue_凍結済みと表示()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.IsGenkaToketu = true;
 
             // ================ Act ================ //
@@ -691,7 +1511,43 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public void JuchuViewModel_初期化時に原価凍結がFalse_未と表示()
         {
             // ================ Arrange ================ //
-            var juchu = CreateEntityForViewModelTest();
+            // 受注
+            var juchu = new KingsJuchu()
+            {
+                Id = JuchuId,
+                JucYmd = DateOnly.Parse(JuchuYmd),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = Bukken,
+                JucKin = JuchuKin,
+                ChaYmd = DateOnly.Parse(ChaYmd),
+                ProjectNo = ProjectNo,
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = HiyoShubetuName,
+                IsGenkaToketu = GenkaToketu,
+                Nendo = 1,
+                BusyoId = BusyoId,
+                SearchBukken = "物件",
+            };
+
+            // 部署
+            juchu.Busyo = new Busyo()
+            {
+                Id = BusyoId,
+                Code = "100",
+                Name = SekoBumon,
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
+
             juchu.IsGenkaToketu = false;
 
             // ================ Act ================ //

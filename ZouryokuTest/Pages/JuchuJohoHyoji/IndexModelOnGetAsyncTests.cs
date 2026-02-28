@@ -2,9 +2,8 @@ using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Model.Model;
 using Zouryoku.Utils;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
 using static Model.Enums.ContractClassification;
 
 namespace ZouryokuTest.Pages.JuchuJohoHyoji
@@ -31,10 +30,41 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         {
             // ================ Arrange ================ //
             // 受注情報の作成
-            var juchu = CreateKingsJuchu(1);
+            var juchu = new KingsJuchu()
+            {
+                Id = 1,
+                JucYmd = new DateOnly(2025, 4, 1),
+                EntYmd = new DateOnly(2025, 4, 1),
+                Bukken = "物件",
+                JucKin = 1000000,
+                ChaYmd = new DateOnly(2025, 4, 1),
+                ProjectNo = "11111-111111",
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = "費用種別",
+                IsGenkaToketu = false,
+                Nendo = 1,
+                BusyoId = 1,
+                SearchBukken = "物件",
+            };
 
             // 部署情報の作成
-            var busyo = CreateBusyo(1);
+            var busyo = new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // データの登録
             SeedEntities(juchu, busyo);
@@ -67,42 +97,56 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
             // ================ Arrange ================ //
             var now = new DateTime(2026, 2, 1, 18, 0, 0);
             fakeTimeProvider.SetLocalNow(now);
+            var today = now.ToDateOnly();
 
             // 受注情報の作成
-            var juchu = new KingsJuchuBuilder()
-                .WithProjectNo("00000")
-                .WithJuchuuNo("11111")
-                .WithJuchuuGyoNo(1)
-                .WithKeiyakuJoutaiKbnName("契約区分")
-                .WithJucYmd(DateOnly.Parse("2025/01/01"))
-                .WithKeiNm("契約名")
-                .WithJucNm("受注名")
-                .WithBukken("物件")
-                .WithShouhinName("商品名")
-                .WithHiyouShubetuCdName("費用種別名")
-                .WithJucKin(10000)
-                .WithOkrTanNm1("送担当者名")
-                .WithUkeTanNm1("受担当者名")
-                .WithChaYmd(DateOnly.Parse("2025/01/02"))
-                .WithNsyYmd(DateOnly.Parse("2025/01/03"))
-                .WithKurYmd(DateOnly.Parse("2025/01/04"))
-                .WithKnyYmd(DateOnly.Parse("2025/01/05"))
-                .WithIsGenkaToketu(false)
-                .WithToketuYmd(DateOnly.Parse("2025/01/06"))
-                .WithBiko("備考")
-                .WithKeiyakuJoutaiKbn(受注_共同)
-                .WithBusyoId(1)
-                .Build();
+            var juchu = new KingsJuchu()
+            {
+                ProjectNo = "00000",
+                JuchuuNo = "11111",
+                JuchuuGyoNo = 1,
+                KeiyakuJoutaiKbnName = "契約区分",
+                JucYmd = DateOnly.Parse("2025/01/01"),
+                KeiNm = "契約名",
+                JucNm = "受注名",
+                Bukken = "物件",
+                ShouhinName = "商品名",
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = "費用種別名",
+                JucKin = 10000,
+                OkrTanNm1 = "送担当者名",
+                UkeTanNm1 = "受担当者名",
+                ChaYmd = DateOnly.Parse("2025/01/02"),
+                NsyYmd = DateOnly.Parse("2025/01/03"),
+                KurYmd = DateOnly.Parse("2025/01/04"),
+                KnyYmd = DateOnly.Parse("2025/01/05"),
+                IsGenkaToketu = false,
+                ToketuYmd = DateOnly.Parse("2025/01/06"),
+                Biko = "備考",
+                KeiyakuJoutaiKbn = 受注_共同,
+                Nendo = 1,
+                BusyoId = 1,
+                SearchBukken = "物件",
+            };
 
             // 部署情報の作成
-            var today = fakeTimeProvider.Today();
-
-            var busyo = new BusyoBuilder()
-                .WithName("部署A")
-                .WithStartYmd(today.AddDays(-10))
-                .WithEndYmd(today.AddDays(10))
-                .WithIsActive(true)
-                .Build();
+            var busyo = new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = today.AddDays(-10),
+                EndYmd = today.AddDays(10),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // データの登録
             SeedEntities(juchu, busyo);
@@ -157,27 +201,74 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
             // ================ Arrange ================ //
             var now = new DateTime(2026, 2, 1, 18, 0, 0);
             fakeTimeProvider.SetLocalNow(now);
+            var today = now.ToDateOnly();
 
             // 受注情報の作成
-            var juchu = CreateKingsJuchu(1);
+            var juchu = new KingsJuchu()
+            {
+                Id = 1,
+                ProjectNo = "00000",
+                JuchuuNo = "11111",
+                JuchuuGyoNo = 1,
+                KeiyakuJoutaiKbnName = "契約区分",
+                JucYmd = DateOnly.Parse("2025/01/01"),
+                KeiNm = "契約名",
+                JucNm = "受注名",
+                Bukken = "物件",
+                ShouhinName = "商品名",
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = "費用種別名",
+                JucKin = 10000,
+                OkrTanNm1 = "送担当者名",
+                UkeTanNm1 = "受担当者名",
+                ChaYmd = DateOnly.Parse("2025/01/02"),
+                NsyYmd = DateOnly.Parse("2025/01/03"),
+                KurYmd = DateOnly.Parse("2025/01/04"),
+                KnyYmd = DateOnly.Parse("2025/01/05"),
+                IsGenkaToketu = false,
+                ToketuYmd = DateOnly.Parse("2025/01/06"),
+                Biko = "備考",
+                KeiyakuJoutaiKbn = 受注_共同,
+                Nendo = 1,
+                BusyoId = 1,
+                SearchBukken = "物件",
+            };
 
             // 部署情報の作成
-            var busyo = CreateBusyo(1);
+            var busyo = new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = today.AddDays(-10),
+                EndYmd = today.AddDays(10),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // 受注参照履歴の作成
-            var juchuSansyouRireki = new KingsJuchuSansyouRirekiBuilder()
-                .WithId(1)
-                .WithKingsJuchuId(juchu.Id)
-                .WithSyainBaseId(LoggedInUserId)
-                .WithSansyouTime(new DateTime(2026, 1, 1, 19, 00, 00))
-                .Build();
+            var juchuSansyouRireki = new KingsJuchuSansyouRireki()
+            {
+                Id = 1,
+                KingsJuchuId = juchu.Id,
+                SyainBaseId = LoggedInUserId,
+                SansyouTime = new DateTime(2026, 1, 1, 19, 00, 00),
+            };
 
-            var juchuOtherSansyouRireki = new KingsJuchuSansyouRirekiBuilder()
-                .WithId(2)
-                .WithKingsJuchuId(juchu.Id)
-                .WithSyainBaseId(LoggedInUserId)
-                .WithSansyouTime(new DateTime(2026, 1, 1, 10, 00, 00))
-                .Build();
+            var juchuOtherSansyouRireki = new KingsJuchuSansyouRireki()
+            {
+                Id = 2,
+                KingsJuchuId = juchu.Id,
+                SyainBaseId = 1,
+                SansyouTime = new DateTime(2026, 1, 1, 10, 00, 00),
+            };
 
             // データ登録
             SeedEntities(juchu, busyo, juchuSansyouRireki, juchuOtherSansyouRireki);
@@ -220,11 +311,58 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         public async Task OnGetAsync_受注情報が取得されなかった場合_エラーページに遷移()
         {
             // ================ Arrange ================ //
+            var now = new DateTime(2026, 2, 1, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
+            var today = now.ToDateOnly();
+
             // 受注情報の作成
-            var juchu = CreateKingsJuchu(1);
+            var juchu = new KingsJuchu()
+            {
+                ProjectNo = "00000",
+                JuchuuNo = "11111",
+                JuchuuGyoNo = 1,
+                KeiyakuJoutaiKbnName = "契約区分",
+                JucYmd = DateOnly.Parse("2025/01/01"),
+                KeiNm = "契約名",
+                JucNm = "受注名",
+                Bukken = "物件",
+                ShouhinName = "商品名",
+                SekouBumonCd = "100",
+                HiyouShubetuCd = 100,
+                HiyouShubetuCdName = "費用種別名",
+                JucKin = 10000,
+                OkrTanNm1 = "送担当者名",
+                UkeTanNm1 = "受担当者名",
+                ChaYmd = DateOnly.Parse("2025/01/02"),
+                NsyYmd = DateOnly.Parse("2025/01/03"),
+                KurYmd = DateOnly.Parse("2025/01/04"),
+                KnyYmd = DateOnly.Parse("2025/01/05"),
+                IsGenkaToketu = false,
+                ToketuYmd = DateOnly.Parse("2025/01/06"),
+                Biko = "備考",
+                KeiyakuJoutaiKbn = 受注_共同,
+                Nendo = 1,
+                BusyoId = 1,
+                SearchBukken = "物件",
+            };
 
             // 部署情報の作成
-            var busyo = CreateBusyo(1);
+            var busyo = new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = today.AddDays(-10),
+                EndYmd = today.AddDays(10),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // データの登録
             SeedEntities(juchu, busyo);

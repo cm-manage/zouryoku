@@ -1,3 +1,4 @@
+using Model.Model;
 using Zouryoku.Pages.SyainSentaku;
 
 namespace ZouryokuTest.Pages.SyainSentaku
@@ -15,7 +16,32 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public void SyainViewModel_正常系_社員Id取得()
         {
             // Arrange
-            var syain = AddSyain(10, "社員1", "01", null, true, 1, 2);
+            var syain = new Syain()
+            {
+                Id = 10,
+                SyainBaseId = 1,
+                Code = "01",
+                Name = "社員1",
+                KanaName = string.Empty,
+                Seibetsu = char.MinValue,
+                BusyoCode = string.Empty,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = DateOnly.MinValue,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Kyusyoku = 0,
+                SyucyoSyokui = 0,
+                KingsSyozoku = string.Empty,
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Kengen = 0,
+                Jyunjyo = 1,
+                Retired = false,
+                BusyoId = 1,
+                KintaiZokuseiId = 0,
+                UserRoleId = 0,
+            };
 
             // Act
             var viewModel = new SyainViewModel(syain);
@@ -31,7 +57,32 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public void SyainViewModel_正常系_社員名取得()
         {
             // Arrange
-            var syain = AddSyain(10, "社員1", "01", null, true, 1, 2);
+            var syain = new Syain()
+            {
+                Id = 10,
+                SyainBaseId = 1,
+                Code = "01",
+                Name = "社員1",
+                KanaName = string.Empty,
+                Seibetsu = char.MinValue,
+                BusyoCode = string.Empty,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = DateOnly.MinValue,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Kyusyoku = 0,
+                SyucyoSyokui = 0,
+                KingsSyozoku = string.Empty,
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Kengen = 0,
+                Jyunjyo = 1,
+                Retired = false,
+                BusyoId = 1,
+                KintaiZokuseiId = 0,
+                UserRoleId = 0,
+            };
 
             // Act
             var viewModel = new SyainViewModel(syain);
@@ -47,13 +98,38 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public void SyainViewModel_正常系_部署Id取得()
         {
             // Arrange
-            var syain = AddSyain(10, "社員1", "01", null, true, 1, 2);
+            var syain = new Syain()
+            {
+                Id = 10,
+                SyainBaseId = 1,
+                Code = "01",
+                Name = "社員1",
+                KanaName = string.Empty,
+                Seibetsu = char.MinValue,
+                BusyoCode = string.Empty,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = DateOnly.MinValue,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Kyusyoku = 0,
+                SyucyoSyokui = 0,
+                KingsSyozoku = string.Empty,
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Kengen = 0,
+                Jyunjyo = 1,
+                Retired = false,
+                BusyoId = 1,
+                KintaiZokuseiId = 0,
+                UserRoleId = 0,
+            };
 
             // Act
             var viewModel = new SyainViewModel(syain);
 
             // Assert
-            Assert.AreEqual(2, viewModel.BusyoId);
+            Assert.AreEqual(1, viewModel.BusyoId);
         }
 
         /// <summary>
@@ -63,7 +139,32 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public void SyainViewModel_正常系_社員BaseId取得()
         {
             // Arrange
-            var syain = AddSyain(10, "社員1", "01", null, true, 1, 2);
+            var syain = new Syain()
+            {
+                Id = 10,
+                SyainBaseId = 1,
+                Code = "01",
+                Name = "社員1",
+                KanaName = string.Empty,
+                Seibetsu = char.MinValue,
+                BusyoCode = string.Empty,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = DateOnly.MinValue,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Kyusyoku = 0,
+                SyucyoSyokui = 0,
+                KingsSyozoku = string.Empty,
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Kengen = 0,
+                Jyunjyo = 1,
+                Retired = false,
+                BusyoId = 1,
+                KintaiZokuseiId = 0,
+                UserRoleId = 0,
+            };
 
             // Act
             var viewModel = new SyainViewModel(syain);
@@ -79,7 +180,32 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public void SyainViewModel_正常系_社員番号取得()
         {
             // Arrange
-            var syain = AddSyain(10, "社員1", "01", null, true, 1, 2);
+            var syain = new Syain()
+            {
+                Id = 10,
+                SyainBaseId = 1,
+                Code = "01",
+                Name = "社員1",
+                KanaName = string.Empty,
+                Seibetsu = char.MinValue,
+                BusyoCode = string.Empty,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = DateOnly.MinValue,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Kyusyoku = 0,
+                SyucyoSyokui = 0,
+                KingsSyozoku = string.Empty,
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Kengen = 0,
+                Jyunjyo = 1,
+                Retired = false,
+                BusyoId = 1,
+                KintaiZokuseiId = 0,
+                UserRoleId = 0,
+            };
 
             // Act
             var viewModel = new SyainViewModel(syain);
@@ -95,7 +221,32 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public void SyainViewModel_正常系_退職フラグ取得()
         {
             // Arrange
-            var syain = AddSyain(10, "社員1", "01", null, true, 1, 2);
+            var syain = new Syain()
+            {
+                Id = 10,
+                SyainBaseId = 1,
+                Code = "01",
+                Name = "社員1",
+                KanaName = string.Empty,
+                Seibetsu = char.MinValue,
+                BusyoCode = string.Empty,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = DateOnly.MinValue,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Kyusyoku = 0,
+                SyucyoSyokui = 0,
+                KingsSyozoku = string.Empty,
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Kengen = 0,
+                Jyunjyo = 1,
+                Retired = true,
+                BusyoId = 1,
+                KintaiZokuseiId = 0,
+                UserRoleId = 0,
+            };
 
             // Act
             var viewModel = new SyainViewModel(syain);

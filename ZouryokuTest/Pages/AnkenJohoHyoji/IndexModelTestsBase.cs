@@ -2,7 +2,6 @@ using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.AnkenJohoHyoji;
-using ZouryokuTest.Builder;
 
 namespace ZouryokuTest.Pages.AnkenJohoHyoji
 {
@@ -24,6 +23,8 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
             }
             return model;
         }
+
+        protected readonly DateOnly today = new(2025, 7, 1);
 
         protected static IndexModel.ViewModel CreateViewModel(bool canAdd, Anken anken, Syain loginUser)
             => new ()
@@ -50,84 +51,6 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
                 }
             }
             db.SaveChanges();
-        }
-
-        // ---------------------------------------------------------------------
-        // Helper Methods
-        // ---------------------------------------------------------------------
-
-        /// <summary>
-        /// シード：受注種類
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        protected static JyutyuSyurui CreateJyutyuSyurui(int id)
-        {
-            return new JyutyuSyuruiBuilder()
-                .WithId(id)
-                .WithName("受注種類A")
-                .Build();
-        }
-
-        // シード：顧客会社
-        protected static KokyakuKaisha CreateKokyakuKaisha(int id)
-        {
-            return new KokyakuKaishaBuilder()
-                .WithId(id)
-                .WithName("顧客会社A")
-                .WithShiten("本店")
-                .Build();
-        }
-
-        // シード：KINGS受注
-        protected static KingsJuchu CreateKingsJuchu(long id, string? sekouBumonCd = null)
-        {
-            var builder = new KingsJuchuBuilder()
-                .WithId(id)
-                .WithProjectNo("PRJ-001")
-                .WithJuchuuNo("JUCHU-001")
-                .WithJuchuuGyoNo(1);
-
-            if (sekouBumonCd is null)
-            {
-                return builder.Build();
-            }
-
-            // 施工部門コードを設定
-            return builder.WithSekouBumonCd(sekouBumonCd).Build();
-        }
-
-        // シード：社員Base
-        protected static SyainBasis CreateSyainBasis(long id)
-        {
-            return new SyainBasisBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        // シード：社員
-        protected static Syain CreateSyain(long id, long syainBaseId)
-        {
-            return new SyainBuilder()
-                .WithId(id)
-                .WithSyainBaseId(syainBaseId)
-                .WithName("社員A")
-                .Build();
-        }
-
-        // シード：ログインユーザー
-        protected static Syain CreateSyainLogin(long id, string? busyoCode = null)
-        {
-            var builder = new SyainBuilder()
-                .WithId(id)
-                .WithSyainBaseId(9999);
-
-            if (busyoCode is null)
-            {
-                return builder.Build();
-            }
-
-            return builder.WithBusyoCode(busyoCode).Build();
         }
     }
 }

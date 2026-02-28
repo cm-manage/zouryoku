@@ -33,19 +33,19 @@ namespace ZouryokuTest.Pages.BusyoSentaku
         private Busyo AddBusyo(int id, string code, string name, short jyunjyo, bool active, int? parentId = null, int? start = null, int? end = null)
         {
             var today = fakeTimeProvider.Today();
-            DateOnly? startYmd = start == null ? null : today.AddDays(start.Value);
-            DateOnly? endYmd = end == null ? null : today.AddDays(end.Value);
+            DateOnly startYmd = start == null ? DateOnly.MinValue : today.AddDays(start.Value);
+            DateOnly endYmd = end == null ? DateOnly.MaxValue : today.AddDays(end.Value);
 
-            var busyo = new BusyoBuilder()
-                .WithId(id)
-                .WithCode(code)
-                .WithName(name)
-                .WithJyunjyo(jyunjyo)
-                .WithOyaId(parentId)
-                .WithIsActive(active)
-                .WithStartYmd(startYmd)
-                .WithEndYmd(endYmd)
-                .Build();
+            var busyo = new Busyo(){
+                Id = id,
+                Code = code,
+                Name = name,
+                Jyunjyo = jyunjyo,
+                OyaId = parentId,
+                IsActive = active,
+                StartYmd = startYmd,
+                EndYmd = endYmd,
+                };
 
             db.Busyos.Add(busyo);
             return busyo;

@@ -173,7 +173,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
                 var count = syain.Nippous
                     .Count(n => n.NippouYmd <= inputDate);
                 // 検索期間の日数
-                var span = GetDayCount(inputDate.AddMonths(-1), inputDate);
+                var span = inputDate.AddMonths(-1).GetDayCount(inputDate);
 
                 // 確定件数が検索期間の日数と一致しない社員をビューに格納する
                 if (count != span)

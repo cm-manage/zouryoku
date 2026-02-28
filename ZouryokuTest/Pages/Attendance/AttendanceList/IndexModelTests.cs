@@ -10,9 +10,8 @@ using Zouryoku.Extensions;
 using Zouryoku.Pages.Attendance.AttendanceList;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Pages.Shared.Components;
-using ZouryokuTest.Builder;
 using ZouryokuTest.Extensions;
-using ZouryokuTest.Pages.Builder;
+using static Model.Enums.BusinessTripRole;
 using static Model.Enums.DailyReportStatusClassification;
 using static Model.Enums.EmployeeAuthority;
 using static Model.Enums.HolidayFlag;
@@ -65,132 +64,226 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             // Arrange
             // 部署BASE & 部署 データ登録
             // 部署1
-            var busyoBase1 = new BusyoBasisBuilder()
-                .WithId(1)
-                .WithName("部署1")
-                .WithBumoncyoId(9999)
-                .Build();
+            var busyoBase1 = new BusyoBasis
+            {
+                Id = 1,
+                Name = "部署1",
+                BumoncyoId = 9999,
+            };
             db.BusyoBases.Add(busyoBase1);
 
-            var busyo1 = new BusyoBuilder()
-                .WithId(1)
-                .WithCode("001")
-                .WithName("部署1")
-                .WithJyunjyo(5)
-                .WithIsActive(true)
-                .WithBusyoBaseId(busyoBase1.Id)
-                .Build();
+            var busyo1 = new Busyo
+            {
+                Id = 1,
+                Code = "001",
+                Name = "部署1",
+                Jyunjyo = 5,
+                IsActive = true,
+                BusyoBaseId = busyoBase1.Id,
+                KanaName = "ブショイチ",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+            };
             db.Busyos.Add(busyo1);
 
             // 部署1-1
-            var busyoBase1_1 = new BusyoBasisBuilder()
-                .WithId(2)
-                .WithName("部署1-1")
-                .Build();
+            var busyoBase1_1 = new BusyoBasis
+            {
+                Id = 2,
+                Name = "部署1-1",
+            };
             db.BusyoBases.Add(busyoBase1_1);
 
-            var busyo1_1 = new BusyoBuilder()
-                .WithId(2)
-                .WithCode("002")
-                .WithName("部署1-1")
-                .WithJyunjyo(4)
-                .WithIsActive(true)
-                .WithOyaCode("001")
-                .WithOyaId(1)
-                .WithBusyoBaseId(busyoBase1_1.Id)
-                .Build();
+            var busyo1_1 = new Busyo
+            {
+                Id = 2,
+                Code = "002",
+                Name = "部署1-1",
+                Jyunjyo = 4,
+                IsActive = true,
+                OyaCode = "001",
+                OyaId = 1,
+                BusyoBaseId = busyoBase1_1.Id,
+                KanaName = "ブショイチ",
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+            };
             db.Busyos.Add(busyo1_1);
 
             // 部署1-2
-            var busyoBase1_2 = new BusyoBasisBuilder()
-                .WithId(3)
-                .WithName("部署1-2")
-                .Build();
+            var busyoBase1_2 = new BusyoBasis
+            {
+                Id = 3,
+                Name = "部署1-2",
+            };
             db.BusyoBases.Add(busyoBase1_2);
 
-            var busyo1_2 = new BusyoBuilder()
-                .WithId(3)
-                .WithCode("003")
-                .WithName("部署1-2")
-                .WithJyunjyo(4)
-                .WithIsActive(true)
-                .WithOyaCode("001")
-                .WithOyaId(1)
-                .WithBusyoBaseId(busyoBase1_2.Id)
-                .Build();
+            var busyo1_2 = new Busyo
+            {
+                Id = 3,
+                Code = "003",
+                Name = "部署1-2",
+                Jyunjyo = 4,
+                IsActive = true,
+                OyaCode = "001",
+                OyaId = 1,
+                BusyoBaseId = busyoBase1_2.Id,
+                KanaName = "ブショイチ",
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+            };
             db.Busyos.Add(busyo1_2);
 
             // 社員BASE & 社員 データ登録
             // 社員A
-            var syainBaseA = new SyainBasisBuilder()
-                .WithId(11)
-                .Build();
+            var syainBaseA = new SyainBasis
+            {
+                Id = 11,
+                Code = "1001",
+                Name = "社員A",
+            };
             db.SyainBases.Add(syainBaseA);
 
-            var syainA = new SyainBuilder()
-                .WithId(1)
-                .WithCode("1001")
-                .WithName("社員A")
-                .WithSyainBaseId(syainBaseA.Id)
-                .WithBusyoId(busyo1.Id)
-                .WithJyunjyo(6)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainA = new Syain
+            {
+                Id = 1,
+                Code = "1001",
+                Name = "社員A",
+                SyainBaseId = syainBaseA.Id,
+                BusyoId = busyo1.Id,
+                Jyunjyo = 6,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = busyo1.Code,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainA);
 
             // 社員B
-            var syainBaseB = new SyainBasisBuilder()
-                .WithId(12)
-                .Build();
+            var syainBaseB = new SyainBasis
+            {
+                Id = 12,
+                Code = "1002",
+                Name = "社員B",
+            };
             db.SyainBases.Add(syainBaseB);
 
-            var syainB = new SyainBuilder()
-                .WithId(2)
-                .WithCode("1002")
-                .WithName("社員B")
-                .WithSyainBaseId(syainBaseB.Id)
-                .WithBusyoId(busyo1_1.Id)
-                .WithJyunjyo(5)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainB = new Syain
+            {
+                Id = 2,
+                Code = "1002",
+                Name = "社員B",
+                SyainBaseId = syainBaseB.Id,
+                BusyoId = busyo1_1.Id,
+                Jyunjyo = 5,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = busyo1.Code,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainB);
 
             // 社員C
-            var syainBaseC = new SyainBasisBuilder()
-                .WithId(13)
-                .Build();
+            var syainBaseC = new SyainBasis
+            {
+                Id = 13,
+                Code = "1003",
+                Name = "社員C",
+            };
             db.SyainBases.Add(syainBaseC);
 
-            var syainC = new SyainBuilder()
-                .WithId(3)
-                .WithCode("1003")
-                .WithName("社員C")
-                .WithSyainBaseId(syainBaseC.Id)
-                .WithBusyoId(busyo1_2.Id)
-                .WithJyunjyo(4)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainC = new Syain
+            {
+                Id = 3,
+                Code = "1003",
+                Name = "社員C",
+                SyainBaseId = syainBaseC.Id,
+                BusyoId = busyo1_2.Id,
+                Jyunjyo = 4,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = busyo1_2.Code,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainC);
 
             // 社員D
-            var syainBaseD = new SyainBasisBuilder()
-                .WithId(14)
-                .Build();
+            var syainBaseD = new SyainBasis
+            {
+                Id = 14,
+                Code = "1004",
+                Name = "社員D",
+            };
             db.SyainBases.Add(syainBaseD);
 
-            var syainD = new SyainBuilder()
-                .WithId(4)
-                .WithCode("1004")
-                .WithName("社員D")
-                .WithSyainBaseId(syainBaseD.Id)
-                .WithBusyoId(busyo1.Id)
-                .WithJyunjyo(1)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainD = new Syain
+            {
+                Id = 4,
+                Code = "1004",
+                Name = "社員D",
+                SyainBaseId = syainBaseD.Id,
+                BusyoId = busyo1.Id,
+                Jyunjyo = 1,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = busyo1.Code,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainD);
 
             if (syainA.Id == loginUserId)
@@ -221,71 +314,101 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             // Arrange
             // 部署BASE & 部署 データ登録
             // 部署1
-            var busyoBase1 = new BusyoBasisBuilder()
-                .WithId(1)
-                .WithName("部署1")
-                .WithBumoncyoId(9999)
-                .Build();
+            var busyoBase1 = new BusyoBasis
+            {
+                Id = 1,
+                Name = "部署1",
+                BumoncyoId = 9999,
+            };
             db.BusyoBases.Add(busyoBase1);
 
-            var busyo1 = new BusyoBuilder()
-                .WithId(1)
-                .WithCode("001")
-                .WithName("部署1")
-                .WithJyunjyo(5)
-                .WithIsActive(true)
-                .WithBusyoBaseId(busyoBase1.Id)
-                .Build();
+            var busyo1 = new Busyo
+            {
+                Id = 1,
+                Code = "001",
+                Name = "部署1",
+                Jyunjyo = 5,
+                IsActive = true,
+                BusyoBaseId = busyoBase1.Id,
+                KanaName = "ブショイチ",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+            };
             db.Busyos.Add(busyo1);
 
             // 社員BASE & 社員 データ登録
             // 社員A
-            var syainBaseA = new SyainBasisBuilder()
-                .WithId(11)
-                .Build();
+            var syainBaseA = new SyainBasis
+            {
+                Id = 11,
+                Code = "1001",
+                Name = "社員A",
+            };
             db.SyainBases.Add(syainBaseA);
 
-            var syainA = new SyainBuilder()
-                .WithId(1)
-                .WithCode("1001")
-                .WithName("社員A")
-                .WithSyainBaseId(syainBaseA.Id)
-                .WithBusyoId(busyo1.Id)
-                .WithJyunjyo(6)
-                .WithStartYmd(DateOnly.Parse("2010/4/1"))
-                .WithEndYmd(DateOnly.Parse("2050/4/1"))
-                .WithKengen(kengen)
-                .Build();
+            var syainA = new Syain
+            {
+                Id = 1,
+                Code = "1001",
+                Name = "社員A",
+                SyainBaseId = syainBaseA.Id,
+                BusyoId = busyo1.Id,
+                Jyunjyo = 6,
+                StartYmd = DateOnly.Parse("2010/4/1"),
+                EndYmd = DateOnly.Parse("2050/4/1"),
+                Kengen = kengen,
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = busyo1.Code,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainA);
 
             // 出勤区分
-            var syukkinKubun1 = new SyukkinKubunBuilder()
-                .WithId(1)
-                .WithCode("01")
-                .WithName("休日")
-                .WithNameRyaku("休日")
-                .Build();
+            var syukkinKubun1 = new SyukkinKubun
+            {
+                Id = 1,
+                CodeString = "01",
+                Name = "休日",
+                NameRyaku = "休日",
+            };
             db.SyukkinKubuns.Add(syukkinKubun1);
-            var syukkinKubun2 = new SyukkinKubunBuilder()
-                .WithId(2)
-                .WithCode("02")
-                .WithName("通常勤務")
-                .WithNameRyaku("通常")
-                .Build();
+            var syukkinKubun2 = new SyukkinKubun
+            {
+                Id = 2,
+                CodeString = "02",
+                Name = "通常勤務",
+                NameRyaku = "通常",
+            };
             db.SyukkinKubuns.Add(syukkinKubun2);
-            var syukkinKubun3 = new SyukkinKubunBuilder()
-                .WithId(3)
-                .WithCode("03")
-                .WithName("休日出勤")
-                .WithNameRyaku("休出")
-                .Build();
+            var syukkinKubun3 = new SyukkinKubun
+            {
+                Id = 3,
+                CodeString = "03",
+                Name = "休日出勤",
+                NameRyaku = "休出",
+            };
             db.SyukkinKubuns.Add(syukkinKubun3);
-            var syukkinKubun4 = new SyukkinKubunBuilder()
-                .WithId(4)
-                .WithCode("13")
-                .WithName("生理休暇")
-                .WithNameRyaku("生理休暇")
-                .Build();
+            var syukkinKubun4 = new SyukkinKubun
+            {
+                Id = 4,
+                CodeString = "13",
+                Name = "生理休暇",
+                NameRyaku = "生理休暇",
+            };
             db.SyukkinKubuns.Add(syukkinKubun4);
 
             return syainA;
@@ -412,76 +535,127 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnGetAsync_OnPostBusyoAsync(1);
 
             // 部署2
-            var busyoBase2 = new BusyoBasisBuilder()
-                .WithId(4)
-                .WithName("部署2")
-                .WithBumoncyoId(9999)
-                .Build();
+            var busyoBase2 = new BusyoBasis
+            {
+                Id = 4,
+                Name = "部署2",
+                BumoncyoId = 9999,
+            };
             db.BusyoBases.Add(busyoBase2);
 
-            var busyo2 = new BusyoBuilder()
-                .WithId(4)
-                .WithCode("004")
-                .WithName("部署2")
-                .WithJyunjyo(2)
-                .WithIsActive(true)
-                .WithBusyoBaseId(busyoBase2.Id)
-                .Build();
+            var busyo2 = new Busyo
+            {
+                Id = 4,
+                Code = "004",
+                Name = "部署2",
+                Jyunjyo = 2,
+                IsActive = true,
+                BusyoBaseId = busyoBase2.Id,
+                KanaName = "ブショニ",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+            };
             db.Busyos.Add(busyo2);
 
             // 部署2-1
-            var busyoBase2_1 = new BusyoBasisBuilder()
-                .WithId(5)
-                .WithName("部署2-1")
-                .Build();
+            var busyoBase2_1 = new BusyoBasis
+            {
+                Id = 5,
+                Name = "部署2-1",
+            };
             db.BusyoBases.Add(busyoBase2_1);
 
-            var busyo2_1 = new BusyoBuilder()
-                .WithId(5)
-                .WithCode("005")
-                .WithName("部署2-1")
-                .WithJyunjyo(1)
-                .WithIsActive(true)
-                .WithOyaCode("004")
-                .WithOyaId(4)
-                .WithBusyoBaseId(busyoBase2_1.Id)
-                .Build();
+            var busyo2_1 = new Busyo
+            {
+                Id = 5,
+                Code = "005",
+                Name = "部署2-1",
+                Jyunjyo = 1,
+                IsActive = true,
+                OyaCode = "004",
+                OyaId = 4,
+                BusyoBaseId = busyoBase2_1.Id,
+                KanaName = "ブショニノイチ",
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+            };
             db.Busyos.Add(busyo2_1);
 
             // 社員E
-            var syainBaseE = new SyainBasisBuilder()
-                .WithId(15)
-                .Build();
+            var syainBaseE = new SyainBasis
+            {
+                Id = 15,
+                Code = "1005",
+                Name = "社員E",
+            };
             db.SyainBases.Add(syainBaseE);
 
-            var syainE = new SyainBuilder()
-                .WithId(5)
-                .WithCode("1005")
-                .WithName("社員E")
-                .WithSyainBaseId(syainBaseE.Id)
-                .WithBusyoId(busyo2.Id)
-                .WithJyunjyo(3)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainE = new Syain
+            {
+                Id = 5,
+                Code = "1005",
+                Name = "社員E",
+                SyainBaseId = syainBaseE.Id,
+                BusyoId = busyo2.Id,
+                Jyunjyo = 3,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = busyo2.Code,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainE);
 
             // 社員F
-            var syainBaseF = new SyainBasisBuilder()
-                .WithId(16)
-                .Build();
+            var syainBaseF = new SyainBasis
+            {
+                Id = 16,
+                Code = "1006",
+                Name = "社員F",
+            };
             db.SyainBases.Add(syainBaseF);
 
-            var syainF = new SyainBuilder()
-                .WithId(6)
-                .WithCode("1006")
-                .WithName("社員F")
-                .WithSyainBaseId(syainBaseF.Id)
-                .WithBusyoId(busyo2_1.Id)
-                .WithJyunjyo(2)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainF = new Syain
+            {
+                Id = 6,
+                Code = "1006",
+                Name = "社員F",
+                SyainBaseId = syainBaseF.Id,
+                BusyoId = busyo2_1.Id,
+                Jyunjyo = 2,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = busyo2_1.Code,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainF);
 
             await db.SaveChangesAsync();
@@ -636,76 +810,127 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnGetAsync_OnPostBusyoAsync(1);
 
             // 部署2
-            var busyoBase2 = new BusyoBasisBuilder()
-                .WithId(4)
-                .WithName("部署2")
-                .WithBumoncyoId(9999)
-                .Build();
+            var busyoBase2 = new BusyoBasis
+            {
+                Id = 4,
+                Name = "部署2",
+                BumoncyoId = 9999,
+            };
             db.BusyoBases.Add(busyoBase2);
 
-            var busyo2 = new BusyoBuilder()
-                .WithId(4)
-                .WithCode("004")
-                .WithName("部署2")
-                .WithJyunjyo(2)
-                .WithIsActive(true)
-                .WithBusyoBaseId(busyoBase2.Id)
-                .Build();
+            var busyo2 = new Busyo
+            {
+                Id = 4,
+                Code = "004",
+                Name = "部署2",
+                Jyunjyo = 2,
+                IsActive = true,
+                BusyoBaseId = busyoBase2.Id,
+                KanaName = "ブショニ",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+            };
             db.Busyos.Add(busyo2);
 
             // 部署2-1
-            var busyoBase2_1 = new BusyoBasisBuilder()
-                .WithId(5)
-                .WithName("部署2-1")
-                .Build();
+            var busyoBase2_1 = new BusyoBasis
+            {
+                Id = 5,
+                Name = "部署2-1",
+            };
             db.BusyoBases.Add(busyoBase2_1);
 
-            var busyo2_1 = new BusyoBuilder()
-                .WithId(5)
-                .WithCode("005")
-                .WithName("部署2-1")
-                .WithJyunjyo(1)
-                .WithIsActive(true)
-                .WithOyaCode("004")
-                .WithOyaId(4)
-                .WithBusyoBaseId(busyoBase2_1.Id)
-                .Build();
+            var busyo2_1 = new Busyo
+            {
+                Id = 5,
+                Code = "005",
+                Name = "部署2-1",
+                Jyunjyo = 1,
+                IsActive = true,
+                OyaCode = "004",
+                OyaId = 4,
+                BusyoBaseId = busyoBase2_1.Id,
+                KanaName = "ブショニノイチ",
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+            };
             db.Busyos.Add(busyo2_1);
 
             // 社員E
-            var syainBaseE = new SyainBasisBuilder()
-                .WithId(15)
-                .Build();
+            var syainBaseE = new SyainBasis
+            {
+                Id = 15,
+                Code = "1005",
+                Name = "社員E",
+            };
             db.SyainBases.Add(syainBaseE);
 
-            var syainE = new SyainBuilder()
-                .WithId(5)
-                .WithCode("1005")
-                .WithName("社員E")
-                .WithSyainBaseId(syainBaseE.Id)
-                .WithBusyoId(busyo2.Id)
-                .WithJyunjyo(3)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainE = new Syain
+            {
+                Id = 5,
+                Code = "1005",
+                Name = "社員E",
+                SyainBaseId = syainBaseE.Id,
+                BusyoId = busyo2.Id,
+                Jyunjyo = 3,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = busyo2.Code,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainE);
 
             // 社員F
-            var syainBaseF = new SyainBasisBuilder()
-                .WithId(16)
-                .Build();
+            var syainBaseF = new SyainBasis
+            {
+                Id = 16,
+                Code = "1006",
+                Name = "社員F",
+            };
             db.SyainBases.Add(syainBaseF);
 
-            var syainF = new SyainBuilder()
-                .WithId(6)
-                .WithCode("1006")
-                .WithName("社員F")
-                .WithSyainBaseId(syainBaseF.Id)
-                .WithBusyoId(busyo2_1.Id)
-                .WithJyunjyo(2)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainF = new Syain
+            {
+                Id = 6,
+                Code = "1006",
+                Name = "社員F",
+                SyainBaseId = syainBaseF.Id,
+                BusyoId = busyo2_1.Id,
+                Jyunjyo = 2,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = busyo2_1.Code,
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainF);
 
             await db.SaveChangesAsync();
@@ -893,12 +1118,13 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 祝日設定登録
-            var syukujitsu = new HikadoubiBuilder()
-                .WithId(1)
-                .WithYmd(DateOnly.Parse("2026/1/12"))
-                .WithSyukusaijitsuFlag(祝祭日)
-                .WithRefreshDay(RefreshDayFlag.それ以外)
-                .Build();
+            var syukujitsu = new Hikadoubi
+            {
+                Id = 1,
+                Ymd = DateOnly.Parse("2026/1/12"),
+                SyukusaijitsuFlag = 祝祭日,
+                RefreshDay = RefreshDayFlag.それ以外,
+            };
             db.Hikadoubis.Add(syukujitsu);
 
             await db.SaveChangesAsync();
@@ -937,12 +1163,13 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 祝日設定登録
-            var syukujitsu = new HikadoubiBuilder()
-                .WithId(1)
-                .WithYmd(DateOnly.Parse("2026/1/17"))
-                .WithSyukusaijitsuFlag(祝祭日)
-                .WithRefreshDay(RefreshDayFlag.それ以外)
-                .Build();
+            var syukujitsu = new Hikadoubi
+            {
+                Id = 1,
+                Ymd = DateOnly.Parse("2026/1/17"),
+                SyukusaijitsuFlag = 祝祭日,
+                RefreshDay = RefreshDayFlag.それ以外,
+            };
             db.Hikadoubis.Add(syukujitsu);
 
             await db.SaveChangesAsync();
@@ -981,12 +1208,13 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 祝日設定登録
-            var syukujitsu = new HikadoubiBuilder()
-                .WithId(1)
-                .WithYmd(DateOnly.Parse("2026/1/18"))
-                .WithSyukusaijitsuFlag(祝祭日)
-                .WithRefreshDay(RefreshDayFlag.それ以外)
-                .Build();
+            var syukujitsu = new Hikadoubi
+            {
+                Id = 1,
+                Ymd = DateOnly.Parse("2026/1/18"),
+                SyukusaijitsuFlag = 祝祭日,
+                RefreshDay = RefreshDayFlag.それ以外,
+            };
             db.Hikadoubis.Add(syukujitsu);
 
             await db.SaveChangesAsync();
@@ -1026,13 +1254,14 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 09:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 18:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 09:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 18:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             await db.SaveChangesAsync();
@@ -1091,23 +1320,25 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 09:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 09:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 13:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 18:00"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 13:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 18:00"),
+            };
             db.WorkingHours.Add(workingHour2);
 
             await db.SaveChangesAsync();
@@ -1166,33 +1397,36 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 09:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 09:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 13:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 15:30"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 13:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 15:30"),
+            };
             db.WorkingHours.Add(workingHour2);
 
             // 打刻3
-            var workingHour3 = new WorkingHoursBuilder()
-                .WithId(3)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 16:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 18:00"))
-                .Build();
+            var workingHour3 = new WorkingHour
+            {
+                Id = 3,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 16:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 18:00"),
+            };
             db.WorkingHours.Add(workingHour3);
 
             await db.SaveChangesAsync();
@@ -1251,43 +1485,47 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 09:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 09:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 19:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 20:00"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 19:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 20:00"),
+            };
             db.WorkingHours.Add(workingHour2);
 
             // 打刻3
-            var workingHour3 = new WorkingHoursBuilder()
-                .WithId(3)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 16:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 18:00"))
-                .Build();
+            var workingHour3 = new WorkingHour
+            {
+                Id = 3,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 16:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 18:00"),
+            };
             db.WorkingHours.Add(workingHour3);
 
             // 打刻4
-            var workingHour4 = new WorkingHoursBuilder()
-                .WithId(4)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 13:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 15:30"))
-                .Build();
+            var workingHour4 = new WorkingHour
+            {
+                Id = 4,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 13:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 15:30"),
+            };
             db.WorkingHours.Add(workingHour4);
 
             await db.SaveChangesAsync();
@@ -1346,45 +1584,48 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 09:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 12:00"))
-                .WithSyukkinLatitude(35.6895M)
-                .WithSyukkinLongitude(139.6917M)
-                .WithTaikinLatitude(36.6895M)
-                .WithTaikinLongitude(140.6917M)
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 09:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 12:00"),
+                SyukkinLatitude = 35.6895M,
+                SyukkinLongitude = 139.6917M,
+                TaikinLatitude = 36.6895M,
+                TaikinLongitude = 140.6917M,
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 13:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 15:30"))
-                .WithSyukkinLatitude(35.6896M)
-                .WithSyukkinLongitude(139.6918M)
-                .WithTaikinLatitude(36.6896M)
-                .WithTaikinLongitude(140.6918M)
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 13:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 15:30"),
+                SyukkinLatitude = 35.6896M,
+                SyukkinLongitude = 139.6918M,
+                TaikinLatitude = 36.6896M,
+                TaikinLongitude = 140.6918M,
+            };
             db.WorkingHours.Add(workingHour2);
 
             // 打刻3
-            var workingHour3 = new WorkingHoursBuilder()
-                .WithId(3)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 16:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 18:00"))
-                .WithSyukkinLatitude(35.6897M)
-                .WithSyukkinLongitude(139.6919M)
-                .WithTaikinLatitude(36.6897M)
-                .WithTaikinLongitude(140.6919M)
-                .Build();
+            var workingHour3 = new WorkingHour
+            {
+                Id = 3,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 16:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 18:00"),
+                SyukkinLatitude = 35.6897M,
+                SyukkinLongitude = 139.6919M,
+                TaikinLatitude = 36.6897M,
+                TaikinLongitude = 140.6919M,
+            };
             db.WorkingHours.Add(workingHour3);
 
             await db.SaveChangesAsync();
@@ -1444,45 +1685,48 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 09:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 12:00"))
-                .WithSyukkinLatitude(35.6895M)
-                .WithSyukkinLongitude(139.6917M)
-                .WithTaikinLatitude(36.6895M)
-                .WithTaikinLongitude(140.6917M)
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 09:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 12:00"),
+                SyukkinLatitude = 35.6895M,
+                SyukkinLongitude = 139.6917M,
+                TaikinLatitude = 36.6895M,
+                TaikinLongitude = 140.6917M,
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 13:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 15:30"))
-                .WithSyukkinLatitude(35.6896M)
-                .WithSyukkinLongitude(139.6918M)
-                .WithTaikinLatitude(36.6896M)
-                .WithTaikinLongitude(140.6918M)
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 13:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 15:30"),
+                SyukkinLatitude = 35.6896M,
+                SyukkinLongitude = 139.6918M,
+                TaikinLatitude = 36.6896M,
+                TaikinLongitude = 140.6918M,
+            };
             db.WorkingHours.Add(workingHour2);
 
             // 打刻3
-            var workingHour3 = new WorkingHoursBuilder()
-                .WithId(3)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 16:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 18:00"))
-                .WithSyukkinLatitude(35.6897M)
-                .WithSyukkinLongitude(139.6919M)
-                .WithTaikinLatitude(36.6897M)
-                .WithTaikinLongitude(140.6919M)
-                .Build();
+            var workingHour3 = new WorkingHour
+            {
+                Id = 3,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 16:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 18:00"),
+                SyukkinLatitude = 35.6897M,
+                SyukkinLongitude = 139.6919M,
+                TaikinLatitude = 36.6897M,
+                TaikinLongitude = 140.6919M,
+            };
             db.WorkingHours.Add(workingHour3);
 
             await db.SaveChangesAsync();
@@ -1543,33 +1787,36 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 09:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 09:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 13:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 15:30"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 13:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 15:30"),
+            };
             db.WorkingHours.Add(workingHour2);
 
             // 打刻3
-            var workingHour3 = new WorkingHoursBuilder()
-                .WithId(3)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 16:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 18:00"))
-                .Build();
+            var workingHour3 = new WorkingHour
+            {
+                Id = 3,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 16:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 18:00"),
+            };
             db.WorkingHours.Add(workingHour3);
 
             await db.SaveChangesAsync();
@@ -1629,12 +1876,13 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                TaikinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             await db.SaveChangesAsync();
@@ -1694,26 +1942,29 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                TaikinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 伺い申請登録（深夜作業）
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(深夜作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 深夜作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -1773,26 +2024,29 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                TaikinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 伺い申請登録（夜間作業）
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(夜間作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 夜間作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -1852,12 +2106,13 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             await db.SaveChangesAsync();
@@ -1917,26 +2172,29 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 伺い申請登録（深夜作業）
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(深夜作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 深夜作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -1996,26 +2254,29 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
 
             // 伺い申請登録（夜間作業）
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(夜間作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 夜間作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -2075,21 +2336,23 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 8:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 11:00"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 8:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 11:00"),
+            };
             db.WorkingHours.Add(workingHour2);
 
             await db.SaveChangesAsync();
@@ -2149,35 +2412,39 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 8:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 11:00"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 8:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 11:00"),
+            };
             db.WorkingHours.Add(workingHour2);
 
             // 伺い申請登録（深夜作業）
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(深夜作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 深夜作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -2237,35 +2504,39 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 8:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 11:00"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 8:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 11:00"),
+            };
             db.WorkingHours.Add(workingHour2);
 
             // 伺い申請登録（夜間作業）
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(夜間作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 夜間作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -2325,30 +2596,33 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 8:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 11:00"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 8:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 11:00"),
+            };
             db.WorkingHours.Add(workingHour2);
             // 打刻3
-            var workingHour3 = new WorkingHoursBuilder()
-                .WithId(3)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 6:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 7:30"))
-                .Build();
+            var workingHour3 = new WorkingHour
+            {
+                Id = 3,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 6:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 7:30"),
+            };
             db.WorkingHours.Add(workingHour3);
 
             await db.SaveChangesAsync();
@@ -2408,44 +2682,49 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 8:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 11:00"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 8:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 11:00"),
+            };
             db.WorkingHours.Add(workingHour2);
             // 打刻3
-            var workingHour3 = new WorkingHoursBuilder()
-                .WithId(3)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 6:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 7:30"))
-                .Build();
+            var workingHour3 = new WorkingHour
+            {
+                Id = 3,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 6:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 7:30"),
+            };
             db.WorkingHours.Add(workingHour3);
 
             // 伺い申請登録（深夜作業）
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(深夜作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 深夜作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -2505,44 +2784,49 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
 
             // 打刻データ登録
             // 打刻1
-            var workingHour1 = new WorkingHoursBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 12:00"))
-                .Build();
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 12:00"),
+            };
             db.WorkingHours.Add(workingHour1);
             // 打刻2
-            var workingHour2 = new WorkingHoursBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 8:30"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 11:00"))
-                .Build();
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 8:30"),
+                TaikinTime = DateTime.Parse("2026/1/5 11:00"),
+            };
             db.WorkingHours.Add(workingHour2);
             // 打刻3
-            var workingHour3 = new WorkingHoursBuilder()
-                .WithId(3)
-                .WithSyainId(1)
-                .WithHiduke(DateOnly.Parse("2026/1/5"))
-                .WithSyukkinTime(DateTime.Parse("2026/1/5 6:00"))
-                .WithTaikinTime(DateTime.Parse("2026/1/5 7:30"))
-                .Build();
+            var workingHour3 = new WorkingHour
+            {
+                Id = 3,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 6:00"),
+                TaikinTime = DateTime.Parse("2026/1/5 7:30"),
+            };
             db.WorkingHours.Add(workingHour3);
 
             // 伺い申請登録（夜間作業）
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(夜間作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 夜間作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -2601,15 +2885,16 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 日報データ登録
-            var nippou = new NippouBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithSyukkinHm1(TimeOnly.Parse("08:30"))
-                .WithTaisyutsuHm1(TimeOnly.Parse("12:00"))
-                .WithNippouYmd(DateOnly.Parse("2026/1/5"))
-                .WithTourokuKbn(確定保存)
-                .WithSyukkinKubunId1(2)
-                .Build();
+            var nippou = new Nippou
+            {
+                Id = 1,
+                SyainId = 1,
+                SyukkinHm1 = TimeOnly.Parse("08:30"),
+                TaisyutsuHm1 = TimeOnly.Parse("12:00"),
+                NippouYmd = DateOnly.Parse("2026/1/5"),
+                TourokuKubun = 確定保存,
+                SyukkinKubunId1 = 2,
+            };
             db.Nippous.Add(nippou);
 
             await db.SaveChangesAsync();
@@ -2659,17 +2944,18 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 日報データ登録
-            var nippou = new NippouBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithSyukkinHm1(TimeOnly.Parse("08:30"))
-                .WithTaisyutsuHm1(TimeOnly.Parse("12:00"))
-                .WithSyukkinHm2(TimeOnly.Parse("13:00"))
-                .WithTaisyutsuHm2(TimeOnly.Parse("17:30"))
-                .WithNippouYmd(DateOnly.Parse("2026/1/5"))
-                .WithTourokuKbn(確定保存)
-                .WithSyukkinKubunId1(2)
-                .Build();
+            var nippou = new Nippou
+            {
+                Id = 1,
+                SyainId = 1,
+                SyukkinHm1 = TimeOnly.Parse("08:30"),
+                TaisyutsuHm1 = TimeOnly.Parse("12:00"),
+                SyukkinHm2 = TimeOnly.Parse("13:00"),
+                TaisyutsuHm2 = TimeOnly.Parse("17:30"),
+                NippouYmd = DateOnly.Parse("2026/1/5"),
+                TourokuKubun = 確定保存,
+                SyukkinKubunId1 = 2,
+            };
             db.Nippous.Add(nippou);
 
             await db.SaveChangesAsync();
@@ -2719,19 +3005,20 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 日報データ登録
-            var nippou = new NippouBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithSyukkinHm1(TimeOnly.Parse("08:30"))
-                .WithTaisyutsuHm1(TimeOnly.Parse("12:00"))
-                .WithSyukkinHm2(TimeOnly.Parse("13:00"))
-                .WithTaisyutsuHm2(TimeOnly.Parse("17:30"))
-                .WithSyukkinHm3(TimeOnly.Parse("19:00"))
-                .WithTaisyutsuHm3(TimeOnly.Parse("22:00"))
-                .WithNippouYmd(DateOnly.Parse("2026/1/5"))
-                .WithTourokuKbn(確定保存)
-                .WithSyukkinKubunId1(2)
-                .Build();
+            var nippou = new Nippou
+            {
+                Id = 1,
+                SyainId = 1,
+                SyukkinHm1 = TimeOnly.Parse("08:30"),
+                TaisyutsuHm1 = TimeOnly.Parse("12:00"),
+                SyukkinHm2 = TimeOnly.Parse("13:00"),
+                TaisyutsuHm2 = TimeOnly.Parse("17:30"),
+                SyukkinHm3 = TimeOnly.Parse("19:00"),
+                TaisyutsuHm3 = TimeOnly.Parse("22:00"),
+                NippouYmd = DateOnly.Parse("2026/1/5"),
+                TourokuKubun = 確定保存,
+                SyukkinKubunId1 = 2,
+            };
             db.Nippous.Add(nippou);
 
             await db.SaveChangesAsync();
@@ -2782,13 +3069,14 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 日報データ登録
-            var nippou = new NippouBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithNippouYmd(DateOnly.Parse("2026/1/5"))
-                .WithTourokuKbn(確定保存)
-                .WithSyukkinKubunId1(4)
-                .Build();
+            var nippou = new Nippou
+            {
+                Id = 1,
+                SyainId = 1,
+                NippouYmd = DateOnly.Parse("2026/1/5"),
+                TourokuKubun = 確定保存,
+                SyukkinKubunId1 = 4,
+            };
             db.Nippous.Add(nippou);
 
             await db.SaveChangesAsync();
@@ -2838,32 +3126,51 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             InitializeTestData_OnPostSearchAsync();
 
             // 日報データ登録
-            var nippou = new NippouBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithNippouYmd(DateOnly.Parse("2026/1/5"))
-                .WithTourokuKbn(確定保存)
-                .WithSyukkinKubunId1(4)
-                .Build();
+            var nippou = new Nippou
+            {
+                Id = 1,
+                SyainId = 1,
+                NippouYmd = DateOnly.Parse("2026/1/5"),
+                TourokuKubun = 確定保存,
+                SyukkinKubunId1 = 4,
+            };
             db.Nippous.Add(nippou);
 
             // 社員BASE & 社員 データ登録
             // ログイン用ユーザー
-            var syainBaseA = new SyainBasisBuilder()
-                .WithId(12)
-                .Build();
+            var syainBaseA = new SyainBasis
+            {
+                Id = 12,
+                Code = "1002",
+                Name = "ユーザー",
+            };
             db.SyainBases.Add(syainBaseA);
 
-            var syainB = new SyainBuilder()
-                .WithId(2)
-                .WithCode("1002")
-                .WithName("ユーザー")
-                .WithSyainBaseId(syainBaseA.Id)
-                .WithBusyoId(1)
-                .WithJyunjyo(6)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainB = new Syain
+            {
+                Id = 2,
+                Code = "1002",
+                Name = "ユーザー",
+                SyainBaseId = syainBaseA.Id,
+                BusyoId = 1,
+                Jyunjyo = 6,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = "0001",
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainB);
 
             await db.SaveChangesAsync();
@@ -2913,14 +3220,15 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 日報データ登録
-            var nippou = new NippouBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithNippouYmd(DateOnly.Parse("2026/1/5"))
-                .WithTourokuKbn(確定保存)
-                .WithSyukkinKubunId1(2)
-                .WithSyukkinKubunId2(3)
-                .Build();
+            var nippou = new Nippou
+            {
+                Id = 1,
+                SyainId = 1,
+                NippouYmd = DateOnly.Parse("2026/1/5"),
+                TourokuKubun = 確定保存,
+                SyukkinKubunId1 = 2,
+                SyukkinKubunId2 = 3,
+            };
             db.Nippous.Add(nippou);
 
             await db.SaveChangesAsync();
@@ -2970,13 +3278,14 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // PCログデータ登録
-            var pclog1 = new PcLogBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithDatetime(DateTime.Parse("2026/1/5 08:30"))
-                .WithPcName("PC-0001")
-                .WithOperation(ログオン)
-                .Build();
+            var pclog1 = new PcLog
+            {
+                Id = 1,
+                SyainId = 1,
+                Datetime = DateTime.Parse("2026/1/5 08:30"),
+                PcName = "PC-0001",
+                Operation = ログオン,
+            };
             db.PcLogs.Add(pclog1);
 
             await db.SaveChangesAsync();
@@ -3016,13 +3325,14 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync(PCログ出力);
 
             // PCログデータ登録
-            var pclog1 = new PcLogBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithDatetime(DateTime.Parse("2026/1/5 08:30"))
-                .WithPcName("PC-0001")
-                .WithOperation(ログオン)
-                .Build();
+            var pclog1 = new PcLog
+            {
+                Id = 1,
+                SyainId = 1,
+                Datetime = DateTime.Parse("2026/1/5 08:30"),
+                PcName = "PC-0001",
+                Operation = ログオン,
+            };
             db.PcLogs.Add(pclog1);
 
             await db.SaveChangesAsync();
@@ -3070,13 +3380,14 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync(PCログ出力);
 
             // PCログデータ登録
-            var pclog1 = new PcLogBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithDatetime(DateTime.Parse("2026/1/5 08:30"))
-                .WithPcName("PC-0001")
-                .WithOperation(ログオフ)
-                .Build();
+            var pclog1 = new PcLog
+            {
+                Id = 1,
+                SyainId = 1,
+                Datetime = DateTime.Parse("2026/1/5 08:30"),
+                PcName = "PC-0001",
+                Operation = ログオフ,
+            };
             db.PcLogs.Add(pclog1);
 
             await db.SaveChangesAsync();
@@ -3124,21 +3435,23 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync(PCログ出力);
 
             // PCログデータ登録
-            var pclog1 = new PcLogBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithDatetime(DateTime.Parse("2026/1/5 08:30"))
-                .WithPcName("PC-0001")
-                .WithOperation(ログオン)
-                .Build();
+            var pclog1 = new PcLog
+            {
+                Id = 1,
+                SyainId = 1,
+                Datetime = DateTime.Parse("2026/1/5 08:30"),
+                PcName = "PC-0001",
+                Operation = ログオン,
+            };
             db.PcLogs.Add(pclog1);
-            var pclog2 = new PcLogBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithDatetime(DateTime.Parse("2026/1/5 17:30"))
-                .WithPcName("PC-0001")
-                .WithOperation(ログオフ)
-                .Build();
+            var pclog2 = new PcLog
+            {
+                Id = 2,
+                SyainId = 1,
+                Datetime = DateTime.Parse("2026/1/5 17:30"),
+                PcName = "PC-0001",
+                Operation = ログオフ,
+            };
             db.PcLogs.Add(pclog2);
 
             await db.SaveChangesAsync();
@@ -3186,37 +3499,41 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync(PCログ出力);
 
             // PCログデータ登録
-            var pclog1 = new PcLogBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithDatetime(DateTime.Parse("2026/1/5 08:30"))
-                .WithPcName("PC-0001")
-                .WithOperation(ログオン)
-                .Build();
+            var pclog1 = new PcLog
+            {
+                Id = 1,
+                SyainId = 1,
+                Datetime = DateTime.Parse("2026/1/5 08:30"),
+                PcName = "PC-0001",
+                Operation = ログオン,
+            };
             db.PcLogs.Add(pclog1);
-            var pclog2 = new PcLogBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithDatetime(DateTime.Parse("2026/1/5 17:30"))
-                .WithPcName("PC-0001")
-                .WithOperation(ログオフ)
-                .Build();
+            var pclog2 = new PcLog
+            {
+                Id = 2,
+                SyainId = 1,
+                Datetime = DateTime.Parse("2026/1/5 17:30"),
+                PcName = "PC-0001",
+                Operation = ログオフ,
+            };
             db.PcLogs.Add(pclog2);
-            var pclog3 = new PcLogBuilder()
-                .WithId(3)
-                .WithSyainId(1)
-                .WithDatetime(DateTime.Parse("2026/1/5 12:00"))
-                .WithPcName("PC-0002")
-                .WithOperation(ログオン)
-                .Build();
+            var pclog3 = new PcLog
+            {
+                Id = 3,
+                SyainId = 1,
+                Datetime = DateTime.Parse("2026/1/5 12:00"),
+                PcName = "PC-0002",
+                Operation = ログオン,
+            };
             db.PcLogs.Add(pclog3);
-            var pclog4 = new PcLogBuilder()
-                .WithId(4)
-                .WithSyainId(1)
-                .WithDatetime(DateTime.Parse("2026/1/5 14:00"))
-                .WithPcName("PC-0002")
-                .WithOperation(ログオフ)
-                .Build();
+            var pclog4 = new PcLog
+            {
+                Id = 4,
+                SyainId = 1,
+                Datetime = DateTime.Parse("2026/1/5 14:00"),
+                PcName = "PC-0002",
+                Operation = ログオフ,
+            };
             db.PcLogs.Add(pclog4);
 
             await db.SaveChangesAsync();
@@ -3269,17 +3586,19 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 伺い申請登録（深夜作業）
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(深夜作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 深夜作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -3322,19 +3641,21 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 伺い申請登録
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .WithKaishiJikoku(TimeOnly.Parse("08:30"))
-                .WithSyuryoJikoku(TimeOnly.Parse("12:00"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+                KaishiJikoku = TimeOnly.Parse("08:30"),
+                SyuryoJikoku = TimeOnly.Parse("12:00"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(休暇申請)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 休暇申請,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -3377,19 +3698,21 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 伺い申請登録
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .WithKaishiJikoku(TimeOnly.Parse("13:00"))
-                .WithSyuryoJikoku(TimeOnly.Parse("17:30"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+                KaishiJikoku = TimeOnly.Parse("13:00"),
+                SyuryoJikoku = TimeOnly.Parse("17:30"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(休暇申請)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 休暇申請,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -3432,19 +3755,21 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 伺い申請登録
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .WithKaishiJikoku(TimeOnly.Parse("08:30"))
-                .WithSyuryoJikoku(TimeOnly.Parse("17:30"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+                KaishiJikoku = TimeOnly.Parse("08:30"),
+                SyuryoJikoku = TimeOnly.Parse("17:30"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(休暇申請)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 休暇申請,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -3487,23 +3812,26 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 伺い申請登録
-            var ukagaiHeader1 = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader1 = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader1);
-            var ukagaiShinsei1 = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(早朝作業)
-                .Build();
+            var ukagaiShinsei1 = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 早朝作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei1);
-            var ukagaiShinsei2 = new UkagaiShinseiBuilder()
-                .WithId(2)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(テレワーク)
-                .Build();
+            var ukagaiShinsei2 = new UkagaiShinsei
+            {
+                Id = 2,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = テレワーク,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei2);
 
             await db.SaveChangesAsync();
@@ -3547,29 +3875,33 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 伺い申請登録
-            var ukagaiHeader1 = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader1 = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader1);
-            var ukagaiHeader2 = new UkagaiHeaderBuilder()
-                .WithId(2)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader2 = new UkagaiHeader
+            {
+                Id = 2,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader2);
-            var ukagaiShinsei1 = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(早朝作業)
-                .Build();
+            var ukagaiShinsei1 = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 早朝作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei1);
-            var ukagaiShinsei2 = new UkagaiShinseiBuilder()
-                .WithId(2)
-                .WithUkagaiHeaderId(2)
-                .WithUkagaiSyubetsu(テレワーク)
-                .Build();
+            var ukagaiShinsei2 = new UkagaiShinsei
+            {
+                Id = 2,
+                UkagaiHeaderId = 2,
+                UkagaiSyubetsu = テレワーク,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei2);
 
             await db.SaveChangesAsync();
@@ -3613,17 +3945,19 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 伺い申請登録
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(打刻時間修正)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 打刻時間修正,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -3663,17 +3997,19 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 伺い申請登録
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(時間外労働時間制限拡張)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 時間外労働時間制限拡張,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -3713,20 +4049,22 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 日報データ登録
-            var nippou = new NippouBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithNippouYmd(DateOnly.Parse("2026/1/5"))
-                .WithTourokuKbn(確定保存)
-                .WithSyukkinKubunId1(4)
-                .Build();
+            var nippou = new Nippou
+            {
+                Id = 1,
+                SyainId = 1,
+                NippouYmd = DateOnly.Parse("2026/1/5"),
+                TourokuKubun = 確定保存,
+                SyukkinKubunId1 = 4,
+            };
             db.Nippous.Add(nippou);
 
             // 代理入力履歴データ登録
-            var dairi = new DairiNyuryokuRirekiBuilder()
-                .WithId(1)
-                .WithNippouId(1)
-                .Build();
+            var dairi = new DairiNyuryokuRireki
+            {
+                Id = 1,
+                NippouId = 1,
+            };
             db.DairiNyuryokuRirekis.Add(dairi);
 
             await db.SaveChangesAsync();
@@ -3769,34 +4107,38 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 日報データ登録
-            var nippou = new NippouBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithNippouYmd(DateOnly.Parse("2026/1/5"))
-                .WithTourokuKbn(確定保存)
-                .WithSyukkinKubunId1(4)
-                .Build();
+            var nippou = new Nippou
+            {
+                Id = 1,
+                SyainId = 1,
+                NippouYmd = DateOnly.Parse("2026/1/5"),
+                TourokuKubun = 確定保存,
+                SyukkinKubunId1 = 4,
+            };
             db.Nippous.Add(nippou);
 
             // 代理入力履歴データ登録
-            var dairi = new DairiNyuryokuRirekiBuilder()
-                .WithId(1)
-                .WithNippouId(1)
-                .Build();
+            var dairi = new DairiNyuryokuRireki
+            {
+                Id = 1,
+                NippouId = 1,
+            };
             db.DairiNyuryokuRirekis.Add(dairi);
 
             // 伺い申請登録
-            var ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(1)
-                .WithWorkYmd(DateOnly.Parse("2026/1/5"))
-                .Build();
+            var ukagaiHeader = new UkagaiHeader
+            {
+                Id = 1,
+                SyainId = 1,
+                WorkYmd = DateOnly.Parse("2026/1/5"),
+            };
             db.UkagaiHeaders.Add(ukagaiHeader);
-            var ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(1)
-                .WithUkagaiSyubetsu(夜間作業)
-                .Build();
+            var ukagaiShinsei = new UkagaiShinsei
+            {
+                Id = 1,
+                UkagaiHeaderId = 1,
+                UkagaiSyubetsu = 夜間作業,
+            };
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
             await db.SaveChangesAsync();
@@ -3840,21 +4182,39 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 社員B
-            var syainBaseB = new SyainBasisBuilder()
-                .WithId(12)
-                .Build();
+            var syainBaseB = new SyainBasis
+            {
+                Id = 12,
+                Code = "1002",
+                Name = "社員B",
+            };
             db.SyainBases.Add(syainBaseB);
 
-            var syainB = new SyainBuilder()
-                .WithId(2)
-                .WithCode("1002")
-                .WithName("社員B")
-                .WithSyainBaseId(syainBaseB.Id)
-                .WithBusyoId(1)
-                .WithJyunjyo(10)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainB = new Syain
+            {
+                Id = 2,
+                Code = "1002",
+                Name = "社員B",
+                SyainBaseId = syainBaseB.Id,
+                BusyoId = 1,
+                Jyunjyo = 10,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = "0001",
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainB);
 
             await db.SaveChangesAsync();
@@ -3900,21 +4260,39 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 社員B
-            var syainBaseB = new SyainBasisBuilder()
-                .WithId(12)
-                .Build();
+            var syainBaseB = new SyainBasis
+            {
+                Id = 12,
+                Code = "1002",
+                Name = "社員B",
+            };
             db.SyainBases.Add(syainBaseB);
 
-            var syainB = new SyainBuilder()
-                .WithId(2)
-                .WithCode("1002")
-                .WithName("社員B")
-                .WithSyainBaseId(syainBaseB.Id)
-                .WithBusyoId(1)
-                .WithJyunjyo(10)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainB = new Syain
+            {
+                Id = 2,
+                Code = "1002",
+                Name = "社員B",
+                SyainBaseId = syainBaseB.Id,
+                BusyoId = 1,
+                Jyunjyo = 10,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = "0001",
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainB);
 
             await db.SaveChangesAsync();
@@ -3960,21 +4338,39 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 社員B
-            var syainBaseB = new SyainBasisBuilder()
-                .WithId(12)
-                .Build();
+            var syainBaseB = new SyainBasis
+            {
+                Id = 12,
+                Code = "1002",
+                Name = "社員B",
+            };
             db.SyainBases.Add(syainBaseB);
 
-            var syainB = new SyainBuilder()
-                .WithId(2)
-                .WithCode("1002")
-                .WithName("社員B")
-                .WithSyainBaseId(syainBaseB.Id)
-                .WithBusyoId(1)
-                .WithJyunjyo(10)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainB = new Syain
+            {
+                Id = 2,
+                Code = "1002",
+                Name = "社員B",
+                SyainBaseId = syainBaseB.Id,
+                BusyoId = 1,
+                Jyunjyo = 10,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = "0001",
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainB);
 
             await db.SaveChangesAsync();
@@ -4021,21 +4417,39 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             var loginSyain = InitializeTestData_OnPostSearchAsync();
 
             // 社員B
-            var syainBaseB = new SyainBasisBuilder()
-                .WithId(12)
-                .Build();
+            var syainBaseB = new SyainBasis
+            {
+                Id = 12,
+                Code = "1002",
+                Name = "社員B",
+            };
             db.SyainBases.Add(syainBaseB);
 
-            var syainB = new SyainBuilder()
-                .WithId(2)
-                .WithCode("1002")
-                .WithName("社員B")
-                .WithSyainBaseId(syainBaseB.Id)
-                .WithBusyoId(1)
-                .WithJyunjyo(10)
-                .WithStartYmd(DateOnly.Parse("2025/4/1"))
-                .WithEndYmd(DateOnly.Parse("2026/4/1"))
-                .Build();
+            var syainB = new Syain
+            {
+                Id = 2,
+                Code = "1002",
+                Name = "社員B",
+                SyainBaseId = syainBaseB.Id,
+                BusyoId = 1,
+                Jyunjyo = 10,
+                StartYmd = DateOnly.Parse("2025/4/1"),
+                EndYmd = DateOnly.Parse("2026/4/1"),
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = "0001",
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Retired = false,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(syainB);
 
             await db.SaveChangesAsync();
@@ -4147,6 +4561,158 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
             Assert.IsNotEmpty(message, "メッセージがありません。");
             Assert.AreEqual(string.Format(WarningTooManyResults, SearchResultMaxCount), message, "メッセージが一致しません。");
             Assert.AreEqual(SearchResultMaxCount, kinmuList.Count(), "kinmuListの件数が一致しません。");
+        }
+
+        /// <summary>
+        /// 出退勤検索
+        ///     テストケース  出退勤検索-53：勤怠打刻・退勤時間が翌日00:00の場合に24:00を返す
+        /// </summary>
+        [TestMethod]
+        public async Task OnPostSearchAsync_勤怠打刻退勤時間翌日0時_24時を返す()
+        {
+            // Arrange
+            var loginSyain = InitializeTestData_OnPostSearchAsync();
+
+            // 打刻データ登録
+            // 打刻1
+            var workingHour1 = new WorkingHour
+            {
+                Id = 1,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 09:00"),
+                TaikinTime = DateTime.Parse("2026/1/6 00:00"),
+            };
+            db.WorkingHours.Add(workingHour1);
+
+            // 打刻2
+            var workingHour2 = new WorkingHour
+            {
+                Id = 2,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 13:00"),
+                TaikinTime = DateTime.Parse("2026/1/6 00:00"),
+            };
+            db.WorkingHours.Add(workingHour2);
+
+            // 打刻3
+            var workingHour3 = new WorkingHour
+            {
+                Id = 3,
+                SyainId = 1,
+                Hiduke = DateOnly.Parse("2026/1/5"),
+                SyukkinTime = DateTime.Parse("2026/1/5 16:30"),
+                TaikinTime = DateTime.Parse("2026/1/6 00:00"),
+            };
+            db.WorkingHours.Add(workingHour3);
+
+            await db.SaveChangesAsync();
+
+            var model = CreateModel(loginSyain);
+
+            model.Search = new SearchModel()
+            {
+                Kikan = new DatepickerRangeModel.Values()
+                {
+                    From = DateTime.Parse("2026/1/5").ToDateOnly(),
+                    To = DateTime.Parse("2026/1/5").ToDateOnly(),
+                }
+            };
+            model.SyainView = new SyainViewModel();
+            model.SyainView.SelectedId = "11";
+
+            // Act
+            await model.OnPostSearchAsync();
+            var kinmuList = model.AttendanceView.KinmuDataList;
+            var loginUser = model.AttendanceView.LoginUser;
+
+            // Assert
+            // 勤怠打刻データ確認
+            var syuttaikiroku = new Zouryoku.Pages.Attendance.AttendanceList.SyuttaiKirokuData
+            {
+                SyukkinJikan1 = "09:00",
+                SyukkinJikan2 = "13:00",
+                SyukkinJikan3 = "16:30",
+                TaikinJikan1 = "24:00",
+                TaikinJikan2 = "24:00",
+                TaikinJikan3 = "24:00",
+                SyukkinPos1 = "",
+                SyukkinPos2 = "",
+                SyukkinPos3 = "",
+                TaikinPos1 = "",
+                TaikinPos2 = "",
+                TaikinPos3 = "",
+                IsHimatagiSyukkin1 = false,
+                IsHimatagiTaikin1 = false,
+                IsHimatagiTaikin2 = false,
+                IsHimatagiTaikin3 = false,
+            };
+            AssertKinmuDataSyuttaikin(syuttaikiroku, kinmuList[0].GetSyuttaiKirokuData(loginUser));
+        }
+
+        /// <summary>
+        /// 出退勤検索
+        ///     テストケース  出退勤検索-54：日報実績・退出時間が00:00の場合に24:00を返す
+        /// </summary>
+        [TestMethod]
+        public async Task OnPostSearchAsync_日報実績退出時間0時_24時を返す()
+        {
+            // Arrange
+            var loginSyain = InitializeTestData_OnPostSearchAsync();
+
+            // 日報データ登録
+            var nippou = new Nippou
+            {
+                Id = 1,
+                SyainId = 1,
+                SyukkinHm1 = TimeOnly.Parse("08:30"),
+                TaisyutsuHm1 = TimeOnly.Parse("00:00"),
+                SyukkinHm2 = TimeOnly.Parse("13:00"),
+                TaisyutsuHm2 = TimeOnly.Parse("00:00"),
+                SyukkinHm3 = TimeOnly.Parse("19:00"),
+                TaisyutsuHm3 = TimeOnly.Parse("00:00"),
+                NippouYmd = DateOnly.Parse("2026/1/5"),
+                TourokuKubun = 確定保存,
+                SyukkinKubunId1 = 2,
+            };
+            db.Nippous.Add(nippou);
+
+            await db.SaveChangesAsync();
+
+            var model = CreateModel(loginSyain);
+
+
+            model.Search = new SearchModel()
+            {
+                Kikan = new DatepickerRangeModel.Values()
+                {
+                    From = DateTime.Parse("2026/1/5").ToDateOnly(),
+                    To = DateTime.Parse("2026/1/5").ToDateOnly(),
+                }
+            };
+            model.SyainView = new SyainViewModel();
+            model.SyainView.SelectedId = "11";
+
+            // Act
+            await model.OnPostSearchAsync();
+            var kinmuList = model.AttendanceView.KinmuDataList;
+            var loginUser = model.AttendanceView.LoginUser;
+
+            // Assert
+
+            // 日報データ確認
+            var nippouClass = new NippouData
+            {
+                Syukkin1 = "08:30",
+                Syukkin2 = "13:00",
+                Syukkin3 = "19:00",
+                Taisyutsu1 = "24:00",
+                Taisyutsu2 = "24:00",
+                Taisyutsu3 = "24:00",
+                SyukkinKubunList = new List<string> { "通常勤務" },
+            };
+            AssertKinmuDataNippou(nippouClass, kinmuList[0].GetNippouData(loginUser));
         }
     }
 }

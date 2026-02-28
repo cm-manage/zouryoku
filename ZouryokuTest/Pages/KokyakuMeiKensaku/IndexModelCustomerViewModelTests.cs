@@ -35,24 +35,24 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         private KokyakuKaisyaSansyouRireki CreateEntityForViewModelTest()
         {
             // 顧客会社参照履歴
-            var rireki = new KokyakuKaisyaSansyouRirekiBuilder()
-                .WithVersion(Version)
-                .Build();
+            var rireki = new KokyakuKaisyaSansyouRireki(){
+                Version = Version,
+                };
 
             // 顧客会社
-            rireki.KokyakuKaisya = new KokyakuKaishaBuilder()
-                .WithId(CustomerId)
-                .WithName(CustomerName)
-                .WithNameKana(CustomerNameKana)
-                .Build();
+            rireki.KokyakuKaisya = new KokyakuKaisha(){
+                Id = CustomerId,
+                Name = CustomerName,
+                NameKana = CustomerNameKana,
+                };
 
             // 社員BASE
-            rireki.KokyakuKaisya.EigyoBaseSyain = new SyainBasisBuilder().Build();
+            rireki.KokyakuKaisya.EigyoBaseSyain = new SyainBasis(){};
 
             // 社員マスタ
-            rireki.KokyakuKaisya.EigyoBaseSyain.Syains.Add(new SyainBuilder()
-                .WithName(SalesEmpName)
-                .Build());
+            rireki.KokyakuKaisya.EigyoBaseSyain.Syains.Add(new Syain(){
+                Name = SalesEmpName,
+                });
 
             return rireki;
         }
@@ -328,7 +328,7 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         {
             // Arrange
             // 顧客会社の情報を持たない参照履歴のエンティティを引数に渡す
-            var history = new KokyakuKaisyaSansyouRirekiBuilder().Build();
+            var history = new KokyakuKaisyaSansyouRireki(){};
             var viewModel = new CustomerViewModel(history);
 
             // Act / Assert

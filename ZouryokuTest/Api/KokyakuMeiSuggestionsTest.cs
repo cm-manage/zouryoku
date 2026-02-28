@@ -1,8 +1,8 @@
 using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Model.Model;
 using System.Text.Json;
 using Zouryoku.Api;
-using ZouryokuTest.Builder;
 using static Zouryoku.Utils.StringUtil;
 
 namespace ZouryokuTest.Api
@@ -61,10 +61,15 @@ namespace ZouryokuTest.Api
         {
             // 顧客会社マスタ
             // 正規化されてるかの確認を行うために、正規化済みのカラムを設定
-            db.Add(new KokyakuKaishaBuilder()
-                .WithSearchName(NormalizeString(SearchName))
-                .WithSearchNameKana(NormalizeString(SearchNameKana))
-                .Build());
+            db.Add(new KokyakuKaisha()
+            {
+                SearchName = NormalizeString(SearchName),
+                SearchNameKana = NormalizeString(SearchNameKana),
+                // 不要なNOT NULLカラムに値を詰める
+                Name = "株式会社サンプル",
+                NameKana = string.Empty,
+                Ryakusyou = string.Empty,
+            });
         }
 
         /// <summary>
@@ -75,10 +80,16 @@ namespace ZouryokuTest.Api
         {
             // 顧客会社マスタ
             db.AddRange(Enumerable.Range(1, count).Select(
-                i => new KokyakuKaishaBuilder()
-                    .WithId(i)
-                    .WithName(GetKokyakuNameWithNumber(i))  // 取得時に重複削除が働かないように一意の顧客名称を設定
-                    .Build()
+                i => new KokyakuKaisha()
+                {
+                    Id = i,
+                    Name = GetKokyakuNameWithNumber(i),  // 取得時に重複削除が働かないように一意の顧客名称を設定
+                    // 不要なNOT NULLカラムに値を詰める
+                    NameKana = string.Empty,
+                    SearchName = "株式",
+                    SearchNameKana = string.Empty,
+                    Ryakusyou = string.Empty,
+                }
             ).ToList());
         }
 
@@ -90,13 +101,16 @@ namespace ZouryokuTest.Api
         {
             // 顧客会社マスタ
             db.AddRange(Enumerable.Range(1, 3).Select(
-                i => new KokyakuKaishaBuilder()
-                    .WithId(i)
-                    .WithName(i.ToString())
-                    .WithNameKana(((i + 1) % 3).ToString())      // 他のカラムの並び順と異なるように顧客名カナを設定
-                    .WithSearchName(GetKokyakuNameWithNumber(i)) // 検索にヒットさせるため共通部分を持つように設定
-                    .WithSearchNameKana(i.ToString())
-                    .Build()
+                i => new KokyakuKaisha()
+                {
+                    Id = i,
+                    Name = i.ToString(),
+                    NameKana = ((i + 1) % 3).ToString(),      // 他のカラムの並び順と異なるように顧客名カナを設定
+                    SearchName = GetKokyakuNameWithNumber(i), // 検索にヒットさせるため共通部分を持つように設定
+                    SearchNameKana = i.ToString(),
+                    // 不要なNOT NULLカラムに値を詰める
+                    Ryakusyou = string.Empty,
+                }
             ).ToList());
         }
 
@@ -109,12 +123,16 @@ namespace ZouryokuTest.Api
             // 顧客名称はビルダーのデフォルト値を使用する
             // 他の名称関係のカラムは相異なるように設定
             db.AddRange(Enumerable.Range(1, 3).Select(
-                i => new KokyakuKaishaBuilder()
-                    .WithId(i)
-                    .WithNameKana(i.ToString())
-                    .WithSearchName(GetKokyakuNameWithNumber(i)) // 検索にヒットさせるため共通部分を持つように設定
-                    .WithSearchNameKana(i.ToString())
-                    .Build()
+                i => new KokyakuKaisha()
+                {
+                    Id = i,
+                    NameKana = i.ToString(),
+                    SearchName = GetKokyakuNameWithNumber(i), // 検索にヒットさせるため共通部分を持つように設定
+                    SearchNameKana = i.ToString(),
+                    // 不要なNOT NULLカラムに値を詰める
+                    Name = string.Empty,
+                    Ryakusyou = string.Empty,
+                }
             ).ToList());
         }
 

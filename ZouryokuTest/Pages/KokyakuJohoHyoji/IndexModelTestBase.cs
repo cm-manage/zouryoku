@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
-using System.Globalization;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.KokyakuJohoHyoji;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
+using static Model.Enums.BusinessTripRole;
+using static Model.Enums.EmployeeAuthority;
 
 namespace ZouryokuTest.Pages.KokyakuJohoHyoji
 {
@@ -48,20 +47,40 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         protected IndexModel SetLoggedInUser(IndexModel model)
         {
             // ログインユーザーの社員情報を追加
-            var empBase = new SyainBasisBuilder()
-                .WithId(LoggedInUserId)
-                .WithCode(LoggedInUserCode)
-                .WithName(LoggedInUserName)
-                .Build();
+            var empBase = new SyainBasis()
+            {
+                Id = LoggedInUserId,
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+            };
             db.SyainBases.Add(empBase);
 
-            var emp = new SyainBuilder()
-                .WithId(LoggedInUserId)
-                .WithCode(LoggedInUserCode)
-                .WithSyainBaseId(LoggedInUserId)
-                .WithName(LoggedInUserName)
-                .WithKanaName(LoggedInUserName)
-                .Build();
+            var emp = new Syain()
+            {
+                Id = LoggedInUserId,
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+                KanaName = LoggedInUserName,
+                Seibetsu = '1',
+                BusyoCode = "100",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = new DateOnly(2020, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Kyusyoku = 1,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = false,
+                Kengen = None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = LoggedInUserId,
+                BusyoId = 1,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            };
             db.Syains.Add(emp);
 
             // LoginInfoを作成
@@ -97,101 +116,10 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         }
 
         /// <summary>
-        /// シード: 社員Base生成
-        /// </summary>
-        protected static SyainBasis CreateSyainBase(long id)
-        {
-            return new SyainBasisBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: 社員生成
-        /// </summary>
-        protected static Syain CreateSyain(long id)
-        {
-            return new SyainBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: 顧客会社生成
-        /// </summary>
-        protected static KokyakuKaisha CreateKokyakuKaisha(long id)
-        {
-            return new KokyakuKaishaBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: 部署作成
-        /// </summary>
-        protected static Busyo CreateBusyo(long id)
-        {
-            return new BusyoBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: 業種作成
-        /// </summary>
-        protected static Gyousyu CreateGyousyu(long id)
-        {
-            return new GyousyuBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: ログインユーザーの顧客会社参照履歴を複数生成
-        /// </summary>
-        /// <param name="syainBaseId">社員BaseID</param>
-        /// <param name="count">生成件数</param>
-        protected static List<KokyakuKaisyaSansyouRireki> CreateKokyakuKaisyaSansyouRireki(long syainBaseId, int count)
-        {
-            var baseTime = DateTime.ParseExact(
-                "2025/04/01 09:00",
-                "yyyy/MM/dd HH:mm",
-                CultureInfo.InvariantCulture
-                );
-
-            return Enumerable.Range(1, count)
-                .Select(i => new KokyakuKaisyaSansyouRirekiBuilder()
-                    .WithId(i)
-                    .WithKokyakuKaisyaId(i)
-                    .WithSyainBaseId(syainBaseId)
-                    .WithSansyouTime(baseTime.AddMinutes(i - 1))
-                    .Build()
-                    )
-                .ToList();
-        }
-
-        /// <summary>
-        /// シード: 別ユーザーの顧客会社参照履歴を複数生成
-        /// </summary>
-        /// <param name="kokyakuId">顧客会社ID</param>
-        /// <param name="startId">一番最初の参照履歴ID</param>
-        protected static List<KokyakuKaisyaSansyouRireki> CreateOtherKokyakuKaisyaSansyouRireki(long kokyakuId, int startId)
-        {
-            return new KokyakuKaisyaSansyouRirekiBuilder()
-                .WithKokyakuKaisyaId(kokyakuId)
-                .WithSyainBaseId(0) // ダミー
-                .BuildMany(startId, 3, data =>
-                {
-                    data.SansyouTime = DateTime.Now.AddMinutes(+data.Id); // IDの小さい順に古い日時とする
-                });
-        }
-
-        /// <summary>
         /// 参照時間が指定範囲内であることを確認する
         /// </summary>
         /// <param name="kokyakuKaisyaSansyouRireki">確認対象の顧客会社参照履歴</param>
-        /// <param name="beforeUpdateTime">更新前の時間</param>
-        /// <param name="afterUpdateTime">更新後の時間</param>
+        /// <param name="now">現在の日時</param>
         protected static void AssertSansyouTime(
             KokyakuKaisyaSansyouRireki kokyakuKaisyaSansyouRireki,
             DateTime now)
@@ -231,6 +159,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         /// 更新対象外の顧客会社参照履歴.参照時間が更新されていないことを確認する
         /// </summary>
         /// <param name="kokyakuKaisyaSansyouRirekis">確認対象の顧客会社参照履歴リスト</param>
+        /// <param name="now">現在の日時</param>
         protected static void AssertOtherRirekiNotUpdated(List<KokyakuKaisyaSansyouRireki> kokyakuKaisyaSansyouRirekis, DateTime now)
         {
             foreach (var other in kokyakuKaisyaSansyouRirekis)

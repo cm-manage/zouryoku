@@ -48,16 +48,6 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         /// </summary>
         public class TimeSelectListHelper
         {
-            /// <summary>
-            /// 分コンボボックスの選択間隔（分単位）。
-            /// </summary>
-            /// <remarks>
-            /// 1 の場合は 00, 01, 02, …, 59 の 1 分刻み、
-            /// 5 の場合は 00, 05, 10, …, 55 の 5 分刻みといった形で
-            /// <see cref="GetMinuteListItems"/> 内の分の刻み幅を制御する。
-            /// </remarks>
-            private const int MinuteInterval = 1;
-
             #region コンボボックス選択肢生成
             /// <summary>
             /// 時間選択肢
@@ -65,7 +55,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             public static IEnumerable<SelectListItem> GetHourListItems() =>
                 Enumerable.Range(0, MaxHour + 1).Select(i => new SelectListItem
                 {
-                    Value = i.ToString(),
+                    Value = i.ToString(""),
                     Text = i.ToString("00"),
                 });
 
@@ -74,13 +64,11 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             /// </summary>
             /// <returns></returns>
             public static IEnumerable<SelectListItem> GetMinuteListItems() =>
-                Enumerable.Range(0, (MaxMinute / MinuteInterval) + 1)
-                    .Select(i => i * MinuteInterval)
-                    .Select(i => new SelectListItem
-                    {
-                        Value = i.ToString(),
-                        Text = i.ToString("00")
-                    });
+                Enumerable.Range(0, MaxMinute + 1).Select(i => new SelectListItem
+                {
+                    Value = i.ToString(""),
+                    Text = i.ToString("00")
+                });
             #endregion
         }
         #endregion
@@ -138,10 +126,10 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             public List<uint?> UkagaiShinseiVersions { get; set; } = [];
 
             /// <summary>日報確定済みかどうか</summary>
-            public bool IsKakutei => TorokuKubun == 確定保存;
+            public bool IsKakutei => TourokuKubun == 確定保存;
 
             /// <summary>登録状況区分</summary>
-            public DailyReportStatusClassification? TorokuKubun { get; set; }            
+            public DailyReportStatusClassification? TourokuKubun { get; set; }
 
             /// <summary>
             /// 表示用の出退勤時間をセット
@@ -313,7 +301,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         }
         #endregion
 
-        #region Post処理
+        #region POST処理
         /// <summary>登録処理</summary>
         /// <returns>結果</returns>
         public async Task<IActionResult> OnPostRegisterAsync()
@@ -329,7 +317,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 LoginInfo.User.Id == ViewModel.SyainId;
 
             // 関連性チェック
-            await ValidateRegister(isNotDairi);
+            ValidateRegister(isNotDairi);
 
             if (!ModelState.IsValid)
             {
@@ -517,7 +505,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                 .ToList() ?? new List<uint?>(),
 
                 // 登録状況区分
-                TorokuKubun = notDeletedWorkinghours
+                TourokuKubun = notDeletedWorkinghours
                 .FirstOrDefault()?
                 .Syain?
                 .Nippous?
@@ -532,8 +520,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
                     h.SyukkinTime?.ToTimeOnly(),
                     h.TaikinTime?.ToTimeOnly(),
                     h.Version,
-                    h.Deleted
-                    ))
+                    h.Deleted))
                 .ToArray();
 
             // 表示用出退勤時間
@@ -569,7 +556,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         /// <summary>
         /// Validationチェック
         /// </summary>
-        private async Task ValidateRegister(bool isNotDairi)
+        private void ValidateRegister(bool isNotDairi)
         {
             // --- 入力チェック ---
 
@@ -594,7 +581,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             }
             if (!ModelState.IsValid)
             {
-                return; 
+                return;
             }
 
             // 出勤時間と退勤時間の重複を確認
@@ -683,7 +670,6 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             }
         }
 
-
         /// <summary>
         /// 出勤時間と退勤時間の重複を確認する。
         /// </summary>
@@ -691,7 +677,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
         /// <param name="baseDate">基準日</param>
         private void ValidateWorkingHourOverlaps(List<TimeSet> timeSets, DateOnly baseDate)
         {
-            // DateTimeに変換
+            // 有効な入力のみDateTimeに変換
             var ranges = new List<(string Label, DateTime Start, DateTime End)>();
 
             for (int i = 0; i < timeSets.Count; i++)
@@ -733,6 +719,7 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             // 並び順を修正
             var ordered = ranges
                 .OrderBy(x => x.Start)
+                .ThenBy(x => x.End)
                 .ToList();
 
             // 重複を検出

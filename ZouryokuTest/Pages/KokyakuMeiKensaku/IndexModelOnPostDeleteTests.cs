@@ -1,4 +1,5 @@
 using CommonLibrary.Extensions;
+using Model.Model;
 using ZouryokuTest.Builder;
 using static Zouryoku.Utils.Const;
 
@@ -127,12 +128,12 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         {
             // Arrange
             var model = CreateModel();
-            db.Add(new KokyakuKaisyaSansyouRirekiBuilder()
-                .WithId(3)
-                .WithSyainBaseId(1)
-                .WithKokyakuKaisyaId(3)
-                .WithSansyouTime(fakeTimeProvider.Now().AddDays(-1))
-                .Build());
+            db.Add(new KokyakuKaisyaSansyouRireki(){
+                Id = 3,
+                SyainBaseId = 1,
+                KokyakuKaisyaId = 3,
+                SansyouTime = fakeTimeProvider.Now().AddDays(-1),
+                });
             db.SaveChanges();
             // 削除対象のデータが紐づく顧客会社ID
             var customerId = 3;

@@ -1,0 +1,104 @@
+﻿@model Zouryoku.Pages.JissekiNyuryoku.JissekiInputViewModel
+
+@{
+    var i = Model.Index;
+}
+
+<div class="jisseki-meisai-card">
+        <div class="card card-body bg-light d-flex flex-column flex-lg-row gap-3 mb-2">
+        <div class="flex-grow-1">
+            <input type="hidden" asp-for="Id" data-js="id" />
+            <input type="hidden" asp-for="AnkensId" />
+            <input type="hidden" asp-for="KokyakuKaisyaId" />
+            <input type="hidden" asp-for="IsGenkaToketu" />
+            <input type="hidden" asp-for="IsDelete" data-js="is-delete" />
+            <input type="hidden" asp-for="Version"/>
+            <div class="toggle-group mb-3 d-inline-flex">
+                <input asp-for="IsLinked" type="radio" class="btn-check" id="LinkedTrue_@i" value="true">
+                <label class="btn btn-outline-primary" for="LinkedTrue_@i">原価連動する</label>
+
+                <input asp-for="IsLinked" type="radio" class="btn-check" id="LinkedFalse_@i" value="false">
+                <label class="btn btn-outline-primary" for="LinkedFalse_@i">原価連動しない</label>
+            </div>
+            <div class="row g-1 g-lg-2 mb-2">
+                <div class="col-12 col-lg-auto" style="min-width: 100px;">
+                    <label class="col-form-label py-0 py-lg-1">
+                        @Html.DisplayNameFor(m => m.KingsJuchuNo)
+                    </label>
+                </div>
+                <div class="col-10 col-lg-4">
+                    <span asp-validation-for="KingsJuchuNo" class="text-danger"></span>
+                    <div class="input-group">
+                        <input asp-for="KingsJuchuNo" class="form-control app-input__textbox" readonly />
+                        <button data-js="open-modal-search-anken" class="btn btn-primary" type="button" data-index="@i">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-auto ps-lg-4">
+                    <label class="col-form-label py-0 py-lg-1">顧客名</label>
+                </div>
+                <div class="col-12 col-lg">
+                    <span asp-validation-for="KokyakuName" class="text-danger"></span>
+                    <div class="input-group">
+                        <input asp-for="KokyakuName" class="form-control app-input__textbox" readonly>
+                        <button data-js="open-modal-search-kokyaku" class="btn btn-primary" data-index="@i">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-1 g-lg-2 mb-2">
+                <div class="col-12 col-lg-auto" style="min-width: 100px;">
+                    <label class="col-form-label py-0 py-lg-1">
+                        @Html.DisplayNameFor(m => m.AnkenName)
+                        /
+                        @Html.DisplayNameFor(m => m.ChaYmd)
+                    </label>
+                </div>
+                <div class="col-12 col-lg">
+                    <div class="d-flex flex-lg-row flex-column gap-2">
+                        <input asp-for="AnkenName" class="form-control app-input__textbox" readonly>
+                        <input asp-for="ChaYmd" class="form-control app-input__textbox" style=" width:8rem" readonly />
+                    </div>
+                </div>
+            </div>
+            <div class="row g-1 g-lg-2 mb-2">
+                <div class="col-12 col-lg-auto" style="min-width: 100px;">
+                    <label class="col-form-label py-0 py-lg-1">プロセス</label>
+                </div>
+                <div class="col-10 col-lg-4 ">
+                    <select class="form-select" asp-for="BumonProcessId" asp-items="Model.BumonProcessList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="row g-1 g-lg-2 mb-2">
+                <div class="col-10 col-lg-auto" style="min-width: 100px;">
+                    <label class="col-form-label py-0 py-lg-1">
+                        @Html.DisplayNameFor(m => m.JissekiJikan)
+                    </label>
+                </div>
+                <div class="col-lg-auto">
+                    <select data-js="select-jisseki-time" class="form-select" asp-for="JissekiJikan" style="width: 120px;">
+                        <option value="0"></option>
+                        @for (int time = 1; time <= 24; time++)
+                        {
+                            <option value="@time">@time 時間</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-lg-column flex-row gap-2">
+            <button type="button" data-js="copy-jisseki-card" data-index="@i" class="btn btn-outline-primary text-nowrap ms-auto ms-lg-0">
+                <i class="fa-regular fa-copy"></i>
+                コピー
+            </button>
+            <button type="button" data-js="delete-jisseki-card" data-index="@i" class="btn btn-outline-danger ms-lg-0">
+                <i class="fa-solid fa-trash"></i>
+                削除
+            </button>
+        </div>
+    </div>
+</div>

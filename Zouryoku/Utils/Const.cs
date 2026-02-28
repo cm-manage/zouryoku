@@ -162,5 +162,54 @@ namespace Zouryoku.Utils
         public static readonly DateOnly MinDate = new DateOnly(2001, 1, 1);
         /// <summary> 最大日付 2099/12/31</summary>
         public static readonly DateOnly MaxDate = new DateOnly(2099, 12, 31);
+
+        // 実績入力画面：入力チェックメッセージ
+        public const string SelectAttendanceClassification = "出勤区分を選択してください。";
+        public const string HolidayOnWeekdayError = "平日に『休日』を選択する事は出来ません。";
+        public const string HolidayWorkOnWeekdayError = "平日に『休日出勤』を選択する事は出来ません。";
+        public const string SelectHolidayOnWeekend = "休日は『休日』もしくは『休日出勤』を選択してください。";
+        public const string InvalidAttendanceClassification = "出勤区分が不正です。";
+        public const string EnterSubstituteHolidayDate = "振替休暇予定日を入力してください。";
+        public const string CannotSelectHolidayWithClockIn = "出退勤の打刻があるため、休日を選択する事は出来ません。";
+        public const string SelectAnnualPaidLeaveOneDay = "「年次有給休暇(1日)」を選択してください。";
+        public const string SelectHalfDayWorkDueToShortHours = "実働時間が4時間以下ですので『半日勤務』を選択してください。";
+        public const string CannotUsePartTimeWork = "出勤区分『パート勤務』を使用する事は出来ません。";
+        public const string SelectNormalWork = "『通常勤務』を選択してください。";
+        public const string CannotTakePhysiologicalLeave = "生理休暇を取得することは出来ません。";
+        public const string AnnualHalfDayPaidLeaveLimit = "半日有給休暇を取得できるのは年間{0}回までです。";
+        public const string PaidLeaveInfoNotRegistered = "有給情報が登録されていません。";
+        public const string CannotTakeSubstituteHoliday = "振替休暇を取得する事は出来ません。";
+        public const string CannotTakeHalfDaySubstituteHoliday = "半日振休を取得する事は出来ません。";
+        public const string TakeSubstituteHolidayFirst = "振替休暇から先に取得してください。";
+        public const string CannotTakeHalfDayPaidLeave = "半日有給休暇を取得する事が出来ません。";
+        public const string AbsenceWithSubstituteHolidayAvailable = "『欠勤』が選択されていますが{0}が取得可能です。";
+        public const string CannotTakeAnnualPaidLeave = "有給休暇を取得する事は出来ません。";
+        public const string PlannedAnnualPaidLeaveLimit = "計画有給休暇の年間取得回数は{0}回までです。";
+        public const string PlannedSpecialLeaveLimit = "計画特別休暇の年間取得回数は{0}回までです。";
+        public const string EnterWorkPerformance = "実績を入力してください。";
+        public const string MaxFiveProjectCodes = "工番を5つ以上選択する事は出来ません。";
+        public const string SelectProjectCode = "工番を選択してください。";
+        public const string CreateProjectInfoForHolidayWork = "休日出勤の場合は工番情報を作成してください。";
+        public const string CreateProjectInfoForNormalWork = "勤務の場合は工番情報を作成してください。";
+        public const string HolidayWorkShortHoursProjectLimit = "休日出勤4時間以下の場合は工番を2つ以上選択する事はできません。";
+        public const string CannotRegisterFutureWorkPerformance = "本日より未来の勤務日報を登録する事は出来ません。";
+        public const string HalfDayWorkProjectLimit = "半日勤務時に工番を3つ以上選択する事は出来ません。";
+        public const string CannotSelectProjectDuringLeave = "休暇時に工番を選択する事は出来ません。";
+        public const string CannotConfirmSupportGroupOrder = "支援グループの受注番号では確定処理出来ません。";
+        public const string SelectedProjectCodeCannotBeUsed = "選択された工番は使用出来ません。";
+        public const string OvertimeLimitExceeded = "時間外労働時間の制限をこれ以上超過することは出来ません。";
+        public const string OvertimeLimitUnapproved = "時間外労働時間の上限を超えており、指示入力が提出されていない、または、認められていません。";
+        public const string NotWorkingCannotSelectFormat = "出勤していないため、{0}を選択することはできません。";
+        public const string PaidLeaveDataNotFoundFormat = "有給情報が登録されていません。";
+        public const string ErrorNippouAlreadyUnconfirmed = "この日報は解除されています。";
+        public const string ErrorNippouKeiriRendouzumi = "この日報は経理連動が完了しているので、確定解除出来ません。";
+        public const string ErrorCannotUnconfirmDueToLaterConfirmeData = "以降の確定日があるため確定解除出来ません。最終確定日から順に解除してください。";
+
+        // 実績入力画面：確定確認メッセージ
+        public const string ConfirmFixNippou = "確定してよろしいですか？";
+        public const string ConfirmFixCautionNippou = "（本日を過ぎると確定を解除出来なくなります）";
+        public const string ErrorOtherBusyoOrdeSelected = "他部署の受注番号が選択されています。";
+        public const string JikanHoseiForRefreshDay = "リフレッシュデーの時間外労働申請が行われていないため、勤務時間を補正します。";
+        public const string JitsudouJissekiMismatch = "勤務時間と実績の時間合計に差があります。";
     }
 }

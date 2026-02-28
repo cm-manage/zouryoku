@@ -15,11 +15,6 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
     public class InputModelTests : BaseInMemoryDbContextTest
     {
         /// <summary>
-        /// システム日付
-        /// </summary>
-        private static readonly DateOnly Today = DateTime.Now.ToDateOnly();
-
-        /// <summary>
         /// 9999/12/31
         /// </summary>
         private static readonly DateOnly MaxEndYmd = new(9999, 12, 31);
@@ -41,7 +36,9 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
 
         private InputModel CreateModel()
         {
-            var model = new InputModel(db, GetLogger<InputModel>(), options)
+            var now = new DateTime(2026, 2, 27, 10, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
+            var model = new InputModel(db, GetLogger<InputModel>(), options, viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
@@ -93,8 +90,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 Name = "既存親部署名称",
                 KanaName = "ｷｿﾞﾝｵﾔﾌﾞｼｮｶﾅ",
                 OyaCode = "333",
-                StartYmd = Today.AddDays(-1),
-                EndYmd = Today.AddDays(1),
+                StartYmd = fakeTimeProvider.Today().AddDays(-1),
+                EndYmd = fakeTimeProvider.Today().AddDays(1),
                 Jyunjyo = 1,
                 KasyoCode = "12",
                 KaikeiCode = "234",
@@ -114,8 +111,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 Name = "承認部署テスト",
                 KanaName = "",
                 OyaCode = "",
-                StartYmd = Today.AddDays(-1),
-                EndYmd = Today.AddDays(1),
+                StartYmd = fakeTimeProvider.Today().AddDays(-1),
+                EndYmd = fakeTimeProvider.Today().AddDays(1),
                 Jyunjyo = 1,
                 KasyoCode = "",
                 KaikeiCode = "",
@@ -135,8 +132,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 Name = "既存部署名称",
                 KanaName = "ｷｿﾞﾝﾌﾞｼｮｶﾀｶﾅﾒｲ",
                 OyaCode = "222",
-                StartYmd = Today.AddDays(-1),
-                EndYmd = Today.AddDays(1),
+                StartYmd = fakeTimeProvider.Today().AddDays(-1),
+                EndYmd = fakeTimeProvider.Today().AddDays(1),
                 Jyunjyo = 1,
                 KasyoCode = "44",
                 KaikeiCode = "555",
@@ -156,8 +153,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 Name = "既存部署NULL名称",
                 KanaName = "ｷｿﾞﾝﾌﾞｼｮﾇﾙｶﾀｶﾅﾒｲ",
                 OyaCode = "777",
-                StartYmd = Today.AddDays(-1),
-                EndYmd = Today.AddDays(1),
+                StartYmd = fakeTimeProvider.Today().AddDays(-1),
+                EndYmd = fakeTimeProvider.Today().AddDays(1),
                 Jyunjyo = 8,
                 KasyoCode = "99",
                 KaikeiCode = "999",
@@ -180,9 +177,9 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 BusyoCode = "",
                 SyokusyuCode = 1,
                 SyokusyuBunruiCode = 1,
-                NyuusyaYmd = Today.AddDays(-1),
-                StartYmd = Today.AddDays(-1),
-                EndYmd = Today.AddDays(1),
+                NyuusyaYmd = fakeTimeProvider.Today().AddDays(-1),
+                StartYmd = fakeTimeProvider.Today().AddDays(-1),
+                EndYmd = fakeTimeProvider.Today().AddDays(1),
                 Kyusyoku = 1,
                 SyucyoSyokui = Model.Enums.BusinessTripRole._7_8級,
                 KingsSyozoku = "",
@@ -208,9 +205,9 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 BusyoCode = "",
                 SyokusyuCode = 1,
                 SyokusyuBunruiCode = 1,
-                NyuusyaYmd = Today.AddDays(-1),
-                StartYmd = Today.AddDays(-1),
-                EndYmd = Today.AddDays(1),
+                NyuusyaYmd = fakeTimeProvider.Today().AddDays(-1),
+                StartYmd = fakeTimeProvider.Today().AddDays(-1),
+                EndYmd = fakeTimeProvider.Today().AddDays(1),
                 Kyusyoku = 1,
                 SyucyoSyokui = Model.Enums.BusinessTripRole._7_8級,
                 KingsSyozoku = "",
@@ -236,9 +233,9 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 BusyoCode = "",
                 SyokusyuCode = 1,
                 SyokusyuBunruiCode = 1,
-                NyuusyaYmd = Today.AddDays(-1),
-                StartYmd = Today.AddDays(1),
-                EndYmd = Today.AddDays(1),
+                NyuusyaYmd = fakeTimeProvider.Today().AddDays(-1),
+                StartYmd = fakeTimeProvider.Today().AddDays(1),
+                EndYmd = fakeTimeProvider.Today().AddDays(1),
                 Kyusyoku = 1,
                 SyucyoSyokui = Model.Enums.BusinessTripRole._7_8級,
                 KingsSyozoku = "",
@@ -264,9 +261,9 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 BusyoCode = "",
                 SyokusyuCode = 1,
                 SyokusyuBunruiCode = 1,
-                NyuusyaYmd = Today.AddDays(-1),
-                StartYmd = Today.AddDays(-1),
-                EndYmd = Today.AddDays(-1),
+                NyuusyaYmd = fakeTimeProvider.Today().AddDays(-1),
+                StartYmd = fakeTimeProvider.Today().AddDays(-1),
+                EndYmd = fakeTimeProvider.Today().AddDays(-1),
                 Kyusyoku = 1,
                 SyucyoSyokui = Model.Enums.BusinessTripRole._7_8級,
                 KingsSyozoku = "",
@@ -322,8 +319,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 OyaId = overrideOya?.Id ?? (nullifyOptionals ? null : existing.OyaId),
                 OyaCode = overrideOya?.Code ?? existing.OyaCode,
                 OyaName = nullifyOptionals ? null : (overrideOya?.Name ?? existing.Oya?.Name),
-                ApplyDate = applyDate ?? Today,
-                StartYmd = Today,
+                ApplyDate = applyDate ?? fakeTimeProvider.Today(),
+                StartYmd = fakeTimeProvider.Today(),
                 EndYmd = MaxEndYmd,
                 KasyoCode = "88",
                 KaikeiCode = "99",
@@ -357,8 +354,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 OyaId = 2,
                 OyaCode = "222",
                 OyaName = "既存親部署名称",
-                ApplyDate = Today,
-                StartYmd = Today,
+                ApplyDate = fakeTimeProvider.Today(),
+                StartYmd = fakeTimeProvider.Today(),
                 EndYmd = MaxEndYmd,
                 KasyoCode = "44",
                 KaikeiCode = "555",
@@ -387,8 +384,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             await model.OnGetAsync(null);
 
             // Assert
-            Assert.AreEqual(Today, model.Input.ApplyDate, "適用開始日の初期値が違います。");
-            Assert.AreEqual(Today, model.Input.StartYmd, "有効開始日の初期値が違います。");
+            Assert.AreEqual(fakeTimeProvider.Today(), model.Input.ApplyDate, "適用開始日の初期値が違います。");
+            Assert.AreEqual(fakeTimeProvider.Today(), model.Input.StartYmd, "有効開始日の初期値が違います。");
             Assert.AreEqual(MaxEndYmd, model.Input.EndYmd, "有効終了日の初期値が違います。");
         }
 
@@ -399,10 +396,10 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnGetAsync_編集モード_NULL項目なし_初期値が正しく表示される()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // Act
             await model.OnGetAsync(1);
@@ -417,9 +414,9 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             Assert.AreEqual("既存親部署名称", model.Input.OyaName, "親部署名称の初期値が違います。");
             Assert.AreEqual(2, model.Input.OyaId, "親IDの初期値が違います。");
             Assert.AreEqual("222", model.Input.OyaCode, "親部署番号の初期値が違います。");
-            Assert.AreEqual(Today, model.Input.ApplyDate, "適用開始日の初期値が違います。");
-            Assert.AreEqual(Today.AddDays(-1), model.Input.StartYmd, "有効開始日の初期値が違います。");
-            Assert.AreEqual(Today.AddDays(1), model.Input.EndYmd, "有効終了日の初期値が違います。");
+            Assert.AreEqual(fakeTimeProvider.Today(), model.Input.ApplyDate, "適用開始日の初期値が違います。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(-1), model.Input.StartYmd, "有効開始日の初期値が違います。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), model.Input.EndYmd, "有効終了日の初期値が違います。");
             Assert.AreEqual("44", model.Input.KasyoCode, "箇所コードの初期値が違います。");
             Assert.AreEqual("555", model.Input.KaikeiCode, "会計コードの初期値が違います。");
             Assert.AreEqual("66", model.Input.KeiriCode, "経理コードの初期値が違います。");
@@ -437,10 +434,10 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnGetAsync_編集モード_NULL項目あり_初期値が正しく表示される()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // Act
             await model.OnGetAsync(4);
@@ -455,9 +452,9 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             Assert.IsNull(model.Input.OyaName, "親部署名称の初期値が違います。");
             Assert.IsNull(model.Input.OyaId, "親IDの初期値が違います。");
             Assert.AreEqual("777", model.Input.OyaCode, "親部署番号の初期値が違います。");
-            Assert.AreEqual(Today, model.Input.ApplyDate, "適用開始日の初期値が違います。");
-            Assert.AreEqual(Today.AddDays(-1), model.Input.StartYmd, "有効開始日の初期値が違います。");
-            Assert.AreEqual(Today.AddDays(1), model.Input.EndYmd, "有効終了日の初期値が違います。");
+            Assert.AreEqual(fakeTimeProvider.Today(), model.Input.ApplyDate, "適用開始日の初期値が違います。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(-1), model.Input.StartYmd, "有効開始日の初期値が違います。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), model.Input.EndYmd, "有効終了日の初期値が違います。");
             Assert.AreEqual("99", model.Input.KasyoCode, "箇所コードの初期値が違います。");
             Assert.AreEqual("999", model.Input.KaikeiCode, "会計コードの初期値が違います。");
             Assert.IsNull(model.Input.KeiriCode, "経理コードの初期値が違います。");
@@ -615,10 +612,10 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_新規作成モード_部署番号重複_エラー()
         {
             // Arrange
+            var model = CreateScreenConditions();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateScreenConditions();
 
             // Act
             await model.OnPostRegisterAsync();
@@ -701,8 +698,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
                 OyaId = null,
                 OyaCode = "222",
                 OyaName = null,
-                ApplyDate = Today,
-                StartYmd = Today,
+                ApplyDate = fakeTimeProvider.Today(),
+                StartYmd = fakeTimeProvider.Today(),
                 EndYmd = MaxEndYmd,
                 KasyoCode = "44",
                 KaikeiCode = "555",
@@ -761,15 +758,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_履歴対象項目変更なし_NULL項目なし_部署BASEマスタと部署マスタへ単純更新UPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today
+                applyDate: fakeTimeProvider.Today()
             );
 
             // Act
@@ -786,15 +783,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_履歴対象項目変更なし_NULL項目あり_部署BASEマスタと部署マスタへ単純更新UPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today,
+                applyDate: fakeTimeProvider.Today(),
                 nullifyOptionals: true
             );
 
@@ -812,15 +809,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_部署名称変更あり_適用開始日有効開始日が同日_NULL項目なし_部署BASEマスタと部署マスタへ単純更新UPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today,
+                applyDate: fakeTimeProvider.Today(),
                 nullifyOptionals: false,
                 overrideName: "更新後部署名称"
             );
@@ -839,15 +836,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_部署名称変更あり_適用開始日有効開始日が同日_NULL項目あり_部署BASEマスタと部署マスタへ単純更新UPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today,
+                applyDate: fakeTimeProvider.Today(),
                 nullifyOptionals: true,
                 overrideName: "更新後部署名称"
             );
@@ -866,15 +863,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_部署名称変更あり_適用開始日より有効開始日が後ろ_エラー()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today.AddDays(-1),
+                applyDate: fakeTimeProvider.Today().AddDays(-1),
                 nullifyOptionals: false,
                 overrideName: "更新後部署名称"
             );
@@ -900,15 +897,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_部署名称変更あり_有効開始日より適用開始日が後ろ_NULL項目なし_履歴ありUPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today.AddDays(1),
+                applyDate: fakeTimeProvider.Today().AddDays(1),
                 nullifyOptionals: false,
                 overrideName: "更新後部署名称"
             );
@@ -927,15 +924,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_部署名称変更あり_有効開始日より適用開始日が後ろ_NULL項目あり_履歴ありUPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today.AddDays(1),
+                applyDate: fakeTimeProvider.Today().AddDays(1),
                 nullifyOptionals: true,
                 overrideName: "更新後部署名称"
              );
@@ -954,10 +951,10 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_親部署変更あり_適用開始日有効開始日が同日_NULL項目なし_部署BASEマスタと部署マスタへ単純更新UPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             var oya = new Busyo
             {
@@ -969,7 +966,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today,
+                applyDate: fakeTimeProvider.Today(),
                 nullifyOptionals: false,
                 overrideOya: oya
             );
@@ -988,10 +985,10 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_親部署変更あり_適用開始日有効開始日が同日_NULL項目あり_部署BASEマスタと部署マスタへ単純更新UPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             var oya = new Busyo
             {
@@ -1003,7 +1000,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today,
+                applyDate: fakeTimeProvider.Today(),
                 nullifyOptionals: true,
                 overrideOya: oya
             );
@@ -1022,10 +1019,10 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_親部署変更あり_適用開始日より有効開始日が後ろ_エラー()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             var oya = new Busyo
             {
@@ -1037,7 +1034,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today.AddDays(-1),
+                applyDate: fakeTimeProvider.Today().AddDays(-1),
                 nullifyOptionals: true,
                 overrideOya: oya
             );
@@ -1063,10 +1060,10 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_親部署変更あり_有効開始日より適用開始日が後ろ_NULL項目なし_履歴ありUPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             var oya = new Busyo
             {
@@ -1078,7 +1075,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today.AddDays(1),
+                applyDate: fakeTimeProvider.Today().AddDays(1),
                 nullifyOptionals: false,
                 overrideOya: oya
              );
@@ -1097,10 +1094,10 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_親部署変更あり_有効開始日より適用開始日が後ろ_NULL項目あり_履歴ありUPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             var oya = new Busyo
             {
@@ -1112,7 +1109,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today.AddDays(1),
+                applyDate: fakeTimeProvider.Today().AddDays(1),
                 nullifyOptionals: true,
                 overrideOya: oya
             );
@@ -1131,15 +1128,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_アクティブフラグ変更あり_適用開始日有効開始日が同日_NULL項目なし_部署BASEマスタと部署マスタへ単純更新UPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today,
+                applyDate: fakeTimeProvider.Today(),
                 nullifyOptionals: false,
                 overrideIsActive: false
             );
@@ -1158,15 +1155,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_アクティブフラグ変更あり_適用開始日有効開始日が同日_NULL項目あり_部署BASEマスタと部署マスタへ単純更新UPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today,
+                applyDate: fakeTimeProvider.Today(),
                 nullifyOptionals: true,
                 overrideIsActive: false
             );
@@ -1185,15 +1182,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_アクティブフラグ変更あり_適用開始日より有効開始日が後ろ_エラー()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today.AddDays(-1),
+                applyDate: fakeTimeProvider.Today().AddDays(-1),
                 nullifyOptionals: false,
                 overrideIsActive: false
              );
@@ -1219,15 +1216,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_アクティブフラグ変更あり_有効開始日より適用開始日が後ろ_NULL項目なし_履歴ありUPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today.AddDays(1),
+                applyDate: fakeTimeProvider.Today().AddDays(1),
                 nullifyOptionals: false,
                 overrideIsActive: false
             );
@@ -1246,15 +1243,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_編集モード_アクティブフラグ変更あり_有効開始日より適用開始日が後ろ_NULL項目あり_履歴ありUPDATE()
         {
             // Arrange
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // ViewModel 構築
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today.AddDays(1),
+                applyDate: fakeTimeProvider.Today().AddDays(1),
                 nullifyOptionals: true,
                 overrideIsActive: false
             );
@@ -1271,16 +1268,15 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
         public async Task OnPostRegisterAsync_楽観的同時実行制御エラーが発生した場合_更新されない()
         {
             // Arrange
-            // 初期データ投入
+            var model = CreateModel();
+
             SeedEntities();
             await db.SaveChangesAsync();
-
-            var model = CreateModel();
 
             // 画面入力（編集モード）を作成
             model.Input = BuildEditInput(
                 targetBusyoId: 1,
-                applyDate: Today,
+                applyDate: fakeTimeProvider.Today(),
                 nullifyOptionals: false
             );
 
@@ -1361,8 +1357,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             Assert.AreEqual("既存親部署名称", oyaBusyo.Name, "更新対象でないレコードの部署.名前が変更されています。");
             Assert.AreEqual("ｷｿﾞﾝｵﾔﾌﾞｼｮｶﾅ", oyaBusyo.KanaName, "更新対象でないレコードの部署.部署名称カナが変更されています。");
             Assert.AreEqual("333", oyaBusyo.OyaCode, "更新対象でないレコードの部署.親部署番号が変更されています。");
-            Assert.AreEqual(Today.AddDays(-1), oyaBusyo.StartYmd, "更新対象でないレコードの部署.有効開始日が変更されています。");
-            Assert.AreEqual(Today.AddDays(1), oyaBusyo.EndYmd, "更新対象でないレコードの部署.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(-1), oyaBusyo.StartYmd, "更新対象でないレコードの部署.有効開始日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), oyaBusyo.EndYmd, "更新対象でないレコードの部署.有効終了日が変更されています。");
             Assert.AreEqual("12", oyaBusyo.KasyoCode, "更新対象でないレコードの部署.箇所コードが変更されています。");
             Assert.AreEqual("234", oyaBusyo.KaikeiCode, "更新対象でないレコードの部署.会計コードが変更されています。");
             Assert.AreEqual("45", oyaBusyo.KeiriCode, "更新対象でないレコードの部署.経理コードが変更されています。");
@@ -1423,8 +1419,8 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             Assert.AreEqual("既存親部署名称", oyaBusyo.Name, "更新対象でないレコードの部署.名前が変更されています。");
             Assert.AreEqual("ｷｿﾞﾝｵﾔﾌﾞｼｮｶﾅ", oyaBusyo.KanaName, "更新対象でないレコードの部署.部署名称カナが変更されています。");
             Assert.AreEqual("333", oyaBusyo.OyaCode, "更新対象でないレコードの部署.親部署番号が変更されています。");
-            Assert.AreEqual(Today.AddDays(-1), oyaBusyo.StartYmd, "更新対象でないレコードの部署.有効開始日が変更されています。");
-            Assert.AreEqual(Today.AddDays(1), oyaBusyo.EndYmd, "更新対象でないレコードの部署.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(-1), oyaBusyo.StartYmd, "更新対象でないレコードの部署.有効開始日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), oyaBusyo.EndYmd, "更新対象でないレコードの部署.有効終了日が変更されています。");
             Assert.AreEqual("12", oyaBusyo.KasyoCode, "更新対象でないレコードの部署.箇所コードが変更されています。");
             Assert.AreEqual("234", oyaBusyo.KaikeiCode, "更新対象でないレコードの部署.会計コードが変更されています。");
             Assert.AreEqual("45", oyaBusyo.KeiriCode, "更新対象でないレコードの部署.経理コードが変更されています。");
@@ -1471,7 +1467,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
 
             // 他のレコードの確認
             var oyaBusyo = await db.Busyos.FirstAsync(x => x.Id == 2);
-            Assert.AreEqual(Today.AddDays(1), oyaBusyo.EndYmd, "更新対象でないレコードの部署.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), oyaBusyo.EndYmd, "更新対象でないレコードの部署.有効終了日が変更されています。");
             Assert.IsTrue(oyaBusyo.IsActive, "更新対象でないレコードの部署.アクティブフラグが変更されています。");
 
             // 登録内容の確認
@@ -1503,11 +1499,11 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
 
             // 他のレコードの確認
             var syainNotBusyo = await db.Syains.FirstAsync(x => x.Id == 2);
-            Assert.AreEqual(Today.AddDays(1), syainNotBusyo.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), syainNotBusyo.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
             var syainBeforeStart = await db.Syains.FirstAsync(x => x.Id == 3);
-            Assert.AreEqual(Today.AddDays(1), syainBeforeStart.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), syainBeforeStart.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
             var syainAfterEnd = await db.Syains.FirstAsync(x => x.Id == 4);
-            Assert.AreEqual(Today.AddDays(-1), syainAfterEnd.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(-1), syainAfterEnd.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
 
             // 登録内容の確認
             var insertSyain = await db.Syains.OrderByDescending(x => x.Id).FirstAsync();
@@ -1576,7 +1572,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
 
             // 他のレコードの確認
             var oyaBusyo = await db.Busyos.FirstAsync(x => x.Id == 2);
-            Assert.AreEqual(Today.AddDays(1), oyaBusyo.EndYmd, "更新対象でないレコードの部署.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), oyaBusyo.EndYmd, "更新対象でないレコードの部署.有効終了日が変更されています。");
             Assert.IsTrue(oyaBusyo.IsActive, "更新対象でないレコードの部署.アクティブフラグが変更されています。");
 
             // 登録内容の確認
@@ -1608,11 +1604,11 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
 
             // 他のレコードの確認
             var syainNotBusyo = await db.Syains.FirstAsync(x => x.Id == 2);
-            Assert.AreEqual(Today.AddDays(1), syainNotBusyo.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), syainNotBusyo.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
             var syainBeforeStart = await db.Syains.FirstAsync(x => x.Id == 3);
-            Assert.AreEqual(Today.AddDays(1), syainBeforeStart.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(1), syainBeforeStart.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
             var syainAfterEnd = await db.Syains.FirstAsync(x => x.Id == 4);
-            Assert.AreEqual(Today.AddDays(-1), syainAfterEnd.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
+            Assert.AreEqual(fakeTimeProvider.Today().AddDays(-1), syainAfterEnd.EndYmd, "更新対象でないレコードの社員マスタ.有効終了日が変更されています。");
 
             // 登録内容の確認
             var insertSyain = await db.Syains.OrderByDescending(x => x.Id).FirstAsync();

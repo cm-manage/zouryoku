@@ -72,15 +72,16 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
                 Days = [],
             };
 
-            public string DisplayHours(decimal? hours)
+            public string DisplayHours(decimal? minutes)
             {
-                if (hours is not null) return TimeSpan.FromHours((double)hours).ToString(@"hh\:mm");
-                else return "";
+                if (minutes is null || minutes == 0) return "";
+                else return TimeSpan.FromMinutes((double)minutes).ToString(@"hh\:mm");
             }
 
             public string DisplayHours(TimeOnly? hours)
             {
-                return hours?.ToString(@"HH\:mm") ?? "";
+                if (hours is null || hours == TimeOnly.MinValue) return "";
+                else return hours.Value.ToString(@"HH\:mm");
             }
         }
 

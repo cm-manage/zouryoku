@@ -1,5 +1,6 @@
 using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Model.Data;
@@ -19,8 +20,9 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
     [FunctionAuthorizationAttribute]
     public class InputModel : BasePageModel<InputModel>
     {
-        public InputModel(ZouContext db, ILogger<InputModel> logger, IOptions<AppConfig> options)
-            : base(db, logger, options) { }
+        public InputModel(ZouContext db, ILogger<InputModel> logger,
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider timeProvider)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets { get; } = true;
 
@@ -31,13 +33,10 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
         public BusyoViewModel Input { get; set; } = new();
 
         /// <summary>
-        /// システム日付
-        /// </summary>
-        private static readonly DateOnly Today = DateTime.Now.ToDateOnly();
-
-        /// <summary>
         /// 9999/12/31
         /// </summary>
+        // レビュー指摘　入力可能な日付の範囲は、2001/01/01～2099/12/31 と依頼済み
+        // NOTE: 入力不可の表示項目で、9999/12/31が仕様
         private static readonly DateOnly MaxEndYmd = new(9999, 12, 31);
 
         /// <summary>
@@ -54,8 +53,8 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
                 Input = new BusyoViewModel
                 {
                     IsCreate = true,
-                    ApplyDate = Today,
-                    StartYmd = Today,
+                    ApplyDate = timeProvider.Today(),
+                    StartYmd = timeProvider.Today(),
                     EndYmd = MaxEndYmd,
                 };
             }
@@ -72,7 +71,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
                 }
 
                 // Viewモデルに変換
-                Input = BusyoViewModel.FromEntity(busyo);
+                Input = BusyoViewModel.FromEntity(busyo, timeProvider.Today());
             }
 
             return Page();
@@ -102,7 +101,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
             if (Input.IsCreate)
             {
                 // 新規作成モード
-                HandleCreate();
+                await HandleCreateAsync();
             }
             else
             {
@@ -175,13 +174,13 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
         /// <summary>
         /// 新規作成処理
         /// </summary>
-        private void HandleCreate()
+        private async Task HandleCreateAsync()
         {
             // 部署BASEマスタINSERT
-            var busyoBase = InsertBusyoBase();
+            var busyoBase = await InsertBusyoBaseAsync();
 
             // 部署マスタINSERT
-            InsertBusyo(busyoBase);
+            await InsertBusyoAsync(busyoBase);
         }
 
         /// <summary>
@@ -241,7 +240,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
         /// 部署BASEマスタINSERT
         /// </summary>
         /// <returns>新規登録した部署BASEマスタ</returns>
-        private BusyoBasis InsertBusyoBase()
+        private async Task<BusyoBasis> InsertBusyoBaseAsync()
         {
             // 部署BASEマスタINSERT
             var busyoBase = new BusyoBasis
@@ -251,7 +250,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
                 BumoncyoId = Input.BumoncyoId
             };
 
-            db.BusyoBases.Add(busyoBase);
+            await db.BusyoBases.AddAsync(busyoBase);
 
             return busyoBase;
         }
@@ -272,7 +271,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
         /// 部署マスタINSERT
         /// </summary>
         /// <param name="busyoBase">部署BASEマスタ</param>
-        private Busyo InsertBusyo(BusyoBasis busyoBase)
+        private async Task<Busyo> InsertBusyoAsync(BusyoBasis busyoBase)
         {
             var busyo = new Busyo()
             {
@@ -294,7 +293,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
                 ShoninBusyoId = Input.ShoninBusyoId,
             };
 
-            db.Busyos.Add(busyo);
+            await db.Busyos.AddAsync(busyo);
 
             return busyo;
         }
@@ -337,13 +336,13 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
             DisableOldBusyo(oldBusyo);
 
             // 部署マスタINSERT
-            var newBusyo = InsertBusyo(baseEntity);
+            var newBusyo = await InsertBusyoAsync(baseEntity);
 
             // 部署に所属する社員を取得
             var syains = await GetTargetSyainsAsync(oldBusyo.Id);
 
             // 社員マスタUPDATE(無効化)＋INSERT(新規登録)
-            UpdateSyainWithRireki(syains, newBusyo);
+            await UpdateSyainWithRireki(syains, newBusyo);
         }
 
         /// <summary>
@@ -363,13 +362,13 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
         /// </summary>
         /// <param name="syains">対象の社員マスタリスト</param>
         /// <param name="newBusyo">新規登録する部署マスタ</param>
-        private void UpdateSyainWithRireki(List<Syain> syains, Busyo newBusyo)
+        private async Task UpdateSyainWithRireki(List<Syain> syains, Busyo newBusyo)
         {
             // 社員マスタUPDATE(無効化)
             ApplySyainsToDisable(syains);
 
             // 社員マスタINSERT(新規登録) - 一括登録
-            InsertSyains(syains, newBusyo);
+            await InsertSyainsAsync(syains, newBusyo);
         }
 
         /// <summary>
@@ -388,10 +387,10 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
         /// </summary>
         /// <param name="syains">新規登録の元になる社員マスタリスト</param>
         /// <param name="newBusyo">新規登録する部署マスタ</param>
-        private void InsertSyains(List<Syain> syains, Busyo newBusyo)
+        private async Task InsertSyainsAsync(List<Syain> syains, Busyo newBusyo)
         {
             var newSyains = syains.Select(s => CreateNewSyain(s, newBusyo)).ToList();
-            db.Syains.AddRange(newSyains);
+            await db.Syains.AddRangeAsync(newSyains);
         }
 
         /// <summary>
@@ -495,8 +494,8 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
         private async Task<List<Syain>> GetTargetSyainsAsync(long busyoId) =>
             await db.Syains
                 .Where(s => s.BusyoId == busyoId &&
-                            s.StartYmd <= Today &&
-                            Today <= s.EndYmd)
+                            s.StartYmd <= timeProvider.Today() &&
+                            timeProvider.Today() <= s.EndYmd)
                 .ToListAsync();
 
         /// <summary>
@@ -611,8 +610,9 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
             /// エンティティからViewモデルを作成する
             /// </summary>
             /// <param name="busyo">部署エンティティ</param>
+            /// <param name="today">システム日付</param>
             /// <returns>部署Viewモデル</returns>
-            public static BusyoViewModel FromEntity(Busyo busyo)
+            public static BusyoViewModel FromEntity(Busyo busyo, DateOnly today)
             {
                 return new BusyoViewModel
                 {
@@ -626,7 +626,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
                     OyaName = busyo.Oya?.Name,
                     OyaId = busyo.OyaId,
                     OyaCode = busyo.OyaCode,
-                    ApplyDate = Today,
+                    ApplyDate = today,
                     StartYmd = busyo.StartYmd,
                     EndYmd = busyo.EndYmd,
                     KasyoCode = busyo.KasyoCode,

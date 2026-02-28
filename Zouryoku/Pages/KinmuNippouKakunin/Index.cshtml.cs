@@ -28,14 +28,11 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
         // ---------------------------------------------
         // 2. DI（サービス、DB、ロガーなど）
         // ---------------------------------------------
-        private readonly TimeProvider _timeProvider;
-
         public IndexModel(
             ZouContext context, ILogger<IndexModel> logger, IOptions<AppConfig> options, ICompositeViewEngine viewEngine,
             TimeProvider timeProvider)
-            : base(context, logger, options, viewEngine)
+            : base(context, logger, options, viewEngine, timeProvider)
         {
-            _timeProvider = timeProvider;
         }
 
         // ---------------------------------------------
@@ -63,7 +60,7 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
         /// </summary>
         public async Task<IActionResult> OnGetAsync()
         {
-            var targetYm = _timeProvider.Now().ToDateOnly();
+            var targetYm = timeProvider.Now().ToDateOnly();
             var targetSyain = LoginInfo.User;
             TargetDaysQuery = new DaysQuery
             {
@@ -72,13 +69,7 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
             };
 
             var (daysViewModel, errorMessage) = await CreateDaysViewModelAsync(targetYm, targetSyain);
-            if (daysViewModel is null)
-            {
-                // エラーメッセージを空画面の上部に表示する。
-                ModelState.AddModelError("", errorMessage);
-                TargetDaysViewModel = DaysViewModel.Empty;
-                return Page();
-            }
+            if (daysViewModel is null) return RedirectToPage("/ErrorMessage", new { errorMessage });
 
             TargetDaysViewModel = daysViewModel;
             return Page();
@@ -99,7 +90,7 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
         /// </param>
         public async Task<IActionResult> OnGetSearchAsync(DaysQuery targetDaysQuery)
         {
-            var targetYm = targetDaysQuery.TargetYm ?? _timeProvider.Now().ToDateOnly();
+            var targetYm = targetDaysQuery.TargetYm ?? timeProvider.Now().ToDateOnly();
 
             // 全社員を指定可能
             var targetSyain = await GetTargetSyainAsync(targetDaysQuery.TargetSyainId);

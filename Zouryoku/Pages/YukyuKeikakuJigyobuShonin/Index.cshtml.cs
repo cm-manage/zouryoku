@@ -75,7 +75,7 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
             // ログインユーザの権限情報を取得
             var allBusyos = await GetAllBusyosWithRelationsAsync();
             if (!TryGetBumoncyoBusyoId(LoginInfo.User.BusyoId, allBusyos, out var bumoncyoBusyoId))
-                return CommonErrorResponseWithMessage(ErrorReadBusyo);
+                return RedirectToPage("/ErrorMessage", new { errorMessage = ErrorReadBusyo });
 
             var loginUserAuthority = GetLoginUserAuthority(allBusyos[bumoncyoBusyoId]);
 

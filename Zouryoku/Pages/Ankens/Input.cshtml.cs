@@ -44,7 +44,7 @@ namespace Zouryoku.Pages.Ankens
         /// <summary>
         /// 本日の日付
         /// </summary>
-        private DateOnly Today => DateTime.Today.ToDateOnly();
+        private DateOnly Today => timeProvider.Today();
 
         // ---------------------------------------------
         // BindProperty（フォームバインド用）

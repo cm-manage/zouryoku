@@ -2,8 +2,8 @@ using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.JuchuJohoHyoji;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
+using static Model.Enums.BusinessTripRole;
+using static Model.Enums.EmployeeAuthority;
 
 namespace ZouryokuTest.Pages.JuchuJohoHyoji
 {
@@ -49,20 +49,40 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         protected IndexModel SetLoggedInUser(IndexModel model)
         {
             // ログインユーザーの社員情報を追加
-            var empBase = new SyainBasisBuilder()
-                .WithId(LoggedInUserId)
-                .WithCode(LoggedInUserCode)
-                .WithName(LoggedInUserName)
-                .Build();
+            var empBase = new SyainBasis()
+            {
+                Id = LoggedInUserId,
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+            };
             db.SyainBases.Add(empBase);
 
-            var emp = new SyainBuilder()
-                .WithId(LoggedInUserId)
-                .WithCode(LoggedInUserCode)
-                .WithSyainBaseId(LoggedInUserId)
-                .WithName(LoggedInUserName)
-                .WithKanaName(LoggedInUserName)
-                .Build();
+            var emp = new Syain()
+            {
+                Id = LoggedInUserId,
+                Code = LoggedInUserCode,
+                Name = LoggedInUserName,
+                KanaName = LoggedInUserName,
+                Seibetsu = '1',
+                BusyoCode = "100",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = new DateOnly(2020, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Kyusyoku = 1,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = false,
+                Kengen = None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = LoggedInUserId,
+                BusyoId = 1,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            };
             db.Syains.Add(emp);
 
             // LoginInfoを作成
@@ -98,31 +118,10 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         }
 
         /// <summary>
-        /// シード: 受注情報作成
-        /// </summary>
-        protected static KingsJuchu CreateKingsJuchu(long id)
-        {
-            return new KingsJuchuBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: 部署情報作成
-        /// </summary>
-        protected static Busyo CreateBusyo(long id)
-        {
-            return new BusyoBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
         /// 参照時間が指定範囲内であることを確認する
         /// </summary>
         /// <param name="juchuSansyouRireki">確認対象の受注参照履歴</param>
-        /// <param name="beforeUpdateTime">更新前の時間</param>
-        /// <param name="afterUpdateTime">更新後の時間</param>
+        /// <param name="now">現在の日時</param>
         protected static void AssertSansyouTime(
             KingsJuchuSansyouRireki juchuSansyouRireki,
             DateTime now)
@@ -138,6 +137,7 @@ namespace ZouryokuTest.Pages.JuchuJohoHyoji
         /// 更新対象外の受注参照履歴.参照時間が更新されていないことを確認する
         /// </summary>
         /// <param name="juchuSansyouRirekis">確認対象の受注参照履歴リスト</param>
+        /// <param name="now">現在の日時</param>
         protected static void AssertOtherRirekiNotUpdated(List<KingsJuchuSansyouRireki> juchuSansyouRirekis, DateTime now)
         {
             foreach (var other in juchuSansyouRirekis)

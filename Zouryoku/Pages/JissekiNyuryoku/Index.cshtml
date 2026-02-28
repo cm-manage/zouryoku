@@ -2,143 +2,96 @@
 @using CommonLibrary.Extensions
 @using CommonLibrary.Utils
 @using Zouryoku.Pages.Shared.Components
-@using static Zouryoku.Pages.JissekiNyuryoku.IndexModel
+@using ZouryokuCommonLibrary.Utils
+
 @model Zouryoku.Pages.JissekiNyuryoku.IndexModel
+
 @{
     Layout = "_Layout";
     ViewData["Title"] = "実績入力";
-    ViewData["TitleIcon"] = "fa-solid fa-list-check";
-
-    var DisableInput = ViewData["DisableAllInput"];
 }
-<link type="text/css" rel="stylesheet" href="~/assets/modules/iziModal/css/iziModal.css" asp-append-version="true" />
+
 <partial name="_ZouryokuHeader" model="Model" />
-
-<style>
-    .header-notification {
-        background-color: #ffe6e6;
-    }
-
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 5px;
-    }
-
-    .input-width-custom {
-        width: 100%;
-    }
-
-    .th-kinmujikan {
-        width: 11rem;
-    }
-
-    .th-shuttaikin {
-        width: 12rem;
-    }
-
-    .th-kinmu,
-    .th-jisseki {
-        width: 7rem;
-    }
-
-    .fixed-height {
-        height: 120px;
-        min-height: 120px;
-        max-height: 120px;
-    }
-
-    @@media (min-width: 992px) {
-        .input-width-custom {
-            width: 17rem;
-        }
-
-        .work-category-input {
-            width: 50%;
-            height: 100%;
-        }
-
-        .table-width-lg {
-            width: 95%;
-        }
-    }
-
-    @@media (max-width: 991.98px) {
-        .label-sm-fixed {
-            width: 17rem;
-        }
-    }
-</style>
 
 <div class="container-fluid mt-2">
 
     <form method="post" id="jisseki-form">
         @Html.AntiForgeryToken()
 
+        <input type="hidden" asp-for="NippouInput.SyainBaseId" />
+        <input type="hidden" asp-for="NippouInput.JissekiDate" />
+        <input type="hidden" asp-for="NippouInput.IsDairiInput" />
+        <input type="hidden" asp-for="NippouInput.Id" />
+        <input type="hidden" asp-for="NippouInput.SyukkinHm1" />
+        <input type="hidden" asp-for="NippouInput.TaisyutsuHm1" />
+        <input type="hidden" asp-for="NippouInput.SyukkinHm2" />
+        <input type="hidden" asp-for="NippouInput.TaisyutsuHm2" />
+        <input type="hidden" asp-for="NippouInput.SyukkinHm3" />
+        <input type="hidden" asp-for="NippouInput.TaisyutsuHm3" />
+        <input type="hidden" asp-for="NippouInput.JitsudouTime" />
+        <input type="hidden" asp-for="NippouInput.YakanTime" />
+        <input type="hidden" asp-for="NippouInput.ShinyaTime" />
+        <input type="hidden" asp-for="NippouInput.YakanShinyaTime" />
+        <input type="hidden" asp-for="NippouInput.TotalJissekiJikan" />
+        <input type="hidden" asp-for="NippouInput.Total3MonthZangyoTotal" />
+        <input type="hidden" asp-for="NippouInput.RuisekiJikangai" />
+        <input type="hidden" asp-for="NippouInput.Version" />
+
         <div class="d-flex justify-content-between">
-           
+
             @* 勤務表画面へ遷移
             勤務日報時間修正画面へ遷移 *@
             <a class="btn btn-secondary"
                href="javascript:history.back()">
-               <i class="fa-solid fa-arrow-left"></i>
+                <i class="fa-solid fa-arrow-left"></i>
                 戻る
             </a>
             <div>
-                @if (Model.TemporarySaveButton)
+                @if (Model.NippouInput.IsIchijiHozonButtonVisible)
                 {
-                    <button type="submit" class="btn btn-secondary btn-temporary-save">
+                    <button data-js="btn-temporary-save" class="btn btn-secondary">
                         <i class="fa-light fa-file-pen"></i>
                         一時保存
                     </button>
                 }
 
-                @if (Model.ConfirmButton)
+                @if (Model.NippouInput.IsKakuteiButtonVisible)
                 {
-                    <button class="btn btn-primary btn-final-save">
+                    <button data-js="btn-confirm" class="btn btn-primary">
                         <i class="fa-solid fa-circle-check "></i>
-                        確定</button>
+                        確定
+                    </button>
                 }
-                
-                @if (Model.UnconfirmButton)
+
+                @if (Model.NippouInput.IsKakuteiKaijoButtonVisible)
                 {
-                    <button class="btn btn-danger btn-cancel-confirm" >確定解除</button>
+                    <button data-js="btn-cancel-confirm" class="btn btn-danger ">
+                        確定解除
+                    </button>
                 }
-                
+
             </div>
         </div>
 
-
         <p class="mt-2 mb-3 fs-7">
-            @Model.JissekiDate.YMDJp() (@Model.JissekiDate.DayOfWeek.ToJpShortString())
+            @Model.NippouInput.JissekiDate.YMDJp() (@Model.NippouInput.JissekiDate.DayOfWeek.ToJpShortString())
         </p>
 
-        @if (!string.IsNullOrEmpty(Model.MessageString))
+        @if (!string.IsNullOrEmpty(Model.NippouInput.MessageString))
         {
             <div class="app-alert__warn mb-3 py-2 px-2 rounded">
-                @Html.DisplayFor(m => m.MessageString)
+                @Html.DisplayFor(m => m.NippouInput.MessageString)
             </div>
         }
 
         <div class="d-flex flex-column flex-lg-row gap-2 gap-lg-5 ">
             @* 勤務時間テーブル *@
             <div class="col-lg-4">
-                <input asp-for="NippouData.SyukkinHm1" class="visually-hidden" />
-                <input asp-for="NippouData.TaisyutsuHm1" class="visually-hidden" />
-                <input asp-for="NippouData.TotalWorkingHoursInMinute" class="visually-hidden" />
-                <input asp-for="NippouData.TotalJissekiJikan" id="totalJissekiJikan" class="visually-hidden" />
-                <input asp-for="NippouData.SyukkinHm2" class="visually-hidden" />
-                <input asp-for="NippouData.TaisyutsuHm2" class="visually-hidden" />
-                <input asp-for="NippouData.SyukkinHm3" class="visually-hidden" />
-                <input asp-for="NippouData.TaisyutsuHm3" class="visually-hidden" />
-
                 <h3 class="mb-1  ">
                     勤務時間
                 </h3>
                 <div class="table-responsive table-width-lg">
                     <table class="table table-bordered mb-0 table-sm">
-                
                         <thead class="table-primary text-center">
                             <tr>
                                 <th class="th-kinmujikan"></th>
@@ -147,27 +100,29 @@
                                 <th class="th-jisseki">実績時間</th>
                             </tr>
                         </thead>
-                        <tbody>             
+                        <tbody>
                             <tr class="text-center">
-                                 <th rowspan="3" class="table-primary text-center align-middle border-1">勤務時間</th>
+                                <th rowspan="3" class="table-primary text-center align-middle border-1">勤務時間</th>
                                 <td id="syuttaikin1">
-                                    @Html.DisplayFor(m => m.NippouData.Syuttaikin1)
+                                    @Html.DisplayFor(m => m.NippouInput.Syuttaikin1)
                                 </td>
-                                <td rowspan="3" class=" align-middle" id="totalWorkingHours">
-                                    @Html.DisplayFor(m => m.NippouData.TotalWorkingHours)
+                                <td rowspan="3" class=" align-middle">
+                                    @Html.DisplayFor(m => m.NippouInput.JitsudouTimeText)
                                 </td>
-                                <td rowspan="3" class=" align-middle">   
-                                    <span id="jissekiHour">0</span>:00
+                                <td rowspan="3" class=" align-middle">
+                                    <span id="jissekiHour">
+                                        @Html.DisplayFor(m => m.NippouInput.TotalJissekiJikanText)
+                                    </span>
                                 </td>
                             </tr>
                             <tr class="text-center">
                                 <td id="syuttaikin2">
-                                    @Html.DisplayFor(m => m.NippouData.Syuttaikin2)
+                                    @Html.DisplayFor(m => m.NippouInput.Syuttaikin2)
                                 </td>
                             </tr>
                             <tr class="text-center">
                                 <td id="syuttaikin3">
-                                    @Html.DisplayFor(m => m.NippouData.Syuttaikin3)
+                                    @Html.DisplayFor(m => m.NippouInput.Syuttaikin3)
                                 </td>
                             </tr>
                         </tbody>
@@ -192,39 +147,43 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr style="height: 1.8rem">
-                                <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShinseiYmd)</td>
-                                <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShinseiNaiyou)</td>
-                                <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShoninYmd)</td>
-                                <td>@Html.DisplayFor(m => m.UkagaiHeadersData.Status)</td>
-                            </tr>
+                            @foreach (var item in Model.NippouInput.ShinseiInfos)
+                            {
+                                <tr style="height: 1.8rem">
+                                    <td>@Html.DisplayFor(_ => item.ShinseiYmd)</td>
+                                    <td>@Html.DisplayFor(_ => item.UkagaiSyubetsName)</td>
+                                    <td>@Html.DisplayFor(_ => item.ShoninYmd)</td>
+                                    <td>@Html.DisplayFor(_ => item.Status)</td>
+                                </tr>
+                            }
                         </tbody>
-                </table>
-                    <table class="table table-bordered d-lg-none">
-                        <tr>
-                            <th rowspan="4" class="table-primary" width="30">
-                            </th>
-                            <th class="table-primary" width="70">申請日</th>
-                            <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShinseiYmd)</td>
-                        </tr>
-                        <tr>
-                            <th class="table-primary">申請内容</th>
-                            <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShinseiNaiyou)</td>
-                        </tr>
-                        <tr>
-                            <th class="table-primary">承認日</th>
-                            <td>@Html.DisplayFor(m => m.UkagaiHeadersData.ShoninYmd)</td>
-                        </tr>
-                        <tr>
-                            <th class="table-primary">状況</th>
-                            <td>@Html.DisplayFor(m => m.UkagaiHeadersData.Status)</td>
-                        </tr>
-
-                </table>
+                    </table>
+                    @foreach (var item in Model.NippouInput.ShinseiInfos)
+                    {
+                        <table class="table table-bordered d-lg-none">
+                            <tr>
+                                <th rowspan="4" class="table-primary" width="30">
+                                </th>
+                                <th class="table-primary" width="70">申請日</th>
+                                <td>@Html.DisplayFor(_ => item.ShinseiYmd)</td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary">申請内容</th>
+                                <td>@Html.DisplayFor(_ => item.UkagaiSyubetsName)</td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary">承認日</th>
+                                <td>@Html.DisplayFor(_ => item.ShoninYmd)</td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary">状況</th>
+                                <td>@Html.DisplayFor(_ => item.Status)</td>
+                            </tr>
+                        </table>
+                    }
                 </div>
             </div>
         </div>
-
 
         <div class="d-flex flex-column justify-content-between flex-lg-row mb-4 align-items-start my-lg-3 gap-2 gap-lg-5 ">
             <div class="col-lg-4 d-flex gap-2">
@@ -234,82 +193,78 @@
                 </div>
                 <div class="d-flex flex-column gap-2 w-100">
                     <div class="col-12 col-lg-7">
-                        <select class="form-select input-local" id="syukkinKubun1" 
-                                asp-for="NippouData.SyukkinKubunCodeString1"
-                                asp-items="Model.SyukkinKubun1List"
-                                disabled="@DisableInput">
-                            <option value="00" disabled selected hidden>--- 区分選択 ---</option>
-                            <option value=""></option>
+                        <select class="form-select" id="syukkinKubun1"
+                                asp-for="NippouInput.SyukkinKubun1"
+                                asp-items="Model.NippouInput.SyukkinKubun1List">
                         </select>
                     </div>
                     <div class="col-12 col-lg-7">
-                        <select class="form-select input-local" id="syukkinKubun2"
-                                asp-for="NippouData.SyukkinKubunCodeString2"
-                                asp-items="Model.SyukkinKubun2List"
-                                disabled="@DisableInput">
-                            <option value="00" disabled selected hidden>--- 区分選択 ---</option>
-                            <option value=""></option>
+                        <select class="form-select" id="syukkinKubun2"
+                                asp-for="NippouInput.SyukkinKubun2"
+                                asp-items="Model.NippouInput.SyukkinKubun2List">
                         </select>
                     </div>
                 </div>
             </div>
-
 
             <div class="d-flex gap-2 justify-content-start align-items-center w-100 ">
                 <div class="d-flex justify-content-center align-items-center rounded px-lg-2 label-sm-fixed text-nowrap"
                      style="height:35px; background-color:#ffe6e6;">
                     振替休暇取得予定日
                 </div>
-                <div class="input-group input-local input-width-custom">
-                    <input type="text" asp-for="FuriYoteiDate" class="form-control" disabled="@DisableInput" />
+                <div class="input-group input-width-custom">
+                    <input type="text" asp-for="NippouInput.FurikyuYoteiDate" class="form-control" />
                 </div>
                 <div id="datepickerWrapper" class="d-none">
                     <partial name="Components/_Datepicker"
-                             model="@(new DatepickerModel { Id = "FuriYoteiDate" })"  />
+                             model="@(new DatepickerModel { Id = "NippouInput_FurikyuYoteiDate" })" />
                 </div>
             </div>
         </div>
 
         <div class="header d-flex flex-row justify-content-between">
             <h6 class="mb-0">実績入力</h6>
-            <button class="btn btn-outline-success copy-last-date-btn" disabled="@DisableInput">
+            <button id="btn-copy-last-day-jisseki" class="btn btn-outline-success">
                 <i class="fa-regular fa-clone-plus"></i>
                 前日コピー
             </button>
         </div>
 
-        <div id="anken-container">
-            <div id="anken-container-cards">
-                @await Html.PartialAsync("_IndexPartial", Model.NippouAnkenCards)
+        <div id="nippou-anken-container">
+            <div id="jisseki-container-cards">
+                @{
+                    var vd = new ViewDataDictionary(ViewData);
+                    vd.TemplateInfo.HtmlFieldPrefix = "NippouInput";
+                }
+                @await Html.PartialAsync("_JissekiInputListPartial", Model.NippouInput.JissekiInputs, vd)
             </div>
         </div>
 
-
         <div class="d-flex justify-content-end mb-2">
-            <button type="button" id="add-new-anken-btn" class="btn btn-outline-success" disabled="@DisableInput">
+            <button type="button" id="btn-add-new-jisseki-card" class="btn btn-outline-success">
                 <i class="fa-solid fa-plus"></i>追加
             </button>
         </div>
         <div class="d-flex justify-content-end mb-2">
-            @if (Model.TemporarySaveButton)
+            @if (Model.NippouInput.IsIchijiHozonButtonVisible)
             {
-                <button class="btn btn-secondary btn-temporary-save ms-2" type="submit">
+                <button data-js="btn-temporary-save" class="btn btn-secondary ms-2" type="submit">
                     <i class="fa-light fa-file-pen"></i>
                     一時保存
                 </button>
             }
 
-            @if (Model.ConfirmButton)
+            @if (Model.NippouInput.IsKakuteiButtonVisible)
             {
-                <button class="btn btn-primary btn-final-save ms-2">
+                <button data-js="btn-confirm" class="btn btn-primary ms-2">
                     <i class="fa-solid fa-circle-check"></i>確定
                 </button>
             }
 
 
-            @if (Model.UnconfirmButton)
+            @if (Model.NippouInput.IsKakuteiKaijoButtonVisible)
             {
-                <button class="btn btn-danger ms-2 btn-cancel-confirm">
+                <button data-js="btn-cancel-confirm" class="btn btn-danger ms-2">
                     確定解除
                 </button>
             }
@@ -317,189 +272,424 @@
     </form>
 </div>
 
-
-@section Scripts {
-    <script src="~/assets/modules/iziModal/js/iziModal.min.js" asp-append-version="true"></script>
-    <script src="~/js/iziModalUtil.js" asp-append-version="true"></script>
-    <script src="~/js/sweetAlertUtil.js" asp-append-version="true"></script>
-
+@section InputScripts {
     <script>
+        $(function(){
 
-        $(document).on('change', '#syukkinKubun1, #syukkinKubun2', function() {
-                if (this.value === "") {
-                    this.value = "00";
-                }
-            });
+            $(document).on('change', '#syukkinKubun1, #syukkinKubun2', function() {
+                    if (this.value === "") {
+                        this.value = "00";
+                    }
+                });
 
-        // 日報案件追加押下
-        $partialCards = $('#anken-container-cards')
-        $('#add-new-anken-btn').on('click', function(e) {
-            e.preventDefault();
-            const data = $('#jisseki-form').serializeArray();
-            sendAjax(toUrl("AddNippouAnken"), data, function(partialView){
-                $partialCards.html(partialView)
-            }, false, null, false)
+            // -----------------------------------
+            // 定数
+            // -----------------------------------
+            // 実績入力欄全体
+            const $partialCards = $('#jisseki-container-cards')
 
-        })
-
-        // 日報案件コピー押下
-        $partialCards.on('click', '.copy-nippouanken-btn', function(e) {
-            e.preventDefault();
-            const data = $('#jisseki-form').serializeArray();
-            data.push({ name: 'index', value: $(this).attr('data-index') });
-            sendAjax(toUrl('CopyNippouAnken'), data, function(data) {
-                $partialCards.html(data);
-            }, false, null, false);
-        })
-
-        // 日報案件削除押下
-        $partialCards.on('click', ".delete-nippouanken-btn", function(e) {
-            e.preventDefault();
-            const data = $('#jisseki-form').serializeArray();
-            data.push({ name: 'index', value: $(this).attr('data-index') });
-            sendAjax(toUrl('DeleteNippouAnken'), data, function(partialView) {
-                $partialCards.html(partialView);
-                updateJissekiTime();
-            }, false, null, false);
-        });
-
-        // 前日コピー押下
-        $(".copy-last-date-btn").on("click", function(e){
-            e.preventDefault();
-            let data = $('#jisseki-form').serializeArray();
-            data.push({ name: 'syainId', value: @Model.SyainId });
-            data.push({ name: 'jissekiDate', value: '@Model.JissekiDate.ToString("yyyy-MM-dd")' })
-
-            sendAjax(toUrl("CopyFromLastDate"), data, function(data){
-                if(data != null){
-                    $partialCards.html(data);
-                    updateJissekiTime();
-                }
-            }, false, null, false)
-        })
-
-        // 顧客検索ボタン押下
-        let currentNippouAnkenIndex = null;
-        $partialCards.on('click', '.btn-search-kokyaku', function(e){
-            e.preventDefault();
-            currentNippouAnkenIndex = $(this).attr('data-index');
-            const modalId = 'ankenKokyakuIndexModal';
-            const url = '@Url.Page("../Kokyaku/KokyakuNameSearch/Index")';
-            const title = '顧客検索';
-            showFullModal(modalId, url,  title, '', function() {}, 'var(--iframe-header-color)');
-        });
-
-        // 案件検索ボタン押下
-        $partialCards.on('click', '.btn-search-anken', function(e){
-            e.preventDefault();
-            currentNippouAnkenIndex = $(this).attr('data-index');
-            kokyakuKaisyaId = $('#kokyakuId_' + currentNippouAnkenIndex).val();
-            const modalId = "ankenModal"
-            const url = '@Url.Content("~/AnkenMeiKensaku")' + '?kokyakuKaisyaId=' + kokyakuKaisyaId + '&id=Modal&IsNormal=true&CanAdd=true'
-            const title = "案件検索"
-            const width = 900
-            const height = 700
-            showInputModal(modalId, url, "", title, function() {}, width, height, "var(--iframe-header-color)");
-        })
-
-        // iziModalからの情報取得処理
-        window.addEventListener('message', function(event) {
-            if (!event.data || !event.data.type) return;
-            if (currentNippouAnkenIndex === null) return;
-
-            switch (event.data.type){
-                case 'kokyakuSelected':
-                    // 顧客検索結果
-                    $('#kokyakuName_' + currentNippouAnkenIndex).val(event.data.name);
-                    $('#kokyakuId_' + currentNippouAnkenIndex).val(event.data.id);
-                    break;
-                case 'ankenSelected':
-                    $('#ankenId_' + currentNippouAnkenIndex).val(event.data.ankenId);
-                    $('#ankenName_' + currentNippouAnkenIndex).val(event.data.ankenName);
-                    $('#chaYmd_' + currentNippouAnkenIndex).val(event.data.chaYmd);
-                    $('#juchuNo_' + currentNippouAnkenIndex).val(event.data.juchuNo);
-                    $('#kokyakuId_' + currentNippouAnkenIndex).val(event.data.kokyakuId);
-                    $('#kokyakuName_' + currentNippouAnkenIndex).val(event.data.kokyakuName);
-                    break;
+            // モーダル画面サイズ
+            const MODAL_SIZE = {
+                width: 1050,
+                height: 700,
             }
-        })
 
-        // 実績時間集計
-        updateJissekiTime();
-        function updateJissekiTime(){
-            let totalTime = 0;
-            document.querySelectorAll('.jisseki-time').forEach(select => {
-                totalTime += parseInt(select.value) || 0;
-            });
-            document.getElementById('jissekiHour').innerText = totalTime;
+            // メッセージハンドルマップ
+            // ※モーダル画面からのメッセージ受信用
+            const modalMessagehandlers = {
+                kokyakuSelected: (data, baseSelector) => applySelectedKokyaku(data, baseSelector),
+                ankenSelected:   (data, baseSelector) => applySelectedAnken(data, baseSelector),
+            };
+
+            // -----------------------------------
+            // 画面の共通変数
+            // -----------------------------------
+            // 処理対象の実績入力欄のカードのインデックス
+            let currentJissekiCardIndex = null;
+
+            // -----------------------------------
+            // 初期化
+            // -----------------------------------
+            bindEvents();
+
+            // 実績合計時間を計算して反映
+            updateTotalJissekiTime();
+
+            // Validation共通初期化関数を呼ぶ
+            initValidation('#jisseki-form');
+
+            // -----------------------------------
+            // イベント登録
+            // -----------------------------------
+            function bindEvents() {
+                // 実績入力欄－追加ボタン
+                $("#btn-add-new-jisseki-card").on("click", onAddNewJissekiCard);
+
+                // 実績入力欄－前日コピーボタン
+                $("#btn-copy-last-day-jisseki").on("click", onCopyLastDayJissekiCard);
+
+                // 実績入力欄－カードコピーボタン
+                $partialCards.on("click", '[data-js="copy-jisseki-card"]', onCopyJissekiCard);
+
+                // 実績入力欄－カード削除ボタン
+                $partialCards.on("click", '[data-js="delete-jisseki-card"]', onDeleteJissekiCard);
+
+                // 顧客検索ボタン
+                $partialCards.on("click", '[data-js="open-modal-search-kokyaku"]', onOpenModalSearchKokyaku);
+
+                // 案件検索ボタン
+                $partialCards.on("click", '[data-js="open-modal-search-anken"]', openModalSearchAnken);
+
+                // 子画面選択項目受け取り
+                $(window).on('message', onWindowMessage);
+
+                // 実績時間選択
+                $partialCards.on('input change', '[data-js="select-jisseki-time"]', updateTotalJissekiTime);
+            }
+
+            // -----------------------------------
+            // イベントハンドラ
+            // -----------------------------------
+
+            // 実績入力欄－追加ボタン
+            function onAddNewJissekiCard(event) {
+                event.preventDefault();
+
+                const data = $('#jisseki-form').serializeArray();
+                const index = $("#jisseki-container-cards .card").length;
+                data.push({ name: 'index', value: index });
+
+                sendAjax(toUrl("AddNippouAnkenInput"), data, function(response){
+                    $partialCards.append(response);
+                }, false, null, false);
+            }
+
+            // 実績入力欄－前日コピーボタン
+            function onCopyLastDayJissekiCard(event){
+                event.preventDefault();
+
+                const  data = $('#jisseki-form').serializeArray();
+                const index = $("#jisseki-container-cards .card").length;
+                data.push({ name: 'index', value: index });
+
+                sendAjax(toUrl("CopyFromLastDate"), data, function(response){
+                    if (response == null)
+                        return;
+                    $partialCards.append(response);
+                    updateTotalJissekiTime();
+                }, false, null, false);
+            }
+
+            // 実績入力欄－カードコピーボタン
+            function onCopyJissekiCard(event) {
+                event.preventDefault();
+
+                const data = $('#jisseki-form').serializeArray();
+
+                data.push({ name: 'index', value: $(this).attr('data-index') });
+                sendAjax(toUrl('CopyNippouAnkenInput'), data, function(response) {
+                    $partialCards.append(response);
+                }, false, null, false);
+            }
+
+            // 実績入力欄－カード削除ボタン
+            function onDeleteJissekiCard(event) {
+                event.preventDefault();
+
+                // 押されたボタン
+                const $btn = $(this);
+
+                // 押されたボタンのカードを取得
+                const $card = $btn.closest(".jisseki-meisai-card");
+
+                // Id値（日報案件のId）の保持のチェック
+                const idValue = $card.find('[data-js="id"]').val();
+                const hasIdValue = idValue !== undefined && idValue !== null && idValue !== "";
+
+                if (hasIdValue) {
+                    // 既存データなので、delete処理対象にする
+                    // IsDeleteをtrueに設定
+                    $card.find('[data-js="is-delete"]').val('true');
+                    // カードを非表示にする
+                    $card.addClass("d-none");
+                } else {
+                    // 追加ボタンで追加されたカードなので、remove
+                    $card.remove();
+                }
+            }
+
+            // 顧客検索ボタン
+            function onOpenModalSearchKokyaku(event){
+                event.preventDefault();
+
+                // 対象の実績入力カードのインデックス
+                currentJissekiCardIndex = $(this).attr('data-index');
+
+                // URLパラメータの設定
+                const params = {
+                    canCardClick: true,
+                }
+
+                const modalId = 'kokyaku-mei-kensaku-modal';
+                const url = toQueryUrl('@Url.Page("../KokyakuMeiKensaku/Index")') + (new URLSearchParams(params)).toString();
+                const title = '顧客検索画面';
+
+                showInputModal(modalId,
+                    url,
+                    "",
+                    title,
+                    null,
+                    MODAL_SIZE.width,
+                    MODAL_SIZE.height,
+                    "var(--iframe-header-color)");
+            }
+
+            // 案件検索ボタン
+            function openModalSearchAnken(event){
+                event.preventDefault();
+
+                // 対象の実績入力カードのインデックス
+                currentJissekiCardIndex = $(this).attr('data-index');
+
+                // 顧客会社ID
+                const kokyakuKaisyaId = $(`#NippouInput_JissekiInputs_${currentJissekiCardIndex}__KokyakuKaisyaId`).val();
+
+                // URLパラメータの設定
+                const params = {
+                    canCardClick: true,
+                    canAdd: true,
+                    kokyakuId: kokyakuKaisyaId,
+                }
+
+                const modalId = "anken-mei-kensaku-modal"
+                const url = toQueryUrl('@Url.Page("../AnkenMeiKensaku/Index")') + (new URLSearchParams(params)).toString();
+                const title = "案件検索画面"
+
+                showInputModal(modalId,
+                    url,
+                    "",
+                    title,
+                    null,
+                    MODAL_SIZE.width,
+                    MODAL_SIZE.height,
+                    "var(--iframe-header-color)");
+            }
+
+            // Modal画面からのメッセージ受信
+            function onWindowMessage(event) {
+                const e = event.originalEvent;
+
+                // セキュリティチェック（オリジン確認）
+                if (e.origin !== window.location.origin) return;
+                if (!e.data || !e.data.type) return;
+
+                // 対象の実績入力欄のインデックスが取得できていない場合
+                if (currentJissekiCardIndex === null) return;
+
+                // Modal画面からのデータ受信用ハンドラー
+                const handler = modalMessagehandlers[e.data.type];
+                if (!handler) return;
+
+                // セレクターの基礎部分
+                const baseSelector = `#NippouInput_JissekiInputs_${currentJissekiCardIndex}__`;
+
+                // 受け取ったデータを反映
+                try {
+                    handler(e.data, baseSelector);
+                } finally {
+                    // インデックスを解放
+                    currentJissekiCardIndex = null;
+                }
+            }
+
+            // 顧客検索Modal画面からのデータ受け取り
+            function applySelectedKokyaku(data, baseSelector) {
+                const {
+                    id,
+                    name,
+                } = data;
+
+                $(`${baseSelector}KokyakuKaisyaId`).val(id);
+                $(`${baseSelector}KokyakuName`).val(name);
+            }
+
+            // 案件検索Modal画面からのデータ受け取り
+            function applySelectedAnken(data, baseSelector) {
+                const {
+                    ankenId,
+                    ankenName,
+                    chaYmd,
+                    juchuNo,
+                    kokyakuId,
+                    kokyakuName,
+                } = data;
+
+                $(`${baseSelector}AnkensId`).val(ankenId);
+                $(`${baseSelector}AnkenName`).val(ankenName);
+                $(`${baseSelector}ChaYmd`).val(chaYmd);
+                $(`${baseSelector}KingsJuchuNo`).val(juchuNo);
+                $(`${baseSelector}KokyakuKaisyaId`).val(kokyakuId);
+                $(`${baseSelector}KokyakuName`).val(kokyakuName);
+            }
+
+            // 実績合計時間を計算して反映
+            function updateTotalJissekiTime(){
+                let totalTime = 0;
+
+                $('[data-js="select-jisseki-time"]').each(function() {
+                    const value = parseInt($(this).val(), 10);
+                    totalTime += isNaN(value) ? 0 : value;
+                });
+
+                $("#jissekiHour").text(`${totalTime}:00`);
+                $(`#NippouInput_TotalJissekiJikan`).val(totalTime);
+            }
+
+            // 確定解除ボタン押下
+            $('[data-js="btn-cancel-confirm"]').on("click", function(e){
+                e.preventDefault();
+                const data = $('#jisseki-form').serializeArray();
+                sendGetAjax(toUrl("CancelConfirmValidate"), data, function() {
+                    commonConfirm('確定解除してよろしいですか？', null, function() {
+                        sendAjax(toUrl('CancelConfirm'), data, function() {
+                            onRegisterSuccess("確定解除しました。");
+                        }, false, null, false);
+                    })
+                }, false);
+            })
             
-            $('#totalJissekiJikan').val(totalTime);
-        }
+            var $form = $("#jisseki-form");
 
-        $partialCards.on('input change', '.jisseki-time', function() {
-            updateJissekiTime();
-        });
+            // 登録系共通
+            async function register(actionName, handler) {
+                // 既存Validationエラーメッセージクリア
+                clearErrors('#jisseki-form');
 
+                // クライアント側バリデーション
+                if (!$form.valid()) {
+                    return;
+                }
 
-        // 確定解除ボタン押下
-        $(".btn-cancel-confirm").on("click", function(e){
-            e.preventDefault();
-            const data = $('#jisseki-form').serializeArray();
-            data.push({ name: 'syainId', value: @Model.SyainId });
-            data.push({ name: 'jissekiDate', value: '@Model.JissekiDate.ToString("yyyy-MM-dd")' });
-            data.push({ name: 'isDairiInput', value: @Model.IsDairiInput.ToString().ToLower() });
-            data.push({ name: 'syainBaseId', value: @Model.SyainBaseId });
-            sendGetAjax(toUrl("CancelConfirmValidate"), data, function() {
-                commonConfirm('確定解除してよろしいですか？', null, function() {
-                    sendAjax(toUrl('CancelConfirm'), data, function() {
-                        onRegisterSuccess("確定解除しました。");
-                    }, false, null, false);
+                // 確認ダイアログ表示
+                commonConfirm(actionName + 'します。よろしいですか？', null,
+                    async function() {
+                        await executeRegister(actionName, handler);
+                    }
+                );
+            }
+
+            // 登録処理実行
+            async function executeRegister(actionName, handler) {
+                return await new Promise((resolve) => {
+                    sendRegisterAjax(toUrl(handler), $form.serializeArray(),
+                        function(result) {
+                            switch(result.status){
+                                case responseStatusSuccess:
+                                    onRegisterSuccess(actionName);
+                                    resolve(result);
+                                    break;
+                                case responseStatusError:
+                                    errorMessage(result.message);
+                                    resolve(null);
+                                    break;
+                            }
+                        }
+                    );
                 })
-            }, false);
-        })
+            }
 
             function onRegisterSuccess(actionName) {
-            registerSuccessSwal(actionName, null,
-                function() {
-                    // 親画面へメッセージ送信
-                    window.history.back();
+                registerSuccessSwal(actionName, null,
+                    function() {
+                        location.reload(); // 画面を表示
+                    }
+                );
+            }
 
-                    // モーダルを閉じる
-                    closeCurrentIziModal();
-                }
-            );
+
+            // 一時保存ボタン押下
+            $('[data-js="btn-temporary-save"]').on("click", function(e){
+                e.preventDefault();
+                $.validator.unobtrusive.parse('#jisseki-form');
+                register('一時保存', 'TemporarySave');
+            })
+
+            // 確定ボタン押下
+            $('[data-js="btn-confirm"]').on("click", function(e){
+                e.preventDefault();
+                register('確定', 'TemporarySave');
+
+                const data = $('#jisseki-form').serializeArray();
+
+                sendAjax(toUrl('FinalConfirmCheck'), data, 
+                    async function(response){
+                        await executeRegister('確定', 'FinalConfirm');
+                        // sendAjax(toUrl('FinalConfirm'), data, function() {
+                        // }, true, null, false);
+                    }, 
+                    true, null, false);
+            })
+        })
+
+    </script>
+}
+
+@section InputStyles {
+
+    <style>
+        .header-notification {
+            background-color: #ffe6e6;
         }
 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
 
-        // 一時保存ボタン押下
-        $(".btn-temporary-save").on("click", function(e){
-            e.preventDefault();
-            
-            commonConfirm('一時保存します。よろしいですか？', null, function() {
-                const data = $('#jisseki-form').serializeArray();
-                data.push({ name: 'syainId', value: @Model.SyainId });
-                data.push({ name: 'jissekiDate', value: '@Model.JissekiDate.ToString("yyyy-MM-dd")' });
-                data.push({ name: 'isDairiInput', value: @Model.IsDairiInput.ToString().ToLower() });
-                sendAjax(toUrl('TemporarySave'), data, function(){
-                    }, true, null, false);
-                })
-        })
-        
+        .input-width-custom {
+            width: 100%;
+        }
 
-        // 確定ボタン押下
-        $(".btn-final-save").on("click", function(e){
-            e.preventDefault();
-            const data = $('#jisseki-form').serializeArray();
-            data.push({ name: 'syainId', value: @Model.SyainId });
-            data.push({ name: 'jissekiDate', value: '@Model.JissekiDate.ToString("yyyy-MM-dd")' });
-            data.push({ name: 'isDairiInput', value: @Model.IsDairiInput.ToString().ToLower() });
+        .th-kinmujikan {
+            width: 11rem;
+        }
 
-             sendAjax(toUrl('FinalConfirmCheck'), data, function(message){
-                 commonConfirm(message, null, function() {
-                    sendAjax(toUrl('FinalConfirm'), data, function() {
-                    }, true, null, false);
-                })
-            }, true, null, false);
-        })
-    </script>
+        .th-shuttaikin {
+            width: 12rem;
+        }
+
+        .th-kinmu,
+        .th-jisseki {
+            width: 7rem;
+        }
+
+        .fixed-height {
+            height: 120px;
+            min-height: 120px;
+            max-height: 120px;
+        }
+
+        @@media (min-width: 992px) {
+            .input-width-custom {
+                width: 17rem;
+            }
+
+            .work-category-input {
+                width: 50%;
+                height: 100%;
+            }
+
+            .table-width-lg {
+                width: 95%;
+            }
+        }
+
+        @@media (max-width: 991.98px) {
+            .label-sm-fixed {
+                width: 17rem;
+            }
+        }
+    </style>
 }

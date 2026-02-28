@@ -90,3 +90,55 @@ function clearErrors(formSelector) {
     form.find("span[data-valmsg-for]").text("");
 
 }
+
+/**
+ * フォームフィールドごとのバリデーションメッセージを適用する共通関数
+ * 使用例:
+ * applyValidateMessages($("#myForm"), {
+ *  "FieldName1": ["フィールド1のエラーメッセージ1", "フィールド1のエラーメッセージ2"],
+ *  "FieldName2": ["フィールド2のエラーメッセージ"]
+ * });
+ * @param {any} $form フォームの jQuery オブジェクト
+ * @param {any} errors サーバーからのバリデーションエラーオブジェクト
+ * @return {void}
+ */
+function applyValidateMessages($form, errors) {
+    var validator = $form.data("validator");
+    if (!validator) {
+        $.validator.unobtrusive.parse($form);
+        validator = $form.data("validator");
+    }
+    // key が空文字列のものは、画面上部のエラーメッセージエリアに表示させるため除外
+    const fieldErrors = {};
+    for (const key in errors) {
+        // 空文字列のキーはスキップ
+        if (key === "") {
+            continue;
+        }
+        // 改行でメッセージをjoin
+        fieldErrors[key] = errors[key].join("<br>");
+    }
+
+    // フィールドエラーをUIに反映
+    if (validator) {
+        validator.showErrors(fieldErrors);
+    }
+}
+
+/**
+ * 画面上部へのメッセージ適用
+ * キーが空文字列のエラーメッセージを画面上部に表示する
+ * 例えば、
+ * ModelState.AddModelError("", "全体のエラーメッセージ");
+ * のようにサーバー側で設定されたメッセージを表示する
+ * @param {any} messages - サーバーからのメッセージの配列
+ * @returns {void}
+ */
+function applyValidationSummaryMessage(errors) {
+    // 画面上部に表示するエラーのみ取り出し、あれば表示
+    const messages = errors[""] ?? [];
+    if (Array.isArray(messages) && messages.length !== 0) {
+        const message = messages.join("\r\n");
+        errorMessage(message);
+    }
+}

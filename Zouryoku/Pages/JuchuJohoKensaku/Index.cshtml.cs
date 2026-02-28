@@ -37,8 +37,8 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
         // ======================================
 
         public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine) { }
+            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine, TimeProvider timeProvider)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         // ======================================
         // フィールド
@@ -400,7 +400,7 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             {
                 // 画面.検索条件がすべて空白の場合に、年度条件を追加する
 
-                var today = DateTime.Now.ToDateOnly();
+                var today = timeProvider.Today();
                 var nendo = today.GetFiscalYear();
                 query = query.Where(j => j.Nendo == nendo);
             }

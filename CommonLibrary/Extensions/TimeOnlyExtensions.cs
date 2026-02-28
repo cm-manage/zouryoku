@@ -11,5 +11,13 @@ namespace CommonLibrary.Extensions
         /// <returns>"HH:mm"形式の文字列、またはnullの場合は空文字</returns>
         public static string ToStrByHHmmOrEmpty(this TimeOnly? timeOnly)
             => timeOnly?.ToString("HH:mm") ?? string.Empty;
+
+        /// <summary>
+        /// TimeOnlyを"HHmm"形式の文字列に変換します。
+        /// </summary>
+        /// <param name="timeOnly">変換するTimeOnly型の値</param>
+        /// <returns>"HHmm"形式の文字列</returns>
+        public static string ToStrByHHmmNoColon(this TimeOnly timeOnly)
+            => timeOnly.ToString("HHmm");
     }
 }

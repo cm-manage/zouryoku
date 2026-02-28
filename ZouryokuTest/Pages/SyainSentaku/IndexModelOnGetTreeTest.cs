@@ -1,3 +1,6 @@
+using CommonLibrary.Extensions;
+using Model.Model;
+
 namespace ZouryokuTest.Pages.SyainSentaku
 {
     /// <summary>
@@ -33,9 +36,28 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public async Task OnGetAsync_アクティブフラグがFALSE_部署一覧に取得されない()
         {
             // Arrange
-            var busyo = AddBusyo(1, "部署A" , 2 , false);
-            var model = CreateModel();
+            var busyo = new Busyo
+            {
+                Id = 1,
+                Code = string.Empty,
+                Name = "部署A",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = false,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = null,
+                ShoninBusyoId = null,
+                Syains = []
+            };
             SeedEntities(busyo);
+            var model = CreateModel();
 
             // Act
             var result = await model.OnGetTreeAsync();
@@ -55,9 +77,29 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public async Task OnGetAsync_有効開始日がシステム日付より後_部署一覧に取得されない()
         {
             // Arrange
-            var busyo = AddBusyo(1, "部署A", 2, true, null , start: 1);
-            var model = CreateModel();
+            fakeTimeProvider.SetLocalNow(TestDate);
+            var today = fakeTimeProvider.Today();
+            var busyo = new Busyo
+            {
+                Id = 1,
+                Code = string.Empty,
+                Name = "部署A",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = today.AddDays(1),
+                EndYmd = today,
+                Jyunjyo = 1,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = true,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = null,
+                ShoninBusyoId = null
+            };
             SeedEntities(busyo);
+            var model = CreateModel();
 
             // Act
             var result = await model.OnGetTreeAsync();
@@ -77,9 +119,29 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public async Task OnGetAsync_有効終了日がシステム日付より前_部署一覧に取得されない()
         {
             // Arrange
-            var busyo =AddBusyo(1, "部署A", 2, true, null, start: null, end: -1);
-            var model = CreateModel();
+            fakeTimeProvider.SetLocalNow(TestDate);
+            var today = fakeTimeProvider.Today();
+            var busyo = new Busyo
+            {
+                Id = 1,
+                Code = string.Empty,
+                Name = "部署A",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = today,
+                EndYmd = today.AddDays(-1),
+                Jyunjyo = 1,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = true,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = null,
+                ShoninBusyoId = null
+            };
             SeedEntities(busyo);
+            var model = CreateModel();
 
             // Act
             var result = await model.OnGetTreeAsync();
@@ -100,9 +162,29 @@ namespace ZouryokuTest.Pages.SyainSentaku
         {
             // Arrange
             // 境界値：部署マスタ.有効開始日＝システム日付、システム日付＝部署マスタ.有効終了日
-            var busyo = AddBusyo(1, "部署A", 2, true, null, start: 0, end: 0);
-            var model = CreateModel();
+            fakeTimeProvider.SetLocalNow(TestDate);
+            var today = fakeTimeProvider.Today();
+            var busyo = new Busyo
+            {
+                Id = 1,
+                Code = string.Empty,
+                Name = "部署A",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = today,
+                EndYmd = today,
+                Jyunjyo = 1,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = true,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = null,
+                ShoninBusyoId = null
+            };
             SeedEntities(busyo);
+            var model = CreateModel();
 
             // Act
             var result = await model.OnGetTreeAsync();
@@ -115,7 +197,7 @@ namespace ZouryokuTest.Pages.SyainSentaku
             Assert.HasCount(1, nodes);
             Assert.AreEqual(1, node.Id);
             Assert.AreEqual("部署A", node.Name);
-            Assert.AreEqual(2, node.Jyunjyo);
+            Assert.AreEqual(1, node.Jyunjyo);
             Assert.IsNull(node.OyaId);
             Assert.IsEmpty(node.Children);
         }
@@ -128,11 +210,47 @@ namespace ZouryokuTest.Pages.SyainSentaku
         {
             // Arrange
             // 子
-            var busyo1 = AddBusyo(2, "子部署", 2, true, 1);
+            var busyo1 = new Busyo
+            {
+                Id = 2,
+                Code = string.Empty,
+                Name = "子部署",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = true,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = 1,
+                ShoninBusyoId = null
+            };
             // 親
-            var busyo2 = AddBusyo(1, "親部署", 1, false);
-            var model = CreateModel();
+            var busyo2 = new Busyo
+            {
+                Id = 1,
+                Code = string.Empty,
+                Name = "親部署",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = false,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = null,
+                ShoninBusyoId = null
+            };
             SeedEntities(busyo1, busyo2);
+            var model = CreateModel();
 
             // Act
             var result = await model.OnGetTreeAsync();
@@ -153,11 +271,47 @@ namespace ZouryokuTest.Pages.SyainSentaku
         {
             // Arrange
             // 子
-            var busyo1 = AddBusyo(2, "子部署", 2, true, 1);
+            var busyo1 = new Busyo
+            {
+                Id = 2,
+                Code = string.Empty,
+                Name = "子部署",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = true,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = 1,
+                ShoninBusyoId = null
+            };
             // 親
-            var busyo2 = AddBusyo(1, "親部署", 1, true);
-            var model = CreateModel();
+            var busyo2 = new Busyo
+            {
+                Id = 1,
+                Code = string.Empty,
+                Name = "親部署",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = true,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = null,
+                ShoninBusyoId = null
+            };
             SeedEntities(busyo1, busyo2);
+            var model = CreateModel();
 
             // Act
             var result = await model.OnGetTreeAsync();
@@ -180,7 +334,7 @@ namespace ZouryokuTest.Pages.SyainSentaku
 
             Assert.AreEqual(2, childNode.Id);
             Assert.AreEqual("子部署", childNode.Name);
-            Assert.AreEqual(2, childNode.Jyunjyo);
+            Assert.AreEqual(1, childNode.Jyunjyo);
             Assert.AreEqual(1, childNode.OyaId);
             Assert.IsEmpty(childNode.Children);
         }
@@ -192,10 +346,46 @@ namespace ZouryokuTest.Pages.SyainSentaku
         public async Task OnGetAsync_部署の階層が同値_順序の昇順で部署が取得される()
         {
             // Arrange
-            var busyo1 = AddBusyo(1, "部署1", 2, true);
-            var busyo2 = AddBusyo(2, "部署2", 1, true);
-            var model = CreateModel();
+            var busyo1 = new Busyo
+            {
+                Id = 1,
+                Code = string.Empty,
+                Name = "部署1",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 2,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = true,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = null,
+                ShoninBusyoId = null
+            };
+            var busyo2 = new Busyo
+            {
+                Id = 2,
+                Code = string.Empty,
+                Name = "部署2",
+                KanaName = string.Empty,
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = string.Empty,
+                KaikeiCode = string.Empty,
+                KeiriCode = string.Empty,
+                IsActive = true,
+                Ryakusyou = string.Empty,
+                BusyoBaseId = 1,
+                OyaId = null,
+                ShoninBusyoId = null
+            };
             SeedEntities(busyo1, busyo2);
+            var model = CreateModel();
 
             // Act
             var result = await model.OnGetTreeAsync();

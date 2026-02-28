@@ -47,8 +47,8 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
 
-            await model.OnGetAsync(); // Act
-            AssertModelStateErrors(string.Format(Const.ErrorRead, "日報実績"), model.ModelState); // Assert
+            var result = await model.OnGetAsync(); // Act
+            AssertRedirectError(string.Format(Const.ErrorRead, "日報実績"), result); // Assert
         }
 
         /// <summary>
@@ -86,8 +86,8 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
 
-            await model.OnGetAsync(); // Act
-            AssertModelStateErrors(string.Format(Const.ErrorRead, "部署マスタ"), model.ModelState); // Assert
+            var result = await model.OnGetAsync(); // Act
+            AssertRedirectError(string.Format(Const.ErrorRead, "部署マスタ"), result); // Assert
         }
 
         /// <summary>
@@ -121,8 +121,8 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
 
-            await model.OnGetAsync(); // Act
-            AssertModelStateErrors(string.Format(Const.ErrorRead, "部署マスタ"), model.ModelState); // Assert
+            var result = await model.OnGetAsync(); // Act
+            AssertRedirectError(string.Format(Const.ErrorRead, "部署マスタ"), result); // Assert
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////

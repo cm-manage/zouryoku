@@ -1,5 +1,5 @@
+using Model.Model;
 using Zouryoku.Utils;
-using ZouryokuTest.Builder;
 
 namespace ZouryokuTest.Pages.AnkenJohoHyoji
 {
@@ -19,9 +19,14 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：KINGS受注データ
-            var kingsJuchu = new KingsJuchuBuilder()
-                .WithId(1)
-                .Build();
+            var kingsJuchu = new KingsJuchu(){
+                Id = 1,
+                Bukken = "",
+                ProjectNo = "",
+                SekouBumonCd = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // 必要データ登録
             SeedEntities(kingsJuchu);
@@ -49,9 +54,14 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：KINGS受注データ
-            var kingsJuchu = new KingsJuchuBuilder()
-                .WithId(1)
-                .Build();
+            var kingsJuchu = new KingsJuchu(){
+                Id = 1,
+                Bukken = "",
+                ProjectNo = "",
+                SekouBumonCd = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // 必要データ登録
             SeedEntities(kingsJuchu);

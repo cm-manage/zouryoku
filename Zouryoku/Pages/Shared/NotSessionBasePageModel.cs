@@ -62,6 +62,27 @@ namespace Zouryoku.Pages.Shared
                 Data = data
             });
 
+        /// <summary>
+        /// 警告レスポンスをJSON形式で返却
+        /// </summary>
+        /// <param name="message">警告メッセージ</param>
+        /// <param name="data">追加データ（省略可）</param>
+        /// <returns>ResponseJson形式のJSONレスポンス</returns>
+        /// <remarks>
+        /// このメソッドは、common.jsで定義されているレスポンスステータス定数を使用する
+        /// JavaScript関数（sendAjax、fileSendAjax、fileSendRegisterAjax等）から呼び出される
+        /// サーバー側のハンドラーメソッドで使用します。
+        /// レスポンスのStatusプロパティは、ResponseStatus.警告（値：2）に設定され、
+        /// 確認ダイアログにて警告メッセージが表示されます。
+        /// </remarks>
+        public JsonResult WarningJson(string? message = null, object? data = null)
+            => new JsonResult(new ResponseJson
+            {
+                Status = ResponseStatus.警告,
+                Message = message,
+                Data = data
+            });
+
         public IActionResult Error(string message)
         {
             logger.LogError(message);

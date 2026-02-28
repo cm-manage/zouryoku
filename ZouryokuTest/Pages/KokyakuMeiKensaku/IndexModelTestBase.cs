@@ -1,9 +1,11 @@
 using CommonLibrary.Extensions;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.KokyakuMeiKensaku;
 using ZouryokuTest.Builder;
+using static Model.Enums.BusinessTripRole;
 
 namespace ZouryokuTest.Pages.KokyakuMeiKensaku
 {
@@ -114,21 +116,41 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         protected void CreateSyainForLoginUser()
         {
             // 社員BASEマスタへデータを追加
-            var empBase = new SyainBasisBuilder()
-                .WithId(LoginUserSyainBaseId)
-                .WithCode(LoginUserCode)
-                .WithName(LoginUserName)
-                .Build();
+            var empBase = new SyainBasis()
+            {
+                Id = LoginUserSyainBaseId,
+                Code = LoginUserCode,
+                Name = LoginUserName,
+            };
             db.SyainBases.Add(empBase);
 
             // 社員マスタへデータを追加
-            var emp = new SyainBuilder()
-                .WithId(LoginUserSyainBaseId)
-                .WithCode(LoginUserCode)
-                .WithSyainBaseId(LoginUserSyainBaseId)
-                .WithName(LoginUserName)
-                .WithKanaName(LoginUserName)
-                .Build();
+            var emp = new Syain()
+            {
+                Id = LoginUserSyainBaseId,
+                Code = LoginUserCode,
+                SyainBaseId = LoginUserSyainBaseId,
+                Name = LoginUserName,
+                KanaName = LoginUserName,
+                Seibetsu = '1',
+                BusyoCode = "000",
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Kengen = 0,
+                Jyunjyo = 0,
+                Retired = false,
+                BusyoId = 1,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+            };
             db.Syains.Add(emp);
         }
 
@@ -313,9 +335,11 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         /// <param name="count">データの個数</param>
         /// <returns><see cref="SyainBasis"/>のインスタンスのリスト</returns>
         private List<SyainBasis> CreateSyainBasisList(int count)
-            => [.. Enumerable.Range(1, count).Select(i => new SyainBasisBuilder()
-                .WithId(i)
-                .Build())];
+            => [.. Enumerable.Range(1, count).Select(i => new SyainBasis(){
+                Id = i,
+                Name = "サンプル太郎",
+                Code = "00000",
+                })];
 
         /// <summary>
         /// 社員エンティティのリストを作成する
@@ -323,11 +347,31 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         /// <param name="count">データの個数</param>
         /// <returns><see cref="Syain"/>のリスト</returns>
         private List<Syain> CreateSyainList(int count)
-            => [.. Enumerable.Range(1, count).Select(i => new SyainBuilder()
-                .WithId(i)
-                .WithName(GetExpectedSalesEmpName(i))
-                .WithSyainBaseId(i)
-                .Build())];
+            => [.. Enumerable.Range(1, count).Select(i => new Syain(){
+                Id = i,
+                Name = GetExpectedSalesEmpName(i),
+                SyainBaseId = i,
+                Code = "00000",
+                KanaName = "サンプルタロウ",
+                Seibetsu = '1',
+                BusyoCode = "000",
+                SyokusyuCode = 0,
+                SyokusyuBunruiCode = 0,
+                NyuusyaYmd = new DateOnly(2020, 1, 1),
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Kyusyoku = 0,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "00000",
+                KaisyaCode = 0,
+                IsGenkaRendou = false,
+                Kengen = 0,
+                Jyunjyo = 0,
+                Retired = false,
+                BusyoId =  1,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1
+                })];
 
         /// <summary>
         /// 顧客会社エンティティのリストを作成する
@@ -340,15 +384,19 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
                 // 各カラムに付与するサフィックス
                 var suffix = withNumber ? i.ToString("D2") : string.Empty;
 
-                return new KokyakuKaishaBuilder()
-                    .WithId(i)
-                    .WithName("株式会社サンプル" + suffix)
-                    .WithNameKana("カブシキガイシャサンプル" + suffix)
-                    .WithJyuusyo1("住所1" + suffix)
-                    .WithJyuusyo2("住所2" + suffix)
-                    .WithTel("TEL" + suffix)
-                    .WithEigyoBaseSyainId(i)
-                    .Build();
+                return new KokyakuKaisha(){
+                    Id = i,
+                    Name = "株式会社サンプル" + suffix,
+                    NameKana = "カブシキガイシャサンプル" + suffix,
+                    Jyuusyo1 = "住所1" + suffix,
+                    Jyuusyo2 = "住所2" + suffix,
+                    Tel = "TEL" + suffix,
+                    EigyoBaseSyainId = i,
+                    Code = 0,
+                    Ryakusyou = "サンプル",
+                    SearchName = "株式会社サンプル",
+                    SearchNameKana = "カブシキガイシャサンプル"
+                    };
              })];
         }
 
@@ -362,12 +410,12 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
             // 参照時間をfakeTimeProviderの1日前で固定する（更新テストで差分を検出するため）
             var pastTime = fakeTimeProvider.Now().AddDays(-1);
 
-            return [..Enumerable.Range(1, count).Select(i => new KokyakuKaisyaSansyouRirekiBuilder()
-                .WithId(i)
-                .WithSyainBaseId(LoginUserSyainBaseId)
-                .WithKokyakuKaisyaId(i)
-                .WithSansyouTime(pastTime)
-                .Build())];
+            return [..Enumerable.Range(1, count).Select(i => new KokyakuKaisyaSansyouRireki(){
+                Id = i,
+                SyainBaseId = LoginUserSyainBaseId,
+                KokyakuKaisyaId = i,
+                SansyouTime = pastTime,
+                })];
         }
     }
 }

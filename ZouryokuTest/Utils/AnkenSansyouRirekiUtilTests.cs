@@ -2,7 +2,6 @@ using CommonLibrary.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
 using Zouryoku.Utils;
-using ZouryokuTest.Builder;
 
 namespace ZouryokuTest.Utils
 {
@@ -33,23 +32,49 @@ namespace ZouryokuTest.Utils
         {
             // ---------- Arrange ----------
             // シード: 社員Base
-            var syainBase = CreateSyainBase(1);
+            var syainBase = new SyainBasis
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "00000",
+            };
+
             // シード: 案件
-            var anken = CreateAnken(1);
+            var anken = new Anken()
+            {
+                Id = 1,
+                Name = "案件A",
+                SearchName = "案件A",
+            };
 
             // シード: ログインユーザーの案件参照履歴
-            var userRirekis = CreateAnkenSansyouRirekis(syainBase.Id, existingCount);
+            var userRirekis = Enumerable.Range(1, existingCount)
+                .Select(i => new AnkenSansyouRireki()
+                {
+                    Id = i,
+                    AnkenId = 0, // ダミー
+                    SyainBaseId = syainBase.Id,
+                    SansyouTime = Now.AddMinutes(-i)
+                })
+                .ToList();
+
             // シード: 別ユーザーの案件参照履歴（3件）
-            var otherUserRirekis = CreateOtherAnkenSansyouRirekis(anken.Id, existingCount + 1);
+            var otherUserRirekis = Enumerable.Range(existingCount + 1, 3)
+                .Select(i => new AnkenSansyouRireki()
+                {
+                    Id = i,
+                    AnkenId = anken.Id,
+                    SyainBaseId = 0, // ダミー
+                    SansyouTime = Now.AddMinutes(-i)
+                })
+                .ToList();
 
             // 必要データ登録
             SeedEntities(syainBase, anken, userRirekis, otherUserRirekis);
 
             // ---------- Act ----------
-            var beforeActTime = fakeTimeProvider.Now();
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, fakeTimeProvider.Now());
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, Now);
             await db.SaveChangesAsync();
-            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             // 登録された履歴を取得
@@ -60,7 +85,7 @@ namespace ZouryokuTest.Utils
             Assert.IsNotNull(registeredRireki, "新規参照履歴が登録されていません。");
 
             // 参照時間が実行開始時間から実行終了時間の間であること
-            AssertSansyouTime(registeredRireki, beforeActTime, afterActTime);
+            AssertSansyouTime(registeredRireki, Now);
 
             // ログインユーザーの参照履歴が50件になっていること
             await AssertRirekiCountAsync(syainBase.Id, AnkenSansyouRirekisUtil.MaxAnkenHistoryCount);
@@ -92,25 +117,57 @@ namespace ZouryokuTest.Utils
         {
             // ---------- Arrange ----------
             // シード: 社員Base
-            var syainBase = CreateSyainBase(1);
+            var syainBase = new SyainBasis
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "00000",
+            };
+
             // シード: 案件
-            var anken = CreateAnken(1);
+            var anken = new Anken()
+            {
+                Id = 1,
+                Name = "案件A",
+                SearchName = "案件A",
+            };
 
             // シード: ログインユーザーの案件参照履歴 + 更新対象の案件参照履歴
-            var userRirekis = CreateAnkenSansyouRirekis(syainBase.Id, existingCount);
-            var existingRireki = CreateExistingAnkenSansyouRireki(anken.Id, syainBase.Id, existingCount + 1);
+            var userRirekis = Enumerable.Range(1, existingCount)
+                .Select(i => new AnkenSansyouRireki()
+                {
+                    Id = i,
+                    AnkenId = 0, // ダミー
+                    SyainBaseId = syainBase.Id,
+                    SansyouTime = Now.AddMinutes(-i)
+                })
+                .ToList();
+
+            var existingRireki = new AnkenSansyouRireki()
+            {
+                Id = existingCount + 1,
+                AnkenId = anken.Id,
+                SyainBaseId = syainBase.Id,
+                SansyouTime = Now.AddMinutes(-100), // 古い日時とする
+            };
 
             // シード: 別ユーザーの案件参照履歴（3件）
-            var otherUserRirekis = CreateOtherAnkenSansyouRirekis(anken.Id, existingCount + 2);
+            var otherUserRirekis = Enumerable.Range(existingCount + 2, 3)
+                .Select(i => new AnkenSansyouRireki()
+                {
+                    Id = i,
+                    AnkenId = anken.Id,
+                    SyainBaseId = 0, // ダミー
+                    SansyouTime = Now.AddMinutes(-i)
+                })
+                .ToList();
 
             // 必要データ登録
             SeedEntities(syainBase, anken, userRirekis, existingRireki, otherUserRirekis);
 
             // ---------- Act ----------
-            var beforeActTime = fakeTimeProvider.Now();
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, fakeTimeProvider.Now());
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, Now);
             await db.SaveChangesAsync();
-            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             var updatedRireki = await db.AnkenSansyouRirekis
@@ -120,7 +177,7 @@ namespace ZouryokuTest.Utils
             Assert.IsNotNull(updatedRireki, "既存参照履歴が存在しません。");
 
             // 参照時間が実行開始時間から実行終了時間の間であること
-            AssertSansyouTime(updatedRireki, beforeActTime, afterActTime);
+            AssertSansyouTime(updatedRireki, Now);
 
             // ログインユーザーの参照履歴が50件であること
             await AssertRirekiCountAsync(syainBase.Id, AnkenSansyouRirekisUtil.MaxAnkenHistoryCount);
@@ -152,25 +209,49 @@ namespace ZouryokuTest.Utils
         {
             // ---------- Arrange ----------
             // シード: 社員Base
-            var syainBase = CreateSyainBase(1);
+            var syainBase = new SyainBasis
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "00000",
+            };
 
             // シード: ログインユーザーの案件参照履歴
-            var userRirekis = CreateAnkenSansyouRirekis(syainBase.Id, existingCount);
+            var userRirekis = Enumerable.Range(1, existingCount)
+                .Select(i => new AnkenSansyouRireki()
+                {
+                    Id = i,
+                    AnkenId = 0, // ダミー
+                    SyainBaseId = syainBase.Id,
+                    SansyouTime = Now.AddMinutes(-i)
+                })
+                .ToList();
+
             // シード: 別ユーザーの案件参照履歴（3件）
-            var otherUserRirekis = CreateOtherAnkenSansyouRirekis(0, existingCount + 1);
+            var otherUserRirekis = Enumerable.Range(existingCount + 1, 3)
+                .Select(i => new AnkenSansyouRireki()
+                {
+                    Id = i,
+                    AnkenId = 0,
+                    SyainBaseId = 0, // ダミー
+                    SansyouTime = Now.AddMinutes(-i)
+                })
+                .ToList();
 
             // 必要データ登録
             SeedEntities(syainBase, userRirekis, otherUserRirekis);
 
             // 新規登録用の案件情報
-            var anken = CreateAnken(0);
+            var anken = new Anken()
+            {
+                Name = "案件A",
+                SearchName = "案件A",
+            };
 
             // ---------- Act ----------
             await db.Ankens.AddAsync(anken);
-            var beforeActTime = fakeTimeProvider.Now();
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, fakeTimeProvider.Now());
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, Now);
             await db.SaveChangesAsync();
-            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             var registeredRireki = await db.AnkenSansyouRirekis
@@ -180,7 +261,7 @@ namespace ZouryokuTest.Utils
             Assert.IsNotNull(registeredRireki, "新規参照履歴が登録されていません。");
 
             // 参照時間が実行開始時間から実行終了時間の間であること
-            AssertSansyouTime(registeredRireki, beforeActTime, afterActTime);
+            AssertSansyouTime(registeredRireki, Now);
 
             // ログインユーザーの参照履歴が50件になっていること
             await AssertRirekiCountAsync(syainBase.Id, AnkenSansyouRirekisUtil.MaxAnkenHistoryCount);
@@ -212,26 +293,58 @@ namespace ZouryokuTest.Utils
         {
             // ---------- Arrange ----------
             // シード: 社員Base
-            var syainBase = CreateSyainBase(1);
+            var syainBase = new SyainBasis
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "00000",
+            };
+
             // シード: 案件
-            var anken = CreateAnken(1);
+            var anken = new Anken()
+            {
+                Id = 1,
+                Name = "案件A",
+                SearchName = "案件A",
+            };
 
             // シード: ログインユーザーの案件参照履歴 + 更新対象の案件参照履歴
-            var userRirekis = CreateAnkenSansyouRirekis(syainBase.Id, existingCount);
-            var existingRireki = CreateExistingAnkenSansyouRireki(anken.Id, syainBase.Id, existingCount + 1);
+            var userRirekis = Enumerable.Range(1, existingCount)
+                .Select(i => new AnkenSansyouRireki()
+                {
+                    Id = i,
+                    AnkenId = 0, // ダミー
+                    SyainBaseId = syainBase.Id,
+                    SansyouTime = Now.AddMinutes(-i)
+                })
+                .ToList();
+
+            var existingRireki = new AnkenSansyouRireki()
+            {
+                Id = existingCount + 1,
+                AnkenId = anken.Id,
+                SyainBaseId = syainBase.Id,
+                SansyouTime = Now.AddMinutes(-100), // 古い日時とする
+            };
 
             // シード: 別ユーザーの案件参照履歴（3件）
-            var otherUserRirekis = CreateOtherAnkenSansyouRirekis(anken.Id, existingCount + 2);
+            var otherUserRirekis = Enumerable.Range(existingCount + 2, 3)
+                .Select(i => new AnkenSansyouRireki()
+                {
+                    Id = i,
+                    AnkenId = anken.Id,
+                    SyainBaseId = 0, // ダミー
+                    SansyouTime = Now.AddMinutes(-i)
+                })
+                .ToList();
 
             // 必要データ登録
             SeedEntities(syainBase, anken, userRirekis, existingRireki, otherUserRirekis);
 
             // ---------- Act ----------
             anken.Name = "更新後案件";
-            var beforeActTime = fakeTimeProvider.Now();
-            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, fakeTimeProvider.Now());
+            await AnkenSansyouRirekisUtil.MaintainAnkenSansyouRirekiAsync(db, anken, syainBase.Id, Now);
             await db.SaveChangesAsync();
-            var afterActTime = fakeTimeProvider.Now();
 
             // ---------- Assert ----------
             var updatedRireki = await db.AnkenSansyouRirekis
@@ -241,7 +354,7 @@ namespace ZouryokuTest.Utils
             Assert.IsNotNull(updatedRireki, "既存参照履歴が存在しません。");
 
             // 参照時間が実行開始時間から実行終了時間の間であること
-            AssertSansyouTime(updatedRireki, beforeActTime, afterActTime);
+            AssertSansyouTime(updatedRireki, Now);
 
             // ログインユーザーの参照履歴が50件になっていること
             await AssertRirekiCountAsync(syainBase.Id, AnkenSansyouRirekisUtil.MaxAnkenHistoryCount);
@@ -259,7 +372,9 @@ namespace ZouryokuTest.Utils
         // ---------------------------------------------------------------------
         // Helper Methods
         // ---------------------------------------------------------------------
-        
+
+        private static readonly DateTime Now = new(2024, 1, 1, 12, 0, 0);
+
         /// <summary>
         /// シード処理
         /// </summary>
@@ -280,83 +395,15 @@ namespace ZouryokuTest.Utils
         }
 
         /// <summary>
-        /// シード: 社員Base生成
-        /// </summary>
-        private static SyainBasis CreateSyainBase(long id)
-        {
-            return new SyainBasisBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: 案件生成
-        /// </summary>
-        private static Anken CreateAnken(long id)
-        {
-            return new AnkenBuilder()
-                .WithId(id)
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: ログインユーザーの案件参照履歴を複数生成
-        /// </summary>
-        /// <param name="syainBaseId">社員BaseID</param>
-        /// <param name="count">生成件数</param>
-        private List<AnkenSansyouRireki> CreateAnkenSansyouRirekis(long syainBaseId, int count)
-        {
-            return new AnkenSansyouRirekiBuilder()
-                .WithAnkenId(0) // ダミー
-                .WithSyainBaseId(syainBaseId)
-                .BuildMany(1, count, data =>
-                {
-                    data.SansyouTime = fakeTimeProvider.Now().AddMinutes(-data.Id); // IDの小さい順に古い日時とする
-                });
-
-        }
-
-        /// <summary>
-        /// シード: 既存の案件参照履歴生成
-        /// </summary>
-        private AnkenSansyouRireki CreateExistingAnkenSansyouRireki(long ankenId, long syainBaseId, long id)
-        {
-            return new AnkenSansyouRirekiBuilder()
-                .WithId(id)
-                .WithAnkenId(ankenId)
-                .WithSyainBaseId(syainBaseId)
-                .WithSansyouTime(fakeTimeProvider.Now().AddMinutes(-100)) // 古い日時とする
-                .Build();
-        }
-
-        /// <summary>
-        /// シード: 別ユーザーの案件参照履歴を複数生成
-        /// </summary>
-        /// <param name="ankenId">案件ID</param>
-        /// <param name="startId">一番最初の参照履歴ID</param>
-        private List<AnkenSansyouRireki> CreateOtherAnkenSansyouRirekis(long ankenId, int startId)
-        {
-            return new AnkenSansyouRirekiBuilder()
-                .WithAnkenId(ankenId)
-                .WithSyainBaseId(0) // ダミー
-                .BuildMany(startId, 3, data =>
-                {
-                    data.SansyouTime = fakeTimeProvider.Now().AddMinutes(-data.Id); // IDの小さい順に古い日時とする
-                });
-        }
-
-        /// <summary>
-        /// 参照時間が指定範囲内であることを確認する
+        /// 参照時間を確認する
         /// </summary>
         /// <param name="ankenSansyouRireki">確認対象の案件参照履歴</param>
-        /// <param name="beforeUpdateTime">更新前の時間</param>
-        /// <param name="afterUpdateTime">更新後の時間</param>
+        /// <param name="expectedTime">期待する参照時間</param>
         private static void AssertSansyouTime(
             AnkenSansyouRireki ankenSansyouRireki,
-            DateTime beforeUpdateTime,
-            DateTime afterUpdateTime)
+            DateTime expectedTime)
         {
-            Assert.IsTrue(beforeUpdateTime <= ankenSansyouRireki.SansyouTime && ankenSansyouRireki.SansyouTime <= afterUpdateTime,
+            Assert.AreEqual(expectedTime, ankenSansyouRireki.SansyouTime,
                 "参照時間が正しく更新されていません。");
         }
 

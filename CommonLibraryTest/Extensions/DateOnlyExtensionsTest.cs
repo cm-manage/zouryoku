@@ -197,18 +197,18 @@ namespace CommonLibraryTest.Extensions
 
         [TestMethod]
         [DataRow(15, 1, DisplayName = "境界値: 同日のとき")]
-        [DataRow(16, 2, DisplayName = "date1 < date2の境界値: 1日差のとき")]
-        [DataRow(20, 6, DisplayName = "date1 < date2の代表値")]
-        [DataRow(14, 2, DisplayName = "date1 > date2の境界値: 1日差のとき")]
-        [DataRow(10, 6, DisplayName = "date1 > date2の代表値")]
+        [DataRow(16, 2, DisplayName = "baseDate < toDateの境界値: 1日差のとき")]
+        [DataRow(20, 6, DisplayName = "baseDate < toDateの代表値")]
+        [DataRow(14, 2, DisplayName = "baseDate > toDateの境界値: 1日差のとき")]
+        [DataRow(10, 6, DisplayName = "baseDate > toDateの代表値")]
         public void GetDayCount_日数取得(int dayTo, int expectedCount)
         {
             // Arrange
-            var date1 = new DateOnly(2026, 1, 15);
-            var date2 = new DateOnly(2026, 1, dayTo);
+            var baseDate = new DateOnly(2026, 1, 15);
+            var toDate = new DateOnly(2026, 1, dayTo);
 
             // Act
-            var count = DateOnlyExtensions.GetDayCount(date1, date2);
+            var count = DateOnlyExtensions.GetDayCount(baseDate, toDate);
 
             // Assert
             Assert.AreEqual(expectedCount, count);

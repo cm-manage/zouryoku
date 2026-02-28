@@ -45,6 +45,16 @@ namespace Model.Model
         // C# 側で使う enum プロパティ（DBには保存されない）
         [NotMapped]
         public AttendanceClassification Code => (AttendanceClassification)int.Parse(CodeString);
+
+        /// <summary>
+        /// 休暇の出勤区分か否か
+        /// </summary>
+        public bool IsHolidayKubun => !IsSyukkin;
+
+        /// <summary>
+        /// 半日勤務の出勤区分か否か
+        /// </summary>
+        public bool IsHalfKimuKubun => IsSyukkin && IsVacation;
     }
 
     public partial class Syain
@@ -56,6 +66,12 @@ namespace Model.Model
         public EmployeeAuthority Kengen { get; set; }
 
         /// <summary>
+        /// Version
+        /// </summary>
+        [Timestamp]
+        public uint Version { get; set; }
+
+        /// <summary>
         /// PCログ出力
         /// </summary>
         public bool IsPcLogOutput => Kengen.HasFlag(EmployeeAuthority.PCログ出力);
@@ -64,12 +80,6 @@ namespace Model.Model
         /// 出退勤一覧の打刻位置確認権限所持
         /// </summary>
         public bool IsCheckStampPosition => Kengen.HasFlag(EmployeeAuthority.出退勤一覧の打刻位置確認);
-
-        /// <summary>
-        /// 出退勤一覧の打刻時間修正権限所持
-        /// </summary>
-        [Obsolete($"【変更先】{nameof(IsCheckStampPosition)}")]
-        public bool IsCorrectingTimeStamps => Kengen.HasFlag(EmployeeAuthority.出退勤一覧の打刻時間修正);
 
         /// <summary>
         /// 出退勤一覧画面の部署選択権限所持
@@ -92,12 +102,6 @@ namespace Model.Model
         public bool IsCheckPendingReports => Kengen.HasFlag(EmployeeAuthority.勤務日報未確定チェック);
 
         /// <summary>
-        /// 勤務日報未確定者への通知権限所持
-        /// </summary>
-        [Obsolete($"【変更先】{nameof(IsCheckPendingReports)}")]
-        public bool IsNotificationReportUnconfirmed => Kengen.HasFlag(EmployeeAuthority.勤務日報未確定者への通知);
-
-        /// <summary>
         /// 勤怠データ出力権限所持
         /// </summary>
         public bool IsAttendanceDataOutput => Kengen.HasFlag(EmployeeAuthority.勤怠データ出力);
@@ -118,18 +122,6 @@ namespace Model.Model
         public bool IsManagementFunctions => Kengen.HasFlag(EmployeeAuthority.管理機能);
 
         /// <summary>
-        /// 管理機能利用_その他権限所持
-        /// </summary>
-        [Obsolete($"【変更先】{nameof(IsManagementFunctions)}")]
-        public bool IsManagementFunctionsOther => Kengen.HasFlag(EmployeeAuthority.管理機能利用_その他);
-
-        /// <summary>
-        /// 管理機能利用_人財向け権限所持
-        /// </summary>
-        [Obsolete($"【変更先】{nameof(IsManagementFunctions)}")]
-        public bool IsManagementFunctionsHumanResources => Kengen.HasFlag(EmployeeAuthority.管理機能利用_人財向け);
-
-        /// <summary>
         /// 計画休暇承認権限所持
         /// </summary>
         public bool IsPlannedLeaveApproval => Kengen.HasFlag(EmployeeAuthority.計画休暇承認);
@@ -147,12 +139,12 @@ namespace Model.Model
         /// <summary>
         /// 有給・振替管理権限所持
         /// </summary>
-        public bool IsPayrollAndTransferManagement => Kengen.HasFlag(EmployeeAuthority.有給振替管理);
+        public bool IsPaidLeaveAndTransferManagement => Kengen.HasFlag(EmployeeAuthority.有給振替管理);
 
         /// <summary>
         /// 残業超過制限無効権限所持
         /// </summary>
-        public bool IsOverTimeUnrestricted => Kengen.HasFlag(EmployeeAuthority.残業超過制限無効);
+        public bool IsOvertimeUnrestricted => Kengen.HasFlag(EmployeeAuthority.残業超過制限無効);
 
         /// <summary>
         /// 年次有給休暇更新権限所持
@@ -211,6 +203,12 @@ namespace Model.Model
         /// </summary>
         [Column("kaisya_code")]
         public NippousCompanyCode KaisyaCode { get; set; }
+
+        /// <summary>
+        /// Version
+        /// </summary>
+        [Timestamp]
+        public uint Version { get; set; }
     }
 
     public partial class WorkingHour
@@ -344,6 +342,12 @@ namespace Model.Model
         /// </summary>
         [Column("kengen")]
         public EmployeeAuthority Kengen { get; set; }
+
+        /// <summary>
+        /// Version
+        /// </summary>
+        [Timestamp]
+        public uint Version { get; set; }
     }
 
     public partial class KintaiZokusei
@@ -460,5 +464,14 @@ namespace Model.Model
         /// </summary>
         [Column("function_type")]
         public FunctionalClassification FunctionType { get; set; }
+    }
+
+    public partial class NippouAnken
+    {
+        /// <summary>
+        /// Version
+        /// </summary>
+        [Timestamp]
+        public uint Version { get; set; }
     }
 }

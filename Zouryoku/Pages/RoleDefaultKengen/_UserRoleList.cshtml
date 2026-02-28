@@ -1,6 +1,4 @@
-@using Model.Enums
-@using System.ComponentModel.DataAnnotations
-@using System.Reflection
+@using CommonLibrary.Extensions
 @model Zouryoku.Pages.RoleDefaultKengen.IndexViewModel
 
 <table class="table table-striped app-table__base w-100 data-table">
@@ -13,15 +11,11 @@
     <tbody>
         @foreach (var role in Model.AllAuthorities)
         {
-            var display = role.GetType()
-            .GetMember(role.ToString())
-            .First()
-            .GetCustomAttribute<DisplayAttribute>()?
-            .Name ?? role.ToString();
+            var display = role.GetDisplayName();
 
             <tr>
-                <td class="">@display</td>
-                <td class="" align="center">
+                <td>@display</td>
+                <td align="center">
                     <input class="form-check"
                            name="kengen-checkbox"
                            data-flag="@((int)role)"

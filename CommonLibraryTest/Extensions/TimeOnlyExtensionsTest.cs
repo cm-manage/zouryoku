@@ -21,5 +21,20 @@ namespace CommonLibraryTest.Extensions
             Assert.AreEqual("12:34", time3.ToStrByHHmmOrEmpty());
             Assert.AreEqual(string.Empty, nullableTimeNull.ToStrByHHmmOrEmpty());
         }
+
+        /// <summary>
+        /// ToStrByHHmmNoColonのテスト
+        /// </summary>
+        [TestMethod]
+        public void ToStrByHHmmNoColon_Test()
+        {
+            TimeOnly time1 = new TimeOnly(0, 0);
+            TimeOnly time2 = new TimeOnly(1, 2);
+            TimeOnly time3 = new TimeOnly(12, 34);
+
+            Assert.AreEqual("0000", time1.ToStrByHHmmNoColon());
+            Assert.AreEqual("0102", time2.ToStrByHHmmNoColon());
+            Assert.AreEqual("1234", time3.ToStrByHHmmNoColon());
+        }
     }
 }

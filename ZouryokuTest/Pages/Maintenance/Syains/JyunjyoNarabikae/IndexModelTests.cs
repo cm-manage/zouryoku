@@ -1,9 +1,7 @@
 using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Model.Enums;
 using Model.Model;
 using Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae;
-using ZouryokuCommonLibrary.Utils;
 using ZouryokuTest.Builder;
 using ZouryokuTest.Pages.Builder;
 using static Model.Enums.ResponseStatus;
@@ -164,9 +162,9 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.JyunjyoNarabikae
         }
 
         /// <summary>
-        /// 並び順保存処理 目的：更新対象の社員が存在しない場合　前提：部署A(Id=1, IsActive=true)のみ存在
+        /// 並び順保存処理 目的：更新対象の社員が存在しない場合　前提：社員A(Id=1,Jyunjyo=1)のみ存在
         /// </summary>
-        [TestMethod(DisplayName = "並び順保存処理 目的：更新対象の社員が存在しない場合　前提：" +
+        [TestMethod(DisplayName = "並び順保存処理 目的：更新対象の社員が存在しない場合　前提：社員A(Id=1,Jyunjyo=1)のみ存在" +
             "社員1(Id=1, Jyunjyo=1)のみ存在")]
         public async Task OnPostRegisterAsync_更新対象の社員が存在しない場合()
         {
@@ -190,7 +188,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.JyunjyoNarabikae
         }
 
         /// <summary>
-        /// 並び順保存処理 目的：同時実行制御が発動した場合 前提：部署A(Id=1,IsActive=true,Jyunjyo=1)
+        /// 並び順保存処理 目的：同時実行制御が発動した場合 前提：社員A(Id=1,Jyunjyo=1)
         /// </summary>
         [TestMethod(DisplayName = "並び順保存処理 目的：同時実行制御が発動した場合 前提：社員1(Id=1,Jyunjyo=1)")]
         public async Task OnPostRegisterAsync_同時実行制御が発動した場合()
@@ -204,7 +202,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.JyunjyoNarabikae
             var model = CreateModel();
             var request = new List<SyainOrderModel>
             {
-                new() { Id = 2, Jyunjyo = 2 }
+                new() { Id = syain1.Id, Jyunjyo = 10, Version = syain1.Version + 1 }
             };
 
             // Act

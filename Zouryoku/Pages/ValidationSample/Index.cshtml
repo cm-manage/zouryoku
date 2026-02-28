@@ -1,0 +1,132 @@
+﻿@page
+@model Zouryoku.Pages.ValidationSample.IndexModel
+@{
+}
+<div class="app-screen--entry">
+
+    <div class="app-area__header">
+    </div>
+
+    <div class="app-area__body">
+        <form method="post" id="form-input">
+            @Html.AntiForgeryToken()
+
+            <div class="row mt-3 mb-3 align-items-center">
+                <label asp-for="Input.Code" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.Code)
+                    <span class="text-danger fw-bold">*</span>
+                </label>
+                <div class="col-md-3">
+                    <input asp-for="Input.Code" class="form-control form-control-sm app-input__textbox" />
+                    <span class="text-danger small" asp-validation-for="Input.Code"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3 align-items-center">
+                <label asp-for="Input.Name" class="col-md-2 col-form-label app-input__label ps-2">
+                    @Html.DisplayNameFor(m => m.Input.Name)
+                    <span class="text-danger fw-bold">*</span>
+                    <span class="text-primary fw-bold">*</span>
+                </label>
+                <div class="col-md-5">
+                    <input asp-for="Input.Name" class="form-control form-control-sm app-input__textbox" />
+                    <span class="text-danger small" asp-validation-for="Input.Name"></span>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- フッター潜り込み余白 -->
+    <div class="py-3 my-3"></div>
+
+    <!-- フッターエリア -->
+    <div class="app-area__footer">
+        <hr />
+        <div class="text-end p-2">
+            <button type="button" class="btn btn-primary app-btn__base" id="btn-post">
+                <i class="fa-solid fa-check"></i>POST
+            </button>
+            <button type="button" class="btn btn-primary app-btn__base" id="btn-get">
+                <i class="fa-solid fa-check"></i>GET
+            </button>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(function() {
+
+            const $form = $("#form-input");
+
+            initValidation($form);
+
+                        // 登録/更新/削除共通処理
+            async function register(handler) {
+                // 既存Validationエラーメッセージクリア
+                clearErrors('#anken-input-form');
+
+                // クライアント側バリデーション
+                // if (!$form.valid()) {
+                //     return;
+                // }
+
+                await executeRegister(handler)
+                    .then(function(response){
+                        console.log("成功：", response);
+                    })
+                    .catch(function(error) {
+                        console.log("エラー：", error);
+                    });
+            }
+
+
+            // 登録処理実行
+            async function executeRegister(handler) {
+                const data = $form.serializeArray();
+                return await new Promise((resolve) => {
+                    sendRegisterAjax(toUrl(handler), $form, data,
+                        function(result) {
+                            switch(result.status){
+                                case responseStatusSuccess:
+                                    alert(result.message)
+                                    resolve(result);
+                                    break;
+                                case responseStatusError:
+                                    alert(result.message);
+                                    resolve(null);
+                                    break;
+                            }
+                        }
+                    );
+                })
+            }
+
+            // POSTボタン
+            $('#btn-post').on('click', function() {
+                register('Register');
+            });
+
+            async function searchBusyo($form) {
+                return new Promise(resolve => {
+                    sendGetAjax(toUrl('Search'), $form, $form.serializeArray(), data => resolve(data), false);
+                });
+            }
+
+            $('#btn-get').on('click', async function () {
+                await searchBusyo($form)
+                    .then(function(response){
+                        alert(response);
+                        console.log("成功：", response);
+                    })
+                    .catch(function(error) {
+                        alert("エラー");
+                        console.log("エラー：", error);
+                    });
+            });
+
+
+
+        });
+    </script>
+}

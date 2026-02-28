@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Model.Data;
+using Model.Extensions;
 using Model.Model;
 using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
@@ -55,7 +56,6 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
             return Page();
         }
 
-
         /// <summary>
         /// 並び順保存
         /// </summary>
@@ -78,10 +78,13 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
                     return Error(ErrorConflictSyain);
 
                 syain.Jyunjyo = dto.Jyunjyo;
+                db.SetOriginalValue(syain, s => s.Version, dto.Version);
             }
 
             // 更新を保存
             await SaveWithConcurrencyCheckAsync(ErrorConflictSyain);
+            if (!ModelState.IsValid) return CommonErrorResponse();
+
             return Success();
         }
 
@@ -131,6 +134,8 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
         /// </summary>
         public short Jyunjyo { get; set; }
 
+        public uint Version { get; init; }
+
         /// <summary>
         /// エンティティから表示用モデルを作成します。
         /// </summary>
@@ -138,12 +143,12 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
         /// <returns>変換後のSyainViewModel</returns>
         public static SyainViewModel FromEntity(Syain syain)
         {
-
             return new SyainViewModel
             {
                 Id = syain.Id,
                 Name = syain.Name,
-                Jyunjyo = syain.Jyunjyo
+                Jyunjyo = syain.Jyunjyo,
+                Version = syain.Version,
             };
         }
     }
@@ -173,6 +178,10 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
         /// 設定する並び順
         /// </summary>
         public short Jyunjyo { get; set; }
-    }
 
+        /// <summary>
+        /// <see cref="Syain"/> エンティティのバージョン（同時実行制御用）
+        /// </summary>
+        public uint Version { get; init; }
+    }
 }

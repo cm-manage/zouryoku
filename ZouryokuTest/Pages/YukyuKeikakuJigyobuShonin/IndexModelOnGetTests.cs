@@ -45,8 +45,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
 
-            await model.OnGetAsync(); // Act
-            AssertModelStateErrors(string.Format(Const.ErrorRead, "部署マスタ"), model.ModelState); // Assert
+            var result = await model.OnGetAsync(); // Act
+            AssertRedirectError(string.Format(Const.ErrorRead, "部署マスタ"), result); // Assert
         }
 
         /// <summary>
@@ -76,8 +76,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
 
-            await model.OnGetAsync(); // Act
-            AssertModelStateErrors(string.Format(Const.ErrorRead, "部署マスタ"), model.ModelState); // Assert
+            var result = await model.OnGetAsync(); // Act
+            AssertRedirectError(string.Format(Const.ErrorRead, "部署マスタ"), result); // Assert
         }
 
         /// <summary>
@@ -105,8 +105,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
 
-            await model.OnGetAsync(); // Act
-            AssertModelStateErrors(string.Format(Const.ErrorRead, "部署マスタ"), model.ModelState); // Assert
+            var result = await model.OnGetAsync(); // Act
+            AssertRedirectError(string.Format(Const.ErrorRead, "部署マスタ"), result); // Assert
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////

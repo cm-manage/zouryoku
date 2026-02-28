@@ -1,5 +1,6 @@
 using CommonLibrary.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Model.Model;
 using ZouryokuTest.Builder;
 using static Zouryoku.Utils.Const;
 
@@ -119,15 +120,24 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         {
             // Arrange
             var model = CreateModel();
-            db.Add(new KokyakuKaisyaSansyouRirekiBuilder()
-                .WithId(3)
-                .WithSyainBaseId(1)
-                .WithKokyakuKaisyaId(3)
-                .WithSansyouTime(fakeTimeProvider.Now().AddDays(-1))
-                .Build());
-            db.Add(new KokyakuKaishaBuilder()
-                .WithId(3)
-                .Build());
+            db.Add(new KokyakuKaisyaSansyouRireki(){
+                Id = 3,
+                SyainBaseId = 1,
+                KokyakuKaisyaId = 3,
+                SansyouTime = fakeTimeProvider.Now().AddDays(-1),
+                });
+            db.Add(new KokyakuKaisha(){
+                Id = 3,
+                Name = "株式会社サンプル",
+                NameKana = "カブシキガイシャサンプル",
+                Jyuusyo1 = "住所1",
+                Jyuusyo2 = "住所2",
+                Tel = "TEL",
+                Code = 0,
+                Ryakusyou = "サンプル",
+                SearchName = "株式会社サンプル",
+                SearchNameKana = "カブシキガイシャサンプル"
+            });
             db.SaveChanges();
             var customerId = 3;
 
@@ -201,9 +211,18 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
             CreateDataForAcquire(countBefore);
             // 履歴に追加するための顧客会社を用意する
             var customerId = 100;
-            db.Add(new KokyakuKaishaBuilder()
-                .WithId(customerId)
-                .Build());
+            db.Add(new KokyakuKaisha(){
+                Id = customerId,
+                Name = "株式会社サンプル",
+                NameKana = "カブシキガイシャサンプル",
+                Jyuusyo1 = "住所1",
+                Jyuusyo2 = "住所2",
+                Tel = "TEL",
+                Code = 0,
+                Ryakusyou = "サンプル",
+                SearchName = "株式会社サンプル",
+                SearchNameKana = "カブシキガイシャサンプル"
+            });
             db.SaveChanges();
 
             // Act
@@ -230,9 +249,18 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
             db.SaveChanges();
             // 履歴に追加するための顧客会社を用意する
             var customerId = 100;
-            db.Add(new KokyakuKaishaBuilder()
-                .WithId(customerId)
-                .Build());
+            db.Add(new KokyakuKaisha(){
+                Id = customerId,
+                Name = "株式会社サンプル",
+                NameKana = "カブシキガイシャサンプル",
+                Jyuusyo1 = "住所1",
+                Jyuusyo2 = "住所2",
+                Tel = "TEL",
+                Code = 0,
+                Ryakusyou = "サンプル",
+                SearchName = "株式会社サンプル",
+                SearchNameKana = "カブシキガイシャサンプル"
+            });
             db.SaveChanges();
 
             // Act

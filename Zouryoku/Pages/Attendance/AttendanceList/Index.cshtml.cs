@@ -546,6 +546,7 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
             DatepickerRangeModel.Option.ThisMonth,
             DatepickerRangeModel.Option.Past2Months,
             DatepickerRangeModel.Option.Past3Months,
+            DatepickerRangeModel.Option.PastHalfYear,
             DatepickerRangeModel.Option.ThisFiscalYear,
         };
         /// <summary>部署ID/// </summary>

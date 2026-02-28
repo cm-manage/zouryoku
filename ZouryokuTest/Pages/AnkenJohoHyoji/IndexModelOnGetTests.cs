@@ -1,10 +1,8 @@
 using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
 using Zouryoku.Utils;
-using ZouryokuTest.Builder;
 
 namespace ZouryokuTest.Pages.AnkenJohoHyoji
 {
@@ -27,64 +25,115 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：受注種類
-            var jyutyuSyurui = CreateJyutyuSyurui(1);
+            var jyutyuSyurui = new JyutyuSyurui()
+            {
+                Id = 1,
+                Name = "受注種類A",
+                Code = "",
+            };
 
             // シード：顧客会社
-            KokyakuKaisha kokyaku = CreateKokyakuKaisha(1);
+            KokyakuKaisha kokyaku = new KokyakuKaisha()
+            {
+                Id = 1,
+                Name = "顧客会社A",
+                Shiten = "本店",
+                NameKana = "",
+                Ryakusyou = "",
+                SearchName = "",
+                SearchNameKana = "",
+            };
 
             // シード：責任者の社員（Syain）および SyainBase を作成（Start/End を現在に合わせる）
-            SyainBasis syainBase = CreateSyainBasis(1);
+            SyainBasis syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Code = "",
+            };
 
-            var today = DateTime.Today.ToDateOnly();
-            var syainNow = new SyainBuilder()
-                .WithId(1)
-                .WithCode("NOW01")
-                .WithName("現役社員")
-                .WithSyainBaseId(syainBase.Id)
-                .WithStartYmd(today.AddDays(-10))
-                .WithEndYmd(today.AddDays(10))
-                .Build();
+            var syainNow = new Syain(){
+                Id = 1,
+                Name = "現役社員",
+                SyainBaseId = syainBase.Id,
+                StartYmd = today.AddDays(-10),
+                EndYmd = today.AddDays(10),
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
-            var syainPast = new SyainBuilder()
-                .WithId(2)
-                .WithCode("PAST01")
-                .WithName("過去社員")
-                .WithSyainBaseId(syainBase.Id)
-                .WithStartYmd(today.AddDays(-20))
-                .WithEndYmd(today.AddDays(-10))
-                .Build();
+            var syainPast = new Syain(){
+                Id = 2,
+                Name = "過去社員",
+                SyainBaseId = syainBase.Id,
+                StartYmd = today.AddDays(-20),
+                EndYmd = today.AddDays(-10),
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
-            var syainFuture = new SyainBuilder()
-                .WithId(3)
-                .WithCode("FUT01")
-                .WithName("未来社員")
-                .WithSyainBaseId(syainBase.Id)
-                .WithStartYmd(today.AddDays(10))
-                .WithEndYmd(today.AddDays(20))
-                .Build();
+            var syainFuture = new Syain(){
+                Id = 3,
+                Name = "未来社員",
+                SyainBaseId = syainBase.Id,
+                StartYmd = today.AddDays(10),
+                EndYmd = today.AddDays(20),
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
             // シード：KINGS受注
-            var kings = CreateKingsJuchu(1);
+            var kings = new KingsJuchu()
+            {
+                Id = 1,
+                ProjectNo = "PRJ-001",
+                JuchuuNo = "JUCHU-001",
+                JuchuuGyoNo = 1,
+                SekouBumonCd = "",
+                Bukken = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("既存案件")
-                .WithKokyakuKaisyaId(kokyaku.Id)
-                .WithJyutyuSyuruiId(jyutyuSyurui.Id)
-                .WithSyainBaseId(syainBase.Id)
-                .WithKingsJuchuId(kings.Id)
-                .WithNaiyou("既存案件の内容です。")
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "既存案件",
+                KokyakuKaisyaId = kokyaku.Id,
+                JyutyuSyuruiId = jyutyuSyurui.Id,
+                SyainBaseId = syainBase.Id,
+                KingsJuchuId = kings.Id,
+                Naiyou = "既存案件の内容です。",
+                SearchName = "既存案件",
+            };
 
             // シード：表示対象外の案件エンティティ
-            var otherAnken = new AnkenBuilder()
-                .WithId(101)
-                .WithName("他の案件")
-                .Build();
+            var otherAnken = new Anken(){
+                Id = 101,
+                Name = "他の案件",
+                SearchName = "他の案件",
+            };
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(4);
+            var syainLogin = new Syain()
+            {
+                Id = 4,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // 必要データ登録
             SeedEntities(jyutyuSyurui, kokyaku, syainBase, syainNow, syainPast, syainFuture,
@@ -126,27 +175,45 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：責任者の社員（Syain）および SyainBase を作成（Start/End を現在に合わせる）
-            SyainBasis syainBase = CreateSyainBasis(1);
+            SyainBasis syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Code = "",
+            };
 
-            var today = DateTime.Today.ToDateOnly();
-            var syainToday = new SyainBuilder()
-                .WithId(4)
-                .WithCode("TOD01")
-                .WithName("当日社員")
-                .WithSyainBaseId(syainBase.Id)
-                .WithStartYmd(today.AddDays(startOffset))
-                .WithEndYmd(today.AddDays(endOffset))
-                .Build();
+            var syainToday = new Syain(){
+                Id = 4,
+                Name = "当日社員",
+                SyainBaseId = syainBase.Id,
+                StartYmd = today.AddDays(startOffset),
+                EndYmd = today.AddDays(endOffset),
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("既存案件")
-                .WithSyainBaseId(syainBase.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "既存案件",
+                SyainBaseId = syainBase.Id,
+                SearchName = "既存案件",
+            };
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(2);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // 必要データ登録
             SeedEntities(syainBase, syainToday, ankenEntity, syainLogin);
@@ -176,27 +243,45 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：責任者の社員（Syain）および SyainBase を作成（Start/End を現在に合わせる）
-            SyainBasis syainBase = CreateSyainBasis(1);
+            SyainBasis syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Code = "",
+            };
 
-            var today = DateTime.Today.ToDateOnly();
-            var syainToday = new SyainBuilder()
-                .WithId(4)
-                .WithCode("TOD01")
-                .WithName("当日社員")
-                .WithSyainBaseId(syainBase.Id)
-                .WithStartYmd(today.AddDays(startOffset))
-                .WithEndYmd(today.AddDays(endOffset))
-                .Build();
+            var syainToday = new Syain(){
+                Id = 4,
+                Name = "当日社員",
+                SyainBaseId = syainBase.Id,
+                StartYmd = today.AddDays(startOffset),
+                EndYmd = today.AddDays(endOffset),
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("既存案件")
-                .WithSyainBaseId(syainBase.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "既存案件",
+                SyainBaseId = syainBase.Id,
+                SearchName = "既存案件",
+                };
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(2);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // 必要データ登録
             SeedEntities(syainBase, syainToday, ankenEntity, syainLogin);
@@ -227,26 +312,66 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：受注種類
-            var jyutyuSyurui = CreateJyutyuSyurui(1);
+            var jyutyuSyurui = new JyutyuSyurui()
+            {
+                Id = 1,
+                Name = "受注種類A",
+                Code = "",
+            };
 
             // シード：顧客会社
-            var kokyaku = CreateKokyakuKaisha(1);
+            var kokyaku = new KokyakuKaisha()
+            {
+                Id = 1,
+                Name = "顧客会社A",
+                Shiten = "本店",
+                NameKana = "",
+                Ryakusyou = "",
+                SearchName = "",
+                SearchNameKana = "",
+            };
 
             // シード：責任者の社員
-            var syainBase = CreateSyainBasis(1);
-            var syain = CreateSyain(1, syainBase.Id);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Code = "",
+            };
+
+            var syain = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = syainBase.Id,
+                Name = "社員A",
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("関連データなし案件")
-                .WithKokyakuKaisyaId(kokyaku.Id)
-                .WithJyutyuSyuruiId(jyutyuSyurui.Id)
-                .WithSyainBaseId(syainBase.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "関連データなし案件",
+                KokyakuKaisyaId = kokyaku.Id,
+                JyutyuSyuruiId = jyutyuSyurui.Id,
+                SyainBaseId = syainBase.Id,
+                SearchName = "関連データなし案件",
+            };
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(2);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // 必要データ登録
             SeedEntities(jyutyuSyurui, kokyaku, syainBase, syain, ankenEntity, syainLogin);
@@ -279,26 +404,71 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：顧客会社
-            var kokyaku = CreateKokyakuKaisha(1);
+            var kokyaku = new KokyakuKaisha()
+            {
+                Id = 1,
+                Name = "顧客会社A",
+                Shiten = "本店",
+                NameKana = "",
+                Ryakusyou = "",
+                SearchName = "",
+                SearchNameKana = "",
+            };
 
             // シード：責任者の社員
-            var syainBase = CreateSyainBasis(1);
-            var syain = CreateSyain(1, syainBase.Id);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Code = "",
+            };
+
+            var syain = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = syainBase.Id,
+                Name = "社員A",
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
             // シード：KINGS受注
-            var kings = CreateKingsJuchu(1);
+            var kings = new KingsJuchu()
+            {
+                Id = 1,
+                ProjectNo = "PRJ-001",
+                JuchuuNo = "JUCHU-001",
+                JuchuuGyoNo = 1,
+                SekouBumonCd = "",
+                Bukken = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("関連データなし案件")
-                .WithKokyakuKaisyaId(kokyaku.Id)
-                .WithSyainBaseId(syainBase.Id)
-                .WithKingsJuchuId(kings.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "関連データなし案件",
+                KokyakuKaisyaId = kokyaku.Id,
+                SyainBaseId = syainBase.Id,
+                KingsJuchuId = kings.Id,
+                SearchName = "関連データなし案件",
+            };
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(2);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // 必要データ登録
             SeedEntities(kokyaku, syainBase, syain, kings, ankenEntity, syainLogin);
@@ -329,26 +499,67 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：受注種類
-            var jyutyuSyurui = CreateJyutyuSyurui(1);
+            var jyutyuSyurui = new JyutyuSyurui()
+            {
+                Id = 1,
+                Name = "受注種類A",
+                Code = "",
+            };
 
             // シード：責任者の社員
-            var syainBase = CreateSyainBasis(1);
-            var syain = CreateSyain(1, syainBase.Id);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Code = "",
+            };
+
+            var syain = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = syainBase.Id,
+                Name = "社員A",
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
             // シード：KINGS受注
-            var kings = CreateKingsJuchu(1);
+            var kings = new KingsJuchu()
+            {
+                Id = 1,
+                ProjectNo = "PRJ-001",
+                JuchuuNo = "JUCHU-001",
+                JuchuuGyoNo = 1,
+                SekouBumonCd = "",
+                Bukken = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("関連データなし案件")
-                .WithJyutyuSyuruiId(jyutyuSyurui.Id)
-                .WithSyainBaseId(syainBase.Id)
-                .WithKingsJuchuId(kings.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "関連データなし案件",
+                JyutyuSyuruiId = jyutyuSyurui.Id,
+                SyainBaseId = syainBase.Id,
+                KingsJuchuId = kings.Id,
+                SearchName = "関連データなし案件",
+            };
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(2);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // 必要データ登録
             SeedEntities(jyutyuSyurui, syainBase, syain, ankenEntity, syainLogin);
@@ -380,25 +591,60 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：受注種類
-            var jyutyuSyurui = CreateJyutyuSyurui(1);
+            var jyutyuSyurui = new JyutyuSyurui()
+            {
+                Id = 1,
+                Name = "受注種類A",
+                Code = "",
+            };
 
             // シード：顧客会社
-            var kokyaku = CreateKokyakuKaisha(1);
+            var kokyaku = new KokyakuKaisha()
+            {
+                Id = 1,
+                Name = "顧客会社A",
+                Shiten = "本店",
+                NameKana = "",
+                Ryakusyou = "",
+                SearchName = "",
+                SearchNameKana = "",
+            };
 
             // シード：KINGS受注
-            var kings = CreateKingsJuchu(1);
+            var kings = new KingsJuchu()
+            {
+                Id = 1,
+                ProjectNo = "PRJ-001",
+                JuchuuNo = "JUCHU-001",
+                JuchuuGyoNo = 1,
+                SekouBumonCd = "",
+                Bukken = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("関連データなし案件")
-                .WithKokyakuKaisyaId(kokyaku.Id)
-                .WithJyutyuSyuruiId(jyutyuSyurui.Id)
-                .WithKingsJuchuId(kings.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "関連データなし案件",
+                KokyakuKaisyaId = kokyaku.Id,
+                JyutyuSyuruiId = jyutyuSyurui.Id,
+                KingsJuchuId = kings.Id,
+                SearchName = "関連データなし案件",
+            };
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(2);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // 必要データ登録
             SeedEntities(jyutyuSyurui, kokyaku, kings, ankenEntity, syainLogin);
@@ -432,13 +678,25 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         public async Task OnGetAsync_存在しない案件ID指定_エラーページに遷移()
         {
             // ---------- Arrange ----------
-            // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(1)
-                .Build();
+            // シード：案件エンティティ
+            var ankenEntity = new Anken(){
+                Id = 1,
+                Name = "表示対象外案件",
+                SearchName = "表示対象外案件",
+                };
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(2);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // 必要データ登録
             SeedEntities(ankenEntity, syainLogin);

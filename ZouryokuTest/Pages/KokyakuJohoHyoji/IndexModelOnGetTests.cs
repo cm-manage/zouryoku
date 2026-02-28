@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
+using System.Globalization;
 using Zouryoku.Utils;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
+using static Model.Enums.BusinessTripRole;
+using static Model.Enums.EmployeeAuthority;
 
 namespace ZouryokuTest.Pages.KokyakuJohoHyoji
 {
@@ -39,7 +40,16 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 顧客会社情報の作成
-            var kokyaku = CreateKokyakuKaisha(1);
+            var kokyaku = new KokyakuKaisha()
+            {
+                Id = 1,
+                Code = 100,
+                Name = "A会社",
+                NameKana = "エーカイシャ",
+                Ryakusyou = "A",
+                SearchName = "A会社",
+                SearchNameKana = "エーカイシャ",
+            };
 
             // データの登録
             SeedEntities(kokyaku);
@@ -71,80 +81,216 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 顧客会社情報の作成
-            var kokyaku = new KokyakuKaishaBuilder().WithName("AA会社")
-                                    .WithNameKana("エーエーカイシャ")
-                                    .WithRyakusyou("AA")
-                                    .WithYuubinBangou("000-0000")
-                                    .WithJyuusyo1("大阪府大阪市")
-                                    .WithJyuusyo2("○○区")
-                                    .WithTel("00-0000-0000")
-                                    .WithFax("00-0000-0000")
-                                    .WithMemo("sample")
-                                    .WithUrl("test")
-                                    .WithGyousyuId(1)
-                                    .WithEigyoBaseSyainId(1)
-                                    .Build();
+            var kokyaku = new KokyakuKaisha()
+            {
+                Code = 100,
+                Name = "AA会社",
+                NameKana = "エーエーカイシャ",
+                Ryakusyou = "AA",
+                YuubinBangou = "000-0000",
+                Jyuusyo1 = "大阪府大阪市",
+                Jyuusyo2 = "○○区",
+                Tel = "00-0000-0000",
+                Fax = "00-0000-0000",
+                Memo = "sample",
+                Url = "test",
+                GyousyuId = 1,
+                EigyoBaseSyainId = 1,
+                SearchName = "A会社",
+                SearchNameKana = "エーカイシャ",
+            };
 
             // 業種情報の作成
-            var gyousyu = CreateGyousyu(1);
+            var gyousyu = new Gyousyu()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "業種A",
+            };
 
             // 社員Base情報の作成
-            var syainBase = CreateSyainBase(1);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "100",
+            };
 
             // 社員情報の作成
             List<Syain> syains = new List<Syain>();
             var now = new DateTime(2026, 7, 1, 18, 0, 0);
             fakeTimeProvider.SetLocalNow(now);
-            var today = fakeTimeProvider.Today();
+            var today = now.ToDateOnly();
 
-            syains.Add(new SyainBuilder().WithId(1)
-                .WithSyainBaseId(1)
-                .WithName("現役社員")
-                .WithBusyoId(5)
-                .WithStartYmd(today.AddDays(-10))
-                .WithEndYmd(today.AddDays(10))
-                .Build());
+            syains.Add(new Syain()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "現役社員",
+                KanaName = "ゲンエキシャイン",
+                Seibetsu = '1',
+                BusyoCode = "500",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = today.AddDays(-10),
+                EndYmd = today.AddDays(10),
+                Kyusyoku = 1,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = false,
+                Kengen = None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = 1,
+                BusyoId = 5,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            });
 
-            syains.Add(new SyainBuilder().WithId(2)
-                .WithSyainBaseId(1)
-                .WithName("過去社員")
-                .WithBusyoId(5)
-                .WithStartYmd(today.AddDays(-20))
-                .WithEndYmd(today.AddDays(-10))
-                .Build());
+            syains.Add(new Syain()
+            {
+                Id = 2,
+                Code = "100",
+                Name = "過去社員",
+                KanaName = "カコシャイン",
+                Seibetsu = '1',
+                BusyoCode = "100",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = today.AddDays(-20),
+                EndYmd = today.AddDays(-10),
+                Kyusyoku = 1,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = false,
+                Kengen = None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = 1,
+                BusyoId = 5,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            });
 
-            syains.Add(new SyainBuilder().WithId(3)
-                .WithSyainBaseId(1)
-                .WithName("未来社員")
-                .WithBusyoId(5)
-                .WithStartYmd(today.AddDays(10))
-                .WithEndYmd(today.AddDays(20))
-                .Build());
+            syains.Add(new Syain()
+            {
+                Id = 3,
+                Code = "100",
+                Name = "未来社員",
+                KanaName = "ミライシャイン",
+                Seibetsu = '1',
+                BusyoCode = "100",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = today.AddDays(10),
+                EndYmd = today.AddDays(20),
+                Kyusyoku = 1,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = false,
+                Kengen = None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = 1,
+                BusyoId = 5,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            });
 
             // 部署情報の作成
-            List<Busyo> busyos = new List<Busyo>();
+            List<Busyo> busyos =
+            [
+                new Busyo()
+                {
+                    Id = 1,
+                    Code = "100",
+                    Name = "部署A",
+                    KanaName = "ブショエー",
+                    OyaCode = "0",
+                    StartYmd = new DateOnly(2010, 4, 1),
+                    EndYmd = new DateOnly(9999, 12, 31),
+                    Jyunjyo = 1,
+                    KasyoCode = "1",
+                    KaikeiCode = "1",
+                    IsActive = true,
+                    BusyoBaseId = 1,
+                    OyaId = null,
+                },
 
-            busyos.Add(new BusyoBuilder().Build());
+                new Busyo()
+                {
+                    Id = 2,
+                    Code = "200",
+                    Name = "部署B",
+                    KanaName = "ブショビー",
+                    OyaCode = "100",
+                    StartYmd = new DateOnly(2010, 4, 1),
+                    EndYmd = new DateOnly(9999, 12, 31),
+                    Jyunjyo = 1,
+                    KasyoCode = "1",
+                    KaikeiCode = "1",
+                    IsActive = true,
+                    BusyoBaseId = 2,
+                    OyaId = 1,
+                },
 
-            busyos.Add(new BusyoBuilder().WithId(2)
-                .WithName("部署B")
-                .WithOyaId(1)
-                .Build());
+                new Busyo()
+                {
+                    Id = 3,
+                    Code = "300",
+                    Name = "部署C",
+                    KanaName = "ブショシー",
+                    OyaCode = "100",
+                    StartYmd = new DateOnly(2010, 4, 1),
+                    EndYmd = new DateOnly(9999, 12, 31),
+                    Jyunjyo = 1,
+                    KasyoCode = "1",
+                    KaikeiCode = "1",
+                    IsActive = true,
+                    BusyoBaseId = 3,
+                    OyaId = 1,
+                },
 
-            busyos.Add(new BusyoBuilder().WithId(3)
-                .WithName("部署C")
-                .WithOyaId(1)
-                .Build());
+                new Busyo()
+                {
+                    Id = 4,
+                    Code = "400",
+                    Name = "部署D",
+                    KanaName = "ブショディー",
+                    OyaCode = "300",
+                    StartYmd = new DateOnly(2010, 4, 1),
+                    EndYmd = new DateOnly(9999, 12, 31),
+                    Jyunjyo = 1,
+                    KasyoCode = "1",
+                    KaikeiCode = "1",
+                    IsActive = true,
+                    BusyoBaseId = 4,
+                    OyaId = 3,
+                },
 
-            busyos.Add(new BusyoBuilder().WithId(4)
-                .WithName("部署D")
-                .WithOyaId(3)
-                .Build());
-
-            busyos.Add(new BusyoBuilder().WithId(5)
-                .WithName("部署E")
-                .WithOyaId(3)
-                .Build());
+                new Busyo()
+                {
+                    Id = 5,
+                    Code = "500",
+                    Name = "部署E",
+                    KanaName = "ブショイー",
+                    OyaCode = "500",
+                    StartYmd = new DateOnly(2010, 4, 1),
+                    EndYmd = new DateOnly(9999, 12, 31),
+                    Jyunjyo = 1,
+                    KasyoCode = "1",
+                    KaikeiCode = "1",
+                    IsActive = true,
+                    BusyoBaseId = 5,
+                    OyaId = 3,
+                },
+            ];
 
             // データの登録
             SeedEntities(kokyaku, gyousyu, syainBase, syains, busyos);
@@ -170,7 +316,7 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
             Assert.AreEqual("test", model.KokyakuView.Url, "Url が test と一致しません。");
 
             // 業種情報
-            Assert.AreEqual("サンプル", model.KokyakuView.GyousyuName, "GyousyuName が サンプル と一致しません。");
+            Assert.AreEqual("業種A", model.KokyakuView.GyousyuName, "GyousyuName が サンプル と一致しません。");
 
             // 社員情報
             Assert.AreEqual("現役社員", model.KokyakuView.EigyouSyainName, "EigyouSyainName が 現役社員 と一致しません。");
@@ -200,32 +346,63 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
             // 現在の日付を取得
             var now = new DateTime(2026, 7, 1, 18, 0, 0);
             fakeTimeProvider.SetLocalNow(now);
-            var today = fakeTimeProvider.Today();
+            var today = now.ToDateOnly();
 
             // 顧客会社情報の作成
-            var kokyaku = new KokyakuKaishaBuilder().WithName("AA会社")
-                                    .WithNameKana("エーエーカイシャ")
-                                    .WithRyakusyou("AA")
-                                    .WithYuubinBangou("000-0000")
-                                    .WithJyuusyo1("大阪府大阪市")
-                                    .WithJyuusyo2("○○区")
-                                    .WithTel("00-0000-0000")
-                                    .WithFax("00-0000-0000")
-                                    .WithMemo("sample")
-                                    .WithUrl("test")
-                                    .WithGyousyuId(1)
-                                    .WithEigyoBaseSyainId(1)
-                                    .Build();
+            var kokyaku = new KokyakuKaisha()
+            {
+                Code = 100,
+                Name = "AA会社",
+                NameKana = "エーエーカイシャ",
+                Ryakusyou = "AA",
+                YuubinBangou = "000-0000",
+                Jyuusyo1 = "大阪府大阪市",
+                Jyuusyo2 = "○○区",
+                Tel = "00-0000-0000",
+                Fax = "00-0000-0000",
+                Memo = "sample",
+                Url = "test",
+                GyousyuId = 1,
+                EigyoBaseSyainId = 1,
+                SearchName = "A会社",
+                SearchNameKana = "エーカイシャ",
+            };
 
             // 社員Base情報の作成
-            var syainBase = CreateSyainBase(1);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "100",
+            };
 
             // 社員情報の作成
-            var syain = new SyainBuilder().WithId(1)
-                .WithName("社員A")
-                .WithStartYmd(today.AddDays(startInt))
-                .WithEndYmd(today.AddDays(endInt))
-                .Build();
+            var syain = new Syain()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "社員A",
+                KanaName = "シャインエー",
+                Seibetsu = '1',
+                BusyoCode = "500",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = today.AddDays(startInt),
+                EndYmd = today.AddDays(endInt),
+                Kyusyoku = 1,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = false,
+                Kengen = None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = 1,
+                BusyoId = 5,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            };
 
             // データの登録
             SeedEntities(kokyaku, syainBase, syain);
@@ -257,33 +434,81 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
             // 現在の日付を取得
             var now = new DateTime(2026, 7, 1, 18, 0, 0);
             fakeTimeProvider.SetLocalNow(now);
-            var today = fakeTimeProvider.Today();
+            var today = now.ToDateOnly();
 
             // 顧客会社情報の作成
-            var kokyaku = new KokyakuKaishaBuilder().WithId(1)
-                .WithEigyoBaseSyainId(1)
-                .Build();
+            var kokyaku = new KokyakuKaisha()
+            {
+                Code = 100,
+                Name = "AA会社",
+                NameKana = "エーエーカイシャ",
+                Ryakusyou = "AA",
+                YuubinBangou = "000-0000",
+                Jyuusyo1 = "大阪府大阪市",
+                Jyuusyo2 = "○○区",
+                Tel = "00-0000-0000",
+                Fax = "00-0000-0000",
+                Memo = "sample",
+                Url = "test",
+                GyousyuId = 1,
+                EigyoBaseSyainId = 1,
+                SearchName = "A会社",
+                SearchNameKana = "エーカイシャ",
+            };
 
             // 部署情報の作成
-            var busyo = new BusyoBuilder().WithId(1)
-                .WithName("部署A")
-                .WithStartYmd(today.AddDays(-10))
-                .WithEndYmd(today.AddDays(10))
-                .WithOyaId(null)
-                .WithIsActive(true)
-                .Build();
+            var busyo = new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = today.AddDays(-10),
+                EndYmd = today.AddDays(10),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // 社員Base情報の作成
-            var syainBase = CreateSyainBase(1);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "100",
+            };
 
             // 社員情報の作成
-            var syain = new SyainBuilder().WithId(1)
-                .WithName("社員A")
-                .WithStartYmd(DateOnly.Parse("2025/04/01"))
-                .WithEndYmd(DateOnly.Parse("9999/12/31"))
-                .WithBusyoId(1)
-                .WithSyainBaseId(1)
-                .Build();
+            var syain = new Syain()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "社員A",
+                KanaName = "シャインエー",
+                Seibetsu = '1',
+                BusyoCode = "500",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = today.AddDays(-10),
+                EndYmd = today.AddDays(10),
+                Kyusyoku = 1,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = false,
+                Kengen = None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = 1,
+                BusyoId = 1,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            };
 
             // データの登録
             SeedEntities(kokyaku, busyo, syainBase, syain);
@@ -314,21 +539,85 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
             // ================ Arrange ================ //
             var now = new DateTime(2026, 7, 1, 18, 0, 0);
             fakeTimeProvider.SetLocalNow(now);
+            var today = now.ToDateOnly();
 
             // 社員情報の作成
-            var syainBase = CreateSyainBase(1);
-            var busyo = CreateBusyo(1);
+            // 社員Base情報の作成
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "100",
+            };
+
+            // 部署情報の作成
+            var busyo = new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = today.AddDays(-10),
+                EndYmd = today.AddDays(10),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // ログインユーザーの顧客会社参照履歴の作成（複数件）
 
             var idCount = MaxHistoryCount - 5;
-            var userRirekis = CreateKokyakuKaisyaSansyouRireki(LoggedInUserId, idCount);
+
+            var baseTime = DateTime.ParseExact(
+                "2025/04/01 09:00",
+                "yyyy/MM/dd HH:mm",
+                CultureInfo.InvariantCulture
+                );
+
+            var userRirekis = Enumerable.Range(1, idCount)
+                .Select(i => new KokyakuKaisyaSansyouRireki()
+                {
+                    Id = i,
+                    KokyakuKaisyaId = i,
+                    SyainBaseId = LoggedInUserId,
+                    SansyouTime = baseTime.AddMinutes(i - 1),
+                }
+                    )
+                .ToList();
+
+            var otherUserRirekis = Enumerable.Range(idCount + 1, 3)
+                .Select(i => new KokyakuKaisyaSansyouRireki()
+                {
+                    Id = i,
+                    KokyakuKaisyaId = 1,
+                    SyainBaseId = 0, // ダミー
+                    SansyouTime = baseTime.AddMinutes(i),
+                })
+                .ToList();
 
             // 顧客会社情報の作成
-            var kokyaku = CreateKokyakuKaisha(idCount);
-
-            // 別ユーザーの顧客会社参照履歴の作成（複数件）
-            var otherUserRirekis = CreateOtherKokyakuKaisyaSansyouRireki(0, idCount + 1);
+            var kokyaku = new KokyakuKaisha()
+            {
+                Id = idCount,
+                Name = "AA会社",
+                NameKana = "エーエーカイシャ",
+                Ryakusyou = "AA",
+                YuubinBangou = "000-0000",
+                Jyuusyo1 = "大阪府大阪市",
+                Jyuusyo2 = "○○区",
+                Tel = "00-0000-0000",
+                Fax = "00-0000-0000",
+                Memo = "sample",
+                Url = "test",
+                GyousyuId = 1,
+                EigyoBaseSyainId = 1,
+                SearchName = "A会社",
+                SearchNameKana = "エーカイシャ",
+            };
 
             // データ登録
             SeedEntities(syainBase, kokyaku, busyo, userRirekis, otherUserRirekis);
@@ -378,7 +667,24 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 顧客会社情報の作成
-            var kokyaku = CreateKokyakuKaisha(5);
+            var kokyaku = new KokyakuKaisha()
+            {
+                Id = 5,
+                Name = "AA会社",
+                NameKana = "エーエーカイシャ",
+                Ryakusyou = "AA",
+                YuubinBangou = "000-0000",
+                Jyuusyo1 = "大阪府大阪市",
+                Jyuusyo2 = "○○区",
+                Tel = "00-0000-0000",
+                Fax = "00-0000-0000",
+                Memo = "sample",
+                Url = "test",
+                GyousyuId = 1,
+                EigyoBaseSyainId = 1,
+                SearchName = "A会社",
+                SearchNameKana = "エーカイシャ",
+            };
 
             // データの登録
             SeedEntities(kokyaku);
@@ -420,32 +726,81 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
             var today = fakeTimeProvider.Today();
 
             // 顧客会社情報の作成
-            var kokyaku = new KokyakuKaishaBuilder().WithName("AA会社")
-                                    .WithNameKana("エーエーカイシャ")
-                                    .WithRyakusyou("AA")
-                                    .WithYuubinBangou("000-0000")
-                                    .WithJyuusyo1("大阪府大阪市")
-                                    .WithJyuusyo2("○○区")
-                                    .WithTel("00-0000-0000")
-                                    .WithFax("00-0000-0000")
-                                    .WithMemo("sample")
-                                    .WithUrl("test")
-                                    .WithGyousyuId(1)
-                                    .WithEigyoBaseSyainId(1)
-                                    .Build();
+            var kokyaku = new KokyakuKaisha()
+            {
+                Code = 100,
+                Name = "AA会社",
+                NameKana = "エーエーカイシャ",
+                Ryakusyou = "AA",
+                YuubinBangou = "000-0000",
+                Jyuusyo1 = "大阪府大阪市",
+                Jyuusyo2 = "○○区",
+                Tel = "00-0000-0000",
+                Fax = "00-0000-0000",
+                Memo = "sample",
+                Url = "test",
+                GyousyuId = 1,
+                EigyoBaseSyainId = 1,
+                SearchName = "A会社",
+                SearchNameKana = "エーカイシャ",
+            };
+
+            // 部署情報の作成
+            var busyo = new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = "0",
+                StartYmd = new DateOnly(2010, 4, 1),
+                EndYmd = new DateOnly(9999, 12, 31),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            };
 
             // 社員Base情報の作成
-            var syainBase = CreateSyainBase(1);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "100",
+            };
 
             // 社員情報の作成
-            var syain = new SyainBuilder().WithId(1)
-                .WithName("社員A")
-                .WithStartYmd(today.AddDays(startInt))
-                .WithEndYmd(today.AddDays(endInt))
-                .Build();
+            var syain = new Syain()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "社員A",
+                KanaName = "シャインエー",
+                Seibetsu = '1',
+                BusyoCode = "100",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = today.AddDays(startInt),
+                EndYmd = today.AddDays(endInt),
+                Kyusyoku = 1,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = false,
+                Kengen = None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = 1,
+                BusyoId = 1,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            };
 
             // データの登録
-            SeedEntities(kokyaku, syainBase, syain);
+            SeedEntities(kokyaku, busyo, syainBase, syain);
 
             var model = CreateModel();
 
@@ -464,22 +819,32 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         {
             // ================ Arrange ================ //
             // 顧客会社情報の作成
-            var kokyaku = new KokyakuKaishaBuilder().WithName("AA会社")
-                                    .WithNameKana("エーエーカイシャ")
-                                    .WithRyakusyou("AA")
-                                    .WithYuubinBangou("000-0000")
-                                    .WithJyuusyo1("大阪府大阪市")
-                                    .WithJyuusyo2("○○区")
-                                    .WithTel("00-0000-0000")
-                                    .WithFax("00-0000-0000")
-                                    .WithMemo("sample")
-                                    .WithUrl("test")
-                                    .WithGyousyuId(null)
-                                    .WithEigyoBaseSyainId(1)
-                                    .Build();
+            var kokyaku = new KokyakuKaisha()
+            {
+                Code = 100,
+                Name = "AA会社",
+                NameKana = "エーエーカイシャ",
+                Ryakusyou = "AA",
+                YuubinBangou = "000-0000",
+                Jyuusyo1 = "大阪府大阪市",
+                Jyuusyo2 = "○○区",
+                Tel = "00-0000-0000",
+                Fax = "00-0000-0000",
+                Memo = "sample",
+                Url = "test",
+                GyousyuId = null,
+                EigyoBaseSyainId = 1,
+                SearchName = "A会社",
+                SearchNameKana = "エーカイシャ",
+            };
 
             // 業種情報の作成
-            var gyousyu = CreateGyousyu(1);
+            var gyousyu = new Gyousyu()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "業種A",
+            };
 
             // データの登録
             SeedEntities(kokyaku, gyousyu);
@@ -500,24 +865,65 @@ namespace ZouryokuTest.Pages.KokyakuJohoHyoji
         public async Task OnGetAsync_取得した顧客情報に営業社員BaseIDが登録されていない_営業社員情報が取得されない()
         {
             // ================ Arrange ================ //
+            // 現在の日付を取得
+            var now = new DateTime(2026, 7, 1, 18, 0, 0);
+            fakeTimeProvider.SetLocalNow(now);
+            var today = fakeTimeProvider.Today();
+
             // 顧客会社情報の作成
-            var kokyaku = new KokyakuKaishaBuilder().WithName("AA会社")
-                                    .WithNameKana("エーエーカイシャ")
-                                    .WithRyakusyou("AA")
-                                    .WithYuubinBangou("000-0000")
-                                    .WithJyuusyo1("大阪府大阪市")
-                                    .WithJyuusyo2("○○区")
-                                    .WithTel("00-0000-0000")
-                                    .WithFax("00-0000-0000")
-                                    .WithMemo("sample")
-                                    .WithUrl("test")
-                                    .WithGyousyuId(1)
-                                    .WithEigyoBaseSyainId(null)
-                                    .Build();
+            var kokyaku = new KokyakuKaisha()
+            {
+                Code = 100,
+                Name = "AA会社",
+                NameKana = "エーエーカイシャ",
+                Ryakusyou = "AA",
+                YuubinBangou = "000-0000",
+                Jyuusyo1 = "大阪府大阪市",
+                Jyuusyo2 = "○○区",
+                Tel = "00-0000-0000",
+                Fax = "00-0000-0000",
+                Memo = "sample",
+                Url = "test",
+                GyousyuId = 1,
+                EigyoBaseSyainId = null,
+                SearchName = "A会社",
+                SearchNameKana = "エーカイシャ",
+            };
 
             // 営業社員情報の作成
-            var syainBase = CreateSyainBase(1);
-            var syain = CreateSyain(1);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Name = "社員A",
+                Code = "100",
+            };
+
+            var syain = new Syain()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "社員A",
+                KanaName = "シャインエー",
+                Seibetsu = '1',
+                BusyoCode = "500",
+                SyokusyuCode = 1,
+                SyokusyuBunruiCode = 1,
+                NyuusyaYmd = new DateOnly(2020, 4, 1),
+                StartYmd = today.AddDays(-10),
+                EndYmd = today.AddDays(10),
+                Kyusyoku = 1,
+                SyucyoSyokui = _2_6級,
+                KingsSyozoku = "100",
+                KaisyaCode = 1,
+                IsGenkaRendou = false,
+                Kengen = None,
+                Jyunjyo = 1,
+                Retired = false,
+                SyainBaseId = 1,
+                BusyoId = 5,
+                KintaiZokuseiId = 1,
+                UserRoleId = 1,
+            };
 
             // データの登録
             SeedEntities(kokyaku, syainBase, syain);

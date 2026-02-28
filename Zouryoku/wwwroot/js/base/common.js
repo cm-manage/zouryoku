@@ -396,12 +396,13 @@ function toUrl(val) {
 /**
  * get送信する非同期Ajax
  * @param {URL} url /url
+ * @param {any} $form フォームの jQuery オブジェクト
  * @param {any} data /送信するJSONデータ
  * @param {any} callback /successの際のコールバックメソッド
  * @param {any} isShowDialog / 通信成功時ダイアログ表示するか
  * @param {boolean} global / グローバルイベントを有効にするか（ajaxStart の $.blockUI を表示するか）
  */
-function sendGetAjax(url, data, callback, isShowDialog, global = true) {
+function sendGetAjax(url, $form, data, callback, isShowDialog, global = true) {
     $.get({
         url: url,
         data: data,
@@ -411,81 +412,13 @@ function sendGetAjax(url, data, callback, isShowDialog, global = true) {
         //clearValidation();
     }).done(function (result) {
         if (result) {
-            if (result.status == responseStatusSuccess) {
-                if (isShowDialog) {
-                    registerSuccessSwal(null, result.message);
-                }
-                if (callback) {
-                    callback(result.data);
-                }
-            }
-            else if (result.status == responseStatusWarning) {
-                commonConfirm(result.message, null, function () {
-                    if (callback) {
-                        callback(result.data);
-                    }
-                });
-            }
-            else if (result.status == responseStatusError) {
-                errorMessage(result.message);
-            }
-        }
-    }).fail(function (response, textStatus, errorThrown) {
-        failResponse(response);
-        //console.log("textStatus     : " + textStatus);    // タイムアウト、パースエラー
-        //console.log("errorThrown    : " + errorThrown.message); // 例外情報
-    });
-}
+            if (!$.isEmptyObject(result.errors)) {
+                // フィールドエラー表示
+                applyValidateMessages($form, result.errors);
 
-/**
- * post送信する非同期Ajax
- * @param {URL} url /url
- * @param {any} data /送信するJSONデータ
- * @param {any} callback /successの際のコールバックメソッド
- * @param {any} isShowDialog / 通信成功時ダイアログ表示するか
- * @param {any} timeout / タイムアウト時間(ms)
- * @param {any} global / グローバルイベントを有効にするか（ajaxStart の $.blockUI を表示するか）
- */
-function sendAjax(url, data, callback, isShowDialog, timeout, global) {
-    let time = timeout ?? (1000 * 60 * 1);
-    let glb = global ?? true;
-    commonSendAjax(url, data, true, callback, isShowDialog, time, glb);
-}
-
-/**
- * post送信する同期Ajax
- * @param {URL} url /url
- * @param {any} data /送信するJSONデータ
- * @param {any} callback /successの際のコールバックメソッド
- * @param {any} isShowDialog / 通信成功時ダイアログ表示するか
- * @param {any} timeout / タイムアウト時間(ms)
- * @param {any} global / グローバルイベントを有効にするか（ajaxStart の $.blockUI を表示するか）
- */
-function syncSendAjax(url, data, callback, isShowDialog, timeout, global) {
-    let time = timeout ?? (1000 * 60 * 1);
-    let glb = global ?? true;
-    commonSendAjax(url, data, false, callback, isShowDialog, time, glb);
-}
-
-function commonSendAjax(url, data, isAsync, callback, isShowDialog, timeout, global) {
-    $.post({
-        url: url,
-        data: data,
-        traditional: true,
-        async: isAsync,
-        timeout: timeout,
-        global: global
-    })
-        .done(function (result) {
-            if (result) {
-                // コントロールに色付ける
-                if (result.errorControls) {
-                    changeCtrlBorder(result.errorControls, true);
-                }
-                if (result.warningControls) {
-                    changeCtrlBorder(result.warningControls, false);
-                }
-
+                // サマリーエラー表示
+                applyValidationSummaryMessage(result.errors);
+            } else {
                 if (result.status == responseStatusSuccess) {
                     if (isShowDialog) {
                         registerSuccessSwal(null, result.message);
@@ -504,6 +437,85 @@ function commonSendAjax(url, data, isAsync, callback, isShowDialog, timeout, glo
                 else if (result.status == responseStatusError) {
                     errorMessage(result.message);
                 }
+            }
+        }
+    }).fail(function (response, textStatus, errorThrown) {
+        failResponse(response);
+        //console.log("textStatus     : " + textStatus);    // タイムアウト、パースエラー
+        //console.log("errorThrown    : " + errorThrown.message); // 例外情報
+    });
+}
+
+/**
+ * post送信する非同期Ajax
+ * @param {URL} url /url
+ * @param {any} $form フォームの jQuery オブジェクト
+ * @param {any} data /送信するJSONデータ
+ * @param {any} callback /successの際のコールバックメソッド
+ * @param {any} isShowDialog / 通信成功時ダイアログ表示するか
+ * @param {any} timeout / タイムアウト時間(ms)
+ * @param {any} global / グローバルイベントを有効にするか（ajaxStart の $.blockUI を表示するか）
+ */
+function sendAjax(url, $form, data, callback, isShowDialog, timeout, global) {
+    let time = timeout ?? (1000 * 60 * 1);
+    let glb = global ?? true;
+    commonSendAjax(url, $form, data, true, callback, isShowDialog, time, glb);
+}
+
+/**
+ * post送信する同期Ajax
+ * @param {URL} url /url
+ * @param {any} $form フォームの jQuery オブジェクト
+ * @param {any} data /送信するJSONデータ
+ * @param {any} callback /successの際のコールバックメソッド
+ * @param {any} isShowDialog / 通信成功時ダイアログ表示するか
+ * @param {any} timeout / タイムアウト時間(ms)
+ * @param {any} global / グローバルイベントを有効にするか（ajaxStart の $.blockUI を表示するか）
+ */
+function syncSendAjax(url, $form, data, callback, isShowDialog, timeout, global) {
+    let time = timeout ?? (1000 * 60 * 1);
+    let glb = global ?? true;
+    commonSendAjax(url, $form, data, false, callback, isShowDialog, time, glb);
+}
+
+function commonSendAjax(url, $form, data, isAsync, callback, isShowDialog, timeout, global) {
+    $.post({
+        url: url,
+        data: data,
+        traditional: true,
+        async: isAsync,
+        timeout: timeout,
+        global: global
+    })
+        .done(function (result) {
+            if (result) {
+                if (!$.isEmptyObject(result.errors)) {
+                    // フィールドエラー表示
+                    applyValidateMessages($form, result.errors);
+
+                    // サマリーエラー表示
+                    applyValidationSummaryMessage(result.errors);
+                } else {
+                    if (result.status == responseStatusSuccess) {
+                        if (isShowDialog) {
+                            registerSuccessSwal(null, result.message);
+                        }
+                        if (callback) {
+                            callback(result.data);
+                        }
+                    }
+                    else if (result.status == responseStatusWarning) {
+                        commonConfirm(result.message, null, function () {
+                            if (callback) {
+                                callback(result.data);
+                            }
+                        });
+                    }
+                    else if (result.status == responseStatusError) {
+                        errorMessage(result.message);
+                    }
+                }
+
             }
         }).fail(function (response, textStatus, errorThrown) {
             failResponse(response);
@@ -542,27 +554,23 @@ function errorClear() {
 /**
  * 登録処理のajax通信を行います。
  * @param {String} url post先
+ * @param {any} $form フォームの jQuery オブジェクト
  * @param {Array} data 送信データ
  * @param {Function} callback コールバック
  */
-function sendRegisterAjax(url, data, callback = function () { }, errorCallback = function () { }) {
+function sendRegisterAjax(url, $form, data, callback = function () { }, errorCallback = function () { }) {
     $.post({
         url: url,
         data: data,
     }).done(function (result) {
         if (result) {
-            $('.input-validation-error').removeClass('input-validation-error');
-            $('.form-errors').empty();
-
             if (!$.isEmptyObject(result.errors)) {
-                $.each(result.errors, function (key, messages) {
-                    $(`[name="${key}"]`).addClass('input-validation-error');
-                    let validationField = $(`[data-valmsg-for="${key}"]`);
 
-                    $.each(messages, function (_, message) {
-                        validationField.append($(`<span>${message}</span>`));
-                    });
-                });
+                // フィールドエラー表示
+                applyValidateMessages($form, result.errors);
+
+                // サマリーエラー表示
+                applyValidationSummaryMessage(result.errors);
 
                 if (errorCallback) {
                     errorCallback();
@@ -577,7 +585,7 @@ function sendRegisterAjax(url, data, callback = function () { }, errorCallback =
     });
 }
 
-function fileSendRegisterAjax(url, data, callback = function () { }, errorCallback = function () { }, isShowDialog) {
+function fileSendRegisterAjax(url, $form, data, callback = function () { }, errorCallback = function () { }, isShowDialog) {
     $.ajax({
         url: url,
         type: 'POST',
@@ -587,18 +595,13 @@ function fileSendRegisterAjax(url, data, callback = function () { }, errorCallba
         contentType: false
     }).done(function (result) {
         if (result) {
-            $('.input-validation-error').removeClass('input-validation-error');
-            $('.form-errors').empty();
-
             if (!$.isEmptyObject(result.errors)) {
-                $.each(result.errors, function (key, messages) {
-                    $(`[name="${key}"]`).addClass('input-validation-error');
-                    let validationField = $(`[data-valmsg-for="${key}"]`);
 
-                    $.each(messages, function (_, message) {
-                        validationField.append($(`<span>${message}</span>`));
-                    });
-                });
+                // フィールドエラー表示
+                applyValidateMessages($form, result.errors);
+
+                // サマリーエラー表示
+                applyValidationSummaryMessage(result.errors);
 
                 if (errorCallback) {
                     errorCallback();
@@ -639,7 +642,7 @@ function getFileSendJson() {
     return data;
 }
 
-function fileSendAjax(url, data, callback, isShowDialog, isErrorExecuteCallback) {
+function fileSendAjax(url, $form, data, callback, isShowDialog, isErrorExecuteCallback) {
     $.ajax({
         url: url,
         type: 'POST',
@@ -652,26 +655,35 @@ function fileSendAjax(url, data, callback, isShowDialog, isErrorExecuteCallback)
         //clearValidation();
     }).done(function (result) {
         if (result) {
-            if (result.status == responseStatusSuccess) {
-                if (isShowDialog) {
-                    registerSuccessSwal(null, result.message);
-                }
-                if (callback) {
-                    callback(result.data);
-                }
-            }
-            else if (result.status == responseStatusWarning) {
-                commonConfirm(result.message, null, function () {
+            if (!$.isEmptyObject(result.errors)) {
+                // フィールドエラー表示
+                applyValidateMessages($form, result.errors);
+
+                // サマリーエラー表示
+                applyValidationSummaryMessage(result.errors);
+
+            } else {
+                if (result.status == responseStatusSuccess) {
+                    if (isShowDialog) {
+                        registerSuccessSwal(null, result.message);
+                    }
                     if (callback) {
                         callback(result.data);
                     }
-                });
-            }
-            else if (result.status == responseStatusError) {
-                errorMessage(result.message);
-                // CSV取込時のエラー出力
-                if (isErrorExecuteCallback && callback) {
-                    callback(result.data);
+                }
+                else if (result.status == responseStatusWarning) {
+                    commonConfirm(result.message, null, function () {
+                        if (callback) {
+                            callback(result.data);
+                        }
+                    });
+                }
+                else if (result.status == responseStatusError) {
+                    errorMessage(result.message);
+                    // CSV取込時のエラー出力
+                    if (isErrorExecuteCallback && callback) {
+                        callback(result.data);
+                    }
                 }
             }
         }

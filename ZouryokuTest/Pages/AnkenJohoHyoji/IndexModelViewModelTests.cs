@@ -1,4 +1,4 @@
-using ZouryokuTest.Builder;
+using Model.Model;
 
 namespace ZouryokuTest.Pages.AnkenJohoHyoji
 {
@@ -27,28 +27,67 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：受注種類
-            var jyutyuSyurui = CreateJyutyuSyurui(1);
+            var jyutyuSyurui = new JyutyuSyurui()
+            {
+                Id = 1,
+                Name = "受注種類A",
+                Code = "",
+            };
 
             // シード：顧客会社
-            var kokyaku = CreateKokyakuKaisha(1);
+            var kokyaku = new KokyakuKaisha()
+            {
+                Id = 1,
+                Name = "顧客会社A",
+                Shiten = "本店",
+                NameKana = "",
+                Ryakusyou = "",
+                SearchName = "",
+                SearchNameKana = "",
+            };
 
             // シード：責任者の社員（Syain）および SyainBase を作成
-            var syainBase = CreateSyainBasis(1);
-            var syain = CreateSyain(1, syainBase.Id);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Code = "",
+            };
+
+            var syain = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = syainBase.Id,
+                Name = "社員A",
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
             // シード：KINGS受注
-            var kings = CreateKingsJuchu(1);
+            var kings = new KingsJuchu()
+            {
+                Id = 1,
+                ProjectNo = "PRJ-001",
+                JuchuuNo = "JUCHU-001",
+                JuchuuGyoNo = 1,
+                SekouBumonCd = "",
+                Bukken = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("既存案件")
-                .WithKokyakuKaisyaId(kokyaku.Id)
-                .WithJyutyuSyuruiId(jyutyuSyurui.Id)
-                .WithSyainBaseId(syainBase.Id)
-                .WithKingsJuchuId(kings.Id)
-                .WithNaiyou("既存案件の内容です。")
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "既存案件",
+                KokyakuKaisyaId = kokyaku.Id,
+                JyutyuSyuruiId = jyutyuSyurui.Id,
+                SyainBaseId = syainBase.Id,
+                KingsJuchuId = kings.Id,
+                Naiyou = "既存案件の内容です。",
+                };
 
             // 関連データの設定
             ankenEntity.JyutyuSyurui = jyutyuSyurui;
@@ -58,7 +97,18 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
             ankenEntity.KingsJuchu = kings;
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(4);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+
+            };
 
             // ---------- Act ----------
             var viewModel = CreateViewModel(false, ankenEntity, syainLogin);
@@ -90,23 +140,52 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：受注種類
-            var jyutyuSyurui = CreateJyutyuSyurui(1);
+            var jyutyuSyurui = new JyutyuSyurui()
+            {
+                Id = 1,
+                Name = "受注種類A",
+                Code = "",
+            };
 
             // シード：顧客会社
-            var kokyaku = CreateKokyakuKaisha(1);
+            var kokyaku = new KokyakuKaisha()
+            {
+                Id = 1,
+                Name = "顧客会社A",
+                Shiten = "本店",
+                NameKana = "",
+                Ryakusyou = "",
+                SearchName = "",
+                SearchNameKana = "",
+            };
 
             // シード：責任者の社員
-            var syainBase = CreateSyainBasis(1);
-            var syain = CreateSyain(1, syainBase.Id);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Code = "",
+            };
+
+            var syain = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = syainBase.Id,
+                Name = "社員A",
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("関連データなし案件")
-                .WithKokyakuKaisyaId(kokyaku.Id)
-                .WithJyutyuSyuruiId(jyutyuSyurui.Id)
-                .WithSyainBaseId(syainBase.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "関連データなし案件",
+                KokyakuKaisyaId = kokyaku.Id,
+                JyutyuSyuruiId = jyutyuSyurui.Id,
+                SyainBaseId = syainBase.Id,
+                };
 
             // 関連データの設定
             ankenEntity.JyutyuSyurui = jyutyuSyurui;
@@ -115,7 +194,17 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
             ankenEntity.SyainBase.Syains = [syain];
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(2);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // ---------- Act ----------
             var viewModel = CreateViewModel(false, ankenEntity, syainLogin);
@@ -135,23 +224,53 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：受注種類
-            var jyutyuSyurui = CreateJyutyuSyurui(1);
+            var jyutyuSyurui = new JyutyuSyurui()
+            {
+                Id = 1,
+                Name = "受注種類A",
+                Code = "",
+            };
 
             // シード：責任者の社員
-            var syainBase = CreateSyainBasis(1);
-            var syain = CreateSyain(1, syainBase.Id);
+            var syainBase = new SyainBasis()
+            {
+                Id = 1,
+                Code = "",
+            };
+
+            var syain = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = syainBase.Id,
+                Name = "社員A",
+                Code = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                BusyoCode = "",
+                KingsSyozoku = "",
+            };
 
             // シード：KINGS受注
-            var kings = CreateKingsJuchu(1);
+            var kings = new KingsJuchu()
+            {
+                Id = 1,
+                ProjectNo = "PRJ-001",
+                JuchuuNo = "JUCHU-001",
+                JuchuuGyoNo = 1,
+                SekouBumonCd = "",
+                Bukken = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("関連データなし案件")
-                .WithJyutyuSyuruiId(jyutyuSyurui.Id)
-                .WithSyainBaseId(syainBase.Id)
-                .WithKingsJuchuId(kings.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "関連データなし案件",
+                JyutyuSyuruiId = jyutyuSyurui.Id,
+                SyainBaseId = syainBase.Id,
+                KingsJuchuId = kings.Id,
+                };
 
             // 関連データの設定
             ankenEntity.JyutyuSyurui = jyutyuSyurui;
@@ -160,7 +279,17 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
             ankenEntity.KingsJuchu = kings;
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(2);
+            var syainLogin = new Syain()
+            {
+                Id = 2,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // ---------- Act ----------
             var viewModel = CreateViewModel(false, ankenEntity, syainLogin);
@@ -183,24 +312,34 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：顧客会社（支店なし）
-            var kokyaku = new KokyakuKaishaBuilder()
-                .WithId(1)
-                .WithName("顧客A")
-                .WithShiten(null)
-                .Build();
+            var kokyaku = new KokyakuKaisha(){
+                Id = 1,
+                Name = "顧客A",
+                Shiten = null,
+                };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("案件A")
-                .WithKokyakuKaisyaId(kokyaku.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "案件A",
+                KokyakuKaisyaId = kokyaku.Id,
+                };
 
             // 関連データの設定
             ankenEntity.KokyakuKaisya = kokyaku;
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(1);
+            var syainLogin = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // ---------- Act ----------
             var viewModel = CreateViewModel(false, ankenEntity, syainLogin);
@@ -220,24 +359,34 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：顧客会社（支店あり）
-            var kokyaku = new KokyakuKaishaBuilder()
-                .WithId(1)
-                .WithName("顧客A")
-                .WithShiten("支店B")
-                .Build();
+            var kokyaku = new KokyakuKaisha(){
+                Id = 1,
+                Name = "顧客A",
+                Shiten = "支店B",
+                };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("案件A")
-                .WithKokyakuKaisyaId(kokyaku.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "案件A",
+                KokyakuKaisyaId = kokyaku.Id,
+                };
 
             // 関連データの設定
             ankenEntity.KokyakuKaisya = kokyaku;
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(1);
+            var syainLogin = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // ---------- Act ----------
             var viewModel = CreateViewModel(false, ankenEntity, syainLogin);
@@ -260,20 +409,40 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：KINGS受注
-            var kings = CreateKingsJuchu(1, "001");
+            var kings = new KingsJuchu()
+            {
+                Id = 1,
+                ProjectNo = "PRJ-001",
+                JuchuuNo = "JUCHU-001",
+                JuchuuGyoNo = 1,
+                SekouBumonCd = "001",
+                Bukken = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("案件A")
-                .WithKingsJuchuId(kings.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "案件A",
+                KingsJuchuId = kings.Id,
+                };
 
             // 関連データの設定
             ankenEntity.KingsJuchu = kings;
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(1, "001");
+            var syainLogin = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = 9999,
+                BusyoCode = "001",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // ---------- Act ----------
             var viewModel = CreateViewModel(true, ankenEntity, syainLogin);
@@ -292,24 +461,44 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         [DataRow(false, "001", "001", DisplayName = "登録不可かつ部署が一致の場合")]
         [DataRow(true, "001", "002", DisplayName = "登録可能かつ部署が不一致の場合")]
         [DataRow(false, "001", "002", DisplayName = "登録不可かつ部署が不一致の場合")]
-        public void ViewModel_登録不可または部署が不一致_編集ボタンのスタイルクラスにd_noneを設定(bool canAdd, string? ankenBusyoCode, string loginBusyoCode)
+        public void ViewModel_登録不可または部署が不一致_編集ボタンのスタイルクラスにd_noneを設定(bool canAdd, string ankenBusyoCode, string loginBusyoCode)
         {
             // ---------- Arrange ----------
             // シード：KINGS受注
-            var kings = CreateKingsJuchu(1, ankenBusyoCode);
+            var kings = new KingsJuchu()
+            {
+                Id = 1,
+                ProjectNo = "PRJ-001",
+                JuchuuNo = "JUCHU-001",
+                JuchuuGyoNo = 1,
+                SekouBumonCd = ankenBusyoCode,
+                Bukken = "",
+                HiyouShubetuCdName = "",
+                SearchBukken = ""
+            };
 
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("案件A")
-                .WithKingsJuchuId(kings.Id)
-                .Build();
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "案件A",
+                KingsJuchuId = kings.Id,
+                };
 
             // 関連データの設定
             ankenEntity.KingsJuchu = kings;
 
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(1, loginBusyoCode);
+            var syainLogin = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = 9999,
+                BusyoCode = loginBusyoCode,
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // ---------- Act ----------
             var viewModel = CreateViewModel(canAdd, ankenEntity, syainLogin);
@@ -329,13 +518,23 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
         {
             // ---------- Arrange ----------
             // シード：案件エンティティ（表示対象）
-            var ankenEntity = new AnkenBuilder()
-                .WithId(100)
-                .WithName("案件A")
-                .Build();
-            
+            var ankenEntity = new Anken(){
+                Id = 100,
+                Name = "案件A",
+                };
+
             // シード：ログインユーザー
-            var syainLogin = CreateSyainLogin(1);
+            var syainLogin = new Syain()
+            {
+                Id = 1,
+                SyainBaseId = 9999,
+                BusyoCode = "",
+                Code = "",
+                Name = "",
+                KanaName = "",
+                Seibetsu = ' ',
+                KingsSyozoku = "",
+            };
 
             // ---------- Act ----------
             var viewModel = CreateViewModel(true, ankenEntity, syainLogin);

@@ -67,8 +67,10 @@
                     <label asp-for="Search.BusyoName" class="col-1 col-form-label app-input__label ps-2">@Html.DisplayNameFor(m => m.Search.BusyoName)</label>
                     <div class="d-flex col-lg-3">
                         <span asp-validation-for="Search.BusyoName" class="text-danger"></span>
-                        <input type="text" asp-for="Search.BusyoName" class="form-control app-input__textbox" readonly />
-                        <button type="button" class="btn btn-primary app-btn__base" id="btn-busyo-search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <div class="input-group">
+                            <input type="text" asp-for="Search.BusyoName" class="form-control app-input__textbox" readonly />
+                            <button type="button" class="btn btn-primary app-btn__base" id="btn-busyo-search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
                     </div>
                 </div>
             }
@@ -117,7 +119,7 @@
             </div>
 
             <div class="d-flex mt-lg-2 col-lg-1">
-                <button type="button" class="btn btn-primary app-btn__base" id="btn-kinmu-search">
+                <button type="button" class="btn btn-primary app-btn__base" id="btn-kinmu-search" formnovalidate>
                     <i class="fa-solid fa-magnifying-glass"></i>
                     検索
                 </button>
@@ -192,6 +194,8 @@
                              $("#SyainView_SelectedId").val(item.value);
                         }
                     });
+                    // 再検索
+                    scheduleSearch();
                 }, false, null, false);
             }
 
@@ -214,7 +218,7 @@
                     url,
                     null,
                     title,
-                    function(){setTimeout(() => $("#btn-kinmu-search").trigger('click'));},
+                    scheduleSearch,
                     992,
                     550,
                     'var(--iframe-header-color)'
@@ -231,6 +235,7 @@
 
             // 部署検索ボタン
             $("#btn-busyo-search").on("click", function(){
+                if (isSearching) return;    // 検索中の場合は何もしない
                 var selectedBusyoIds = [];
                 var selectedid = $("#Search_BusyoId").val();
                 if (selectedid != "") selectedBusyoIds.push(selectedid);
@@ -240,21 +245,45 @@
                 );
             });
 
+            // 検索ボタン遅延実行
+            let isSearching = false;
+            let searchTimer = null;
+            function scheduleSearch() {
+                if (isSearching) return;    // 検索中は新たな検索をスケジュールしない
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(function () {
+                    $("#btn-kinmu-search").trigger("click");
+                }, 200);   // 200ms以内の連続変更はまとめて1回の検索にする
+            }
+
             // 検索ボタン
             $("#btn-kinmu-search").on("click", function() {
+                if (isSearching) return;    // すでに検索中の場合は何もしない
+                isSearching = true;
                 // エラークリア
                 errorClear();
+                $("#attendance-form")
+                    .find(".input-validation-error")
+                    .removeClass("input-validation-error");
+
+                $("#attendance-form")
+                    .find(".field-validation-error")
+                    .removeClass("field-validation-error")
+                    .addClass("field-validation-valid")
+                    .text("");
 
                 sendAjax(toUrl("Search"), $('form').serializeArray(), function(data) {
                     $("#kinmuhyo").html(data);
                     var message = $("#warning-message").val();
                     if (message) warningMessage(message);
                 }, false, null, false);
+                isSearching = false;
             });
 
             // 日付リンククリック時イベント
             $("#kinmuhyo").on("click", ".link", function(e) {
                 e.preventDefault(); // デフォルトのリンク移動を止める
+                if (isSearching) return;    // 検索中の場合は何もしない
                 var tds = $(this).closest("tr").find("td").map(function(){
                     return $(this).text().trim();
                 }).get();
@@ -262,25 +291,20 @@
                 openDakokuJikanSyusei(tds[0], tds[1]);
             });
 
-            // ドロップダウン変更時イベント
-            $("#Search_SortSelected, #Search_SortOrderType, #Search_Kikan_SelectedOption, #SyainView_SelectedId").on("change", function() {
-                setTimeout(() => $("#btn-kinmu-search").trigger('click'));    // 期間の表示更新待ちで検索ボタンを遅延トリガー
-            });
+            // 項目変更時イベント
+            $("#Search_SortSelected, #Search_SortOrderType, #Search_Kikan_From, #Search_Kikan_To, #SyainView_SelectedId")
+                .on("change", scheduleSearch);
 
             // Enterキー押下で検索実行
             $(document).on("keydown", function(e) {
                 if (e.key === "Enter") {
                     e.preventDefault();
-                    $("#btn-kinmu-search").trigger("click");
+                    scheduleSearch();
                 }
             });
 
-            // Validation共通初期化関数を呼ぶ
-            initValidation('#attendance-form');
-
-
             // DOM読み込み完了後に初期検索を実行
-            $("#btn-kinmu-search").trigger('click');    // 初期検索を行う
+            scheduleSearch();    // 初期検索を行う
 
             // ツールチップ初期化
             initTooltip();

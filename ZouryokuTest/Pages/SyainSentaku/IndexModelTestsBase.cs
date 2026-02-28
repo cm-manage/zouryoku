@@ -4,8 +4,6 @@ using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.SyainSentaku;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
 using static Zouryoku.Utils.Const;
 
 namespace ZouryokuTest.Pages.SyainSentaku
@@ -17,6 +15,11 @@ namespace ZouryokuTest.Pages.SyainSentaku
         /// ログインユーザーの部署ID
         /// </summary>
         private const long LoggedInUserBusyoID = 111;
+
+        /// <summary>
+        /// テスト実施日の日付
+        /// </summary>
+        public static readonly DateTime TestDate = new(2026, 2, 2);
 
         /// <summary>
         /// 順序確認用配列
@@ -70,9 +73,9 @@ namespace ZouryokuTest.Pages.SyainSentaku
         /// <returns>ログイン情報が格納されたモデル</returns>
         protected IndexModel SetLoggedInUser(IndexModel model)
         {
-            var emp = new SyainBuilder()
-                .WithBusyoId(LoggedInUserBusyoID)
-                .Build();
+            var emp = new Syain(){
+                BusyoId = LoggedInUserBusyoID,
+            };
             db.Syains.Add(emp);
 
             // LoginInfoを作成
@@ -97,90 +100,6 @@ namespace ZouryokuTest.Pages.SyainSentaku
         // ================================================
         // Helper Method
         // ================================================
-
-        /// <summary>
-        /// 部署データを追加するヘルパーメソッド
-        /// </summary>
-        /// <param name="id">部署ID</param>
-        /// <param name="name">部署名</param>
-        /// <param name="jyunjyo">並び順序</param>
-        /// <param name="active">アクティブフラグ</param>
-        /// <param name="oyaId">親ID</param>
-        /// <param name="start">有効開始日</param>
-        /// <param name="end">有効終了日</param>
-        /// <returns></returns>
-        protected Busyo AddBusyo(int id, string name, short jyunjyo, bool active, long? oyaId = null, int? start = null, int? end = null)
-        {
-            var today = fakeTimeProvider.Today();
-            // start || endがnullである場合、null, nullではない場合数値分の日付を追加
-            DateOnly? startYmd = start == null ? null : today.AddDays(start.Value);
-            DateOnly? endYmd = end == null ? null : today.AddDays(end.Value);
-
-            var busyo = new BusyoBuilder()
-                .WithId(id)
-                .WithName(name)
-                .WithJyunjyo(jyunjyo)
-                .WithOyaId(oyaId)
-                .WithIsActive(active)
-                .WithStartYmd(startYmd)
-                .WithEndYmd(endYmd)
-                .Build();
-
-            return busyo;
-        }
-
-        /// <summary>
-        /// 社員データを追加するヘルパーメソッド
-        /// </summary>
-        /// <param name="id">社員ID</param>
-        /// <param name="name">社員名</param>
-        /// <param name="code">社員コード</param>
-        /// <param name="jyunjyo">並び順序</param>
-        /// <param name="retired">退職フラグ</param>
-        /// <param name="syainBaseId">社員BaseID</param>
-        /// <param name="busyoId">部署ID</param>
-        /// <param name="start">有効開始日</param>
-        /// <param name="end">有効終了日</param>
-        /// <returns></returns>
-        protected Syain AddSyain(long id, string name, string code, short? jyunjyo, 
-            bool? retired, long syainBaseId, long busyoId, int? start = null, int? end = null)
-        {
-            var today = fakeTimeProvider.Today();
-            DateOnly? startYmd = start == null ? null : today.AddDays(start.Value);
-            DateOnly? endYmd = end == null ? null : today.AddDays(end.Value);
-
-            var syain = new SyainBuilder()
-                .WithId(id)
-                .WithName(name)
-                .WithCode(code)
-                .WithStartYmd(startYmd)
-                .WithEndYmd(endYmd)
-                .WithJyunjyo(jyunjyo)
-                .WithRetired(retired)
-                .WithSyainBaseId(syainBaseId)
-                .WithBusyoId(busyoId)
-                .Build();
-
-            return syain;
-        }
-
-        /// <summary>
-        /// 社員Baseデータを追加するメソッド
-        /// </summary>
-        /// <param name="id">社員BaseID</param>
-        /// <param name="name">社員名</param>
-        /// <param name="code">社員コード</param>
-        /// <returns></returns>
-        protected static SyainBasis AddSyainBase(long id, string name, string code)
-        {
-            var syain = new SyainBasisBuilder()
-                .WithId(id)
-                .WithName(name)
-                .WithCode(code)
-                .Build();
-
-            return syain;
-        }
 
         /// <summary>
         /// シード処理
@@ -251,6 +170,5 @@ namespace ZouryokuTest.Pages.SyainSentaku
 
             return dict;
         }
-
     }
 }

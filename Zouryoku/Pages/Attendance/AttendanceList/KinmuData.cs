@@ -48,7 +48,7 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
         public bool IsDakoku(Syain loginUser, DateOnly today)
             => (Hiduke <= today &&
                 NippouData == null &&
-               (loginUser.IsCorrectingTimeStamps ||
+               (loginUser.IsCheckStampPosition ||
                 loginUser.SyainBaseId == SyainData.SyainBaseId));
 
         /// <summary>
@@ -192,15 +192,27 @@ namespace Zouryoku.Pages.Attendance.AttendanceList
             result.Syukkin3 = NippouData.SyukkinHm3.ToStrByHHmmOrEmpty();
 
             // 退出時間１
-            result.Taisyutsu1 = NippouData.TaisyutsuHm1.ToStrByHHmmOrEmpty();
+            result.Taisyutsu1 = FormatMidnightTaisyutsuAs24H(NippouData.TaisyutsuHm1.ToStrByHHmmOrEmpty());
 
             // 退出時間２
-            result.Taisyutsu2 = NippouData.TaisyutsuHm2.ToStrByHHmmOrEmpty();
+            result.Taisyutsu2 = FormatMidnightTaisyutsuAs24H(NippouData.TaisyutsuHm2.ToStrByHHmmOrEmpty());
 
             // 退出時間３
-            result.Taisyutsu3 = NippouData.TaisyutsuHm3.ToStrByHHmmOrEmpty();
+            result.Taisyutsu3 = FormatMidnightTaisyutsuAs24H(NippouData.TaisyutsuHm3.ToStrByHHmmOrEmpty());
             
             return result;
+        }
+
+        /// <summary>
+        /// 退出時間が00:00の場合は24:00と表示する
+        /// </summary>
+        /// <param name="taikinHHmm"></param>
+        /// <returns></returns>
+        private string FormatMidnightTaisyutsuAs24H(string taikinHHmm)
+        {
+            if (taikinHHmm == "00:00")
+                return "24:00";
+            return taikinHHmm;
         }
 
         /// <summary>

@@ -313,5 +313,17 @@ namespace ZouryokuCommonLibrary.Utils
             int mm = minutes % 60;
             return $"{hh:D2}{mm:D2}";
         }
+
+        /// <summary>
+        /// 分単位の整数をHH:mm形式の文字列に変換（例: 510 → "08:30"）
+        /// </summary>
+        /// <param name="minutes">分単位の整数</param>
+        /// <returns>HH:mm形式の文字列</returns>
+        public static string ToHHmmWithColon(int minutes)
+        {
+            int hh = minutes / 60;
+            int mm = minutes % 60;
+            return $"{hh:D2}:{mm:D2}";
+        }
     }
 }

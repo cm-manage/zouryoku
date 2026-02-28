@@ -131,13 +131,13 @@ namespace CommonLibrary.Extensions
             => DateTimeExtensions.GetMonthDiff(fromDate.ToDateTime(), toDate.ToDateTime());
 
         /// <summary>
-        /// <paramref name="date1"/>と<paramref name="date2"/>に含まれる日数を取得する。
+        /// <paramref name="baseDate"/>と<paramref name="toDate"/>に含まれる日数を取得する。
         /// </summary>
-        /// <param name="date1">日付1</param>
-        /// <param name="date2">日付2</param>
-        /// <returns><paramref name="date1"/> ≦ D ≦ <paramref name="date2"/>または<paramref name="date2"/> ≦ D ≦ <paramref name="date1"/>を満たす<see cref="DateOnly"/> Dの個数</returns>
-        public static int GetDayCount(DateOnly date1, DateOnly date2)
-            => (date1 <= date2 ? date2.DayNumber - date1.DayNumber : date1.DayNumber - date2.DayNumber) + 1;
+        /// <param name="baseDate">日付1</param>
+        /// <param name="toDate">日付2</param>
+        /// <returns><paramref name="baseDate"/> ≦ D ≦ <paramref name="toDate"/>または<paramref name="toDate"/> ≦ D ≦ <paramref name="baseDate"/>を満たす<see cref="DateOnly"/> Dの個数</returns>
+        public static int GetDayCount(this DateOnly baseDate, DateOnly toDate)
+            => (baseDate <= toDate ? toDate.DayNumber - baseDate.DayNumber : baseDate.DayNumber - toDate.DayNumber) + 1;
 
         /// <summary>
         /// 指定日付が開始日から何年目かを取得します。

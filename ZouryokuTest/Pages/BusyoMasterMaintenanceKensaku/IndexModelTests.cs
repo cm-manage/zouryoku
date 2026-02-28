@@ -1,7 +1,6 @@
 using CommonLibrary.Extensions;
+using Model.Model;
 using Zouryoku.Pages.BusyoMasterMaintenanceKensaku;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
 
 namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
 {
@@ -27,27 +26,28 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
         private void SeedBase()
         {
             // 部門長（SyainBasis）
-            var bunmoncho = new SyainBasisBuilder()
-                .WithId(10)
-                .WithCode("S001")
-                .WithName("田中部長")
-                .Build();
+            var bunmoncho = new SyainBasis()
+            {
+                Id = 10,
+                Name = "田中部長",
+                Code = "S001"
+            };
 
             // BusyoBase（部門長あり）
-            var bumonchoAri = new BusyoBasisBuilder()
-                .WithId(1)
-                .WithName("基底1")
-                .WithBumoncyoId(10)
-                .Build();
-            // 部門長を設定
-            bumonchoAri.Bumoncyo = bunmoncho;
+            var bumonchoAri = new BusyoBasis()
+            {
+                Id = 1,
+                Name = "基底1",
+                Bumoncyo = bunmoncho,
+            };
 
             // BusyoBase（部門長なし）
-            var bumonchoNashi = new BusyoBasisBuilder()
-                .WithId(2)
-                .WithName("基底2")
-                .WithBumoncyoId(null)
-                .Build();
+            var bumonchoNashi = new BusyoBasis()
+            {
+                Id = 2,
+                Name = "基底2",
+                BumoncyoId = null,
+            };
 
             db.AddRange(bunmoncho, bumonchoAri, bumonchoNashi);
         }
@@ -59,26 +59,53 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
         {
             SeedBase();
 
-            db.Add(new BusyoBuilder()
-                .WithId(1)
-                .WithName("システム部")
-                .WithIsActive(true)
-                .WithJyunjyo(1)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "システム部",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+            });
 
-            db.Add(new BusyoBuilder()
-                .WithId(2)
-                .WithName("第一営業部")
-                .WithIsActive(false)
-                .WithJyunjyo(2)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 2,
+                Code = "100",
+                Name = "第一営業部",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 2,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = false,
+                BusyoBaseId = 1,
+            });
 
-            db.Add(new BusyoBuilder()
-                .WithId(3)
-                .WithName("第二営業部")
-                .WithIsActive(true)
-                .WithJyunjyo(3)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 3,
+                Code = "100",
+                Name = "第二営業部",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 3,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+            });
         }
 
         /// <summary>
@@ -91,11 +118,21 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
 
             var today = fakeTimeProvider.Today();
 
-            db.Add(new BusyoBuilder()
-                .WithIsActive(false)
-                .WithStartYmd(today)
-                .WithEndYmd(today)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = today,
+                EndYmd = today,
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = false,
+                BusyoBaseId = 1,
+            });
 
             await db.SaveChangesAsync();
 
@@ -113,10 +150,21 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
         {
             SeedBase();
 
-            db.Add(new BusyoBuilder()
-                .WithStartYmd(fakeTimeProvider.Now().AddDays(1).ToDateOnly())
-                .WithEndYmd(fakeTimeProvider.Now().AddDays(2).ToDateOnly())
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = fakeTimeProvider.Now().AddDays(1).ToDateOnly(),
+                EndYmd = fakeTimeProvider.Now().AddDays(2).ToDateOnly(),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+            });
 
             await db.SaveChangesAsync();
 
@@ -134,10 +182,21 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
         {
             SeedBase();
 
-            db.Add(new BusyoBuilder()
-                .WithStartYmd(fakeTimeProvider.Now().AddDays(-2).ToDateOnly())
-                .WithEndYmd(fakeTimeProvider.Now().AddDays(-1).ToDateOnly())
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = fakeTimeProvider.Now().AddDays(-2).ToDateOnly(),
+                EndYmd = fakeTimeProvider.Now().AddDays(-1).ToDateOnly(),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+            });
 
             await db.SaveChangesAsync();
 
@@ -155,11 +214,21 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
         {
             SeedBase();
 
-            db.Add(new BusyoBuilder()
-                .WithIsActive(true)
-                .WithStartYmd(fakeTimeProvider.Now().AddDays(-1).ToDateOnly())
-                .WithEndYmd(fakeTimeProvider.Now().AddDays(1).ToDateOnly())
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = fakeTimeProvider.Now().AddDays(-1).ToDateOnly(),
+                EndYmd = fakeTimeProvider.Now().AddDays(1).ToDateOnly(),
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+            });
 
             await db.SaveChangesAsync();
 
@@ -177,14 +246,23 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
         {
             SeedBase();
 
-            var busyo = new BusyoBuilder()
-                .WithId(2)
-                .WithCode("A001")
-                .WithName("営業部")
-                .WithBusyoBaseId(2) // 部門長なし
-                .WithOyaId(null)
-                .WithShoninBusyoId(null)
-                .Build();
+            var busyo = new Busyo()
+            {
+                Id = 2,
+                Code = "A001",
+                Name = "営業部",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 2, // 部門長なし
+                OyaId = null,
+                ShoninBusyoId = null,
+            };
 
             db.Add(busyo);
             await db.SaveChangesAsync();
@@ -208,38 +286,68 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
             SeedBase();
 
             // 親部署
-            db.Add(new BusyoBuilder()
-                .WithId(88)
-                .WithName("第一本部")
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 88,
+                Code = "100",
+                Name = "第一本部",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+            });
 
             // 承認部署
-            db.Add(new BusyoBuilder()
-                .WithId(99)
-                .WithCode("S001")
-                .WithName("承認部")
-                .WithBusyoBaseId(1) // 部門長あり
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 99,
+                Code = "S001",
+                Name = "承認部",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1, // 部門長あり
+            });
 
-            var busyo = new BusyoBuilder()
-                .WithId(1)
-                .WithCode("A001")
-                .WithName("営業部")
-                .WithOyaId(88)
-                .WithShoninBusyoId(99)
-                .Build();
+            db.Add(new Busyo()
+            {
+                Id = 1,
+                Code = "A001",
+                Name = "営業部",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = 88,
+                ShoninBusyoId = 99,
+            });
 
-            db.Add(busyo);
             await db.SaveChangesAsync();
 
-            var vm = new BusyoViewModel(busyo);
+            var model = CreateModel();
+            await model.OnGetAsync();
 
-            Assert.AreEqual(1, vm.BusyoId);
-            Assert.AreEqual("A001", vm.BusyoCode);
-            Assert.AreEqual("第一本部　営業部", vm.BusyoName);
-            Assert.AreEqual("田中部長", vm.BumoncyoName);
-            Assert.AreEqual("承認部", vm.ShoninBusyoName);
-            Assert.AreEqual("", vm.IsActiveDisplay);
+            Assert.AreEqual(1, model.Results[1].BusyoId);
+            Assert.AreEqual("A001", model.Results[1].BusyoCode);
+            Assert.AreEqual("第一本部　営業部", model.Results[1].BusyoName);
+            Assert.AreEqual("田中部長", model.Results[1].BumoncyoName);
+            Assert.AreEqual("承認部", model.Results[1].ShoninBusyoName);
+            Assert.AreEqual("", model.Results[1].IsActiveDisplay);
         }
 
         /// <summary>
@@ -250,23 +358,56 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
         {
             SeedBase();
 
-            db.Add(new BusyoBuilder()
-                .WithId(1)
-                .WithJyunjyo(2)
-                .WithOyaId(null)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 2,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null
+            });
 
-            db.Add(new BusyoBuilder()
-                .WithId(2)
-                .WithJyunjyo(1)
-                .WithOyaId(1)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 2,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = 1,
+            });
 
-            db.Add(new BusyoBuilder()
-                .WithId(3)
-                .WithJyunjyo(1)
-                .WithOyaId(null)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 3,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null
+            });
 
             await db.SaveChangesAsync();
 
@@ -276,6 +417,9 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
             Assert.AreEqual(3, model.Results[0].BusyoId);
             Assert.AreEqual(1, model.Results[1].BusyoId);
             Assert.AreEqual(2, model.Results[2].BusyoId);
+            Assert.AreEqual(0, model.Results[0].Depth); // ID:3, トップレベル
+            Assert.AreEqual(0, model.Results[1].Depth); // ID:1, トップレベル
+            Assert.AreEqual(1, model.Results[2].Depth); // ID:2, ID:1の子
         }
 
         /// <summary>
@@ -286,23 +430,56 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceKensaku
         {
             SeedBase();
 
-            db.Add(new BusyoBuilder()
-                .WithId(1)
-                .WithJyunjyo(2)
-                .WithOyaId(null)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 1,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 2,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            });
 
-            db.Add(new BusyoBuilder()
-                .WithId(2)
-                .WithJyunjyo(1)
-                .WithOyaId(null)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 2,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 1,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            });
 
-            db.Add(new BusyoBuilder()
-                .WithId(3)
-                .WithJyunjyo(3)
-                .WithOyaId(null)
-                .Build());
+            db.Add(new Busyo()
+            {
+                Id = 3,
+                Code = "100",
+                Name = "部署A",
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
+                StartYmd = DateOnly.MinValue,
+                EndYmd = DateOnly.MaxValue,
+                Jyunjyo = 3,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = true,
+                BusyoBaseId = 1,
+                OyaId = null,
+            });
 
             await db.SaveChangesAsync();
 

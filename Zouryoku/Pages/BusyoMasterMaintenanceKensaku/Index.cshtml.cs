@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Model.Data;
 using Model.Model;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
 
@@ -79,21 +80,8 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceKensaku
                     b.StartYmd <= today &&
                     today <= b.EndYmd);
             }
-
+　
             var busyoList = await query.ToListAsync();
-
-            // 部署名条件（入力がある場合のみ）
-            if (!string.IsNullOrEmpty(Condition.BusyoName))
-            {
-                query = query.Where(b =>
-                    b.Name.Contains(Condition.BusyoName));
-            }
-
-            // 部署名検索の条件に一致する部署
-            var searchNameBusyoList = await query.ToListAsync();
-
-            // 検索結果のIDをHashSet化
-            var busyoIds = new HashSet<long>(searchNameBusyoList.Select(b => b.Id));
 
             // キーが親ID、値がその親に紐づく子部署群となるルックアップ作成
             var lookup = busyoList.ToLookup(b => b.OyaId);
@@ -102,31 +90,72 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceKensaku
                 .Where(b => b.OyaId == null || !lookup.Contains(b.OyaId))
                 .OrderBy(b => b.Jyunjyo);
 
-            var flattenedBusyoList = FlattenBusyoViewModel(allRoots, 0, lookup);
+            List<BusyoViewModel> flattened = FlattenBusyoViewModel(allRoots, 0, lookup);
 
-            // 検索結果に含まれるIDのみ残す
-            return flattenedBusyoList
-                .Where(b => busyoIds.Contains(b.BusyoId))
+            // 部署名条件（入力がある場合のみ）
+            if (!string.IsNullOrEmpty(Condition.BusyoName))
+            {
+                var pattern = Regex.Escape(Condition.BusyoName);
+                var regex = new Regex(pattern, RegexOptions.IgnoreCase);
+
+                // 部署リストから不一致な要素をlistから削除
+                flattened = flattened.Where(b => !string.IsNullOrEmpty(b.BusyoName) && regex.IsMatch(b.BusyoName)).ToList();
+            }
+
+            // 表示する部署名を変更
+            var updated = flattened
+                .Select(b => new
+                {
+                    View = b,
+                    NewName = !string.IsNullOrEmpty(b.OyaBusyoName)
+                        ? $"{b.OyaBusyoName}　{b.BusyoName}"
+                        : b.BusyoName
+                })
                 .ToList();
+
+            updated.ForEach(x => x.View.BusyoName = x.NewName);
+
+            return flattened;
         }
 
         /// <summary>
         /// 各部署の階層設定、階層ごとの並び替え
         /// </summary>
         /// <param name="parents">親部署</param>
-        /// <param name="busyoLookup">部署のルックアップ</param>
         /// <param name="depth">階層</param>
+        /// <param name="busyoLookup">部署のルックアップ</param>
         /// <returns></returns>
         private static List<BusyoViewModel> FlattenBusyoViewModel(IEnumerable<Busyo> parents, int depth, ILookup<long?, Busyo> busyoLookup)
         {
-            if (parents == null) return [];
+            // 巡回検出用のセットを初期化
+            var visited = new HashSet<long>();
 
+            return FlattenBusyoViewModel(parents, depth, busyoLookup, visited);
+        }
+
+        /// <summary>
+        /// 各部署の階層設定、階層ごとの並び替え（循環参照検出付き）
+        /// </summary>
+        /// <param name="parents">親部署</param>
+        /// <param name="depth">階層</param>
+        /// <param name="busyoLookup">部署のルックアップ</param>
+        /// <param name="visited">巡回検出用IDセット</param>
+        /// <returns></returns>
+        private static List<BusyoViewModel> FlattenBusyoViewModel(IEnumerable<Busyo> parents, int depth, ILookup<long?, Busyo> busyoLookup, ISet<long> visited)
+        {
+            if (parents == null) return [];
             return parents
                 .OrderBy(p => p.Jyunjyo)
                 .SelectMany(busyo =>
-                    new[] { new BusyoViewModel(busyo) { Depth = depth } }
-                        .Concat(FlattenBusyoViewModel(busyoLookup[busyo.Id].OrderBy(b => b.Jyunjyo), depth + 1, busyoLookup))
-                )
+                {
+                    // 部署IDの巡回参照を検出
+                    if (!visited.Add(busyo.Id))
+                    {
+                        throw new System.InvalidOperationException("部署階層に循環参照が存在します。");
+                    }
+                    return new[] { new BusyoViewModel(busyo) { Depth = depth } }
+                        .Concat(FlattenBusyoViewModel(busyoLookup[busyo.Id].OrderBy(b => b.Jyunjyo), depth + 1, busyoLookup, visited));
+                })
                 .ToList();
         }
     }
@@ -160,6 +189,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceKensaku
         public BusyoViewModel(Busyo busyo)
         {
             _busyo = busyo;
+            BusyoName = _busyo.Name;
         }
 
         /// <summary>部署ID</summary>
@@ -171,8 +201,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceKensaku
 
         /// <summary>部署名</summary>
         [Display(Name = "部署名")]
-        public string BusyoName
-            => _busyo.Oya != null ? $"{_busyo.Oya.Name}　{_busyo.Name}" : _busyo.Name;
+        public string BusyoName { get; set; }
 
         /// <summary>部門長</summary>
         [Display(Name = "部門長")]
@@ -188,6 +217,10 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceKensaku
         [Display(Name = "無効")]
         public string IsActiveDisplay
             => _busyo.IsActive ? string.Empty : "無効";
+
+        /// <summary>上位部署名</summary>
+        public string OyaBusyoName
+            => _busyo.Oya != null ? _busyo.Oya.Name : "";
 
         /// <summary>階層</summary>
         public int Depth { get; set; }

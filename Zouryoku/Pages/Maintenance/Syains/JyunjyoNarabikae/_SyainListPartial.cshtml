@@ -6,10 +6,10 @@
         var s = Model.Syains[i];
         <li class="list-group-item bg-primary-subtle border border-primary app-my-border-collapse"
             data-id="@s.Id"
-            data-js="syain"
-        >
-            <input type="hidden" asp-for="Syains[@i].Id" />
-            <input type="hidden" asp-for="Syains[@i].Jyunjyo" class="syain-order" />
+            data-js="syain">
+            <input type="hidden" asp-for="Syains[i].Id" />
+            <input type="hidden" asp-for="Syains[i].Jyunjyo" />
+            <input type="hidden" asp-for="Syains[i].Version" />
 
             <div class="d-flex align-items-center">
                 <span class="app-handle me-2" data-js="handle">

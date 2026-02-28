@@ -127,9 +127,6 @@
                         // NOTE: asp-forはid属性を列挙体の値によって切り替えられないため一意のidを生成
                         var id = $"{Html.IdFor(model => model.SearchConditions.SortKey)}-{sortKey}";
 
-                        // asp-forとC#要素は共存できないためチェック状態を生成
-                        // TODO: asp-forが勝手に生成するらしい？
-
                         <div class="form-check form-check-inline">
                             <input id="@id"
                                     class="form-check-input"

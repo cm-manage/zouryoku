@@ -6,13 +6,10 @@ using Model.Enums;
 using Model.Model;
 using Zouryoku.Pages.Kinmuhyo;
 using Zouryoku.Utils;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
 using static Model.Enums.AchievementClassification;
 using static Model.Enums.ApprovalStatus;
 using static Model.Enums.DailyReportStatusClassification;
 using static Model.Enums.EmployeeWorkType;
-using static Model.Enums.HolidayFlag;
 using static Model.Enums.InquiryType;
 using static Model.Enums.LeaveBalanceFetchStatus;
 using static Model.Enums.LeavePlanStatus;
@@ -155,62 +152,51 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             // 部署データ作成
-            var busyoBase = new BusyoBasisBuilder()
-                .WithId(1)
-                .WithName("テスト部署")
-                .Build();
+            var busyoBase = BusyoBasisEntity.CreateBusyoBasis(1, "テスト部署");
             db.BusyoBases.Add(busyoBase);
 
-            var busyo = new BusyoBuilder()
-                .WithId(1)
-                .WithCode("B001")
-                .WithName("テスト部署")
-                .WithBusyoBaseId(busyoBase.Id)
-                .WithIsActive(true)
-                .Build();
+            var busyo = BusyoEntity.CreateBusyo(
+                id: 1,
+                code: "B001",
+                name: "テスト部署",
+                busyoBaseId: busyoBase.Id,
+                isActive: true);
             db.Busyos.Add(busyo);
 
             // 社員BASE作成
-            var syainBase = new SyainBasisBuilder()
-                .WithId(1)
-                .Build();
+            var syainBase = SyainBasisEntity.CreateSyainBasis(1);
             db.SyainBases.Add(syainBase);
 
             // 社員作成
-            var syain = new SyainBuilder()
-                .WithId(1)
-                .WithCode("S0001")
-                .WithName("テスト社員")
-                .WithSyainBaseId(syainBase.Id)
-                .WithBusyoId(busyo.Id)
-                .WithStartYmd(today.AddYears(-1))
-                .WithEndYmd(today.AddYears(1))
-                .Build();
+            var syain = SyainEntity.CreateSyain(
+                id: 1,
+                code: "S0001",
+                name: "テスト社員",
+                syainBaseId: syainBase.Id,
+                busyoId: busyo.Id,
+                startYmd: dateYmd.AddYears(-1),
+                endYmd: dateYmd.AddYears(1));
             db.Syains.Add(syain);
 
             // 同一部署の別社員（DepartmentEmployees テスト用）
-            var syainBase2 = new SyainBasisBuilder()
-                .WithId(2)
-                .Build();
+            var syainBase2 = SyainBasisEntity.CreateSyainBasis(2);
             db.SyainBases.Add(syainBase2);
 
-            var syain2 = new SyainBuilder()
-                .WithId(2)
-                .WithCode("S0002")
-                .WithName("テスト社員2")
-                .WithSyainBaseId(syainBase2.Id)
-                .WithBusyoId(busyo.Id)
-                .WithStartYmd(today.AddYears(-1))
-                .WithEndYmd(today.AddYears(1))
-                .WithJyunjyo(2)
-                .Build();
+            var syain2 = SyainEntity.CreateSyain(
+                id: 2,
+                code: "S0002",
+                name: "テスト社員2",
+                syainBaseId: syainBase2.Id,
+                busyoId: busyo.Id,
+                startYmd: dateYmd.AddYears(-1),
+                endYmd: dateYmd.AddYears(1),
+                jyunjyo: 2);
             db.Syains.Add(syain2);
 
             // 勤怠属性作成
-            var kintaiZokusei = new KintaiZokuseiBuilder()
-                .WithId(1)
-                .WithName("標準")
-                .Build();
+            var kintaiZokusei = KintaiZokuseiEntity.CreateKintaiZokusei(
+                id: 1,
+                name: "標準");
             db.KintaiZokuseis.Add(kintaiZokusei);
 
             db.SaveChanges();
@@ -417,7 +403,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            
+
             // Act
             model.SyainId = syain.Id;
             model.NippouYmd = dateYmd;
@@ -753,11 +739,9 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 休日マスタ（祝日）を作成
-            var holiday = new HikadoubiBuilder()
-                .WithId(1)
-                .WithYmd(dateYmd.GetStartOfMonth().AddDays(5)) // 6日目（5日後）を祝日とする
-                .WithSyukusaijitsuFlag(祝祭日)
-                .Build();
+            var holiday = HokadoubiEntity.CreateHikadoubi(
+               id: 1,
+               ymd: dateYmd.GetStartOfMonth().AddDays(5));
             db.Hikadoubis.Add(holiday);
             await db.SaveChangesAsync();
 
@@ -826,7 +810,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -863,19 +847,19 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var targetDate = dateYmd.GetStartOfMonth().AddDays(10);
 
             // 日報実績データ作成（確定済み）
-            var nippou = new NippouBuilder()
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(targetDate)
-                .WithTourokuKbn(確定保存)
-                .WithSyukkinHm1(new TimeOnly(9, 0))
-                .WithTaisyutsuHm1(new TimeOnly(18, 0))
-                .WithHJitsudou(8.0m) // 実働8時間
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                syainId: syain.Id,
+                nippouYmd: targetDate,
+                tourokuKubun: 確定保存,
+                syukkinHm1: new TimeOnly(9, 0),
+                taisyutsuHm1: new TimeOnly(18, 0),
+                hJitsudou: 8.0m // 実働8時間
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -904,17 +888,17 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var targetDate = dateYmd.GetStartOfMonth().AddDays(11);
 
             // 打刻データ作成
-            var workingHour = new WorkingHoursBuilder()
-                .WithSyainId(syain.Id)
-                .WithHiduke(targetDate)
-                .WithSyukkinTime(targetDate.ToDateTime(new TimeOnly(8, 55)))
-                .WithTaikinTime(targetDate.ToDateTime(new TimeOnly(18, 5)))
-                .Build();
+            var workingHour = WorkingHourEntity.CreateWorkingHours(
+                syainId: syain.Id,
+                hiduke: targetDate,
+                syukkinTime: targetDate.ToDateTime(new TimeOnly(8, 55)),
+                taikinTime: targetDate.ToDateTime(new TimeOnly(18, 5))
+            );
             db.WorkingHours.Add(workingHour);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -943,12 +927,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var targetDate = dateYmd.GetStartOfMonth().AddDays(15);
 
             // 申請データ作成（残業・承認済み）
-            var ukagai = new UkagaiHeaderBuilder()
-                .WithSyainId(syain.Id)
-                .WithWorkYmd(targetDate)
-                .WithStatus(承認)
-                .WithLastShoninYmd(dateYmd)
-                .Build();
+            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+                syainId: syain.Id,
+                workYmd: targetDate,
+                status: 承認,
+                lastShoninYmd: dateYmd
+            );
             ukagai.UkagaiShinseis = new List<UkagaiShinsei>
             {
                 new UkagaiShinsei { UkagaiSyubetsu = 早朝作業 }
@@ -1068,12 +1052,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             for (int i = 0; i < 11; i++)
             {
                 // 日付を遡って作成
-                var nippou = new NippouBuilder()
-                    .WithId(100 + i) // IDを一意にする
-                    .WithSyainId(syain.Id)
-                    .WithNippouYmd(dateYmd.AddDays(-i))
-                    .WithHJitsudou(8)
-                    .Build();
+                var nippou = NippouEntity.CreateNippou(
+                    id: 100 + i, // IDを一意にする
+                    syainId: syain.Id,
+                    nippouYmd: dateYmd.AddDays(-i),
+                    hJitsudou: 8
+                );
                 db.Nippous.Add(nippou);
             }
             await db.SaveChangesAsync();
@@ -1109,12 +1093,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // 7日連続出勤の実績を作成
             for (int i = 0; i < 7; i++)
             {
-                var nippou = new NippouBuilder()
-                    .WithId(200 + i) // IDを一意にする
-                    .WithSyainId(syain.Id)
-                    .WithNippouYmd(dateYmd.AddDays(-i))
-                    .WithHJitsudou(8)
-                    .Build();
+                var nippou = NippouEntity.CreateNippou(
+                    id: 200 + i, // IDを一意にする
+                    syainId: syain.Id,
+                    nippouYmd: dateYmd.AddDays(-i),
+                    hJitsudou: 8
+                );
                 db.Nippous.Add(nippou);
             }
             await db.SaveChangesAsync();
@@ -1148,11 +1132,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 45時間残業の実績(1日)
-            var nippou = new NippouBuilder()
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(dateYmd.GetStartOfMonth())
-                .WithHZangyo(45)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                syainId: syain.Id,
+                nippouYmd: dateYmd.GetStartOfMonth(),
+                hZangyo: 45
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
@@ -1184,11 +1168,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 35時間残業の実績(1日)
-            var nippou = new NippouBuilder()
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(dateYmd.GetStartOfMonth())
-                .WithHZangyo(35)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                syainId: syain.Id,
+                nippouYmd: dateYmd.GetStartOfMonth(),
+                hZangyo: 35
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
@@ -1226,11 +1210,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 35時間残業
-            var nippou = new NippouBuilder()
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(dateYmd.GetStartOfMonth())
-                .WithHZangyo(35)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                syainId: syain.Id,
+                nippouYmd: dateYmd.GetStartOfMonth(),
+                hZangyo: 35
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
@@ -1269,11 +1253,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 90時間残業
-            var nippou = new NippouBuilder()
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(dateYmd.GetStartOfMonth())
-                .WithHZangyo(90)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                syainId: syain.Id,
+                nippouYmd: dateYmd.GetStartOfMonth(),
+                hZangyo: 90
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
@@ -1309,8 +1293,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-          
-            db.Nippous.Add(new NippouBuilder().WithSyainId(syain.Id).WithNippouYmd(dateYmd.GetStartOfMonth()).WithHZangyo(105).Build());
+
+            var nippou = NippouEntity.CreateNippou(
+                syainId: syain.Id,
+                nippouYmd: dateYmd.GetStartOfMonth(),
+                hZangyo: 105
+            );
+            db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
@@ -1341,7 +1330,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             var model = CreateModel();
 
-            db.Nippous.Add(new NippouBuilder().WithSyainId(syain.Id).WithNippouYmd(dateYmd.GetStartOfMonth()).WithHZangyo(105).Build());
+            var nippou = NippouEntity.CreateNippou(
+                syainId: syain.Id,
+                nippouYmd: dateYmd.GetStartOfMonth(),
+                hZangyo: 105
+            );
+            db.Nippous.Add(nippou);
+
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
@@ -1370,10 +1365,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
             var holidayDate = dateYmd.GetStartOfMonth(); // 月初を祝日に
 
-            var holiday = new HikadoubiBuilder()
-                .WithYmd(holidayDate)
-                .WithSyukusaijitsuFlag(祝祭日)
-                .Build();
+            var holiday = HokadoubiEntity.CreateHikadoubi(
+                id: 1,
+                ymd: holidayDate
+            );
             db.Hikadoubis.Add(holiday);
             await db.SaveChangesAsync();
 
@@ -1428,25 +1423,25 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var nippou = new NippouBuilder()
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(today)
-                .WithTourokuKbn(確定保存)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                syainId: syain.Id,
+                nippouYmd: dateYmd,
+                tourokuKubun: 確定保存
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == dateYmd);
             Assert.IsNotNull(row);
             Assert.AreEqual("済", row.ReportStatus);
         }
@@ -1462,25 +1457,25 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var nippou = new NippouBuilder()
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(today)
-                .WithTourokuKbn(一時保存)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                syainId: syain.Id,
+                nippouYmd: dateYmd,
+                tourokuKubun: 一時保存
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == dateYmd);
             Assert.IsNotNull(row);
             Assert.AreEqual("一時", row.ReportStatus);
         }
@@ -1496,25 +1491,25 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var wh = new WorkingHoursBuilder()
-                .WithSyainId(syain.Id)
-                .WithHiduke(today)
-                .WithSyukkinTime(today.ToDateTime())
-                .Build();
+            var wh = WorkingHourEntity.CreateWorkingHours(
+                syainId: syain.Id,
+                hiduke: dateYmd,
+                syukkinTime: dateYmd.ToDateTime()
+            );
             db.WorkingHours.Add(wh);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == dateYmd);
             Assert.IsNotNull(row);
             Assert.AreEqual("未", row.ReportStatus);
         }
@@ -1530,27 +1525,27 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             var furi = new FurikyuuZan
             {
                 SyainId = syain.Id,
-                KyuujitsuSyukkinYmd = today.AddMonths(-1),
-                SyutokuYoteiYmd = today, // 今日取得予定
-                DaikyuuKigenYmd = today.AddMonths(1)
+                KyuujitsuSyukkinYmd = dateYmd.AddMonths(-1),
+                SyutokuYoteiYmd = dateYmd, // 今日取得予定
+                DaikyuuKigenYmd = dateYmd.AddMonths(1)
             };
             db.FurikyuuZans.Add(furi);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == dateYmd);
             Assert.IsNotNull(row);
             Assert.AreEqual("振休", row.PlannedLeave);
         }
@@ -1566,8 +1561,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             // 計画有給設定
             var keikaku = new YukyuKeikaku
@@ -1582,20 +1577,20 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var meisai = new YukyuKeikakuMeisai
             {
                 YukyuKeikakuId = keikaku.Id,
-                Ymd = today,
+                Ymd = dateYmd,
                 IsTokukyu = false
             };
             db.YukyuKeikakuMeisais.Add(meisai);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == dateYmd);
             Assert.IsNotNull(row);
             Assert.AreEqual("有給", row.PlannedLeave);
         }
@@ -1611,8 +1606,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             // 計画特休設定
             var keikaku = new YukyuKeikaku
@@ -1627,20 +1622,20 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var meisai = new YukyuKeikakuMeisai
             {
                 YukyuKeikakuId = keikaku.Id,
-                Ymd = today,
+                Ymd = dateYmd,
                 IsTokukyu = true
             };
             db.YukyuKeikakuMeisais.Add(meisai);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == dateYmd);
             Assert.IsNotNull(row);
             Assert.AreEqual("特休", row.PlannedLeave);
         }
@@ -1656,19 +1651,19 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
             var rows = model.ViewModel.KarendaHyojiRows;
 
             // Assert
-            var todayRow = rows.FirstOrDefault(r => r.Date == today);
-            Assert.IsNotNull(todayRow);
-            Assert.IsTrue(todayRow.IsLink, "当月の今日は IsLink=true であるべきです。");
+            var dateYmdRow = rows.FirstOrDefault(r => r.Date == dateYmd);
+            Assert.IsNotNull(dateYmdRow);
+            Assert.IsTrue(dateYmdRow.IsLink, "当月の今日は IsLink=true であるべきです。");
         }
 
         /// <summary>
@@ -1682,13 +1677,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            if (today >= today.GetEndOfMonth()) return; // 当月内に明日がない場合はスキップ
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            if (dateYmd >= dateYmd.GetEndOfMonth()) return; // 当月内に明日がない場合はスキップ
 
-            var tomorrow = today.AddDays(1);
+            var tomorrow = dateYmd.AddDays(1);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1711,10 +1706,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var nextMonthToday = today.AddMonths(1);
+            var nextMonthToday = dateYmd.AddMonths(1);
             model.SyainId = syain.Id;
             model.NippouYmd = nextMonthToday; // 翌月を表示
 
@@ -1739,13 +1734,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            if (today <= today.GetStartOfMonth()) return; // 当月内に昨日がない場合はスキップ
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            if (dateYmd <= dateYmd.GetStartOfMonth()) return; // 当月内に昨日がない場合はスキップ
 
-            var yesterday = today.AddDays(-1);
+            var yesterday = dateYmd.AddDays(-1);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1768,15 +1763,15 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             // 予定データを作成しておく (InitializePlannedWorkAsyncを走らせるため)
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act & Assert (過去月)
-            var pastMonth = today.AddMonths(-1).GetStartOfMonth();
+            var pastMonth = dateYmd.AddMonths(-1).GetStartOfMonth();
             model.NippouYmd = pastMonth;
             await model.OnGetAsync();
             var pastRows = model.ViewModel.KarendaHyojiRows;
@@ -1797,15 +1792,15 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             // 当月失効の振替休暇
             var furi = new FurikyuuZan
             {
                 SyainId = syain.Id,
-                KyuujitsuSyukkinYmd = today.AddMonths(-3),
-                DaikyuuKigenYmd = today.AddDays(1), // 今月期限（当月初日を避ける）
+                KyuujitsuSyukkinYmd = dateYmd.AddMonths(-3),
+                DaikyuuKigenYmd = dateYmd.AddDays(1), // 今月期限（当月初日を避ける）
                 SyutokuState = 未,
                 IsOneDay = true
             };
@@ -1813,7 +1808,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1835,10 +1830,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             // 3ヶ月以上前（例：4ヶ月前）の休日出勤で未取得
-            var kyuujitsuYmd = today.AddMonths(-4);
+            var kyuujitsuYmd = dateYmd.AddMonths(-4);
 
             var furi = new FurikyuuZan
             {
@@ -1852,7 +1847,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1874,15 +1869,15 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var ukagai = new UkagaiHeaderBuilder()
-                .WithSyainId(syain.Id)
-                .WithWorkYmd(today)
-                .WithStatus(承認)
-                .WithLastShoninYmd(today)
-                .Build();
+            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+                syainId: syain.Id,
+                workYmd: dateYmd,
+                status: 承認,
+                lastShoninYmd: dateYmd
+            );
             ukagai.UkagaiShinseis = new List<UkagaiShinsei>
             {
                 new UkagaiShinsei { UkagaiSyubetsu = 時間外労働時間制限拡張 }
@@ -1891,7 +1886,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1919,11 +1914,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -1944,9 +1939,9 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, today, 中締め);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, dateYmd, 中締め);
 
             // Act
             var message = model.ViewModel.AlertBanner();
@@ -1965,9 +1960,9 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, today, 月末締め);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, dateYmd, 月末締め);
 
             // Act
             var message = model.ViewModel.AlertBanner();
@@ -1986,9 +1981,9 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, today, 一か月締め);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, dateYmd, 一か月締め);
 
             // Act
             var message = model.ViewModel.AlertBanner();
@@ -2007,9 +2002,9 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         {
             // Arrange
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, today, (AchievementClassification)99);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            model.ViewModel.DeadlineSimebi = new JissekiKakuteiKigenInfo(1, dateYmd, (AchievementClassification)99);
 
             // Act
             var message = model.ViewModel.AlertBanner();
@@ -2029,22 +2024,22 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             // システム日付を当月に設定（CalculateTotalOvertime で isSystemMonth が true になる必要がある）
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 打刻データを作成（9:00 - 20:00 = 11時間拘束 - 1時間休憩 = 10時間実働 => 2時間残業）
             // 規定時間は 8 時間とする（Common.Time.kitei は通常 480分 = 8時間）
-            var workingHour = new WorkingHoursBuilder()
-                .WithSyainId(syain.Id)
-                .WithHiduke(today)
-                .WithSyukkinTime(today.ToDateTime(new TimeOnly(9, 0)))
-                .WithTaikinTime(today.ToDateTime(new TimeOnly(20, 0)))
-                .Build();
+            var workingHour = WorkingHourEntity.CreateWorkingHours(
+                syainId: syain.Id,
+                hiduke: dateYmd,
+                syukkinTime: dateYmd.ToDateTime(new TimeOnly(9, 0)),
+                taikinTime: dateYmd.ToDateTime(new TimeOnly(20, 0))
+            );
             db.WorkingHours.Add(workingHour);
             await db.SaveChangesAsync();
 
@@ -2075,13 +2070,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var systemMonth = today.GetStartOfMonth();
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var systemMonth = dateYmd.GetStartOfMonth();
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 過去データの作成
             // 1ヶ月前: 60時間残業
@@ -2205,28 +2200,28 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 1. 出勤打刻のみ
-            var startOnly = new WorkingHoursBuilder()
-                .WithId(1001)
-                .WithSyainId(syain.Id)
-                .WithHiduke(today)
-                .WithSyukkinTime(today.ToDateTime(new TimeOnly(9, 0)))
-                .Build();
+            var startOnly = WorkingHourEntity.CreateWorkingHours(
+                id: 1001,
+                syainId: syain.Id,
+                hiduke: dateYmd,
+                syukkinTime: dateYmd.ToDateTime(new TimeOnly(9, 0))
+            );
 
             // 2. 退勤打刻のみ
-            var endOnly = new WorkingHoursBuilder()
-                .WithId(1002)
-                .WithSyainId(syain.Id)
-                .WithHiduke(today)
-                .WithTaikinTime(today.ToDateTime(new TimeOnly(18, 0)))
-                .Build();
+            var endOnly = WorkingHourEntity.CreateWorkingHours(
+                id: 1002,
+                syainId: syain.Id,
+                hiduke: dateYmd,
+                taikinTime: dateYmd.ToDateTime(new TimeOnly(18, 0))
+            );
 
             db.WorkingHours.AddRange(startOnly, endOnly);
             await db.SaveChangesAsync();
@@ -2254,13 +2249,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var systemMonth = today.GetStartOfMonth();
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var systemMonth = dateYmd.GetStartOfMonth();
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 1. 未使用の振休 (1日)
             var unusedFullDayFuri = new FurikyuuZan
@@ -2288,7 +2283,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             {
                 Id = 2003,
                 SyainId = syain.Id,
-                KyuujitsuSyukkinYmd = today.AddMonths(-3).AddDays(-1),
+                KyuujitsuSyukkinYmd = dateYmd.AddMonths(-3).AddDays(-1),
                 DaikyuuKigenYmd = systemMonth.AddMonths(5),
                 IsOneDay = false,
                 SyutokuState = 未
@@ -2316,13 +2311,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var systemMonth = today.GetStartOfMonth();
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var systemMonth = dateYmd.GetStartOfMonth();
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             var expiringFuri = new FurikyuuZan
             {
@@ -2356,19 +2351,19 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var systemMonth = today.GetStartOfMonth();
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var systemMonth = dateYmd.GetStartOfMonth();
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             var longTermUnusedHalfDayFuri = new FurikyuuZan
             {
                 Id = 2003,
                 SyainId = syain.Id,
-                KyuujitsuSyukkinYmd = today.AddMonths(-3).AddDays(-1), // 3か月以上前
+                KyuujitsuSyukkinYmd = dateYmd.AddMonths(-3).AddDays(-1), // 3か月以上前
                 DaikyuuKigenYmd = systemMonth.AddMonths(5),
                 IsOneDay = false,
                 SyutokuState = 未
@@ -2396,14 +2391,14 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var systemMonth = today.GetStartOfMonth();
+            var systemMonth = dateYmd.GetStartOfMonth();
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 70h (Red) を超えるケース
             await CreateMonthlyOvertime(syain.Id, systemMonth.AddMonths(-1), 75);
@@ -2429,13 +2424,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var systemMonth = today.GetStartOfMonth();
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var systemMonth = dateYmd.GetStartOfMonth();
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 65h (Yellow) に調整 (YellowThreshold = 60)
             await CreateMonthlyOvertime(syain.Id, systemMonth.AddMonths(-1), 65);
@@ -2461,22 +2456,22 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 休日実働(2.5h) + 法定休日実働(1.25h) = 3.75h = 03:45
-            var nippou = new NippouBuilder()
-                .WithId(3001)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(today)
-                .WithDJitsudou(2.5m)
-                .WithNJitsudou(1.25m)
-                .WithTourokuKbn(確定保存)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                id: 3001,
+                syainId: syain.Id,
+                nippouYmd: dateYmd,
+                dJitsudou: 2.5m,
+                nJitsudou: 1.25m,
+                tourokuKubun: 確定保存
+            );
 
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
@@ -2485,7 +2480,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == dateYmd);
             Assert.AreEqual("03:45", row?.ActualWorked);
         }
 
@@ -2500,18 +2495,18 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.FirstOrDefault(r => r.Date == dateYmd);
             Assert.AreEqual(string.Empty, row?.ActualWorked);
         }
 
@@ -2561,12 +2556,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 各種別の UkagaiHeader を作成
             var types = new[] {
@@ -2580,13 +2575,13 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             for (int i = 0; i < types.Length; i++)
             {
-                var date = today.AddDays(i);
-                var header = new UkagaiHeaderBuilder()
-                    .WithId(4000 + i)
-                    .WithSyainId(syain.Id)
-                    .WithWorkYmd(date)
-                    .WithStatus(承認)
-                    .Build();
+                var date = dateYmd.AddDays(i);
+                var header = UkagaiHeaderEntity.CreateUkagaiHeader(
+                    id: 4000 + i,
+                    syainId: syain.Id,
+                    workYmd: date,
+                    status: 承認
+                );
 
                 var shinsei = new UkagaiShinsei { Id = 4000 + i, UkagaiHeaderId = header.Id, UkagaiSyubetsu = types[i] };
                 db.UkagaiHeaders.Add(header);
@@ -2602,12 +2597,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Assert
             var rows = model.ViewModel.KarendaHyojiRows;
 
-            Assert.AreEqual("夜間", rows.First(r => r.Date == today).ApplicationType);
-            Assert.AreEqual("深夜", rows.First(r => r.Date == today.AddDays(1)).ApplicationType);
-            Assert.AreEqual("リフ", rows.First(r => r.Date == today.AddDays(2)).ApplicationType);
-            Assert.AreEqual("休出", rows.First(r => r.Date == today.AddDays(3)).ApplicationType);
-            Assert.AreEqual("テレ", rows.First(r => r.Date == today.AddDays(4)).ApplicationType);
-            Assert.AreEqual("打刻", rows.First(r => r.Date == today.AddDays(5)).ApplicationType);
+            Assert.AreEqual("夜間", rows.First(r => r.Date == dateYmd).ApplicationType);
+            Assert.AreEqual("深夜", rows.First(r => r.Date == dateYmd.AddDays(1)).ApplicationType);
+            Assert.AreEqual("リフ", rows.First(r => r.Date == dateYmd.AddDays(2)).ApplicationType);
+            Assert.AreEqual("休出", rows.First(r => r.Date == dateYmd.AddDays(3)).ApplicationType);
+            Assert.AreEqual("テレ", rows.First(r => r.Date == dateYmd.AddDays(4)).ApplicationType);
+            Assert.AreEqual("打刻", rows.First(r => r.Date == dateYmd.AddDays(5)).ApplicationType);
         }
 
         /// <summary>
@@ -2619,20 +2614,20 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 申請ヘッダはあるが、申請詳細（UkagaiShinsei）がないケース、または種別が未設定
-            var header = new UkagaiHeaderBuilder()
-                .WithId(5001)
-                .WithSyainId(syain.Id)
-                .WithWorkYmd(today)
-                .WithStatus(承認)
-                .Build();
+            var header = UkagaiHeaderEntity.CreateUkagaiHeader(
+                id: 5001,
+                syainId: syain.Id,
+                workYmd: dateYmd,
+                status: 承認
+            );
 
             db.UkagaiHeaders.Add(header);
             // shinsei を敢えて追加しない
@@ -2642,7 +2637,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.First(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.First(r => r.Date == dateYmd);
             Assert.AreEqual(string.Empty, row.ApplicationType, "種別がない場合は空文字になること");
         }
 
@@ -2657,11 +2652,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
 
             // 勤怠属性「フリー」をシードする
-            var kintaiZokusei = new KintaiZokuseiBuilder()
-                .WithId(3)
-                .WithName("フリー")
-                .WithCode(フリー)
-                .Build();
+            var kintaiZokusei = KintaiZokuseiEntity.CreateKintaiZokusei(
+                id: 3,
+                name: "フリー",
+                code: フリー
+            );
             db.KintaiZokuseis.Add(kintaiZokusei);
 
             // 社員の勤怠属性を「フリー」に設定
@@ -2669,19 +2664,19 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 100時間を超える残業を発生させる
-            var nippou = new NippouBuilder()
-                .WithId(6001)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(today)
-                .WithTotalZangyo(105.0m) // 100h 超過
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                id: 6001,
+                syainId: syain.Id,
+                nippouYmd: dateYmd,
+                totalZangyo: 105.0m // 100h 超過
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
@@ -2705,19 +2700,19 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 閾値（30h）未満の残業
-            var nippou = new NippouBuilder()
-                .WithId(6002)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(today)
-                .WithTotalZangyo(10.0m)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                id: 6002,
+                syainId: syain.Id,
+                nippouYmd: dateYmd,
+                totalZangyo: 10.0m
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
@@ -2742,16 +2737,16 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 過去2ヶ月の残業をセットして平均が70h以上になるようにする
             // 1月: 80h, 12月: 80h -> 平均 80h (RedThreshold = 70)
-            await CreateMonthlyOvertime(syain.Id, today.AddMonths(-1), 80);
-            await CreateMonthlyOvertime(syain.Id, today.AddMonths(-2), 80);
+            await CreateMonthlyOvertime(syain.Id, dateYmd.AddMonths(-1), 80);
+            await CreateMonthlyOvertime(syain.Id, dateYmd.AddMonths(-2), 80);
             await db.SaveChangesAsync();
 
             // Act
@@ -2772,18 +2767,18 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            model.ViewModel.CurrentTime = today.ToDateTime(TimeOnly.MinValue);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            model.ViewModel.CurrentTime = dateYmd.ToDateTime(TimeOnly.MinValue);
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // 平均を65hにする (YellowThreshold = 60)
             // 1月: 65h, 12月: 65h -> 平均 65h
-            db.Nippous.RemoveRange(db.Nippous.Where(n => n.SyainId == syain.Id && n.NippouYmd < today));
+            db.Nippous.RemoveRange(db.Nippous.Where(n => n.SyainId == syain.Id && n.NippouYmd < dateYmd));
 
-            await CreateMonthlyOvertime(syain.Id, today.AddMonths(-1), 65);
-            await CreateMonthlyOvertime(syain.Id, today.AddMonths(-2), 65);
+            await CreateMonthlyOvertime(syain.Id, dateYmd.AddMonths(-1), 65);
+            await CreateMonthlyOvertime(syain.Id, dateYmd.AddMonths(-2), 65);
             await db.SaveChangesAsync();
 
             // Act
@@ -2807,21 +2802,21 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var targetDate = today.GetEndOfMonth().AddDays(-1);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var targetDate = dateYmd.GetEndOfMonth().AddDays(-1);
 
-            var nippou = new NippouBuilder()
-                .WithId(7101)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(targetDate)
-                .WithTourokuKbn(確定保存)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                id: 7101,
+                syainId: syain.Id,
+                nippouYmd: targetDate,
+                tourokuKubun: 確定保存
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -2843,26 +2838,26 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var nippou = new NippouBuilder()
-                .WithId(7102)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(today)
-                .WithTourokuKbn(一時保存)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                id: 7102,
+                syainId: syain.Id,
+                nippouYmd: dateYmd,
+                tourokuKubun: 一時保存
+            );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
 
             // Assert
-            var row = model.ViewModel.KarendaHyojiRows.First(r => r.Date == today);
+            var row = model.ViewModel.KarendaHyojiRows.First(r => r.Date == dateYmd);
             Assert.AreEqual("一時", row.ReportStatus);
             Assert.AreEqual("一時保存", row.ReportStatusType);
         }
@@ -2878,21 +2873,21 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var targetDate = today.GetStartOfMonth().AddDays(1);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(1);
 
-            var wh = new WorkingHoursBuilder()
-                .WithId(7101)
-                .WithSyainId(syain.Id)
-                .WithHiduke(targetDate)
-                .WithSyukkinTime(targetDate.ToDateTime(new TimeOnly(8, 30)))
-                .Build();
+            var wh = WorkingHourEntity.CreateWorkingHours(
+                id: 7101,
+                syainId: syain.Id,
+                hiduke: targetDate,
+                syukkinTime: targetDate.ToDateTime(new TimeOnly(8, 30))
+            );
             db.WorkingHours.Add(wh);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -2914,22 +2909,22 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var targetDate = today.GetStartOfMonth().AddDays(2);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(2);
 
-            var ukagai = new UkagaiHeaderBuilder()
-                .WithId(7101)
-                .WithSyainId(syain.Id)
-                .WithWorkYmd(targetDate)
-                .WithStatus(承認)
-                .WithLastShoninYmd(today)
-                .Build();
+            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+                id: 7101,
+                syainId: syain.Id,
+                workYmd: targetDate,
+                status: 承認,
+                lastShoninYmd: dateYmd
+            );
             db.UkagaiHeaders.Add(ukagai);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -2950,21 +2945,21 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var targetDate = today.GetStartOfMonth().AddDays(9);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(9);
 
-            var ukagai = new UkagaiHeaderBuilder()
-                .WithId(7102)
-                .WithSyainId(syain.Id)
-                .WithWorkYmd(targetDate)
-                .WithStatus(承認待)
-                .Build();
+            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+                id: 7102,
+                syainId: syain.Id,
+                workYmd: targetDate,
+                status: 承認待
+            );
             db.UkagaiHeaders.Add(ukagai);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -2985,21 +2980,21 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var targetDate = today.GetStartOfMonth().AddDays(4);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(4);
 
-            var ukagai = new UkagaiHeaderBuilder()
-                .WithId(7103)
-                .WithSyainId(syain.Id)
-                .WithWorkYmd(targetDate)
-                .WithStatus(差戻)
-                .Build();
+            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+                id: 7103,
+                syainId: syain.Id,
+                workYmd: targetDate,
+                status: 差戻
+            );
             db.UkagaiHeaders.Add(ukagai);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -3020,29 +3015,29 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var targetDate = today.GetStartOfMonth().AddDays(5);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(5);
 
-            var nippou = new NippouBuilder()
-                .WithId(7103)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(targetDate)
-                .WithTourokuKbn(確定保存)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                id: 7103,
+                syainId: syain.Id,
+                nippouYmd: targetDate,
+                tourokuKubun: 確定保存
+            );
             db.Nippous.Add(nippou);
             db.DairiNyuryokuRirekis.Add(new DairiNyuryokuRireki
             {
                 Id = 7101,
                 NippouId = 7103,
                 DairiNyuryokuSyainId = syain.Id,
-                DairiNyuryokuTime = today.ToDateTime(),
+                DairiNyuryokuTime = dateYmd.ToDateTime(),
                 Invalid = false
             });
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -3063,21 +3058,28 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var targetDate = today.GetStartOfMonth().AddDays(6);
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(6);
 
-            var nendo = new YukyuNendoBuilder().WithId(7101).WithIsThisYear(true).Build();
+            var nendo = YukyuNendoEntity.CreateYukyuNendo(
+                id: 7101,
+                isThisYear: true
+            );
             db.YukyuNendos.Add(nendo);
-            var yk = new YukyuKeikakuBuilder().WithId(7101).WithYukyuNendoId(7101).WithSyainBaseId(syain.SyainBaseId).Build();
+            var yk = YukyuKeikakuEntity.CreateYukyuKeikaku(
+                id: 7101,
+                yukyuNendoId: 7101,
+                syainBaseId: syain.SyainBaseId
+            );
             db.YukyuKeikakus.Add(yk);
             var paidLeave = new YukyuKeikakuMeisai { Id = 7101, YukyuKeikakuId = 7101, Ymd = targetDate, IsTokukyu = false };
             db.YukyuKeikakuMeisais.Add(paidLeave);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -3098,21 +3100,28 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var targetDate = today.GetStartOfMonth().AddDays(7);
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(7);
 
-            var nendo = new YukyuNendoBuilder().WithId(7101).WithIsThisYear(true).Build();
+            var nendo = YukyuNendoEntity.CreateYukyuNendo(
+                id: 7101,
+                isThisYear: true
+            );
             db.YukyuNendos.Add(nendo);
-            var yk = new YukyuKeikakuBuilder().WithId(7101).WithYukyuNendoId(7101).WithSyainBaseId(syain.SyainBaseId).Build();
+            var yk = YukyuKeikakuEntity.CreateYukyuKeikaku(
+                id: 7101,
+                yukyuNendoId: 7101,
+                syainBaseId: syain.SyainBaseId
+            );
             db.YukyuKeikakus.Add(yk);
             var specialLeave = new YukyuKeikakuMeisai { Id = 7102, YukyuKeikakuId = 7101, Ymd = targetDate, IsTokukyu = true };
             db.YukyuKeikakuMeisais.Add(specialLeave);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -3133,16 +3142,16 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // Arrange
             var (syain, _) = InitializeTestData();
             var model = CreateModel();
-            var today = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(today.ToDateTime());
-            var targetDate = today.GetStartOfMonth().AddDays(8);
+            var dateYmd = new DateOnly(2026, 7, 15);
+            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
+            var targetDate = dateYmd.GetStartOfMonth().AddDays(8);
 
             var furikyu = new FurikyuuZan { Id = 7101, SyainId = syain.Id, SyutokuYoteiYmd = targetDate };
             db.FurikyuuZans.Add(furikyu);
             await db.SaveChangesAsync();
 
             model.SyainId = syain.Id;
-            model.NippouYmd = today;
+            model.NippouYmd = dateYmd;
 
             // Act
             await model.OnGetAsync();
@@ -3160,12 +3169,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // ユニークなIDを確保するために既存レコード数（DB + Local）を考慮
             long nextId = db.Nippous.Count() + db.Nippous.Local.Count + 1000;
 
-            var nippou = new NippouBuilder()
-                .WithId(nextId)
-                .WithSyainId(syainId)
-                .WithNippouYmd(month)
-                .WithDZangyo(hours)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                id: nextId,
+                syainId: syainId,
+                nippouYmd: month,
+                dZangyo: hours
+            );
             db.Nippous.Add(nippou);
         }
     }

@@ -200,7 +200,6 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
         public async Task OnGetAsync_id指定時に既存社員情報を読込むこと()
         {
             var dateYmd = new DateOnly(2026, 1, 1);
-            // fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "NAME-1");
             AddCurrentSyain(100, syainBase.Id, "10001");
@@ -313,7 +312,6 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
         public async Task OnPostRegisterAsync_新規登録成功時に社員関連データを追加すること()
         {
             var dateYmd = new DateOnly(2026, 1, 1);
-            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             await db.SaveChangesAsync();
 
@@ -396,7 +394,6 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
         public async Task OnPostRegisterAsync_履歴変更かつ適用開始日が有効開始日より前ならエラーとなること()
         {
             var dateYmd = new DateOnly(2025, 2, 1);
-            // fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "BASE");
             AddCurrentSyain(100, syainBase.Id, "10001", startYmd: dateYmd);
@@ -424,7 +421,6 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
         public async Task OnPostRegisterAsync_履歴変更なし更新で現行社員と有給残を更新すること()
         {
             var dateYmd = new DateOnly(2025, 1, 1);
-            // fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "BASE");
             AddCurrentSyain(100, syainBase.Id, "10001");
@@ -488,7 +484,6 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
         public async Task OnPostRegisterAsync_残業超過制限開始フラグオフで残業超過制限を削除すること()
         {
             var dateYmd = new DateOnly(2025, 12, 1);
-            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "BASE");
             AddCurrentSyain(100, syainBase.Id, "10001");
@@ -516,7 +511,6 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
         public async Task OnPostRegisterAsync_履歴変更あり更新で履歴分割して新規社員を追加すること()
         {
             var dateYmd = new DateOnly(2025, 1, 1);
-            // fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             SeedMasters();
             var syainBase = AddSyainBase(10, "10001", "BASE");
             AddCurrentSyain(100, syainBase.Id, "10001", busyoId: 1, startYmd: dateYmd);

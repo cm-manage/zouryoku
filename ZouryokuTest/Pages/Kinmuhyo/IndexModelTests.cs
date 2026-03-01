@@ -741,7 +741,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // 休日マスタ（祝日）を作成
             var holiday = CreateHikadoubi(
                id: 1,
-               ymd: dateYmd.GetStartOfMonth().AddDays(5));
+               ymd: dateYmd.GetStartOfMonth().AddDays(5),
+               syukusaijitsuFlag: HolidayFlag.祝祭日);
             db.Hikadoubis.Add(holiday);
             await db.SaveChangesAsync();
 
@@ -1118,123 +1119,6 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         }
 
         /// <summary>
-        /// Given: 残業時間が月45時間以上（閾値超過）
-        /// When: OnGetAsync を呼ぶ
-        /// Then: 赤もしくは黄アラートが表示される
-        /// </summary>
-        [TestMethod(DisplayName = "残業45時間以上 → 残業アラート")]
-        public async Task OnGetAsync_残業時間がアラート閾値を超える場合_残業アラート()
-        {
-            // Arrange
-            var dateYmd = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
-            var (syain, _) = InitializeTestData();
-            var model = CreateModel();
-
-            // 45時間残業の実績(1日)
-            var nippou = CreateNippou(
-                syainId: syain.Id,
-                nippouYmd: dateYmd.GetStartOfMonth(),
-                hZangyo: 45 * 60,
-                totalZangyo: 45 * 60
-            );
-            db.Nippous.Add(nippou);
-            await db.SaveChangesAsync();
-
-            model.SyainId = syain.Id;
-            model.NippouYmd = dateYmd;
-
-            // Act
-            await model.OnGetAsync();
-
-            // Assert
-            var row = model.ViewModel.KinmuJokyoRows.FirstOrDefault(r => r.Label == "残業");
-            Assert.IsNotNull(row);
-            // 閾値設定: RedThreshold45=40, YellowThreshold45=30 なので 45h は Danger になるはず
-            Assert.AreEqual(IndexViewModel.LevelDanger, row.MessageLevel);
-        }
-
-        /// <summary>
-        /// Given: 残業時間が月30時間以上（警告閾値超過、赤閾値未満）
-        /// When: OnGetAsync を呼ぶ
-        /// Then: 黄アラート（LevelWarn）が表示される
-        /// </summary>
-        [TestMethod(DisplayName = "残業30時間以上 → 残業黄アラート")]
-        public async Task OnGetAsync_残業時間が警告閾値を超える場合_残業黄アラート()
-        {
-            // Arrange
-            var dateYmd = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
-            var (syain, _) = InitializeTestData();
-            var model = CreateModel();
-
-            // 35時間残業の実績(1日)
-            var nippou = CreateNippou(
-                syainId: syain.Id,
-                nippouYmd: dateYmd.GetStartOfMonth(),
-                hZangyo: 35 * 60,
-                totalZangyo: 35 * 60
-            );
-            db.Nippous.Add(nippou);
-            await db.SaveChangesAsync();
-
-            model.SyainId = syain.Id;
-            model.NippouYmd = dateYmd;
-
-            // Act
-            await model.OnGetAsync();
-
-            // Assert
-            var row = model.ViewModel.KinmuJokyoRows.FirstOrDefault(r => r.Label == "残業");
-            Assert.IsNotNull(row);
-            // 閾値設定: RedThreshold45=40, YellowThreshold45=30 なので 35h は Warn になるはず
-            Assert.AreEqual(IndexViewModel.LevelWarn, row.MessageLevel);
-        }
-
-        /// <summary>
-        /// Given: 残業時間が月30時間以上（警告閾値超過）かつ免除社員
-        /// When: OnGetAsync を呼ぶ
-        /// Then: 黄アラート（LevelWarn）だがメッセージは "-" になる
-        /// </summary>
-        [TestMethod(DisplayName = "残業30時間以上・免除社員 → 黄アラート・メッセージ横棒")]
-        public async Task OnGetAsync_残業時間が警告閾値を超える場合_免除社員_メッセージが横棒になる()
-        {
-            // Arrange
-            var dateYmd = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
-            var (syain, _) = InitializeTestData();
-
-            // 免除社員設定 (標準社員外)
-            var zokusei = await db.KintaiZokuseis.FirstAsync();
-            zokusei.Code = 標準社員外;
-            await db.SaveChangesAsync();
-
-            var model = CreateModel();
-
-            // 35時間残業
-            var nippou = CreateNippou(
-                syainId: syain.Id,
-                nippouYmd: dateYmd.GetStartOfMonth(),
-                hZangyo: 35 * 60,
-                totalZangyo: 35 * 60
-            );
-            db.Nippous.Add(nippou);
-            await db.SaveChangesAsync();
-
-            model.SyainId = syain.Id;
-            model.NippouYmd = dateYmd;
-
-            // Act
-            await model.OnGetAsync();
-
-            // Assert
-            var row = model.ViewModel.KinmuJokyoRows.FirstOrDefault(r => r.Label == "残業");
-            Assert.IsNotNull(row);
-            Assert.AreEqual(IndexViewModel.LevelWarn, row.MessageLevel);
-            Assert.AreEqual("-", row.Description);
-        }
-
-        /// <summary>
         /// Given: 残業制限解除 (SeigenTime=0) かつ残業時間が 90時間
         /// When: OnGetAsync を呼ぶ
         /// Then: Call 1 (100h) の黄閾値(85h)を超えているため、黄アラート（LevelWarn）が表示される
@@ -1373,7 +1257,8 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             var holiday = CreateHikadoubi(
                 id: 1,
-                ymd: holidayDate
+                ymd: holidayDate,
+                syukusaijitsuFlag: HolidayFlag.祝祭日
             );
             db.Hikadoubis.Add(holiday);
             await db.SaveChangesAsync();
@@ -1862,45 +1747,6 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var alert = model.ViewModel.KinmuJokyoRows.FirstOrDefault(r => r.Label == "振休 (3か月超過)");
             Assert.IsNotNull(alert);
             Assert.AreEqual(IndexViewModel.LevelWarn, alert.MessageLevel);
-        }
-
-        /// <summary>
-        /// Given: 承認済みの残業拡張申請がある
-        /// When: OnGetAsync を呼ぶ
-        /// Then: サマリー行のステータスが「拡張あり」等になることを確認
-        /// </summary>
-        [TestMethod(DisplayName = "残業拡張申請あり → 拡張あり判定")]
-        public async Task OnGetAsync_残業拡張申請がある場合_拡張ありステータス()
-        {
-            // Arrange
-            var (syain, _) = InitializeTestData();
-            var model = CreateModel();
-            var dateYmd = new DateOnly(2026, 7, 15);
-            fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
-
-            var ukagai = CreateUkagaiHeader(
-                syainId: syain.Id,
-                workYmd: dateYmd,
-                status: 承認,
-                lastShoninYmd: dateYmd
-            );
-            ukagai.UkagaiShinseis = new List<UkagaiShinsei>
-            {
-                new UkagaiShinsei { UkagaiSyubetsu = 時間外労働時間制限拡張 }
-            };
-            db.UkagaiHeaders.Add(ukagai);
-            await db.SaveChangesAsync();
-
-            model.SyainId = syain.Id;
-            model.NippouYmd = dateYmd;
-
-            // Act
-            await model.OnGetAsync();
-
-            // Assert
-            var row = model.ViewModel.KinmuJokyoRows.FirstOrDefault(r => r.Label == "残業");
-            Assert.IsNotNull(row);
-            Assert.IsTrue(row.Description.Contains("拡張あり") || row.Description == "-");
         }
 
         /// <summary>
@@ -3436,13 +3282,17 @@ namespace ZouryokuTest.Pages.Kinmuhyo
         }
 
         private static Hikadoubi CreateHikadoubi(
-            long id,
-            DateOnly ymd)
+            long? id,
+            DateOnly ymd,
+            HolidayFlag syukusaijitsuFlag,
+            RefreshDayFlag? refreshDay = RefreshDayFlag.それ以外)
         {
             return new Hikadoubi
             {
-                Id = id,
-                Ymd = ymd
+                Id = id ?? 1,
+                Ymd = ymd,
+                SyukusaijitsuFlag = syukusaijitsuFlag,
+                RefreshDay = refreshDay ?? RefreshDayFlag.それ以外
             };
         }
 

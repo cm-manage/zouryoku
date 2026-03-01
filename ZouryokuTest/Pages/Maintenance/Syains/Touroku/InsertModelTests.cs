@@ -39,29 +39,29 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 
         private void SeedMasters()
         {
-            var busyo1 = BusyoEntity.CreateBusyo(
+            var busyo1 = CreateBusyo(
                 id: 1,
                 code: "101",
                 name: "BUSYO-1",
                 busyoBaseId: 1);
-            var busyo2 = BusyoEntity.CreateBusyo(
+            var busyo2 = CreateBusyo(
                 id: 2,
                 code: "102",
                 name: "BUSYO-2",
                 busyoBaseId: 1);
-            var kintaiZokusei1 = KintaiZokuseiEntity.CreateKintaiZokusei(
+            var kintaiZokusei1 = CreateKintaiZokusei(
                 id: 1,
                 name: "KINTAI-1");
-            var kintaiZokusei2 = KintaiZokuseiEntity.CreateKintaiZokusei(
+            var kintaiZokusei2 = CreateKintaiZokusei(
                 id: 2,
                 name: "KINTAI-2");
-            var role1 = UserRoleEntity.CreateUserRole(
+            var role1 = CreateUserRole(
                 id: 1,
                 code: 1,
                 name: "ROLE-1",
                 jyunjo: 1,
                 kengen: (EmployeeAuthority)((1 << 0) | (1 << 14)));
-            var role2 = UserRoleEntity.CreateUserRole(
+            var role2 = CreateUserRole(
                 id: 2,
                 code: 2,
                 name: "ROLE-2",
@@ -601,6 +601,101 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
             Assert.IsTrue(model.Input.Perm15Checked);
             Assert.IsFalse(model.Input.Perm2Checked);
             Assert.IsFalse(model.Input.Perm14Checked);
+        }
+
+        private static Busyo CreateBusyo(
+            long? id = 1,
+            string? code = null,
+            string? name = null,
+            string? kanaName = null,
+            string? oyaCode = null,
+            DateOnly? startYmd = null,
+            DateOnly? endYmd = null,
+            short? jyunjyo = 1,
+            string? kasyoCode = null,
+            string? kaikeiCode = null,
+            string? keiriCode = null,
+            bool? isActive = true,
+            string? ryakusyou = null,
+            long? busyoBaseId = 1,
+            long? oyaId = 0,
+            long? shoninBusyoId = 0)
+        {
+            var result = new Busyo()
+            {
+                Code = code?.Trim() ?? $"B{id:D4}",
+                Name = name?.Trim() ?? $"部署{id}",
+                KanaName = kanaName?.Trim() ?? $"ブショ{id}",
+                OyaCode = oyaCode?.Trim() ?? $"OB{id:D4}",
+                StartYmd = startYmd ?? DateOnly.MinValue,
+                EndYmd = endYmd ?? DateOnly.MaxValue,
+                Jyunjyo = jyunjyo ?? 1,
+                KasyoCode = kasyoCode?.Trim() ?? $"KAS{id:D4}",
+                KaikeiCode = kaikeiCode?.Trim() ?? $"KK{id:D4}",
+                KeiriCode = keiriCode?.Trim() ?? $"KR{id:D4}",
+                IsActive = isActive ?? true,
+                Ryakusyou = ryakusyou?.Trim() ?? $"R{id}",
+                BusyoBaseId = busyoBaseId ?? 1,
+                OyaId = oyaId ?? 0,
+                ShoninBusyoId = shoninBusyoId ?? 0
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
+        }
+
+        private static KintaiZokusei CreateKintaiZokusei(
+            long? id = 1,
+            string? name = null,
+            decimal? seigenTime = 0.00m,
+            bool? isMinashi = false,
+            decimal? maxLimitTime = null,
+            bool? isOvertimeLimit3m = false,
+            EmployeeWorkType? code = EmployeeWorkType.月45時間)
+        {
+            var result = new KintaiZokusei
+            {
+                Name = name?.Trim() ?? "標準",
+                SeigenTime = seigenTime ?? 45.00m,
+                IsMinashi = isMinashi ?? false,
+                MaxLimitTime = maxLimitTime ?? 0m,
+                IsOvertimeLimit3m = isOvertimeLimit3m ?? false,
+                Code = code ?? EmployeeWorkType.月45時間
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
+        }
+
+        private static UserRole CreateUserRole(
+            long? id = 1,
+            short? code = 0,
+            string? name = null,
+            short? jyunjo = 0,
+            EmployeeAuthority? kengen = EmployeeAuthority.None)
+        {
+            var result = new UserRole()
+            {
+                Code = code ?? 0,
+                Name = name ?? "株式会社サンプル",
+                Jyunjo = jyunjo ?? 0,
+                Kengen = kengen ?? EmployeeAuthority.None
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
         }
     }
 }

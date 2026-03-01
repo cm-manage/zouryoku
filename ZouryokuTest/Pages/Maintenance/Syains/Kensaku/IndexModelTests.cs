@@ -34,15 +34,15 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             db.AddRange(roleAdmin, roleGeneral);
 
             // 勤怠属性
-            var kintai3Months60Hours = KintaiZokuseiEntity.CreateKintaiZokusei(
+            var kintai3Months60Hours = CreateKintaiZokusei(
                 id: (short)_3か月60時間,
                 name: "_3か月60時間");
 
-            var kintaiPartTime = KintaiZokuseiEntity.CreateKintaiZokusei(
+            var kintaiPartTime = CreateKintaiZokusei(
                 id: (short)パート,
                 name: "パート");
 
-            var kintaiMinashi = KintaiZokuseiEntity.CreateKintaiZokusei(
+            var kintaiMinashi = CreateKintaiZokusei(
                 id: (short)みなし対象者,
                 name: "みなし対象者",
                 isMinashi: true,
@@ -51,13 +51,13 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             db.AddRange(kintai3Months60Hours, kintaiPartTime, kintaiMinashi);
 
             // 部署
-            var busyoSystem = BusyoEntity.CreateBusyo(
+            var busyoSystem = CreateBusyo(
                 id: 1,
                 name: "システム部",
                 isActive: true,
                 jyunjyo: 1);
 
-            var busyoSales = BusyoEntity.CreateBusyo(
+            var busyoSales = CreateBusyo(
                 id: 2,
                 name: "営業部",
                 isActive: true,
@@ -83,11 +83,11 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             db.AddRange(roleAdmin, roleGeneral);
 
             // 勤怠属性（みなし対象者なし）
-            var kintai3Months60Hours = KintaiZokuseiEntity.CreateKintaiZokusei(
+            var kintai3Months60Hours = CreateKintaiZokusei(
                 id: (short)_3か月60時間,
                 name: "_3か月60時間");
 
-            var kintaiPart = KintaiZokuseiEntity.CreateKintaiZokusei(
+            var kintaiPart = CreateKintaiZokusei(
                 id: (short)パート,
                 name: "パート");
 
@@ -102,7 +102,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             SeedBase();
 
             // S001: 田中, システム部, 退職=false, ロール=管理者, 勤怠=通常, 級職=3, 権限=労働状況報告
-            var syain1 = SyainEntity.CreateSyain(
+            var syain1 = CreateSyain(
                 id: 1,
                 syainBaseId: 1,
                 code: "S001",
@@ -116,7 +116,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
                 jyunjyo: 1);
 
             // S002: 佐藤, 営業部, 退職=true, ロール=一般, 勤怠=通常, 級職=5, 権限=None
-            var syain2 = SyainEntity.CreateSyain(
+            var syain2 = CreateSyain(
                 id: 2,
                 syainBaseId: 2,
                 code: "S002",
@@ -131,7 +131,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
 
             // S003: 鈴木, 営業部, 退職=false, ロール=一般, 勤怠=シフト, 級職=3,
             // 権限=労働状況報告|勤務日報未確定チェック
-            var syain3 = SyainEntity.CreateSyain(
+            var syain3 = CreateSyain(
                 id: 3,
                 syainBaseId: 3,
                 code: "S003",
@@ -779,6 +779,145 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
 
             // Assert
             Assert.AreSame(condition, model.Condition, "Conditionのsetter/getterで同一インスタンスが保持されること");
+        }
+
+        private static Busyo CreateBusyo(
+            long? id = 1,
+            string? code = null,
+            string? name = null,
+            string? kanaName = null,
+            string? oyaCode = null,
+            DateOnly? startYmd = null,
+            DateOnly? endYmd = null,
+            short? jyunjyo = 1,
+            string? kasyoCode = null,
+            string? kaikeiCode = null,
+            string? keiriCode = null,
+            bool? isActive = true,
+            string? ryakusyou = null,
+            long? busyoBaseId = 1,
+            long? oyaId = 0,
+            long? shoninBusyoId = 0)
+        {
+            var result = new Busyo()
+            {
+                Code = code?.Trim() ?? $"B{id:D4}",
+                Name = name?.Trim() ?? $"部署{id}",
+                KanaName = kanaName?.Trim() ?? $"ブショ{id}",
+                OyaCode = oyaCode?.Trim() ?? $"OB{id:D4}",
+                StartYmd = startYmd ?? DateOnly.MinValue,
+                EndYmd = endYmd ?? DateOnly.MaxValue,
+                Jyunjyo = jyunjyo ?? 1,
+                KasyoCode = kasyoCode?.Trim() ?? $"KAS{id:D4}",
+                KaikeiCode = kaikeiCode?.Trim() ?? $"KK{id:D4}",
+                KeiriCode = keiriCode?.Trim() ?? $"KR{id:D4}",
+                IsActive = isActive ?? true,
+                Ryakusyou = ryakusyou?.Trim() ?? $"R{id}",
+                BusyoBaseId = busyoBaseId ?? 1,
+                OyaId = oyaId ?? 0,
+                ShoninBusyoId = shoninBusyoId ?? 0
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
+        }
+
+        private static Syain CreateSyain(
+            long? id = 1,
+            string? code = null,
+            string? name = null,
+            string? kanaName = null,
+            char? seibetsu = null,
+            string? busyoCode = null,
+            int? syokusyuCode = null,
+            int? syokusyuBunruiCode = null,
+            DateOnly? nyushaYmd = null,
+            DateOnly? startYmd = null,
+            DateOnly? endYmd = null,
+            short? kyusyoku = 0,
+            BusinessTripRole? syucyoSyokui = BusinessTripRole._2_6級,
+            string? kingsSyozoku = null,
+            short? kaisyaCode = 0,
+            bool? isGenkaRendou = false,
+            string? eMail = null,
+            string? keitaiMail = null,
+            EmployeeAuthority? kengen = EmployeeAuthority.None,
+            short? jyunjyo = 0,
+            bool? retired = false,
+            long? gyoumuTypeId = 1,
+            string? phoneNumber = null,
+            long? syainBaseId = 1,
+            long? busyoId = 1,
+            long? kintaiZokuseiId = 1,
+            long? userRoleId = 1)
+        {
+            var result = new Syain
+            {
+                Code = code?.Trim() ?? $"S{id:D4}",
+                Name = name?.Trim() ?? $"社員{id}",
+                KanaName = kanaName?.Trim() ?? $"シャイン{id}",
+                Seibetsu = seibetsu ?? '1',
+                BusyoCode = busyoCode?.Trim() ?? $"B{id:D4}",
+                SyokusyuCode = syokusyuCode ?? 0,
+                SyokusyuBunruiCode = syokusyuBunruiCode ?? 0,
+                NyuusyaYmd = nyushaYmd ?? new DateOnly(2020, 1, 1),
+                StartYmd = startYmd ?? DateOnly.MinValue,
+                EndYmd = endYmd ?? DateOnly.MaxValue,
+                Kyusyoku = kyusyoku ?? 0,
+                SyucyoSyokui = syucyoSyokui ?? BusinessTripRole._2_6級,
+                KingsSyozoku = kingsSyozoku?.Trim() ?? $"K{id:D4}",
+                KaisyaCode = kaisyaCode ?? 0,
+                IsGenkaRendou = isGenkaRendou ?? false,
+                EMail = eMail?.Trim() ?? $"syain{id}@example.com",
+                KeitaiMail = keitaiMail?.Trim() ?? $"keitai{id}@example.com",
+                Kengen = kengen ?? EmployeeAuthority.None,
+                Jyunjyo = jyunjyo ?? 0,
+                Retired = retired ?? false,
+                GyoumuTypeId = gyoumuTypeId,
+                PhoneNumber = phoneNumber,
+                SyainBaseId = syainBaseId ?? 1,
+                BusyoId = busyoId ?? 1,
+                KintaiZokuseiId = kintaiZokuseiId ?? 1,
+                UserRoleId = userRoleId ?? 1,
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
+        }
+
+        private static KintaiZokusei CreateKintaiZokusei(
+            long? id = 1,
+            string? name = null,
+            decimal? seigenTime = 0.00m,
+            bool? isMinashi = false,
+            decimal? maxLimitTime = null,
+            bool? isOvertimeLimit3m = false,
+            EmployeeWorkType? code = EmployeeWorkType.月45時間)
+        {
+            var result = new KintaiZokusei
+            {
+                Name = name?.Trim() ?? "標準",
+                SeigenTime = seigenTime ?? 45.00m,
+                IsMinashi = isMinashi ?? false,
+                MaxLimitTime = maxLimitTime ?? 0m,
+                IsOvertimeLimit3m = isOvertimeLimit3m ?? false,
+                Code = code ?? EmployeeWorkType.月45時間
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
         }
     }
 }

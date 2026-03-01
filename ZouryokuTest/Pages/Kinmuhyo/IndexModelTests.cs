@@ -152,10 +152,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
             // 部署データ作成
-            var busyoBase = BusyoBasisEntity.CreateBusyoBasis(1, "テスト部署");
+            var busyoBase = CreateBusyoBasis(id: 1, name: "テスト部署");
             db.BusyoBases.Add(busyoBase);
 
-            var busyo = BusyoEntity.CreateBusyo(
+            var busyo = CreateBusyo(
                 id: 1,
                 code: "B001",
                 name: "テスト部署",
@@ -164,11 +164,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             db.Busyos.Add(busyo);
 
             // 社員BASE作成
-            var syainBase = SyainBasisEntity.CreateSyainBasis(1);
+            var syainBase = CreateSyainBasis(id: 1);
             db.SyainBases.Add(syainBase);
 
             // 社員作成
-            var syain = SyainEntity.CreateSyain(
+            var syain = CreateSyain(
                 id: 1,
                 code: "S0001",
                 name: "テスト社員",
@@ -179,10 +179,10 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             db.Syains.Add(syain);
 
             // 同一部署の別社員（DepartmentEmployees テスト用）
-            var syainBase2 = SyainBasisEntity.CreateSyainBasis(2);
+            var syainBase2 = CreateSyainBasis(id: 2);
             db.SyainBases.Add(syainBase2);
 
-            var syain2 = SyainEntity.CreateSyain(
+            var syain2 = CreateSyain(
                 id: 2,
                 code: "S0002",
                 name: "テスト社員2",
@@ -194,7 +194,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             db.Syains.Add(syain2);
 
             // 勤怠属性作成
-            var kintaiZokusei = KintaiZokuseiEntity.CreateKintaiZokusei(
+            var kintaiZokusei = CreateKintaiZokusei(
                 id: 1,
                 name: "標準");
             db.KintaiZokuseis.Add(kintaiZokusei);
@@ -739,7 +739,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 休日マスタ（祝日）を作成
-            var holiday = HokadoubiEntity.CreateHikadoubi(
+            var holiday = CreateHikadoubi(
                id: 1,
                ymd: dateYmd.GetStartOfMonth().AddDays(5));
             db.Hikadoubis.Add(holiday);
@@ -847,7 +847,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var targetDate = dateYmd.GetStartOfMonth().AddDays(10);
 
             // 日報実績データ作成（確定済み）
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 syainId: syain.Id,
                 nippouYmd: targetDate,
                 tourokuKubun: 確定保存,
@@ -888,7 +888,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var targetDate = dateYmd.GetStartOfMonth().AddDays(11);
 
             // 打刻データ作成
-            var workingHour = WorkingHourEntity.CreateWorkingHours(
+            var workingHour = CreateWorkingHour(
                 syainId: syain.Id,
                 hiduke: targetDate,
                 syukkinTime: targetDate.ToDateTime(new TimeOnly(8, 55)),
@@ -927,7 +927,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var targetDate = dateYmd.GetStartOfMonth().AddDays(15);
 
             // 申請データ作成（残業・承認済み）
-            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+            var ukagai = CreateUkagaiHeader(
                 syainId: syain.Id,
                 workYmd: targetDate,
                 status: 承認,
@@ -1052,7 +1052,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             for (int i = 0; i < 11; i++)
             {
                 // 日付を遡って作成
-                var nippou = NippouEntity.CreateNippou(
+                var nippou = CreateNippou(
                     id: 100 + i, // IDを一意にする
                     syainId: syain.Id,
                     nippouYmd: dateYmd.AddDays(-i),
@@ -1093,7 +1093,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // 7日連続出勤の実績を作成
             for (int i = 0; i < 7; i++)
             {
-                var nippou = NippouEntity.CreateNippou(
+                var nippou = CreateNippou(
                     id: 200 + i, // IDを一意にする
                     syainId: syain.Id,
                     nippouYmd: dateYmd.AddDays(-i),
@@ -1132,10 +1132,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 45時間残業の実績(1日)
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 syainId: syain.Id,
                 nippouYmd: dateYmd.GetStartOfMonth(),
-                hZangyo: 45
+                hZangyo: 45 * 60,
+                totalZangyo: 45 * 60
             );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
@@ -1168,10 +1169,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 35時間残業の実績(1日)
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 syainId: syain.Id,
                 nippouYmd: dateYmd.GetStartOfMonth(),
-                hZangyo: 35
+                hZangyo: 35 * 60,
+                totalZangyo: 35 * 60
             );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
@@ -1210,10 +1212,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 35時間残業
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 syainId: syain.Id,
                 nippouYmd: dateYmd.GetStartOfMonth(),
-                hZangyo: 35
+                hZangyo: 35 * 60,
+                totalZangyo: 35 * 60
             );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
@@ -1253,10 +1256,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
 
             // 90時間残業
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 syainId: syain.Id,
                 nippouYmd: dateYmd.GetStartOfMonth(),
-                hZangyo: 90
+                hZangyo: 90 * 60,
+                totalZangyo: 90 * 60
             );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
@@ -1294,10 +1298,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             var model = CreateModel();
 
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 syainId: syain.Id,
                 nippouYmd: dateYmd.GetStartOfMonth(),
-                hZangyo: 105
+                hZangyo: 105 * 60,
+                totalZangyo: 105 * 60
             );
             db.Nippous.Add(nippou);
             await db.SaveChangesAsync();
@@ -1330,10 +1335,11 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             var model = CreateModel();
 
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 syainId: syain.Id,
                 nippouYmd: dateYmd.GetStartOfMonth(),
-                hZangyo: 105
+                hZangyo: 105 * 60,
+                totalZangyo: 105 * 60
             );
             db.Nippous.Add(nippou);
 
@@ -1365,7 +1371,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var model = CreateModel();
             var holidayDate = dateYmd.GetStartOfMonth(); // 月初を祝日に
 
-            var holiday = HokadoubiEntity.CreateHikadoubi(
+            var holiday = CreateHikadoubi(
                 id: 1,
                 ymd: holidayDate
             );
@@ -1426,7 +1432,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var dateYmd = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 syainId: syain.Id,
                 nippouYmd: dateYmd,
                 tourokuKubun: 確定保存
@@ -1460,7 +1466,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var dateYmd = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 syainId: syain.Id,
                 nippouYmd: dateYmd,
                 tourokuKubun: 一時保存
@@ -1494,7 +1500,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var dateYmd = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var wh = WorkingHourEntity.CreateWorkingHours(
+            var wh = CreateWorkingHour(
                 syainId: syain.Id,
                 hiduke: dateYmd,
                 syukkinTime: dateYmd.ToDateTime()
@@ -1872,7 +1878,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var dateYmd = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+            var ukagai = CreateUkagaiHeader(
                 syainId: syain.Id,
                 workYmd: dateYmd,
                 status: 承認,
@@ -2034,7 +2040,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             // 打刻データを作成（9:00 - 20:00 = 11時間拘束 - 1時間休憩 = 10時間実働 => 2時間残業）
             // 規定時間は 8 時間とする（Common.Time.kitei は通常 480分 = 8時間）
-            var workingHour = WorkingHourEntity.CreateWorkingHours(
+            var workingHour = CreateWorkingHour(
                 syainId: syain.Id,
                 hiduke: dateYmd,
                 syukkinTime: dateYmd.ToDateTime(new TimeOnly(9, 0)),
@@ -2208,7 +2214,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             model.NippouYmd = dateYmd;
 
             // 1. 出勤打刻のみ
-            var startOnly = WorkingHourEntity.CreateWorkingHours(
+            var startOnly = CreateWorkingHour(
                 id: 1001,
                 syainId: syain.Id,
                 hiduke: dateYmd,
@@ -2216,7 +2222,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             );
 
             // 2. 退勤打刻のみ
-            var endOnly = WorkingHourEntity.CreateWorkingHours(
+            var endOnly = CreateWorkingHour(
                 id: 1002,
                 syainId: syain.Id,
                 hiduke: dateYmd,
@@ -2464,7 +2470,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             model.NippouYmd = dateYmd;
 
             // 休日実働(2.5h) + 法定休日実働(1.25h) = 3.75h = 03:45
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 id: 3001,
                 syainId: syain.Id,
                 nippouYmd: dateYmd,
@@ -2576,7 +2582,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             for (int i = 0; i < types.Length; i++)
             {
                 var date = dateYmd.AddDays(i);
-                var header = UkagaiHeaderEntity.CreateUkagaiHeader(
+                var header = CreateUkagaiHeader(
                     id: 4000 + i,
                     syainId: syain.Id,
                     workYmd: date,
@@ -2622,7 +2628,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             model.NippouYmd = dateYmd;
 
             // 申請ヘッダはあるが、申請詳細（UkagaiShinsei）がないケース、または種別が未設定
-            var header = UkagaiHeaderEntity.CreateUkagaiHeader(
+            var header = CreateUkagaiHeader(
                 id: 5001,
                 syainId: syain.Id,
                 workYmd: dateYmd,
@@ -2652,7 +2658,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var (syain, _) = InitializeTestData();
 
             // 勤怠属性「フリー」をシードする
-            var kintaiZokusei = KintaiZokuseiEntity.CreateKintaiZokusei(
+            var kintaiZokusei = CreateKintaiZokusei(
                 id: 3,
                 name: "フリー",
                 code: フリー
@@ -2671,7 +2677,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             model.NippouYmd = dateYmd;
 
             // 100時間を超える残業を発生させる
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 id: 6001,
                 syainId: syain.Id,
                 nippouYmd: dateYmd,
@@ -2707,7 +2713,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             model.NippouYmd = dateYmd;
 
             // 閾値（30h）未満の残業
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 id: 6002,
                 syainId: syain.Id,
                 nippouYmd: dateYmd,
@@ -2806,7 +2812,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var targetDate = dateYmd.GetEndOfMonth().AddDays(-1);
 
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 id: 7101,
                 syainId: syain.Id,
                 nippouYmd: targetDate,
@@ -2841,7 +2847,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             var dateYmd = new DateOnly(2026, 7, 15);
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
 
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 id: 7102,
                 syainId: syain.Id,
                 nippouYmd: dateYmd,
@@ -2877,7 +2883,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var targetDate = dateYmd.GetStartOfMonth().AddDays(1);
 
-            var wh = WorkingHourEntity.CreateWorkingHours(
+            var wh = CreateWorkingHour(
                 id: 7101,
                 syainId: syain.Id,
                 hiduke: targetDate,
@@ -2913,7 +2919,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var targetDate = dateYmd.GetStartOfMonth().AddDays(2);
 
-            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+            var ukagai = CreateUkagaiHeader(
                 id: 7101,
                 syainId: syain.Id,
                 workYmd: targetDate,
@@ -2949,7 +2955,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var targetDate = dateYmd.GetStartOfMonth().AddDays(9);
 
-            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+            var ukagai = CreateUkagaiHeader(
                 id: 7102,
                 syainId: syain.Id,
                 workYmd: targetDate,
@@ -2984,7 +2990,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var targetDate = dateYmd.GetStartOfMonth().AddDays(4);
 
-            var ukagai = UkagaiHeaderEntity.CreateUkagaiHeader(
+            var ukagai = CreateUkagaiHeader(
                 id: 7103,
                 syainId: syain.Id,
                 workYmd: targetDate,
@@ -3019,7 +3025,7 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             fakeTimeProvider.SetLocalNow(dateYmd.ToDateTime());
             var targetDate = dateYmd.GetStartOfMonth().AddDays(5);
 
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 id: 7103,
                 syainId: syain.Id,
                 nippouYmd: targetDate,
@@ -3063,12 +3069,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             var targetDate = dateYmd.GetStartOfMonth().AddDays(6);
 
-            var nendo = YukyuNendoEntity.CreateYukyuNendo(
+            var nendo = CreateYukyuNendo(
                 id: 7101,
                 isThisYear: true
             );
             db.YukyuNendos.Add(nendo);
-            var yk = YukyuKeikakuEntity.CreateYukyuKeikaku(
+            var yk = CreateYukyuKeikaku(
                 id: 7101,
                 yukyuNendoId: 7101,
                 syainBaseId: syain.SyainBaseId
@@ -3105,12 +3111,12 @@ namespace ZouryokuTest.Pages.Kinmuhyo
 
             var targetDate = dateYmd.GetStartOfMonth().AddDays(7);
 
-            var nendo = YukyuNendoEntity.CreateYukyuNendo(
+            var nendo = CreateYukyuNendo(
                 id: 7101,
                 isThisYear: true
             );
             db.YukyuNendos.Add(nendo);
-            var yk = YukyuKeikakuEntity.CreateYukyuKeikaku(
+            var yk = CreateYukyuKeikaku(
                 id: 7101,
                 yukyuNendoId: 7101,
                 syainBaseId: syain.SyainBaseId
@@ -3169,13 +3175,368 @@ namespace ZouryokuTest.Pages.Kinmuhyo
             // ユニークなIDを確保するために既存レコード数（DB + Local）を考慮
             long nextId = db.Nippous.Count() + db.Nippous.Local.Count + 1000;
 
-            var nippou = NippouEntity.CreateNippou(
+            var nippou = CreateNippou(
                 id: nextId,
                 syainId: syainId,
                 nippouYmd: month,
-                dZangyo: hours
+                dZangyo: hours * 60,
+                totalZangyo: hours * 60
             );
             db.Nippous.Add(nippou);
+        }
+
+        private static Nippou CreateNippou(
+            long? id = 1,
+            long? syainId = 1,
+            DateOnly? nippouYmd = null,
+            short? youbi = 0,
+            TimeOnly? syukkinHm1 = null,
+            TimeOnly? taisyutsuHm1 = null,
+            TimeOnly? syukkinHm2 = null,
+            TimeOnly? taisyutsuHm2 = null,
+            TimeOnly? syukkinHm3 = null,
+            TimeOnly? taisyutsuHm3 = null,
+            decimal? hJitsudou = 0,
+            decimal? hZangyo = 0,
+            decimal? hWarimashi = 0,
+            decimal? hShinyaZangyo = 0,
+            decimal? dJitsudou = 0,
+            decimal? dZangyo = 0,
+            decimal? dWarimashi = 0,
+            decimal? dShinyaZangyo = 0,
+            decimal? nJitsudou = 0,
+            decimal? nShinya = 0,
+            decimal? totalZangyo = 0,
+            NippousCompanyCode? kaisyaCode = NippousCompanyCode.協和,
+            bool? isRendouZumi = false,
+            DateOnly? rendouYmd = null,
+            DailyReportStatusClassification? tourokuKubun = DailyReportStatusClassification.一時保存,
+            DateOnly? kakuteiYmd = null,
+            long? syukkinKubunId1 = 0,
+            long? syukkinKubunId2 = 0)
+        {
+            return new Nippou
+            {
+                Id = id ?? 1,
+                SyainId = syainId ?? 1,
+                NippouYmd = nippouYmd ?? new DateOnly(2026, 1, 1),
+                Youbi = youbi ?? 0,
+                SyukkinHm1 = syukkinHm1,
+                TaisyutsuHm1 = taisyutsuHm1,
+                SyukkinHm2 = syukkinHm2,
+                TaisyutsuHm2 = taisyutsuHm2,
+                SyukkinHm3 = syukkinHm3,
+                TaisyutsuHm3 = taisyutsuHm3,
+                HJitsudou = hJitsudou,
+                HZangyo = hZangyo,
+                HWarimashi = hWarimashi,
+                HShinyaZangyo = hShinyaZangyo,
+                DJitsudou = dJitsudou,
+                DZangyo = dZangyo,
+                DWarimashi = dWarimashi,
+                DShinyaZangyo = dShinyaZangyo,
+                NJitsudou = nJitsudou,
+                NShinya = nShinya,
+                TotalZangyo = totalZangyo,
+                KaisyaCode = kaisyaCode ?? NippousCompanyCode.協和,
+                IsRendouZumi = isRendouZumi ?? false,
+                RendouYmd = rendouYmd,
+                TourokuKubun = tourokuKubun ?? DailyReportStatusClassification.一時保存,
+                KakuteiYmd = kakuteiYmd,
+                SyukkinKubunId1 = syukkinKubunId1 ?? 0,
+                SyukkinKubunId2 = syukkinKubunId2 ?? 0
+            };
+        }
+
+        private static YukyuNendo CreateYukyuNendo(
+            long? id = 1,
+            short? nendo = 2025,
+            DateOnly? startDate = null,
+            DateOnly? endDate = null,
+            bool? isThisYear = false,
+            bool? updated = false
+        )
+        {
+            return new YukyuNendo()
+            {
+                Id = id ?? 1,
+                Nendo = nendo ?? 2025,
+                StartDate = startDate ?? new DateOnly(2024, 1, 1),
+                EndDate = endDate ?? new DateOnly(2024, 12, 31),
+                IsThisYear = isThisYear ?? false,
+                Updated = updated ?? false
+            };
+        }
+
+        private static YukyuKeikaku CreateYukyuKeikaku(
+            long? id = 0,
+            LeavePlanStatus? status = LeavePlanStatus.未申請,
+            long? yukyuNendoId = 0,
+            long? syainBaseId = 0,
+            ICollection<YukyuKeikakuMeisai>? yukyuKeikakuMeisais = null
+        )
+        {
+            var entity = new YukyuKeikaku()
+            {
+                Id = id ?? 0,
+                Status = status ?? LeavePlanStatus.未申請,
+                YukyuNendoId = yukyuNendoId ?? 0,
+                SyainBaseId = syainBaseId ?? 0
+            };
+
+            if (yukyuKeikakuMeisais != null)
+            {
+                entity.YukyuKeikakuMeisais = yukyuKeikakuMeisais;
+            }
+            return entity;
+        }
+
+        private static BusyoBasis CreateBusyoBasis(
+            long? id = 1,
+            string? name = null,
+            long? bumoncyoId = 0)
+        {
+            return new BusyoBasis
+            {
+                Id = id ?? 1,
+                Name = name?.Trim() ?? $"部署{id}",
+                BumoncyoId = bumoncyoId
+            };
+        }
+
+        private static Busyo CreateBusyo(
+            long? id = 1,
+            string? code = null,
+            string? name = null,
+            string? kanaName = null,
+            string? oyaCode = null,
+            DateOnly? startYmd = null,
+            DateOnly? endYmd = null,
+            short? jyunjyo = 1,
+            string? kasyoCode = null,
+            string? kaikeiCode = null,
+            string? keiriCode = null,
+            bool? isActive = true,
+            string? ryakusyou = null,
+            long? busyoBaseId = 1,
+            long? oyaId = 0,
+            long? shoninBusyoId = 0)
+        {
+            var result = new Busyo()
+            {
+                Code = code?.Trim() ?? $"B{id:D4}",
+                Name = name?.Trim() ?? $"部署{id}",
+                KanaName = kanaName?.Trim() ?? $"ブショ{id}",
+                OyaCode = oyaCode?.Trim() ?? $"OB{id:D4}",
+                StartYmd = startYmd ?? DateOnly.MinValue,
+                EndYmd = endYmd ?? DateOnly.MaxValue,
+                Jyunjyo = jyunjyo ?? 1,
+                KasyoCode = kasyoCode?.Trim() ?? $"KAS{id:D4}",
+                KaikeiCode = kaikeiCode?.Trim() ?? $"KK{id:D4}",
+                KeiriCode = keiriCode?.Trim() ?? $"KR{id:D4}",
+                IsActive = isActive ?? true,
+                Ryakusyou = ryakusyou?.Trim() ?? $"R{id}",
+                BusyoBaseId = busyoBaseId ?? 1,
+                OyaId = oyaId ?? 0,
+                ShoninBusyoId = shoninBusyoId ?? 0
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
+        }
+
+        private static SyainBasis CreateSyainBasis(
+            long? id = 1,
+            string? name = null,
+            string? code = null)
+        {
+            var result = new SyainBasis
+            {
+                Name = name?.Trim() ?? $"社員{id}",
+                Code = code?.Trim() ?? $"S{id:D4}"
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
+        }
+
+        private static Syain CreateSyain(
+            long? id = 1,
+            string? code = null,
+            string? name = null,
+            string? kanaName = null,
+            char? seibetsu = null,
+            string? busyoCode = null,
+            int? syokusyuCode = null,
+            int? syokusyuBunruiCode = null,
+            DateOnly? nyushaYmd = null,
+            DateOnly? startYmd = null,
+            DateOnly? endYmd = null,
+            short? kyusyoku = 0,
+            BusinessTripRole? syucyoSyokui = BusinessTripRole._2_6級,
+            string? kingsSyozoku = null,
+            short? kaisyaCode = 0,
+            bool? isGenkaRendou = false,
+            string? eMail = null,
+            string? keitaiMail = null,
+            EmployeeAuthority? kengen = EmployeeAuthority.None,
+            short? jyunjyo = 0,
+            bool? retired = false,
+            long? gyoumuTypeId = 1,
+            string? phoneNumber = null,
+            long? syainBaseId = 1,
+            long? busyoId = 1,
+            long? kintaiZokuseiId = 1,
+            long? userRoleId = 1)
+        {
+            var result = new Syain
+            {
+                Code = code?.Trim() ?? $"S{id:D4}",
+                Name = name?.Trim() ?? $"社員{id}",
+                KanaName = kanaName?.Trim() ?? $"シャイン{id}",
+                Seibetsu = seibetsu ?? '1',
+                BusyoCode = busyoCode?.Trim() ?? $"B{id:D4}",
+                SyokusyuCode = syokusyuCode ?? 0,
+                SyokusyuBunruiCode = syokusyuBunruiCode ?? 0,
+                NyuusyaYmd = nyushaYmd ?? new DateOnly(2020, 1, 1),
+                StartYmd = startYmd ?? DateOnly.MinValue,
+                EndYmd = endYmd ?? DateOnly.MaxValue,
+                Kyusyoku = kyusyoku ?? 0,
+                SyucyoSyokui = syucyoSyokui ?? BusinessTripRole._2_6級,
+                KingsSyozoku = kingsSyozoku?.Trim() ?? $"K{id:D4}",
+                KaisyaCode = kaisyaCode ?? 0,
+                IsGenkaRendou = isGenkaRendou ?? false,
+                EMail = eMail?.Trim() ?? $"syain{id}@example.com",
+                KeitaiMail = keitaiMail?.Trim() ?? $"keitai{id}@example.com",
+                Kengen = kengen ?? EmployeeAuthority.None,
+                Jyunjyo = jyunjyo ?? 0,
+                Retired = retired ?? false,
+                GyoumuTypeId = gyoumuTypeId,
+                PhoneNumber = phoneNumber,
+                SyainBaseId = syainBaseId ?? 1,
+                BusyoId = busyoId ?? 1,
+                KintaiZokuseiId = kintaiZokuseiId ?? 1,
+                UserRoleId = userRoleId ?? 1,
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
+        }
+
+        private static Hikadoubi CreateHikadoubi(
+            long id,
+            DateOnly ymd)
+        {
+            return new Hikadoubi
+            {
+                Id = id,
+                Ymd = ymd
+            };
+        }
+
+        private static WorkingHour CreateWorkingHour(
+            long? id = 0,
+            long? syainId = 0,
+            DateOnly? hiduke = null,
+            decimal? syukkinLatitude = 0,
+            decimal? syukkinLongitude = 0,
+            decimal? taikinLatitude = 0,
+            decimal? taikinLongitude = 0,
+            DateTime? syukkinTime = null,
+            DateTime? taikinTime = null,
+            bool? edited = false,
+            bool? deleted = false,
+            long? editSyainId = 0,
+            long? ukagaiHeaderId = 0)
+        {
+            return new WorkingHour
+            {
+                Id = id ?? 1,
+                SyainId = syainId ?? 1,
+                Hiduke = hiduke ?? new DateOnly(2026, 1, 1),
+                SyukkinLatitude = syukkinLatitude ?? 0,
+                SyukkinLongitude = syukkinLongitude ?? 0,
+                TaikinLatitude = taikinLatitude ?? 0,
+                TaikinLongitude = taikinLongitude ?? 0,
+                SyukkinTime = syukkinTime,
+                TaikinTime = taikinTime,
+                Edited = edited ?? false,
+                Deleted = deleted ?? false,
+                EditSyainId = editSyainId,
+                UkagaiHeaderId = ukagaiHeaderId,
+            };
+        }
+
+        private static UkagaiHeader CreateUkagaiHeader(
+            long? id = 1,
+            long? syainId = 1,
+            DateOnly? shinseiYmd = null,
+            long? shoninSyainId = 1,
+            DateOnly? shoninYmd = null,
+            long? lastShoninSyainId = 1,
+            ApprovalStatus? status = ApprovalStatus.承認,
+            DateOnly? lastShoninYmd = null,
+            DateOnly? workYmd = null,
+            TimeOnly? kaishiJikoku = null,
+            TimeOnly? syuryoJikoku = null,
+            string? biko = null,
+            bool? invalid = false)
+        {
+            return new UkagaiHeader
+            {
+                Id = id ?? 1,
+                SyainId = syainId ?? 1,
+                ShinseiYmd = shinseiYmd ?? new DateOnly(2026, 1, 1),
+                ShoninSyainId = shoninSyainId,
+                ShoninYmd = shoninYmd,
+                LastShoninSyainId = lastShoninSyainId,
+                Status = status ?? ApprovalStatus.承認待,
+                LastShoninYmd = lastShoninYmd,
+                WorkYmd = workYmd ?? new DateOnly(2026, 1, 1),
+                KaishiJikoku = kaishiJikoku,
+                SyuryoJikoku = syuryoJikoku,
+                Biko = biko,
+                Invalid = invalid ?? false,
+            };
+        }
+
+        private static KintaiZokusei CreateKintaiZokusei(
+            long? id = 1,
+            string? name = null,
+            decimal? seigenTime = 0.00m,
+            bool? isMinashi = false,
+            decimal? maxLimitTime = null,
+            bool? isOvertimeLimit3m = false,
+            EmployeeWorkType? code = EmployeeWorkType.月45時間)
+        {
+            var result = new KintaiZokusei
+            {
+                Name = name?.Trim() ?? "標準",
+                SeigenTime = seigenTime ?? 45.00m,
+                IsMinashi = isMinashi ?? false,
+                MaxLimitTime = maxLimitTime ?? 0m,
+                IsOvertimeLimit3m = isOvertimeLimit3m ?? false,
+                Code = code ?? EmployeeWorkType.月45時間
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
         }
     }
 }

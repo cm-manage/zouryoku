@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Model.Enums;
+using Model.Model;
 using Zouryoku.Pages.RoleDefaultKengen;
 using Zouryoku.Pages.Shared;
 using static Zouryoku.Utils.Const;
@@ -25,9 +27,9 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         /// </summary>
         private void RoleData用UserRoleEntityを登録する()
         {
-            var firstUserRoleEntity = UserRoleEntity.CreateUserRole(
+            var firstUserRoleEntity = CreateUserRole(
                 id: FirstRoleId);
-            var secondUserRoleEntity = UserRoleEntity.CreateUserRole(
+            var secondUserRoleEntity = CreateUserRole(
                 id: SecondRoleId);
             SeedEntities(firstUserRoleEntity, secondUserRoleEntity);
         }
@@ -141,7 +143,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnPostUpdateRoleAsync_対象ロールありで成功Jsonを返す()
         {
             // Arrange
-            var targetUserRoleEntity = UserRoleEntity.CreateUserRole(
+            var targetUserRoleEntity = CreateUserRole(
                 id: ExistingRoleId);
             SeedEntities(targetUserRoleEntity);
 
@@ -165,7 +167,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnPostUpdateRoleAsync_対象ロールありで社員権限を更新する()
         {
             // Arrange
-            var targetUserRoleEntity = UserRoleEntity.CreateUserRole(
+            var targetUserRoleEntity = CreateUserRole(
                 id: ExistingRoleId);
             SeedEntities(targetUserRoleEntity);
 
@@ -234,6 +236,29 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
                 response.Message,
                 "対象ロールが存在しない場合は EmptyReadData を返すべきです。"
             );
+        }
+
+        private static UserRole CreateUserRole(
+            long? id = 1,
+            short? code = 0,
+            string? name = null,
+            short? jyunjo = 0,
+            EmployeeAuthority? kengen = EmployeeAuthority.None)
+        {
+            var result = new UserRole()
+            {
+                Code = code ?? 0,
+                Name = name ?? "株式会社サンプル",
+                Jyunjo = jyunjo ?? 0,
+                Kengen = kengen ?? EmployeeAuthority.None
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
         }
     }
 }

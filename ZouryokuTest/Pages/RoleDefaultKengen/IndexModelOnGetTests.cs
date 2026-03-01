@@ -38,14 +38,14 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         private void UserRoleデータを登録する()
         {
             // 並び順の検証のため、あえて順序を逆に登録する
-            var higherOrderRole = UserRoleEntity.CreateUserRoleEntity(
+            var higherOrderRole = CreateUserRole(
                 HighestOrderRoleId,
                 HighestOrderRoleCode,
                 HighestOrderRoleName,
                 HighestOrder,
                 HighestOrderRoleKengen);
 
-            var lowerOrderRole = UserRoleEntity.CreateUserRoleEntity(
+            var lowerOrderRole = CreateUserRole(
                 LowestOrderRoleId,
                 LowestOrderRoleCode,
                 LowestOrderRoleName,
@@ -219,6 +219,29 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             Assert.IsFalse(
                 actualAuthorities.Contains(None),
                 "AllAuthoritiesにNoneを含めてはいけません。");
+        }
+
+        private static UserRole CreateUserRole(
+            long? id = 1,
+            short? code = 0,
+            string? name = null,
+            short? jyunjo = 0,
+            EmployeeAuthority? kengen = EmployeeAuthority.None)
+        {
+            var result = new UserRole()
+            {
+                Code = code ?? 0,
+                Name = name ?? "株式会社サンプル",
+                Jyunjo = jyunjo ?? 0,
+                Kengen = kengen ?? EmployeeAuthority.None
+            };
+
+            if (id.HasValue)
+            {
+                result.Id = id.Value;
+            }
+
+            return result;
         }
     }
 }

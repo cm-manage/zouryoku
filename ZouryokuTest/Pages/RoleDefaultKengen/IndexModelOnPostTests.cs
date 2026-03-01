@@ -25,8 +25,10 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         /// </summary>
         private void RoleData用UserRoleEntityを登録する()
         {
-            var firstUserRoleEntity = CreateUserRoleEntityById(FirstRoleId);
-            var secondUserRoleEntity = CreateUserRoleEntityById(SecondRoleId);
+            var firstUserRoleEntity = UserRoleEntity.CreateUserRole(
+                id: FirstRoleId);
+            var secondUserRoleEntity = UserRoleEntity.CreateUserRole(
+                id: SecondRoleId);
             SeedEntities(firstUserRoleEntity, secondUserRoleEntity);
         }
 
@@ -139,7 +141,8 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnPostUpdateRoleAsync_対象ロールありで成功Jsonを返す()
         {
             // Arrange
-            var targetUserRoleEntity = CreateUserRoleEntityById(ExistingRoleId);
+            var targetUserRoleEntity = UserRoleEntity.CreateUserRole(
+                id: ExistingRoleId);
             SeedEntities(targetUserRoleEntity);
 
             var model = CreateModel();
@@ -162,7 +165,8 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnPostUpdateRoleAsync_対象ロールありで社員権限を更新する()
         {
             // Arrange
-            var targetUserRoleEntity = CreateUserRoleEntityById(ExistingRoleId);
+            var targetUserRoleEntity = UserRoleEntity.CreateUserRole(
+                id: ExistingRoleId);
             SeedEntities(targetUserRoleEntity);
 
             var model = CreateModel();

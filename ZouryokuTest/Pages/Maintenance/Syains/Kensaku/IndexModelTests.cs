@@ -1,10 +1,7 @@
-using Amazon.Auth.AccessControlPolicy;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Model.Enums;
 using Model.Model;
 using Zouryoku.Pages.Maintenance.Syains.Kensaku;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
 using static Model.Enums.EmployeeAuthority;
 using static Model.Enums.EmployeeWorkType;
 
@@ -18,7 +15,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
     {
         private IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine)
+            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()
@@ -37,39 +34,34 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             db.AddRange(roleAdmin, roleGeneral);
 
             // 勤怠属性
-            var kintai3Months60Hours = new KintaiZokuseiBuilder()
-                .WithId((short) _3か月60時間)
-                .WithName("_3か月60時間")
-                .Build();
+            var kintai3Months60Hours = KintaiZokuseiEntity.CreateKintaiZokusei(
+                id: (short)_3か月60時間,
+                name: "_3か月60時間");
 
-            var kintaiPartTime = new KintaiZokuseiBuilder()
-                .WithId((short) パート)
-                .WithName("パート")
-                .Build();
+            var kintaiPartTime = KintaiZokuseiEntity.CreateKintaiZokusei(
+                id: (short)パート,
+                name: "パート");
 
-            var kintaiMinashi = new KintaiZokuseiBuilder()
-                .WithId((short)みなし対象者)
-                .WithName("みなし対象者")
-                .WithIsMinashi(true)
-                .WithCode(みなし対象者)
-                .Build();
+            var kintaiMinashi = KintaiZokuseiEntity.CreateKintaiZokusei(
+                id: (short)みなし対象者,
+                name: "みなし対象者",
+                isMinashi: true,
+                code: みなし対象者);
 
             db.AddRange(kintai3Months60Hours, kintaiPartTime, kintaiMinashi);
 
             // 部署
-            var busyoSystem = new BusyoBuilder()
-                .WithId(1)
-                .WithName("システム部")
-                .WithIsActive(true)
-                .WithJyunjyo(1)
-                .Build();
+            var busyoSystem = BusyoEntity.CreateBusyo(
+                id: 1,
+                name: "システム部",
+                isActive: true,
+                jyunjyo: 1);
 
-            var busyoSales = new BusyoBuilder()
-                .WithId(2)
-                .WithName("営業部")
-                .WithIsActive(true)
-                .WithJyunjyo(2)
-                .Build();
+            var busyoSales = BusyoEntity.CreateBusyo(
+                id: 2,
+                name: "営業部",
+                isActive: true,
+                jyunjyo: 2);
 
             db.AddRange(busyoSystem, busyoSales);
 
@@ -91,15 +83,13 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             db.AddRange(roleAdmin, roleGeneral);
 
             // 勤怠属性（みなし対象者なし）
-            var kintai3Months60Hours = new KintaiZokuseiBuilder()
-                .WithId((short)_3か月60時間)
-                .WithName("_3か月60時間")
-                .Build();
+            var kintai3Months60Hours = KintaiZokuseiEntity.CreateKintaiZokusei(
+                id: (short)_3か月60時間,
+                name: "_3か月60時間");
 
-            var kintaiPart = new KintaiZokuseiBuilder()
-                .WithId((short)パート)
-                .WithName("パート")
-                .Build();
+            var kintaiPart = KintaiZokuseiEntity.CreateKintaiZokusei(
+                id: (short)パート,
+                name: "パート");
 
             db.AddRange(kintai3Months60Hours, kintaiPart);
         }
@@ -112,50 +102,47 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             SeedBase();
 
             // S001: 田中, システム部, 退職=false, ロール=管理者, 勤怠=通常, 級職=3, 権限=労働状況報告
-            var syain1 = new SyainBuilder()
-                .WithId(1)
-                .WithSyainBaseId(1)
-                .WithCode("S001")
-                .WithName("田中太郎")
-                .WithBusyoId(1)
-                .WithUserRoleId(1)
-                .WithKintaiZokuseiId(1)
-                .WithRetired(false)
-                .WithKyusyoku(3)
-                .WithKengen(労働状況報告)
-                .WithJyunjyo(1)
-                .Build();
+            var syain1 = SyainEntity.CreateSyain(
+                id: 1,
+                syainBaseId: 1,
+                code: "S001",
+                name: "田中太郎",
+                busyoId: 1,
+                userRoleId: 1,
+                kintaiZokuseiId: 1,
+                retired: false,
+                kyusyoku: 3,
+                kengen: 労働状況報告,
+                jyunjyo: 1);
 
             // S002: 佐藤, 営業部, 退職=true, ロール=一般, 勤怠=通常, 級職=5, 権限=None
-            var syain2 = new SyainBuilder()
-                .WithId(2)
-                .WithSyainBaseId(2)
-                .WithCode("S002")
-                .WithName("佐藤花子")
-                .WithBusyoId(2)
-                .WithUserRoleId(2)
-                .WithKintaiZokuseiId(1)
-                .WithRetired(true)
-                .WithKyusyoku(5)
-                .WithKengen(None)
-                .WithJyunjyo(2)
-                .Build();
+            var syain2 = SyainEntity.CreateSyain(
+                id: 2,
+                syainBaseId: 2,
+                code: "S002",
+                name: "佐藤花子",
+                busyoId: 2,
+                userRoleId: 2,
+                kintaiZokuseiId: 1,
+                retired: true,
+                kyusyoku: 5,
+                kengen: None,
+                jyunjyo: 2);
 
             // S003: 鈴木, 営業部, 退職=false, ロール=一般, 勤怠=シフト, 級職=3,
             // 権限=労働状況報告|勤務日報未確定チェック
-            var syain3 = new SyainBuilder()
-                .WithId(3)
-                .WithSyainBaseId(3)
-                .WithCode("S003")
-                .WithName("鈴木一郎")
-                .WithBusyoId(2)
-                .WithUserRoleId(2)
-                .WithKintaiZokuseiId(2)
-                .WithRetired(false)
-                .WithKyusyoku(3)
-                .WithKengen(労働状況報告 | 勤務日報未確定チェック)
-                .WithJyunjyo(3)
-                .Build();
+            var syain3 = SyainEntity.CreateSyain(
+                id: 3,
+                syainBaseId: 3,
+                code: "S003",
+                name: "鈴木一郎",
+                busyoId: 2,
+                userRoleId: 2,
+                kintaiZokuseiId: 2,
+                retired: false,
+                kyusyoku: 3,
+                kengen: 労働状況報告 | 勤務日報未確定チェック,
+                jyunjyo: 3);
 
             db.AddRange(syain1, syain2, syain3);
         }

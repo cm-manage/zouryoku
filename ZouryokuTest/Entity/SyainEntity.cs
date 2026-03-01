@@ -1,6 +1,5 @@
 using Model.Enums;
 using Model.Model;
-using static Model.Enums.BusinessTripRole;
 
 public static class SyainEntity
 {
@@ -17,13 +16,13 @@ public static class SyainEntity
         DateOnly? startYmd = null,
         DateOnly? endYmd = null,
         short? kyusyoku = 0,
-        BusinessTripRole? syucyoSyokui = null,
+        BusinessTripRole? syucyoSyokui = BusinessTripRole._2_6級,
         string? kingsSyozoku = null,
         short? kaisyaCode = 0,
         bool? isGenkaRendou = false,
         string? eMail = null,
         string? keitaiMail = null,
-        EmployeeAuthority? kengen = null,
+        EmployeeAuthority? kengen = EmployeeAuthority.None,
         short? jyunjyo = 0,
         bool? retired = false,
         long? gyoumuTypeId = 1,
@@ -46,13 +45,13 @@ public static class SyainEntity
             StartYmd = startYmd ?? DateOnly.MinValue,
             EndYmd = endYmd ?? DateOnly.MaxValue,
             Kyusyoku = kyusyoku ?? 0,
-            SyucyoSyokui = syucyoSyokui ?? _2_6級,
+            SyucyoSyokui = syucyoSyokui ?? BusinessTripRole._2_6級,
             KingsSyozoku = kingsSyozoku?.Trim() ?? $"K{id:D4}",
             KaisyaCode = kaisyaCode ?? 0,
             IsGenkaRendou = isGenkaRendou ?? false,
             EMail = eMail?.Trim() ?? $"syain{id}@example.com",
             KeitaiMail = keitaiMail?.Trim() ?? $"keitai{id}@example.com",
-            Kengen = kengen ?? 0,
+            Kengen = kengen ?? EmployeeAuthority.None,
             Jyunjyo = jyunjyo ?? 0,
             Retired = retired ?? false,
             GyoumuTypeId = gyoumuTypeId,

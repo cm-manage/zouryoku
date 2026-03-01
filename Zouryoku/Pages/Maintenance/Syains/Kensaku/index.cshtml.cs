@@ -19,9 +19,13 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
     [FunctionAuthorizationAttribute]
     public class IndexModel : BasePageModel<IndexModel>
     {
-        public IndexModel(ZouContext db, ILogger<IndexModel> logger,
-            IOptions<AppConfig> optionsAccessor, ICompositeViewEngine viewEngine)
-            : base(db, logger, optionsAccessor, viewEngine) { }
+        public IndexModel(
+            ZouContext db,
+            ILogger<IndexModel> logger,
+            IOptions<AppConfig> optionsAccessor,
+            ICompositeViewEngine viewEngine,
+            TimeProvider? timeProvider = null)
+            : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets => true;
 

@@ -2,8 +2,6 @@ using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Model.Model;
 using Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
 using static Model.Enums.ResponseStatus;
 
 namespace ZouryokuTest.Pages.Maintenance.Syains.JyunjyoNarabikae
@@ -231,27 +229,25 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.JyunjyoNarabikae
             EnsureBusyoExists(busyoId);
 
             var syainBaseId = syainBaseIdSeed++;
-            var syainBasis = new SyainBasisBuilder()
-                .WithId(syainBaseId)
-                .WithName(name)
-                .WithCode($"{syainBaseId:00000}")
-                .Build();
+            var syainBasis = SyainBasisEntity.CreateSyainBasis(
+                id: syainBaseId,
+                name: name,
+                code: $"{syainBaseId:00000}");
             db.SyainBases.Add(syainBasis);
 
-            var syain = new SyainBuilder()
-                .WithId(syainIdSeed++)
-                .WithSyainBaseId(syainBasis.Id)
-                .WithCode(syainBasis.Code)
-                .WithName(name)
-                .WithBusyoCode(busyoId.ToString("000"))
-                .WithBusyoId(busyoId)
-                .WithJyunjyo(jyunjyo)
-                .WithStartYmd(startYmd ?? today.AddMonths(-1))
-                .WithEndYmd(endYmd ?? today.AddMonths(1))
-                .WithRetired(retired)
-                .WithUserRoleId(1)
-                .WithKintaiZokuseiId(1)
-                .Build();
+            var syain = SyainEntity.CreateSyain(
+                id: syainIdSeed++,
+                syainBaseId: syainBasis.Id,
+                code: syainBasis.Code,
+                name: name,
+                busyoCode: busyoId.ToString("000"),
+                busyoId: busyoId,
+                jyunjyo: jyunjyo,
+                startYmd: startYmd ?? today.AddMonths(-1),
+                endYmd: endYmd ?? today.AddMonths(1),
+                retired: retired,
+                userRoleId: 1,
+                kintaiZokuseiId: 1);
 
             db.Syains.Add(syain);
             return syain;
@@ -265,22 +261,22 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.JyunjyoNarabikae
         {
             if (!db.BusyoBases.Local.Any(x => x.Id == busyoId) && !db.BusyoBases.Any(x => x.Id == busyoId))
             {
-                db.BusyoBases.Add(new BusyoBasisBuilder()
-                    .WithId(busyoId)
-                    .WithName($"部署{busyoId}")
-                    .Build());
+                var busyoBasis = BusyoBasisEntity.CreateBusyoBasis(
+                    id: busyoId,
+                    name: $"部署{busyoId}");
+                db.BusyoBases.Add(busyoBasis);
             }
 
             if (!db.Busyos.Local.Any(x => x.Id == busyoId) && !db.Busyos.Any(x => x.Id == busyoId))
             {
-                db.Busyos.Add(new BusyoBuilder()
-                    .WithId(busyoId)
-                    .WithCode(busyoId.ToString("000"))
-                    .WithName($"部署{busyoId}")
-                    .WithBusyoBaseId(busyoId)
-                    .WithJyunjyo((short)busyoId)
-                    .WithIsActive(true)
-                    .Build());
+                var busyo = BusyoEntity.CreateBusyo(
+                    id: busyoId,
+                    busyoBaseId: busyoId,
+                    code: busyoId.ToString("000"),
+                    name: $"部署{busyoId}",
+                    jyunjyo: (short)busyoId,
+                    isActive: true);
+                db.Busyos.Add(busyo);
             }
         }
 
@@ -297,11 +293,13 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.JyunjyoNarabikae
 
             if (!db.KintaiZokuseis.Any())
             {
-                db.KintaiZokuseis.Add(new KintaiZokuseiBuilder().WithId(1).WithName("通常").Build());
+                var kintaiZokusei = KintaiZokuseiEntity.CreateKintaiZokusei(
+                    id: 1,
+                    name: "通常");
+                db.KintaiZokuseis.Add(kintaiZokusei);
             }
 
             db.SaveChanges();
         }
     }
 }
-

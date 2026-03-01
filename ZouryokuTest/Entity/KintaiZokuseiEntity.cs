@@ -10,7 +10,7 @@ public static class KintaiZokuseiEntity
         bool? isMinashi = false,
         decimal? maxLimitTime = null,
         bool? isOvertimeLimit3m = false,
-        EmployeeWorkType? code = null)
+        EmployeeWorkType? code = EmployeeWorkType.月45時間)
     {
         var result = new KintaiZokusei
         {

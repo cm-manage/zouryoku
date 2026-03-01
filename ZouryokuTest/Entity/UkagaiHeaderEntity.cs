@@ -10,7 +10,7 @@ public static class UkagaiHeaderEntity
         long? shoninSyainId = 1,
         DateOnly? shoninYmd = null,
         long? lastShoninSyainId = 1,
-        ApprovalStatus? status = null,
+        ApprovalStatus? status = ApprovalStatus.承認,
         DateOnly? lastShoninYmd = null,
         DateOnly? workYmd = null,
         TimeOnly? kaishiJikoku = null,

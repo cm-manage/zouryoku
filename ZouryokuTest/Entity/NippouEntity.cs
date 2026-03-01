@@ -25,10 +25,10 @@ public static class NippouEntity
         decimal? nJitsudou = 0,
         decimal? nShinya = 0,
         decimal? totalZangyo = 0,
-        NippousCompanyCode? kaisyaCode = null,
+        NippousCompanyCode? kaisyaCode = NippousCompanyCode.協和,
         bool? isRendouZumi = false,
         DateOnly? rendouYmd = null,
-        DailyReportStatusClassification? tourokuKubun = null,
+        DailyReportStatusClassification? tourokuKubun = DailyReportStatusClassification.一時保存,
         DateOnly? kakuteiYmd = null,
         long? syukkinKubunId1 = 0,
         long? syukkinKubunId2 = 0)

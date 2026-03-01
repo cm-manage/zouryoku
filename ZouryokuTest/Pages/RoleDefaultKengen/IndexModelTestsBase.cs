@@ -2,7 +2,6 @@ using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.RoleDefaultKengen;
-using ZouryokuTest.Builder;
 
 namespace ZouryokuTest.Pages.RoleDefaultKengen
 {
@@ -40,38 +39,25 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         /// <returns>ログインユーザーが設定された IndexModel</returns>
         protected IndexModel SetLoggedInUser(IndexModel model)
         {
-            var syainBaseEntity = new SyainBasisBuilder()
-                .WithId(LoggedInUserId)
-                .WithCode(LoggedInUserCode)
-                .WithName(LoggedInUserName)
-                .Build();
+            var syainBaseEntity = SyainBasisEntity.CreateSyainBasis(
+                id: LoggedInUserId,
+                code: LoggedInUserCode,
+                name: LoggedInUserName);
             db.SyainBases.Add(syainBaseEntity);
 
-            var syainEntity = new SyainBuilder()
-                .WithId(LoggedInUserId)
-                .WithCode(LoggedInUserCode)
-                .WithSyainBaseId(LoggedInUserId)
-                .WithName(LoggedInUserName)
-                .WithKanaName(LoggedInUserName)
-                .Build();
+            var syainEntity = SyainEntity.CreateSyain(
+                id: LoggedInUserId,
+                code: LoggedInUserCode,
+                syainBaseId: LoggedInUserId,
+                name: LoggedInUserName,
+                kanaName: LoggedInUserName);
+            
             db.Syains.Add(syainEntity);
 
             var loginInfo = new LoginInfo { User = syainEntity };
             model.HttpContext.Session.Set(loginInfo);
 
             return model;
-        }
-
-        /// <summary>
-        /// 指定IDのUserRoleエンティティを生成します。
-        /// </summary>
-        /// <param name="roleId">ロールID</param>
-        /// <returns>生成された UserRole エンティティ</returns>
-        protected static UserRole CreateUserRoleEntityById(long roleId)
-        {
-            return new UserRoleBuilder()
-                .WithId(roleId)
-                .Build();
         }
 
         /// <summary>

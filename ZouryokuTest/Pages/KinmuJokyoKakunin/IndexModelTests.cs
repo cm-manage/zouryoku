@@ -7,8 +7,6 @@ using Model.Model;
 using System.Text.Json;
 using Zouryoku;
 using Zouryoku.Pages.KinmuJokyoKakunin;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
 using static Zouryoku.Pages.KinmuJokyoKakunin.WarnLevel;
 using static Model.Enums.ResponseStatus;
 using static Model.Enums.LeaveBalanceFetchStatus;
@@ -187,148 +185,112 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                 Busyo = "[1, 2, 5]",
                 WarnLevel = All
             };
-            Busyo busyo = new BusyoBuilder()
-                .WithId(1)
-                .Build();
+            var busyo = BusyoEntity.CreateBusyo(id: 1);
             db.Busyos.Add(busyo);
 
-            KintaiZokusei kintaiZokusei = new KintaiZokuseiBuilder()
-                .WithId(1)
-                .Build();
+            var kintaiZokusei = KintaiZokuseiEntity.CreateKintaiZokusei(id: 1);
             db.KintaiZokuseis.Add(kintaiZokusei);
 
-            SyainBasis syainBasis = new SyainBasisBuilder()
-                .WithId(1)
-                .Build();
+            var syainBasis = SyainBasisEntity.CreateSyainBasis(id: 1);
             db.SyainBases.Add(syainBasis);
 
-            Syain syain = new SyainBuilder()
-                .WithId(1)
-                .WithSyainBaseId(syainBasis.Id)
-                .Build();
+            var syain = SyainEntity.CreateSyain(id: 1, syainBaseId: syainBasis.Id);
             db.Syains.Add(syain);
 
-            SyainBasis syainBasis2 = new SyainBasisBuilder()
-                .WithId(2)
-                .Build();
+            var syainBasis2 = SyainBasisEntity.CreateSyainBasis(id: 2);
             db.SyainBases.Add(syainBasis2);
 
-            Syain syain2 = new SyainBuilder()
-                .WithId(2)
-                .WithSyainBaseId(syainBasis2.Id)
-                .Build();
+            var syain2 = SyainEntity.CreateSyain(id: 2, syainBaseId: syainBasis2.Id);
             db.Syains.Add(syain2);
 
-            SyainBasis syainBasis3 = new SyainBasisBuilder()
-                .WithId(3)
-                .Build();
+            var syainBasis3 = SyainBasisEntity.CreateSyainBasis(id: 3);
             db.SyainBases.Add(syainBasis3);
 
-            Syain syain3 = new SyainBuilder()
-                .WithId(3)
-                .WithSyainBaseId(syainBasis3.Id)
-                .Build();
+            var syain3 = SyainEntity.CreateSyain(id: 3, syainBaseId: syainBasis3.Id);
             db.Syains.Add(syain3);
 
-            var syukkinKubun1 = new SyukkinKubunBuilder()
-                .WithId(2)
-                .WithCode("04")
-                .WithName("年次有給休暇_1日")
-                .WithNameRyaku("年次有給休暇_1日")
-                .Build();
+            var syukkinKubun1 = SyukkinKubunEntity.CreateSyukkinKubun(
+                id: 2,
+                name: "年次有給休暇_1日",
+                nameRyaku: "年次有給休暇_1日");
             db.SyukkinKubuns.Add(syukkinKubun1);
 
-            var syukkinKubun2 = new SyukkinKubunBuilder()
-                .WithId(0)
-                .WithCode("00")
-                .WithName("未設定")
-                .WithNameRyaku("-")
-                .Build();
+            var syukkinKubun2 = SyukkinKubunEntity.CreateSyukkinKubun(
+                id: 0,
+                name: "未設定",
+                nameRyaku: "-");
             db.SyukkinKubuns.Add(syukkinKubun2);
 
-            var syukkinKubun3 = new SyukkinKubunBuilder()
-                .WithId(3)
-                .WithCode("02")
-                .WithName("通常勤務")
-                .WithNameRyaku("通常勤務")
-                .Build();
+            var syukkinKubun3 = SyukkinKubunEntity.CreateSyukkinKubun(
+                id: 3,
+                name: "通常勤務",
+                nameRyaku: "通常勤務");
             db.SyukkinKubuns.Add(syukkinKubun3);
 
-            var syukkinKubun4 = new SyukkinKubunBuilder()
-                .WithId(1)
-                .WithCode("01")
-                .WithName("休日")
-                .WithNameRyaku("休日")
-                .Build();
-            db.SyukkinKubuns.Add(syukkinKubun3);
+            var syukkinKubun4 = SyukkinKubunEntity.CreateSyukkinKubun(
+                id: 1,
+                name: "休日",
+                nameRyaku: "休日");
+            db.SyukkinKubuns.Add(syukkinKubun4);
 
-            var syukkinKubun5 = new SyukkinKubunBuilder()
-                .WithId(5)
-                .WithCode("05")
-                .WithName("半日有給")
-                .WithNameRyaku("半日有給")
-                .Build();
+            var syukkinKubun5 = SyukkinKubunEntity.CreateSyukkinKubun(
+                id: 5,
+                name: "半日有給",
+                nameRyaku: "半日有給");
             db.SyukkinKubuns.Add(syukkinKubun5);
 
-            Nippou nippou = new NippouBuilder()
-                .WithId(1)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/2/5"))
-                .WithSyukkinKubunId1(syukkinKubun1.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippou = NippouEntity.CreateNippou(
+                id: 1,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/2/5"),
+                syukkinKubunId1: syukkinKubun1.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippou);
 
-            Nippou nippou2 = new NippouBuilder()
-                .WithId(2)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/3/5"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .WithHZangyo(670)
-                .Build();
+            var nippou2 = NippouEntity.CreateNippou(
+                id: 2,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/3/5"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id,
+                hZangyo: 670);
             db.Nippous.Add(nippou2);
 
-            UkagaiHeader ukagaiHeader = new UkagaiHeaderBuilder()
-                .WithId(1)
-                .WithSyainId(syain.Id)
-                .WithWorkYmd(DateOnly.Parse("2024/2/5"))
-                .Build();
+            var ukagaiHeader = UkagaiHeaderEntity.CreateUkagaiHeader(
+                id: 1,
+                syainId: syain.Id,
+                workYmd: DateOnly.Parse("2024/2/5"));
             db.UkagaiHeaders.Add(ukagaiHeader);
 
-            UkagaiShinsei ukagaiShinsei = new UkagaiShinseiBuilder()
-                .WithId(1)
-                .WithUkagaiHeaderId(ukagaiHeader.Id)
-                .WithUkagaiSyubetsu(InquiryType.時間外労働時間制限拡張)
-                .Build();
+            var ukagaiShinsei = UkagaiShinseiEntity.CreateUkagaiShinsei(
+                id: 1,
+                ukagaiHeaderId: ukagaiHeader.Id,
+                ukagaiSyubetsu: InquiryType.時間外労働時間制限拡張);
             db.UkagaiShinseis.Add(ukagaiShinsei);
 
-            Nippou nippou3 = new NippouBuilder()
-                .WithId(3)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2025/3/5"))
-                .WithSyukkinKubunId1(syukkinKubun5.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippou3 = NippouEntity.CreateNippou(
+                id: 3,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2025/3/5"),
+                syukkinKubunId1: syukkinKubun5.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippou3);
 
-            Nippou nippou4 = new NippouBuilder()
-                .WithId(4)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2025/10/10"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
-            db.Nippous.Add(nippou3);
+            var nippou4 = NippouEntity.CreateNippou(
+                id: 4,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2025/10/10"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
+            db.Nippous.Add(nippou4);
 
-            Nippou nippou5 = new NippouBuilder()
-                .WithId(100)
-                .WithSyainId(syain3.Id)
-                .WithNippouYmd(DateOnly.Parse("2025/10/12"))
-                .WithSyukkinKubunId1(syukkinKubun4.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
-            db.Nippous.Add(nippou3);
+            var nippou5 = NippouEntity.CreateNippou(
+                id: 100,
+                syainId: syain3.Id,
+                nippouYmd: DateOnly.Parse("2025/10/12"),
+                syukkinKubunId1: syukkinKubun4.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
+            db.Nippous.Add(nippou5);
 
             FurikyuuZan furikyuu = new FurikyuuZan
             {
@@ -432,185 +394,164 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
             };
             db.YukyuNendos.Add(yukyuNendo2);
 
-            Nippou nippou1Syain2 = new NippouBuilder()
-                .WithId(40)
-                .WithSyainId(syain2.Id)
-                .WithNippouYmd(DateOnly.Parse("2025/10/5"))
-                .WithSyukkinKubunId1(syukkinKubun1.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippou1Syain2 = NippouEntity.CreateNippou(
+                id: 40,
+                syainId: syain2.Id,
+                nippouYmd: DateOnly.Parse("2025/10/5"),
+                syukkinKubunId1: syukkinKubun1.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippou1Syain2);
 
-            Nippou nippou2Syain2 = new NippouBuilder()
-                .WithId(41)
-                .WithSyainId(syain2.Id)
-                .WithNippouYmd(DateOnly.Parse("2025/11/6"))
-                .WithSyukkinKubunId1(syukkinKubun5.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippou2Syain2 = NippouEntity.CreateNippou(
+                id: 41,
+                syainId: syain2.Id,
+                nippouYmd: DateOnly.Parse("2025/11/6"),
+                syukkinKubunId1: syukkinKubun5.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippou2Syain2);
 
-            Nippou nippou3Syain2 = new NippouBuilder()
-                .WithId(42)
-                .WithSyainId(syain2.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/3/3"))
-                .WithSyukkinKubunId1(syukkinKubun1.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippou3Syain2 = NippouEntity.CreateNippou(
+                id: 42,
+                syainId: syain2.Id,
+                nippouYmd: DateOnly.Parse("2024/3/3"),
+                syukkinKubunId1: syukkinKubun1.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippou3Syain2);
 
-
-            Nippou nippou4Syain2 = new NippouBuilder()
-                .WithId(43)
-                .WithSyainId(syain2.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/2/5"))
-                .WithSyukkinKubunId1(syukkinKubun1.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippou4Syain2 = NippouEntity.CreateNippou(
+                id: 43,
+                syainId: syain2.Id,
+                nippouYmd: DateOnly.Parse("2024/2/5"),
+                syukkinKubunId1: syukkinKubun1.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippou4Syain2);
 
-            Nippou nippou5Syain2 = new NippouBuilder()
-                .WithId(44)
-                .WithSyainId(syain2.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/2/6"))
-                .WithSyukkinKubunId1(syukkinKubun5.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippou5Syain2 = NippouEntity.CreateNippou(
+                id: 44,
+                syainId: syain2.Id,
+                nippouYmd: DateOnly.Parse("2024/2/6"),
+                syukkinKubunId1: syukkinKubun5.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippou5Syain2);
 
-            Nippou nippouConsecutive1 = new NippouBuilder()
-                .WithId(6)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/10/30"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutive1 = NippouEntity.CreateNippou(
+                id: 6,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/10/30"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutive1);
 
-            Nippou nippouConsecutive2 = new NippouBuilder()
-                .WithId(7)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/10/31"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutive2 = NippouEntity.CreateNippou(
+                id: 7,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/10/31"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutive2);
 
-            Nippou nippouConsecutive3 = new NippouBuilder()
-                .WithId(8)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/11/1"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutive3 = NippouEntity.CreateNippou(
+                id: 8,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/11/1"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutive3);
 
-            Nippou nippouConsecutive4 = new NippouBuilder()
-                .WithId(9)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/11/2"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutive4 = NippouEntity.CreateNippou(
+                id: 9,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/11/2"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutive4);
 
-            Nippou nippouConsecutive5 = new NippouBuilder()
-                .WithId(10)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/11/3"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutive5 = NippouEntity.CreateNippou(
+                id: 10,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/11/3"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutive5);
 
-            Nippou nippouConsecutive6 = new NippouBuilder()
-                .WithId(11)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/11/4"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutive6 = NippouEntity.CreateNippou(
+                id: 11,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/11/4"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutive6);
 
-            Nippou nippouConsecutive7 = new NippouBuilder()
-                .WithId(12)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/11/5"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutive7 = NippouEntity.CreateNippou(
+                id: 12,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/11/5"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutive7);
 
-            Nippou nippouConsecutive8 = new NippouBuilder()
-                .WithId(13)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/11/6"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutive8 = NippouEntity.CreateNippou(
+                id: 13,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/11/6"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutive8);
 
-            Nippou nippouConsecutiveB1 = new NippouBuilder()
-                .WithId(21)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/12/1"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutiveB1 = NippouEntity.CreateNippou(
+                id: 21,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/12/1"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutiveB1);
 
-            Nippou nippouConsecutiveB2 = new NippouBuilder()
-                .WithId(22)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/12/2"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutiveB2 = NippouEntity.CreateNippou(
+                id: 22,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/12/2"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutiveB2);
 
-            Nippou nippouConsecutiveB3 = new NippouBuilder()
-                .WithId(23)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/12/3"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutiveB3 = NippouEntity.CreateNippou(
+                id: 23,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/12/3"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutiveB3);
 
-            Nippou nippouConsecutiveB4 = new NippouBuilder()
-                .WithId(24)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/12/4"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutiveB4 = NippouEntity.CreateNippou(
+                id: 24,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/12/4"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutiveB4);
 
-            Nippou nippouConsecutiveB5 = new NippouBuilder()
-                .WithId(25)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/12/5"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutiveB5 = NippouEntity.CreateNippou(
+                id: 25,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/12/5"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutiveB5);
 
-            Nippou nippouConsecutiveB6 = new NippouBuilder()
-                .WithId(26)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/12/6"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutiveB6 = NippouEntity.CreateNippou(
+                id: 26,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/12/6"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutiveB6);
 
-            Nippou nippouConsecutiveB7 = new NippouBuilder()
-                .WithId(27)
-                .WithSyainId(syain.Id)
-                .WithNippouYmd(DateOnly.Parse("2024/12/7"))
-                .WithSyukkinKubunId1(syukkinKubun3.Id)
-                .WithSyukkinKubunId2(syukkinKubun2.Id)
-                .Build();
+            var nippouConsecutiveB7 = NippouEntity.CreateNippou(
+                id: 27,
+                syainId: syain.Id,
+                nippouYmd: DateOnly.Parse("2024/12/7"),
+                syukkinKubunId1: syukkinKubun3.Id,
+                syukkinKubunId2: syukkinKubun2.Id);
             db.Nippous.Add(nippouConsecutiveB7);
 
             await db.SaveChangesAsync();

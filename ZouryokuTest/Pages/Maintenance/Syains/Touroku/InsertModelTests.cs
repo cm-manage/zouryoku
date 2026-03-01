@@ -1,12 +1,9 @@
-using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Model.Enums;
 using Model.Model;
 using Zouryoku.Pages.Maintenance.Syains.Touroku;
-using ZouryokuTest.Builder;
-using ZouryokuTest.Pages.Builder;
 
 namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 {
@@ -42,25 +39,42 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 
         private void SeedMasters()
         {
+            var busyo1 = BusyoEntity.CreateBusyo(
+                id: 1,
+                code: "101",
+                name: "BUSYO-1",
+                busyoBaseId: 1);
+            var busyo2 = BusyoEntity.CreateBusyo(
+                id: 2,
+                code: "102",
+                name: "BUSYO-2",
+                busyoBaseId: 1);
+            var kintaiZokusei1 = KintaiZokuseiEntity.CreateKintaiZokusei(
+                id: 1,
+                name: "KINTAI-1");
+            var kintaiZokusei2 = KintaiZokuseiEntity.CreateKintaiZokusei(
+                id: 2,
+                name: "KINTAI-2");
+            var role1 = UserRoleEntity.CreateUserRole(
+                id: 1,
+                code: 1,
+                name: "ROLE-1",
+                jyunjo: 1,
+                kengen: (EmployeeAuthority)((1 << 0) | (1 << 14)));
+            var role2 = UserRoleEntity.CreateUserRole(
+                id: 2,
+                code: 2,
+                name: "ROLE-2",
+                jyunjo: 2,
+                kengen: (EmployeeAuthority)(1 << 4));
+
             db.AddRange(
-                new BusyoBuilder().WithId(1).WithCode("101").WithName("BUSYO-1").WithBusyoBaseId(1).Build(),
-                new BusyoBuilder().WithId(2).WithCode("102").WithName("BUSYO-2").WithBusyoBaseId(1).Build(),
-                new KintaiZokuseiBuilder().WithId(1).WithName("KINTAI-1").Build(),
-                new KintaiZokuseiBuilder().WithId(2).WithName("KINTAI-2").Build(),
-                new UserRoleBuilder()
-                    .WithId(1)
-                    .WithCode(1)
-                    .WithName("ROLE-1")
-                    .WithJunjo(1)
-                    .WithKengen((EmployeeAuthority)((1 << 0) | (1 << 14)))
-                    .Build(),
-                new UserRoleBuilder()
-                    .WithId(2)
-                    .WithCode(2)
-                    .WithName("ROLE-2")
-                    .WithJunjo(2)
-                    .WithKengen((EmployeeAuthority)(1 << 4))
-                    .Build(),
+                busyo1,
+                busyo2,
+                kintaiZokusei1,
+                kintaiZokusei2,
+                role1,
+                role2,
                 new GyoumuType { Id = 1, Name = "TYPE-1", Jyunjyo = 1, Deleted = false },
                 new GyoumuType { Id = 2, Name = "TYPE-2", Jyunjyo = 2, Deleted = false }
             );

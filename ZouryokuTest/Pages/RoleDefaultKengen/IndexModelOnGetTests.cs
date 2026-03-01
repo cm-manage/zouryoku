@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Model.Enums;
 using Model.Model;
 using Zouryoku.Pages.RoleDefaultKengen;
-using ZouryokuTest.Builder;
 using static Model.Enums.EmployeeAuthority;
 
 namespace ZouryokuTest.Pages.RoleDefaultKengen
@@ -34,44 +33,19 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             (EmployeeAuthority)HighestOrderRoleKengenValue;
 
         /// <summary>
-        /// UserRoleエンティティを生成します。
-        /// </summary>
-        /// <param name="roleId">ロールID</param>
-        /// <param name="code">ロールコード</param>
-        /// <param name="roleName">ロール名称</param>
-        /// <param name="jyunjo">並び順</param>
-        /// <param name="kengen">システム権限</param>
-        /// <returns>生成された UserRole エンティティ</returns>
-        private static UserRole UserRoleEntityを作成する(
-            long roleId,
-            short code,
-            string roleName,
-            short jyunjo,
-            EmployeeAuthority kengen)
-        {
-            return new UserRoleBuilder()
-                .WithId(roleId)
-                .WithCode(code)
-                .WithName(roleName)
-                .WithJunjo(jyunjo)
-                .WithKengen(kengen)
-                .Build();
-        }
-
-        /// <summary>
         /// 既定のロールデータを登録します。
         /// </summary>
         private void UserRoleデータを登録する()
         {
             // 並び順の検証のため、あえて順序を逆に登録する
-            var higherOrderRole = UserRoleEntityを作成する(
+            var higherOrderRole = UserRoleEntity.CreateUserRoleEntity(
                 HighestOrderRoleId,
                 HighestOrderRoleCode,
                 HighestOrderRoleName,
                 HighestOrder,
                 HighestOrderRoleKengen);
 
-            var lowerOrderRole = UserRoleEntityを作成する(
+            var lowerOrderRole = UserRoleEntity.CreateUserRoleEntity(
                 LowestOrderRoleId,
                 LowestOrderRoleCode,
                 LowestOrderRoleName,

@@ -93,6 +93,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
             // 社員権限一覧
             var kengenList = Enum.GetValues(typeof(EmployeeAuthority))
                 .Cast<EmployeeAuthority>()
+                .Where(e => e != EmployeeAuthority.None)
                 .Select(e => new { Id = (int)e, Name = e.ToString() })
                 .ToList();
             Condition.KengenOptions = new SelectList(kengenList, "Id", "Name");
@@ -235,6 +236,8 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
         [Display(Name = "部署")]
         public string? BusyoName { get; set; }
 
+        public long? BusyoId { get; set; }
+
         /// <summary>級職</summary>
         [Display(Name = "級職")]
         public short? Grade { get; set; }
@@ -269,4 +272,3 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
         public SelectList KengenOptions { get; set; } = default!;
     }
 }
-

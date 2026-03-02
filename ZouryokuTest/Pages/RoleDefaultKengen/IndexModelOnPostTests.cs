@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Model.Enums;
 using Model.Model;
 using Zouryoku.Pages.RoleDefaultKengen;
-using static Model.Enums.ResponseStatus;
 using static Zouryoku.Utils.Const;
 
 namespace ZouryokuTest.Pages.RoleDefaultKengen
@@ -166,10 +165,11 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         }
 
         /// <summary>
-        /// ⑤権限更新: 更新対象のロールが存在しない場合、JsonResultを返すことを確認します。
+        /// ⑤権限更新: 更新対象のロールが存在しない場合、存在チェックのエラーが含まれている
         /// </summary>
-        [TestMethod(DisplayName = "OnPostUpdateRoleAsync: 対象ロールなしでJsonResultを返す")]
-        public async Task OnPostUpdateRoleAsync_対象ロールなしでJsonResultを返す()
+        [TestMethod(DisplayName = "OnPostUpdateRoleAsync: 対象ロールが存在しない場合、存在チェックのエラーが" +
+            "含まれているはずです")]
+        public async Task OnPostUpdateRoleAsync_対象ロールが存在しない場合存在チェックのエラーが含まれている()
         {
             // Arrange
             var model = CreateModel();
@@ -181,37 +181,55 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             // Act
             var result = await model.OnPostUpdateRoleAsync();
 
-            // Assert
-            Assert.IsInstanceOfType<JsonResult>(
-                result,
-                "対象ロールが存在しない場合は JsonResult を返すべきです。"
-            );
+            // ---------- Assert ----------
+            Assert.IsInstanceOfType<ObjectResult>(result);
+
+            // ObjectResult にエラーメッセージが含まれていることを確認
+            var json = result as ObjectResult;
+            Assert.IsNotNull(json);
+            var message = GetMessage(json);
+            Assert.IsNotNull(message);
+
+            // 存在チェックエラーが含まれていることを確認
+            Assert.Contains(ErrorSelectedDataNotExists, message, "存在チェックのエラーが含まれているはずです。");
         }
 
         /// <summary>
-        /// ⑥権限更新: 更新対象のロールが存在しない場合、レスポンスメッセージに既定のエラーメッセージ（EmptyReadData）が
-        /// 設定されることを確認します。
+        /// ⑤権限更新: 楽観的同時実行制御エラーが発生した場合、データが更新されていないことを確認
         /// </summary>
-        [TestMethod(DisplayName = "OnPostUpdateRoleAsync: 対象ロールなしでEmptyReadDataを返す")]
-        public async Task OnPostUpdateRoleAsync_対象ロールなしでEmptyReadDataを返す()
+        [TestMethod(DisplayName = "OnPostUpdateRoleAsync: 楽観的同時実行制御エラーが発生した場合、" +
+            "データが更新されていない")]
+        public async Task OnPostUpdateRoleAsync_楽観的同時実行制御エラーが発生した場合データが更新されていない()
         {
             // Arrange
+            var targetUserRoleEntity = CreateUserRole(
+                id: ExistingRoleId,
+                version: 1u); // バージョンを1に設定
+
+            SeedEntities(targetUserRoleEntity);
+
             var model = CreateModel();
-            model.ViewModel = CreateIndexViewModelForUpdate(
-                MissingRoleId,
-                UpdatedKengenValue
-            );
+            model.ViewModel = new IndexViewModel
+            {
+                SelectedRoleId = ExistingRoleId,
+                KengenValue = UpdatedKengenValue,
+                Version = 0u // 古いバージョン
+            };
 
             // Act
             var result = await model.OnPostUpdateRoleAsync();
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(JsonResult));
-            var json = (JsonResult)result;
-            var status = GetResponseStatus(json);
+            // ---------- Assert ----------
+            Assert.IsInstanceOfType<ObjectResult>(result);
+
+            // ObjectResult にエラーメッセージが含まれていることを確認
+            var json = result as ObjectResult;
+            Assert.IsNotNull(json);
             var message = GetMessage(json);
-            Assert.AreEqual(エラー, status);
-            Assert.AreEqual(EmptyReadData, message, "対象ロールが存在しない場合は EmptyReadData を返すべきです。");
+            Assert.IsNotNull(message);
+
+            // 楽観的同時実行制御エラーメッセージが含まれている
+            Assert.Contains(string.Format(ErrorConflictReload, "ロール"), message, "楽観的同時実行制御エラーメッセージが含まれているはずです。");
         }
 
         private static UserRole CreateUserRole(
@@ -219,14 +237,16 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             short? code = 0,
             string? name = null,
             short? jyunjo = 0,
-            EmployeeAuthority? kengen = EmployeeAuthority.None)
+            EmployeeAuthority? kengen = EmployeeAuthority.None,
+            uint? version = 0u)
         {
             var result = new UserRole()
             {
                 Code = code ?? 0,
                 Name = name ?? "株式会社サンプル",
                 Jyunjo = jyunjo ?? 0,
-                Kengen = kengen ?? EmployeeAuthority.None
+                Kengen = kengen ?? EmployeeAuthority.None,
+                Version = version ?? 0u
             };
 
             if (id.HasValue)

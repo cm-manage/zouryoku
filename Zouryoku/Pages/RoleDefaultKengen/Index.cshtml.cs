@@ -9,6 +9,7 @@ using Model.Enums;
 using Model.Extensions;
 using Model.Model;
 using Zouryoku.Attributes;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using static Model.Enums.EmployeeAuthority;
 using static Zouryoku.Utils.Const;
@@ -69,13 +70,19 @@ namespace Zouryoku.Pages.RoleDefaultKengen
         /// </summary>
         public async Task<IActionResult> OnPostUpdateRoleAsync()
         {
-            // BIndPropertyのエラーを削除
-            ModelState.Clear();
+            // 単項目チェック
+            JsonResult? errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
+            {
+                return errorJson;
+            }
 
             var role = await db.UserRoles.FindAsync(ViewModel.SelectedRoleId);
             if (role is null)
             {
                 ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
+
+                errorJson = ModelState.ErrorJson();
                 return CommonErrorResponse();
             }
 
@@ -85,6 +92,7 @@ namespace Zouryoku.Pages.RoleDefaultKengen
             await UpdateRoleAsync(role, ViewModel.Version);
 
             // 同時実行制御が働いたとき
+            errorJson = ModelState.ErrorJson();
             if (!ModelState.IsValid)
             {
                 return CommonErrorResponse();

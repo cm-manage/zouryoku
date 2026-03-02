@@ -12,14 +12,12 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// 期間(From)
         /// </summary>
         [Display(Name = "期間(From)")]
-        [Required(ErrorMessage = Const.ErrorInputRequired)]
         public string From { get; set; } = DateTime.Now.ToString("yyyy-MM");
 
         /// <summary>
         /// 期間(To)
         /// </summary>
         [Display(Name = "期間(To)")]
-        [Required(ErrorMessage = Const.ErrorInputRequired)]
         public string To { get; set; } = DateTime.Now.ToString("yyyy-MM");
 
         /// <summary>

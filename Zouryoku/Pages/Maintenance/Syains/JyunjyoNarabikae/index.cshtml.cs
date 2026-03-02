@@ -91,7 +91,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
 
             // 更新を保存
             await SaveWithConcurrencyCheckAsync(ErrorConflictSyain);
-            
+
             errorJson = ModelState.ErrorJson();
             if (!ModelState.IsValid)
             {

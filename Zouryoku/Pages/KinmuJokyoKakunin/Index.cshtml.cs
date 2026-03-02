@@ -10,8 +10,8 @@ using Model.Model;
 using NPOI.SS.UserModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using System.Reflection;
 using System.Text.Json;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 using static Model.Enums.AttendanceClassification;
@@ -76,8 +76,9 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// </summary>
         public void OnGet()
         {
-            SearchIndex.From = timeProvider.Today().ToString("yyyy-MM");
-            SearchIndex.To = timeProvider.Today().ToString("yyyy-MM");
+            var today = timeProvider.Today();
+            SearchIndex.From = today.ToString("yyyy-MM");
+            SearchIndex.To = today.ToString("yyyy-MM");
             SearchIndex.WarnLevel = All;
         }
 
@@ -87,36 +88,14 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// <returns></returns>
         public async Task<IActionResult> OnGetSearchAsync(StatusSearchViewModel Search)
         {
-            // 単純バリデーションチェック
-            bool check = ModelState.IsValid;
-
-            DateOnly startMonth = default;
-            DateOnly endMonth = default;
-
-            if (!string.IsNullOrEmpty(Search.From) && !string.IsNullOrEmpty(Search.To))
+            DateOnly startMonth = DateOnly.ParseExact(Search.From, "yyyy-MM", CultureInfo.InvariantCulture);
+            DateOnly endMonth = DateOnly.ParseExact(Search.To, "yyyy-MM", CultureInfo.InvariantCulture);
+            // 入れ替える
+            if (startMonth > endMonth)
             {
-                startMonth = DateOnly.ParseExact(Search.From, "yyyy-MM", CultureInfo.InvariantCulture);
-                endMonth = DateOnly.ParseExact(Search.To, "yyyy-MM", CultureInfo.InvariantCulture);
-
-
-                if (startMonth > endMonth)
-                {
-                    var fromDisplay = typeof(StatusSearchViewModel)
-                        .GetProperty(nameof(Search.From))?
-                        .GetCustomAttribute<DisplayAttribute>()?
-                        .Name;
-
-                    var toDisplay = typeof(StatusSearchViewModel)
-                        .GetProperty(nameof(Search.To))?
-                        .GetCustomAttribute<DisplayAttribute>()?
-                        .Name;
-
-                    ModelState.AddModelError(nameof(Search.Busyo),
-                        string.Format(DateMustBeBefore, fromDisplay, toDisplay));
-                    check = false;
-                }
-
+                (startMonth, endMonth) = (endMonth, startMonth);
             }
+
             // 条件付きバリデーションチェック
             if (Search.BusyoMode != "all" && Search.Busyo == "")
             {
@@ -126,11 +105,10 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         .FirstOrDefault()?.Name;
 
                 ModelState.AddModelError(nameof(Search.Busyo), string.Format(Const.ErrorSelectRequired, displayName));
-                check = false;
             }
 
             // エラー終了
-            if (!check)
+            if (!ModelState.IsValid)
             {
                 var errorMessages = ModelState
                     .Where(x => x.Value?.Errors.Count > 0)
@@ -144,9 +122,9 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             // 画面表示モデル
             var vm = new TableViewModel();
             // 早いほう → 1日
-            DateOnly searchFrom = new DateOnly(startMonth.Year, startMonth.Month, 1);
+            DateOnly searchFrom = startMonth.GetStartOfMonth();
             // 遅いほう → 末日
-            DateOnly searchTo = new DateOnly(endMonth.Year, endMonth.Month, 1).AddMonths(1).AddDays(-1);
+            DateOnly searchTo = endMonth.GetEndOfMonth();
 
             // JSON 文字列を long[] に変換
             var selectedBusyoIds = string.IsNullOrEmpty(Search.Busyo)
@@ -161,7 +139,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             var syains = await db.Syains
                     .AsNoTracking()
                     .Include(s => s.Busyo)
-                        .Where(x => selectedBusyoIds.Length == 0 
+                        .Where(x => selectedBusyoIds.Length == 0
                             || selectedBusyoIds.Contains(x.BusyoId)) // 「全社」or選択中の部署
                     .Include(s => s.KintaiZokusei)
                     .Include(s => s.Nippous
@@ -245,7 +223,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                 var zangyoMap = monthlyList.ToDictionary(x => (x.Year, x.Month), x => x.Zangyo);
 
                 // 1か月ずつループ
-                foreach(var m in monthlyList)
+                foreach (var m in monthlyList)
                 {
                     // 集計月末日
                     var finalDay = new DateTime(m.Year, m.Month, 1).ToDateOnly().AddMonths(1).AddDays(-1);
@@ -536,7 +514,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             // 現在の連勤ブロックの直前日
             var previousDay = workingDates[0];
 
-            foreach(var currentDay in workingDates)
+            foreach (var currentDay in workingDates)
             {
                 // 前日から連続していれば連勤継続
                 if (currentDay == previousDay.AddDays(1))

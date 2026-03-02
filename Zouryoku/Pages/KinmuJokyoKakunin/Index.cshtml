@@ -28,15 +28,15 @@
             font-size: 0.9rem;
         }
 
-            .tag .remove {
-                border: none;
-                background: transparent;
-                color: white;
-                margin-left: 8px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 1rem;
-            }
+        .tag .remove {
+            border: none;
+            background: transparent;
+            color: white;
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
     </style>
 }
 
@@ -49,18 +49,28 @@
             <!-- 期間 -->
             <div class="row align-items-center mt-3">
                 <div class="col-12 col-md-auto d-flex">
-                    <label class="me-5 fw-bold">
+                    <label for="search-from" class="me-5 fw-bold">
                         期間 <span class="text-danger">*</span>
                     </label>
                 </div>
                 <div class="col-5 col-md-auto d-flex">
-                    <input type="month" asp-for="SearchIndex.From" id="search-from" class="form-control" />
+                    <input type="month"
+                        asp-for="SearchIndex.From"
+                        id="search-from"
+                        class="form-control"
+                        min="2001-01"
+                        max="2099-12" />
                 </div>
                 <div class=" col-auto d-flex">
                     <span class="mx-2">〜</span>
                 </div>
                 <div class="col-5 col-md-auto d-flex">
-                    <input type="month" asp-for="SearchIndex.To" id="search-to" class="form-control" />
+                    <input type="month"
+                        asp-for="SearchIndex.To"
+                        id="search-to"
+                        class="form-control"
+                        min="2001-01"
+                        max="2099-12" />
                 </div>
             </div>
 
@@ -83,7 +93,7 @@
 
                         <div class="form-check form-check-inline">
                             <input class="form-check-input"
-                            asp-for="SearchIndex.WarnLevel"
+                                asp-for="SearchIndex.WarnLevel"
                                 type="radio"
                                 id="warnLevel_@radioItem"
                                 name="WarnLevel"
@@ -98,7 +108,7 @@
             <!-- 部署（別画面選択→タグ返却） -->
             <div class="row align-items-center mt-3">
                 <div class="col-auto d-flex">
-                    <label class="me-9 fw-bold">
+                    <label for="busyo-mode" class="me-9 fw-bold">
                         部署
                     </label>
                 </div>
@@ -146,7 +156,18 @@
     <script>
         $(function() {
 
+            // =================================================
+            // 初期処理
+            // =================================================
             const $form = $('search-form');
+            // 期間Fromを入力不可能にする
+            const inputSearchFrom = document.getElementById('search-from');
+            inputSearchFrom?.addEventListener('keydown', e => e.preventDefault());
+            inputSearchFrom?.addEventListener('paste', e => e.preventDefault());
+            // 期間Toを入力不可能にする
+            const inputSearchTo = document.getElementById('search-to');
+            inputSearchTo?.addEventListener('keydown', e => e.preventDefault());
+            inputSearchTo?.addEventListener('paste', else => e.preventDefault());
 
             // =================================================
             // 初期検索

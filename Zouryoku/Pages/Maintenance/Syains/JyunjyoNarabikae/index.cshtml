@@ -91,7 +91,7 @@
                 // 検索条件のみを抽出（リストの内容は含めない）
                 const data = $form.find(':input[name^="Condition."]').serializeArray();
                 return new Promise(resolve => {
-                    sendGetAjax(toUrl('SyainList'), data, function(result) {
+                    sendGetAjax(toUrl('SyainList'), $sortForm, data, function(result) {
                         let $tempDiv = $('<div>').html(result); // HTML string から DOMとして変更
                         let itemCount = $tempDiv.find('li').length; // <li> elementsのカウントと取得
 
@@ -136,9 +136,9 @@
             // -----------------------------
             // 共通登録 Ajax 処理
             // -----------------------------
-            function commonSendRegisterAjax(url, data = $('form').serializeArray()) {
+            function commonSendRegisterAjax(url, data = $sortForm.serializeArray()) {
                 return new Promise((resolve, reject) => {
-                    sendRegisterAjax(url, data, function(result) {
+                    sendRegisterAjax(url, $sortForm, data, function(result) {
                         switch (result.status) {
                             case responseStatusSuccess: // 成功
                                 resolve(result);

@@ -41,7 +41,7 @@
 }
 
 <div class="app-screen--search">
-    <form id="searchForm">
+    <form id="search-form">
 
         <!-- 検索条件エリア -->
         <div class="app-area__search-criteria">
@@ -146,6 +146,8 @@
     <script>
         $(function() {
 
+            const $form = $('search-form');
+
             // =================================================
             // 初期検索
             // =================================================
@@ -169,7 +171,7 @@
                     busyo: $('#selected-busyo-ids').val(),
                 };
 
-                sendGetAjax(toUrl("Search"), param, function (res) {
+                sendGetAjax(toUrl("Search"), $form, param, function (res) {
                     $('#partial').html(res);
                     switchTab("work");
                 });

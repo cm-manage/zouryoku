@@ -7,6 +7,7 @@ using Model.Data;
 using Model.Extensions;
 using Model.Model;
 using Zouryoku.Attributes;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 
@@ -63,6 +64,13 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
         /// <returns>実行結果（JSON）</returns>
         public async Task<IActionResult> OnPostRegisterAsync(List<SyainOrderModel> syains)
         {
+            // 単項目チェック
+            JsonResult? errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
+            {
+                return errorJson;
+            }
+
             // 更新対象IDのみ抽出
             var updateIds = syains.Select(s => s.Id).ToHashSet();
 
@@ -83,7 +91,12 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
 
             // 更新を保存
             await SaveWithConcurrencyCheckAsync(ErrorConflictSyain);
-            if (!ModelState.IsValid) return CommonErrorResponse();
+            
+            errorJson = ModelState.ErrorJson();
+            if (!ModelState.IsValid)
+            {
+                return CommonErrorResponse();
+            }
 
             return Success();
         }

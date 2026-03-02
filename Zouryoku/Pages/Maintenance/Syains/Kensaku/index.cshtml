@@ -221,7 +221,7 @@
             // -----------------------------
             async function searchSyain(form) {
                 return new Promise(resolve => {
-                    sendGetAjax(toUrl('Search'), form.serializeArray(), data => resolve(data), false);
+                    sendGetAjax(toUrl('Search'), form, form.serializeArray(), data => resolve(data), false);
                 });
             }
 

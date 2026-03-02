@@ -48,10 +48,12 @@
 
     <script>
         $(function() {
+            var $form = $('#role-form');
+
             // ロールの値を変更する
             $(document).on('change', '#role-select', function () {
                 var roleId = $(this).val();
-                sendAjax(toUrl("RoleData"), $('#role-form').serialize(), function (result) {
+                sendAjax(toUrl("RoleData"), $form, $form.serialize(), function (result) {
                     $('#permission-table').html(result);
                 }, false, null, false);
             });
@@ -67,7 +69,7 @@
                     });
 
                     $('#input-kengen-value').val(flags);
-                    sendAjax(toUrl("UpdateRole"), $('#role-form').serializeArray(), function (result) {
+                    sendAjax(toUrl("UpdateRole"), $form, $form.serializeArray(), function (result) {
                         registerSuccessSwal("登録しました");
                     }, false, null, false);
                 });

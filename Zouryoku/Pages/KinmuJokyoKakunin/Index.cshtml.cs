@@ -17,6 +17,7 @@ using Zouryoku.Utils;
 using static Model.Enums.AttendanceClassification;
 using static Model.Enums.InquiryType;
 using static Model.Enums.LeaveBalanceFetchStatus;
+using static Zouryoku.Pages.KinmuJokyoKakunin.StatusSearchViewModel.BusyoModeList;
 using static Zouryoku.Pages.KinmuJokyoKakunin.WarnLevel;
 using FileUtil = Zouryoku.Utils.FileUtil;
 
@@ -34,6 +35,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets => true;
+
+        private const string BusyoLabel = "部署";
 
         private const string SessionKey_StatusViewVm = "StatusView_TableViewModel";
 
@@ -97,26 +100,13 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             }
 
             // 条件付きバリデーションチェック
-            if (Search.BusyoMode != "all" && Search.Busyo == "")
+            if (Search.BusyoMode != 全社 && Search.Busyo == "")
             {
-                var displayName = typeof(StatusSearchViewModel).GetProperty(nameof(Search.Busyo))!
-                        .GetCustomAttributes(typeof(DisplayAttribute), false)
-                        .Cast<DisplayAttribute>()
-                        .FirstOrDefault()?.Name;
+                ModelState.AddModelError
+                        (string.Empty,
+                        string.Format(Const.ErrorSelectRequired, BusyoLabel));
 
-                ModelState.AddModelError(nameof(Search.Busyo), string.Format(Const.ErrorSelectRequired, displayName));
-            }
-
-            // エラー終了
-            if (!ModelState.IsValid)
-            {
-                var errorMessages = ModelState
-                    .Where(x => x.Value?.Errors.Count > 0)
-                    .SelectMany(x => x.Value!.Errors.Select(e => e.ErrorMessage))
-                    .ToList();
-
-                // 以降の処理を行わない
-                return ErrorJson(string.Join("\n", errorMessages));
+                return ModelState.ErrorJson()!;
             }
 
             // 画面表示モデル

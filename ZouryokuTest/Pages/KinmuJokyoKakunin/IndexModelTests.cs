@@ -7,8 +7,10 @@ using Model.Model;
 using System.Text.Json;
 using Zouryoku;
 using Zouryoku.Pages.KinmuJokyoKakunin;
+using Zouryoku.Utils;
 using static Model.Enums.LeaveBalanceFetchStatus;
 using static Model.Enums.ResponseStatus;
+using static Zouryoku.Pages.KinmuJokyoKakunin.StatusSearchViewModel;
 using static Zouryoku.Pages.KinmuJokyoKakunin.WarnLevel;
 
 namespace ZouryokuTest.Pages.KinmuJokyoKakunin
@@ -95,7 +97,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
             Assert.StartsWith(expectedPrefix, model.SearchIndex.From);
             Assert.StartsWith(expectedPrefix, model.SearchIndex.To);
             Assert.AreEqual(All, model.SearchIndex.WarnLevel);
-            Assert.AreEqual("all", model.SearchIndex.BusyoMode);
+            Assert.AreEqual(BusyoModeList.全社, model.SearchIndex.BusyoMode);
         }
 
         #endregion
@@ -105,12 +107,12 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
         #region OnGetSearchAsync
 
         /// <summary>
-        /// 前提: 部署モードが「all」以外で、部署が未指定の検索条件が設定されている
+        /// 前提: 部署モードが「全社」以外で、部署が未指定の検索条件が設定されている
         /// 操作: 検索処理（OnGetSearchAsync）を実行する
         /// 結果: エラーステータスとエラーメッセージが返却される
         /// </summary>
         [TestMethod]
-        public async Task OnGetSearchAsync_部署モードがall以外_部署未指定の場合はエラー()
+        public async Task OnGetSearchAsync_部署モードが全社以外_部署未指定の場合はエラー()
         {
             // Arrange
             IndexModel model = CreateModel();
@@ -118,21 +120,21 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
             {
                 From = "2026-02",
                 To = "2026-02",
-                BusyoMode = "select",
+                BusyoMode = BusyoModeList.部署選択,
                 Busyo = "",
                 WarnLevel = All
             };
 
             // Act
-            IActionResult result = await model.OnGetSearchAsync(search);
+            var result = await model.OnGetSearchAsync(search);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(JsonResult));
-            JsonResult json = (JsonResult)result;
-            ResponseStatus status = GetResponseStatus(json);
-            string? message = GetMessage(json);
-            Assert.AreEqual(エラー, status);
-            Assert.IsNotNull(message);
+            Assert.IsInstanceOfType<JsonResult>(result);
+            var jsonResult = (JsonResult)result;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorSelectRequired, "部署"), errors[0], "部署モードが全社以外_部署未指定の場合はエラー");
         }
 
 
@@ -150,7 +152,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
             {
                 From = "2024-01",
                 To = "2027-02",
-                BusyoMode = "select",
+                BusyoMode = BusyoModeList.部署選択,
                 Busyo = "[1, 2, 5]",
                 WarnLevel = All
             };

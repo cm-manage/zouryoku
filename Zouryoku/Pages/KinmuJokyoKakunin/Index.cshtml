@@ -116,8 +116,8 @@
                 <!-- セレクトボックス -->
                 <div class="col-auto col-lg-2 d-flex">
                     <select id="busyo-mode" class="form-select">
-                        <option value="all" selected>全社</option>
-                        <option value="select">部署を選択する</option>
+                        <option value="1" selected>全社</option>
+                        <option value="2">部署を選択する</option>
                     </select>
                 </div>
                 <div class="col-auto d-flex">
@@ -167,7 +167,7 @@
             // 期間Toを入力不可能にする
             const inputSearchTo = document.getElementById('search-to');
             inputSearchTo?.addEventListener('keydown', e => e.preventDefault());
-            inputSearchTo?.addEventListener('paste', else => e.preventDefault());
+            inputSearchTo?.addEventListener('paste', e => e.preventDefault());
 
             // =================================================
             // 初期検索
@@ -226,10 +226,10 @@
 
             // モード切替（全社 / 部署選択）
             $('#busyo-mode').on('change', function () {
-              const isAll = $(this).val() === 'all';
-              $('#btn-select-busyo').toggleClass('d-none', isAll);
+              const zenSha = $(this).val() === '1';
+              $('#btn-select-busyo').toggleClass('d-none', zenSha);
 
-              if (isAll) {
+              if (zenSha) {
                 selectedBusyoList = [];
                 renderBusyoTags();
               }

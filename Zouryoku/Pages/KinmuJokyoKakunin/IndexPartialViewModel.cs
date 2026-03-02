@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Zouryoku.Utils;
 
 namespace Zouryoku.Pages.KinmuJokyoKakunin
 {
@@ -8,6 +7,17 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
     /// </summary>
     public class StatusSearchViewModel
     {
+        /// <summary>
+        /// 部署モードリスト
+        /// </summary>
+        public enum BusyoModeList
+        {
+            [Display(Name = "全社")]
+            全社 = 1,
+            [Display(Name = "部署選択")]
+            部署選択 = 2,
+        }
+
         /// <summary>
         /// 期間(From)
         /// </summary>
@@ -26,9 +36,9 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         public WarnLevel WarnLevel { get; set; } = WarnLevel.All;
 
         /// <summary>
-        /// 部署プルダウン
+        /// 部署モード
         /// </summary>
-        public string BusyoMode { get; set; } = "all";
+        public BusyoModeList BusyoMode { get; set; } = BusyoModeList.全社;
 
         /// <summary>
         /// 部署IDリスト

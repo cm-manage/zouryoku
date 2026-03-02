@@ -35,7 +35,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         /// <summary>
         /// 既定のロールデータを登録します。
         /// </summary>
-        private void UserRoleデータを登録する()
+        private void CreateUserRoleEntity()
         {
             // 並び順の検証のため、あえて順序を逆に登録する
             var higherOrderRole = CreateUserRole(
@@ -62,7 +62,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnGetAsync_ロールがある場合はPageResultを返す()
         {
             // Arrange
-            UserRoleデータを登録する();
+            CreateUserRoleEntity();
             var model = CreateModel();
 
             // Act
@@ -83,7 +83,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnGetAsync_選択ロールIDに並び順先頭ロールを設定する()
         {
             // Arrange
-            UserRoleデータを登録する();
+            CreateUserRoleEntity();
             var model = CreateModel();
 
             // Act
@@ -103,7 +103,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnGetAsync_UserRolesを並び順で設定する()
         {
             // Arrange
-            UserRoleデータを登録する();
+            CreateUserRoleEntity();
             var model = CreateModel();
             var expectedIds = new[]
             {
@@ -143,7 +143,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnGetAsync_選択ロールの権限を設定する()
         {
             // Arrange
-            UserRoleデータを登録する();
+            CreateUserRoleEntity();
             var model = CreateModel();
 
             // Act
@@ -163,7 +163,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnGetAsync_KengenValueは既定値を保持する()
         {
             // Arrange
-            UserRoleデータを登録する();
+            CreateUserRoleEntity();
             var model = CreateModel();
 
             // Act

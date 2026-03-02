@@ -54,6 +54,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
                 kanaName: LoggedInUserName);
 
             db.Syains.Add(syainEntity);
+            db.SaveChanges();
 
             var loginInfo = new LoginInfo { User = syainEntity };
             model.HttpContext.Session.Set(loginInfo);

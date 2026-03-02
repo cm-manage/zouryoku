@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Model.Enums;
 using Model.Model;
 using Zouryoku.Pages.RoleDefaultKengen;
-using Zouryoku.Pages.Shared;
+using static Model.Enums.ResponseStatus;
 using static Zouryoku.Utils.Const;
 
 namespace ZouryokuTest.Pages.RoleDefaultKengen
@@ -25,7 +25,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         /// <summary>
         /// OnPostRoleData 用のロールデータを登録します。
         /// </summary>
-        private void RoleData用UserRoleEntityを登録する()
+        private void CreateUserRoleEntity()
         {
             var firstUserRoleEntity = CreateUserRole(
                 id: FirstRoleId);
@@ -39,7 +39,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         /// </summary>
         /// <param name="selectedRoleId">モデルに設定する選択ロールID</param>
         /// <returns>選択ロールIDが設定された IndexModel</returns>
-        private IndexModel SelectedRoleIdを設定したModelを作成する(long selectedRoleId)
+        private IndexModel CreateModelWithSelectRoleId(long selectedRoleId)
         {
             var model = CreateModel();
             model.ViewModel.SelectedRoleId = selectedRoleId;
@@ -52,7 +52,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         /// <param name="roleId">ロールID</param>
         /// <param name="kengenValue">更新後の権限値</param>
         /// <returns>生成された更新用の IndexViewModel</returns>
-        private static IndexViewModel 更新用IndexViewModelを作成する(long roleId, long kengenValue)
+        private static IndexViewModel CreateIndexViewModelForUpdate(long roleId, long kengenValue)
         {
             return new IndexViewModel
             {
@@ -66,36 +66,12 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         /// </summary>
         /// <param name="roleId">検索対象のロールID</param>
         /// <returns>権限値。該当するロールがない場合は null</returns>
-        private long? UserRoleEntityのKengen値をIdで取得する(long roleId)
+        private long? GetUserRoleKengen(long roleId)
         {
             return db.UserRoles
                 .Where(role => role.Id == roleId)
                 .Select(role => (long?)role.Kengen)
                 .SingleOrDefault();
-        }
-
-        /// <summary>
-        /// IActionResult から ResponseJson を取得します。
-        /// </summary>
-        /// <param name="actionResult">検証対象の IActionResult</param>
-        /// <returns>抽出された ResponseJson</returns>
-        private static ResponseJson ActionResultからResponseJsonを取得する(IActionResult actionResult)
-        {
-            if (actionResult is not JsonResult jsonResult)
-            {
-                throw new AssertFailedException(
-                    "戻り値は JsonResult であるべきです。"
-                );
-            }
-
-            if (jsonResult.Value is not ResponseJson responseJson)
-            {
-                throw new AssertFailedException(
-                    "JsonResult.Value は ResponseJson であるべきです。"
-                );
-            }
-
-            return responseJson;
         }
 
         /// <summary>
@@ -105,8 +81,8 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnPostRoleDataAsync_ロールありで成功Jsonを返す()
         {
             // Arrange
-            RoleData用UserRoleEntityを登録する();
-            var model = SelectedRoleIdを設定したModelを作成する(SelectedRoleId);
+            CreateUserRoleEntity();
+            var model = CreateModelWithSelectRoleId(SelectedRoleId);
 
             // Act
             var result = await model.OnPostRoleDataAsync();
@@ -122,8 +98,8 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         public async Task OnPostRoleDataAsync_ロールありでUserRolesを設定する()
         {
             // Arrange
-            RoleData用UserRoleEntityを登録する();
-            var model = SelectedRoleIdを設定したModelを作成する(SelectedRoleId);
+            CreateUserRoleEntity();
+            var model = CreateModelWithSelectRoleId(SelectedRoleId);
 
             // Act
             await model.OnPostRoleDataAsync();
@@ -148,7 +124,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             SeedEntities(targetUserRoleEntity);
 
             var model = CreateModel();
-            model.ViewModel = 更新用IndexViewModelを作成する(
+            model.ViewModel = CreateIndexViewModelForUpdate(
                 ExistingRoleId,
                 UpdatedKengenValue
             );
@@ -172,7 +148,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             SeedEntities(targetUserRoleEntity);
 
             var model = CreateModel();
-            model.ViewModel = 更新用IndexViewModelを作成する(
+            model.ViewModel = CreateIndexViewModelForUpdate(
                 ExistingRoleId,
                 UpdatedKengenValue
             );
@@ -181,7 +157,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             await model.OnPostUpdateRoleAsync();
 
             // Assert
-            var actualKengenValue = UserRoleEntityのKengen値をIdで取得する(ExistingRoleId);
+            var actualKengenValue = GetUserRoleKengen(ExistingRoleId);
             Assert.AreEqual(
                 UpdatedKengenValue,
                 actualKengenValue,
@@ -197,7 +173,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         {
             // Arrange
             var model = CreateModel();
-            model.ViewModel = 更新用IndexViewModelを作成する(
+            model.ViewModel = CreateIndexViewModelForUpdate(
                 MissingRoleId,
                 UpdatedKengenValue
             );
@@ -221,7 +197,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
         {
             // Arrange
             var model = CreateModel();
-            model.ViewModel = 更新用IndexViewModelを作成する(
+            model.ViewModel = CreateIndexViewModelForUpdate(
                 MissingRoleId,
                 UpdatedKengenValue
             );
@@ -230,12 +206,12 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             var result = await model.OnPostUpdateRoleAsync();
 
             // Assert
-            var response = ActionResultからResponseJsonを取得する(result);
-            Assert.AreEqual(
-                EmptyReadData,
-                response.Message,
-                "対象ロールが存在しない場合は EmptyReadData を返すべきです。"
-            );
+            Assert.IsInstanceOfType(result, typeof(JsonResult));
+            var json = (JsonResult)result;
+            var status = GetResponseStatus(json);
+            var message = GetMessage(json);
+            Assert.AreEqual(エラー, status);
+            Assert.AreEqual(EmptyReadData, message, "対象ロールが存在しない場合は EmptyReadData を返すべきです。");
         }
 
         private static UserRole CreateUserRole(

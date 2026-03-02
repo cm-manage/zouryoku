@@ -34,10 +34,10 @@ namespace Zouryoku.Pages.RoleDefaultKengen
         {
         }
 
-        [BindProperty(SupportsGet = true)]
         /// <summary>
         /// 画面表示用 ViewModel
         /// </summary>
+        [BindProperty(SupportsGet = true)]
         public IndexViewModel ViewModel { get; set; } = new IndexViewModel();
 
         /// <summary>

@@ -1,7 +1,7 @@
 @using CommonLibrary.Extensions
 @model Zouryoku.Pages.RoleDefaultKengen.IndexViewModel
 
-<table class="table table-striped app-table__base w-100 data-table">
+<table class="table app-table__base table-bordered table-striped table-hover text-nowrap align-middle w-100">
     <thead>
         <tr>
             <th class="w-100" scope="col">社員権限</th>
@@ -17,7 +17,6 @@
                 <td>@display</td>
                 <td align="center">
                     <input class="form-check"
-                           name="kengen-checkbox"
                            data-flag="@((int)role)"
                            type="checkbox" @(Model.Kengen.HasFlag(role) ? "checked" : null) />
                 </td>

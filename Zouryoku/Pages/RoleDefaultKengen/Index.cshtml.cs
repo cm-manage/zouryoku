@@ -6,10 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Model.Data;
 using Model.Enums;
+using Model.Extensions;
+using Model.Model;
 using Zouryoku.Attributes;
 using Zouryoku.Pages.Shared;
-using Zouryoku.Utils;
 using static Model.Enums.EmployeeAuthority;
+using static Zouryoku.Utils.Const;
 
 namespace Zouryoku.Pages.RoleDefaultKengen
 {
@@ -20,6 +22,8 @@ namespace Zouryoku.Pages.RoleDefaultKengen
     public partial class IndexModel : BasePageModel<IndexModel>
     {
         private const long DefaultSelectedRoleId = 0L;
+
+        public override bool UseInputAssets { get; } = true;
 
         /// <summary>
         /// コンストラクタ
@@ -65,16 +69,36 @@ namespace Zouryoku.Pages.RoleDefaultKengen
         /// </summary>
         public async Task<IActionResult> OnPostUpdateRoleAsync()
         {
+            // BIndPropertyのエラーを削除
+            ModelState.Clear();
+
             var role = await db.UserRoles.FindAsync(ViewModel.SelectedRoleId);
             if (role is null)
             {
-                return ErrorJson(Const.EmptyReadData);
+                ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
+                return CommonErrorResponse();
             }
 
             role.Kengen = (EmployeeAuthority)ViewModel.KengenValue;
-            await db.SaveChangesAsync();
+
+            // 更新処理
+            await UpdateRoleAsync(role, ViewModel.Version);
+
+            // 同時実行制御が働いたとき
+            if (!ModelState.IsValid)
+            {
+                return CommonErrorResponse();
+            }
 
             return SuccessJson(data: role);
+        }
+
+        private async Task UpdateRoleAsync(UserRole role, uint version)
+        {
+            // 同時実行制御用にバージョンを設定（重要）
+            db.SetOriginalValue(role, entity => entity.Version, version);
+
+            await SaveWithConcurrencyCheckAsync(string.Format(ErrorConflictReload, "ロール"));
         }
 
         /// <summary>
@@ -101,6 +125,7 @@ namespace Zouryoku.Pages.RoleDefaultKengen
 
             ViewModel.SelectedRoleId = selectedRole?.Id ?? DefaultSelectedRoleId;
             ViewModel.Kengen = selectedRole?.Kengen ?? None;
+            ViewModel.Version = selectedRole?.Version ?? 0;
         }
     }
 }

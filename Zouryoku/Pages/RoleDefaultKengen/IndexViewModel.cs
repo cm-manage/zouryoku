@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Model.Enums;
+using System.ComponentModel.DataAnnotations;
 using static Model.Enums.EmployeeAuthority;
 
 namespace Zouryoku.Pages.RoleDefaultKengen
@@ -20,6 +21,12 @@ namespace Zouryoku.Pages.RoleDefaultKengen
 
         /// <summary>更新用の権限値</summary>
         public long KengenValue { get; set; }
+
+        /// <summary>
+        /// 同時実行制御用のバージョン
+        /// </summary>
+        [Timestamp]
+        public uint Version { get; set; }
 
         /// <summary>
         /// 社員権限Enumの一覧を返します。Noneは含みません。

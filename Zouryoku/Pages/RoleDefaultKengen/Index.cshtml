@@ -18,6 +18,7 @@
                             class="col app-input__select form-select mx-3">
                     </select>
                     <input type="hidden" asp-for="ViewModel.KengenValue" id="input-kengen-value" />
+                    <input type="hidden" asp-for="ViewModel.Version" value="@Model.ViewModel.Version" />
                 </div>
             </div>
 
@@ -41,11 +42,6 @@
 </div>
 
 @section InputScripts {
-    <script src="~/assets/modules/sweetalert2/dist/sweetalert2.min.js"></script>
-    <link href="~/assets/modules/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet" />
-
-    <script src="~/js/sweetAlertUtil.js" asp-append-version="true"></script>
-
     <script>
         $(function() {
             var $form = $('#role-form');

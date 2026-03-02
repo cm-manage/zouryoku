@@ -332,6 +332,7 @@
                  // 部署IDから社員検索
                  sendGetAjax(
                     getSyainUrl,
+                    $syainForm,
                     {
                         busyoId: busyoId,
                         isMultipleFlg: isMultipleSelection,
@@ -557,6 +558,7 @@
                 // 社員名から社員検索
                 sendGetAjax(
                     getSearchUrl,
+                    $syainForm,
                     {
                         syainName : name,
                         isMultipleFlg : isMultipleSelection
@@ -608,6 +610,7 @@
                 let typeMsg = "syainSelected";
                 sendAjax(
                     validationUrl,
+                    $('#busyo-select-form'),
                     formData,
                     function(){
                         // 親画面へ送信

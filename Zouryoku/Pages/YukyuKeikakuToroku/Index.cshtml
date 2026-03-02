@@ -123,9 +123,12 @@
 @section InputScripts {
     <script>
         $(function() {
-            function commonSendRegisterAjax(url, data = $('form').serializeArray()) {
+            // 共通登録 Ajax 処理
+            // $data: 省略時は form
+            // 戻り値: Promise オブジェクト
+            function commonSendRegisterAjax(url, $form = $('form')) {
                 return new Promise(resolve => {
-                    sendRegisterAjax(url, data, function(result) {
+                    sendRegisterAjax(url, $form, $form.serializeArray(), function(result) {
                         // sendRegisterAjax の成功コールバック
                         switch (result.status) {
                             case responseStatusSuccess: // 成功

@@ -49,7 +49,17 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
             /// </summary>
             public string MeisaiColumnWidthPercentage { get; }
 
+            /// <summary>
+            /// 最終承認フラグ
+            /// </summary>
+            public bool FinalApproval { get; init; }
+
             public IReadOnlyList<Keikaku> Keikakus { get; init; }
+
+            /// <summary>
+            /// 画面タイトル名
+            /// </summary>
+            public string Title => Authority == Authority.Jinzai ? "人財承認" : "事業部承認";
 
             /// <summary>
             /// 空のビューモデルを取得する
@@ -74,6 +84,7 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
             public JigyoubuShoninViewModel(Authority authority, IReadOnlyList<Keikaku> keikakus)
             {
                 Authority = authority;
+                FinalApproval = authority == Authority.Jinzai;
                 Keikakus = keikakus;
 
                 var totalColumnCount = CalculateTotalColumnCount();

@@ -227,7 +227,7 @@
 
                 // クライアント側バリデーション
                 if (!$form.valid()) {
-                    return;
+                   return;
                 }
 
                 // 確認ダイアログ表示
@@ -240,22 +240,11 @@
 
             // 登録処理実行
             async function executeRegister(handler, actionName, messageType) {
-                return await new Promise((resolve) => {
-                    sendRegisterAjax(toUrl(handler), $form.serializeArray(),
-                        function(result) {
-                            switch(result.status){
-                                case responseStatusSuccess:
-                                    onRegisterSuccess(result, actionName, messageType);
-                                    resolve(result);
-                                    break;
-                                case responseStatusError:
-                                    errorMessage(result.message);
-                                    resolve(null);
-                                    break;
-                            }
-                        }
-                    );
-                })
+                sendRegisterAjax(toUrl(handler), $form, $form.serializeArray(),
+                    function(result) {
+                        onRegisterSuccess(result, actionName, messageType);
+                    }
+                )
             }
 
             // 登録成功時処理

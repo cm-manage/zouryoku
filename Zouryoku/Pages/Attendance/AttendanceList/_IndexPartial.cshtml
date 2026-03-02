@@ -1,9 +1,10 @@
 ﻿@model Zouryoku.Pages.Attendance.AttendanceList.ViewModel
 @using CommonLibrary.Extensions
 @using static Zouryoku.Utils.Const
+@inject TimeProvider timeProvider
 
 @{
-    var today = DateTime.Now.ToDateOnly();
+    var today = timeProvider.Today();
 }
 
 <input type="hidden" id="warning-message" value="@Model.Message" />

@@ -1388,9 +1388,10 @@ namespace ZouryokuTest.Pages.Ankens
             // JsonResult にエラーメッセージが含まれていることを確認
             var errorMessageList = GetErrors(json, key);
             Assert.IsNotNull(errorMessageList);
+            Assert.HasCount(1, errorMessageList);
 
             // 手動で発生させたエラーメッセージが含まれていることを確認
-            Assert.Contains(errorMessage, errorMessageList, "案件名 のエラーメッセージが存在するはずです。");
+            Assert.AreEqual(errorMessage, errorMessageList[0]);
         }
 
         // =================================================================
@@ -1523,16 +1524,16 @@ namespace ZouryokuTest.Pages.Ankens
             var result = await model.OnPostRegisterAsync();
 
             // ---------- Assert ----------
-            Assert.IsInstanceOfType<ObjectResult>(result);
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
 
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
-            Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
+            // JsonResult にエラーメッセージが含まれていることを確認
+            var errorMessageList = GetErrors(json, "");
+            Assert.IsNotNull(errorMessageList);
+            Assert.HasCount(1, errorMessageList);
 
             // 存在チェックエラーが含まれていることを確認
-            Assert.Contains(Const.ErrorSelectedDataNotExists, message, "存在チェックのエラーが含まれているはずです。");
+            Assert.AreEqual(Const.ErrorSelectedDataNotExists,
+                errorMessageList[0]);
 
             var afterCount = await db.Ankens.CountAsync();
             Assert.AreEqual(beforeCount, afterCount, "案件は追加されていないはずです。");
@@ -1645,17 +1646,16 @@ namespace ZouryokuTest.Pages.Ankens
             var result = await model.OnPostRegisterAsync();
 
             // ---------- Assert ----------
-            Assert.IsInstanceOfType<ObjectResult>(result);
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
 
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
-            Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
+            // JsonResult にエラーメッセージが含まれていることを確認
+            var errorMessageList = GetErrors(json, "");
+            Assert.IsNotNull(errorMessageList);
+            Assert.HasCount(1, errorMessageList);
 
-            // KINGS受注の施工部門コード不一致エラーが含まれていることを確認
-            Assert.Contains(string.Format(Const.ErrorRequiredSubItem, "自部署", "受注"),
-                message, "KINGS受注IDのエラーが含まれているはずです。");
+            // 手動で発生させたエラーメッセージが含まれていることを確認
+            Assert.AreEqual(string.Format(Const.ErrorRequiredSubItem, "自部署", "受注"),
+                errorMessageList[0]);
 
             // 案件が追加されていないことを確認
             var count = await db.Ankens.CountAsync();
@@ -1767,17 +1767,16 @@ namespace ZouryokuTest.Pages.Ankens
             var result = await model.OnPostRegisterAsync();
 
             // ---------- Assert ----------
-            Assert.IsInstanceOfType<ObjectResult>(result);
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
 
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
-            Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
+            // JsonResult にエラーメッセージが含まれていることを確認
+            var errorMessageList = GetErrors(json, "");
+            Assert.IsNotNull(errorMessageList);
+            Assert.HasCount(1, errorMessageList);
 
             // 指定IDが存在しない旨のエラーメッセージを確認
-            Assert.Contains(string.Format(Const.ErrorNotFound, "案件情報", model.Anken.Id), message,
-                "指定IDが存在しない旨のエラーメッセージが含まれているはずです。");
+            Assert.AreEqual(string.Format(Const.ErrorNotFound, "案件情報", model.Anken.Id),
+                errorMessageList[0]);
         }
 
         // =================================================================
@@ -1898,17 +1897,16 @@ namespace ZouryokuTest.Pages.Ankens
             var result = await model.OnPostRegisterAsync();
 
             //Assert
-            Assert.IsInstanceOfType<ObjectResult>(result);
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
 
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
-            Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
+            // JsonResult にエラーメッセージが含まれていることを確認
+            var errorMessageList = GetErrors(json, "");
+            Assert.IsNotNull(errorMessageList);
+            Assert.HasCount(1, errorMessageList);
 
             // 楽観的同時実行制御エラーが含まれていることを確認（コンテキスト内のレコードは変更されたままのため内容確認は行えない）
-            Assert.Contains(string.Format(Const.ErrorConflictReload, "案件情報"),
-                message, "楽観的同時実行制御エラーメッセージが含まれているはずです。");
+            Assert.AreEqual(string.Format(Const.ErrorConflictReload, "案件情報"),
+                errorMessageList[0]);
         }
 
         // ---------------------------------------------------------------------
@@ -2035,18 +2033,17 @@ namespace ZouryokuTest.Pages.Ankens
             // ---------- Act ----------
             var result = await model.OnPostDeleteAsync();
 
-            // ---------- Assert ----------
-            Assert.IsInstanceOfType<ObjectResult>(result);
+            //Assert
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
 
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
-            Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
+            // JsonResult にエラーメッセージが含まれていることを確認
+            var errorMessageList = GetErrors(json, "");
+            Assert.IsNotNull(errorMessageList);
+            Assert.HasCount(1, errorMessageList);
 
             // 指定IDが存在しない旨のエラーメッセージを確認
-            Assert.Contains(string.Format(Const.ErrorNotFound, "案件情報", model.Anken.Id), message,
-                "指定IDが存在しない旨のエラーメッセージが含まれているはずです。");
+            Assert.AreEqual(string.Format(Const.ErrorNotFound, "案件情報", model.Anken.Id),
+                errorMessageList[0]);
         }
 
         // =================================================================
@@ -2110,18 +2107,16 @@ namespace ZouryokuTest.Pages.Ankens
             var result = await model.OnPostDeleteAsync();
 
             // ---------- Assert ----------
-            Assert.IsInstanceOfType<ObjectResult>(result);
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
 
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
-            Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
+            // JsonResult にエラーメッセージが含まれていることを確認
+            var errorMessageList = GetErrors(json, "");
+            Assert.IsNotNull(errorMessageList);
+            Assert.HasCount(1, errorMessageList);
 
             // 紐づく実績が存在する時のエラーメッセージを確認
-            Assert.Contains(string.Format(Const.ErrorLinked, "案件情報", "実績"),
-                message,
-                "紐づく実績が存在するため削除できない旨のエラーが含まれているはずです。");
+            Assert.AreEqual(string.Format(Const.ErrorLinked, "案件情報", "実績"),
+                errorMessageList[0]);
 
             // レコードは削除されていないことを確認
             anken = await db.Ankens.FirstOrDefaultAsync(x => x.Id == anken.Id);
@@ -2178,17 +2173,16 @@ namespace ZouryokuTest.Pages.Ankens
             var result = await model.OnPostDeleteAsync();
 
             // ---------- Assert ----------
-            Assert.IsInstanceOfType<ObjectResult>(result);
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
 
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
-            Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
+            // JsonResult にエラーメッセージが含まれていることを確認
+            var errorMessageList = GetErrors(json, "");
+            Assert.IsNotNull(errorMessageList);
+            Assert.HasCount(1, errorMessageList);
 
             // 楽観的同時実行制御エラーが含まれていることを確認
-            Assert.Contains(string.Format(Const.ErrorConflictReload, "案件情報"),
-                message, "楽観的同時実行制御エラーメッセージが含まれているはずです。");
+            Assert.AreEqual(string.Format(Const.ErrorConflictReload, "案件情報"),
+                errorMessageList[0]);
 
             // レコードは削除されていないことを確認
             var exists = await db.Ankens.AnyAsync(x => x.Id == anken.Id);

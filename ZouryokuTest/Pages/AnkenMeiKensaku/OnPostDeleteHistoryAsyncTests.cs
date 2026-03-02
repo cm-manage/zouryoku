@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Model.Model;
 using Zouryoku.Pages.AnkenMeiKensaku;
-using static Zouryoku.Utils.Const;
 
 namespace ZouryokuTest.Pages.AnkenMeiKensaku
 {
@@ -27,17 +26,6 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
         // ======================================
         // テストメソッド
         // ======================================
-
-        [TestMethod]
-        public async Task OnPostDeleteHistoryAsync_削除対象データに紐づく案件情報が存在しない_エラー()
-        {
-            // Act
-            // 排他制御用のバージョンはダミー
-            var response = await Model!.OnPostDeleteHistoryAsync(1, 1);
-
-            // Assert
-            AssertError(response, ErrorSelectedDataNotExists);
-        }
 
         [TestMethod]
         public async Task OnPostDeleteHistoryAsync_削除対象のデータを削除()

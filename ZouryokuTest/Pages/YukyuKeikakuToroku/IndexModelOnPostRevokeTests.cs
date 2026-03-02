@@ -41,8 +41,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRevokeAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRevokeAsync(model, request); // Act
+            AssertErrorJson(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -71,8 +71,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRevokeAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRevokeAsync(model, request); // Act
+            AssertErrorJson(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -101,8 +101,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRevokeAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRevokeAsync(model, request); // Act
+            AssertErrorJson(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -124,8 +124,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRevokeAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRevokeAsync(model, request); // Act
+            AssertErrorJson(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -153,8 +153,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest(yukyuKeikaku.Version + 1); // バージョン不整合を発生させる
 
-            var result = await model.OnPostRevokeAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRevokeAsync(model, request); // Act
+            AssertErrors(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRevokeAsync(request); // Act
+            var result = await OnPostRevokeAsync(model, request); // Act
             await AssertUpdatesExistingRecord(loginUserSyain, result); // Assert
         }
 
@@ -206,6 +206,16 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             new IndexModel.Meisai { Ymd = null, IsTokukyu = false },
             new IndexModel.Meisai { Ymd = null, IsTokukyu = false },
             new IndexModel.Meisai { Ymd = null, IsTokukyu = false });
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Act用ヘルパーメソッド
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private static async Task<IActionResult> OnPostRevokeAsync(IndexModel model, IndexModel.YukyuKeikakuViewModel request)
+        {
+            model.LoginUsersYukyuKeikaku = request;
+            return await model.OnPostRevokeAsync();
+        }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         // Assert用ヘルパーメソッド

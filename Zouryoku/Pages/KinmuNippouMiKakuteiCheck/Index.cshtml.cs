@@ -14,8 +14,8 @@ using static Model.Enums.AchievementClassification;
 using static Model.Enums.DailyReportStatusClassification;
 using static Model.Enums.EmployeeWorkType;
 using static Zouryoku.Pages.KinmuNippouMiKakuteiCheck.IndexModel.BusyoRange;
-using static ZouryokuCommonLibrary.Utils.DateOnlyUtil;
 using static Zouryoku.Utils.JissekiKakuteiSimeUtil;
+using static ZouryokuCommonLibrary.Utils.DateOnlyUtil;
 
 namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
 {
@@ -125,7 +125,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             // ----------------------------------
 
             CanNotify = LoginInfo.User.IsCheckPendingReports
-                && await IsInNotificationPeriodAsync(db, Today, jissekiSpan.JissekiSimebiYmd, 
+                && await IsInNotificationPeriodAsync(db, Today, jissekiSpan.JissekiSimebiYmd,
                     jissekiSpan.JissekiKakuteiKigenInfo.KakuteiKigenYmd);
         }
 
@@ -285,7 +285,7 @@ namespace Zouryoku.Pages.KinmuNippouMiKakuteiCheck
             }
 
             // 次回締め日の年月
-            var nextSimebiYmd = simebi.GetEndOfMonth().AddMonths(1);
+            var nextSimebiYmd = simebi.AddMonths(1).GetEndOfMonth();
 
             var kakuteiKigenInfos = await GetKakuteiShimeKigenAsync(db, nextSimebiYmd);
 

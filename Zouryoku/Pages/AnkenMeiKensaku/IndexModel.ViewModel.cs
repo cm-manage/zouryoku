@@ -110,7 +110,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
                 public string? JuchuuNo { get; set; }
 
                 [Display(Name = "受注行番号")]
-                // NOTE: Range属性で整数値以外を禁止する
+                [RegularExpression("[0-9]+", ErrorMessage = ErrorNumberRangeMoreThanEqual)]
                 [Range(0, short.MaxValue, ErrorMessage = ErrorNumberRangeMoreThanEqual)]
                 public short? JuchuuGyoNo { get; set; }
             }

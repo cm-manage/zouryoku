@@ -34,7 +34,7 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
             // ログインユーザーの社員IDに1を加算した値を対象社員IDとすることで、存在しない社員IDを指定する
             var result = await model.OnGetSearchAsync(CreateDaysQuery(loginUserSyain.Id + 1));
 
-            AssertError(result, Const.ErrorSelectedDataNotExists); // Assert
+            AssertErrorJson(result, Const.ErrorSelectedDataNotExists); // Assert
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
             var model = CreateModel(loginUserSyain);
 
             var result = await model.OnGetSearchAsync(CreateDaysQuery(loginUserSyain.Id, FirstDay)); // Act
-            AssertError(result, string.Format(Const.ErrorRead, "日報実績")); // Assert
+            AssertErrorJson(result, string.Format(Const.ErrorRead, "日報実績")); // Assert
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
             var model = CreateModel(loginUserSyain);
 
             var result = await model.OnGetSearchAsync(CreateDaysQuery(loginUserSyain.Id, FirstDay)); // Act
-            AssertError(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
+            AssertErrorJson(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
             var model = CreateModel(loginUserSyain);
 
             var result = await model.OnGetSearchAsync(CreateDaysQuery(loginUserSyain.Id, FirstDay)); // Act
-            AssertError(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
+            AssertErrorJson(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////

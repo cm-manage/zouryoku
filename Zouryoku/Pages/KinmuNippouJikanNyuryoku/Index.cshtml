@@ -140,12 +140,15 @@
 
             // 登録
             $("#btn-register").on("click", function () {
-                const data = $('form').serializeArray();
+                const $form = $('form');
+                const data = $form.serializeArray();
 
                 //登録処理
-                sendAjax(
+                commonSendAjax(
                     toUrl("Register"),
+                    $form,
                     data,
+                    true,
                     function (resultData) {
                         emitInput(resultData);
                     },

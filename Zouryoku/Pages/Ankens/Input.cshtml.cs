@@ -121,9 +121,10 @@ namespace Zouryoku.Pages.Ankens
             // 登録前チェック
             await ValidateRegisterAsync(user);
 
-            if (!ModelState.IsValid)
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             Anken? entity;
@@ -138,7 +139,9 @@ namespace Zouryoku.Pages.Ankens
                     ModelState.AddModelError
                         (string.Empty,
                         string.Format(Const.ErrorNotFound, AnkenInfoLabel, Anken.Id));
-                    return CommonErrorResponse();
+
+                    errorJson = ModelState.ErrorJson();
+                    return errorJson!;
                 }
 
                 // 更新項目反映
@@ -165,9 +168,10 @@ namespace Zouryoku.Pages.Ankens
             // DB保存
             await SaveWithConcurrencyCheckAsync(string.Format(Const.ErrorConflictReload, AnkenInfoLabel));
 
-            if (!ModelState.IsValid)
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             // 画面に遷移
@@ -194,9 +198,10 @@ namespace Zouryoku.Pages.Ankens
             // 削除前チェック
             await ValidateDeleteAsync();
 
-            if (!ModelState.IsValid)
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             // 削除処理
@@ -208,7 +213,9 @@ namespace Zouryoku.Pages.Ankens
                 ModelState.AddModelError
                     (string.Empty,
                     string.Format(Const.ErrorNotFound, AnkenInfoLabel, Anken.Id));
-                return CommonErrorResponse();
+
+                errorJson = ModelState.ErrorJson();
+                return errorJson!;
             }
 
             // 紐づく案件情報参照履歴を削除
@@ -223,9 +230,10 @@ namespace Zouryoku.Pages.Ankens
             // DB保存
             await SaveWithConcurrencyCheckAsync(string.Format(Const.ErrorConflictReload, AnkenInfoLabel));
 
-            if (!ModelState.IsValid)
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             // 画面に遷移

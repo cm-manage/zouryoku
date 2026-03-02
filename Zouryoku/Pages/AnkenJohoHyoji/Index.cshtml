@@ -31,6 +31,7 @@
             'use strict';
 
             const $partial =  $('#anken-detail-partial');
+            const $form = $('form');
 
             // 案件ID
             const ankenId = $partial.data('anken-id');
@@ -86,14 +87,14 @@
             function onClickJuchuLink(e) {
                 e.preventDefault();
                 const id = $(this).data('id');
-                sendGetAjax(toUrl('CheckExistsJuchu'), { juchuId: id }, () => openModal(modalSettings.juchu, id), false);
+                sendGetAjax(toUrl('CheckExistsJuchu'), $form, { juchuId: id }, () => openModal(modalSettings.juchu, id), false);
             }
 
             // 顧客リンク押下時処理
             function onClickKokyakuLink(e) {
                 e.preventDefault();
                 const id = $(this).data('id');
-                sendGetAjax(toUrl('CheckExistsKokyaku'), { kokyakuId: id }, () => openModal(modalSettings.kokyaku, id), false);
+                sendGetAjax(toUrl('CheckExistsKokyaku'), $form, { kokyakuId: id }, () => openModal(modalSettings.kokyaku, id), false);
             }
 
             // 案件情報作成画面からのメッセージ受信時処理
@@ -135,6 +136,7 @@
             function renderPartial(callback) {
                 sendGetAjax(
                     toUrl('Search'),
+                    $form,
                     { id : ankenId, canAdd : canAdd },
                     callback,
                     false

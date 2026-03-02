@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Model.Data;
 using Model.Model;
 using Zouryoku.Attributes;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 
@@ -102,7 +103,12 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
                 ModelState.AddModelError
                     (string.Empty,
                     string.Format(Const.ErrorNotFound, AnkenInfoLabel, id));
-                return CommonErrorResponse();
+            }
+
+            JsonResult? errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
+            {
+                return errorJson;
             }
 
             // 画面描画用ViewModelの作成
@@ -133,7 +139,12 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
             if (!isExists)
             {
                 ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                return CommonErrorResponse();
+            }
+
+            JsonResult? errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
+            {
+                return errorJson;
             }
 
             return Success();
@@ -155,7 +166,12 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
             if (!isExists)
             {
                 ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                return CommonErrorResponse();
+            }
+
+            JsonResult? errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
+            {
+                return errorJson;
             }
 
             return Success();

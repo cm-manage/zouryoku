@@ -9,6 +9,7 @@ using Model.Extensions;
 using Model.Model;
 using Zouryoku.Attributes;
 using Zouryoku.Data;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 using static Model.Enums.ContractClassification;
@@ -214,7 +215,8 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             }
 
             ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-            return CommonErrorResponse();
+            var errorJson = ModelState.ErrorJson();
+            return errorJson!;
         }
 
         /// <summary>
@@ -251,7 +253,8 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             if (!rirekiId.HasValue)
             {
                 ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-                return CommonErrorResponse();
+                var errorJson = ModelState.ErrorJson();
+                return errorJson!;
             }
 
             // 取得した受注参照履歴情報を削除
@@ -260,7 +263,8 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             // 同時実行制御が働いたとき
             if (!ModelState.IsValid)
             {
-                return CommonErrorResponse();
+                var errorJson = ModelState.ErrorJson();
+                return errorJson!;
             }
 
             return Success();
@@ -282,7 +286,8 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
                 ModelState.Clear();
 
                 ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-                return CommonErrorResponse();
+                var errorJson = ModelState.ErrorJson();
+                return errorJson!;
             }
 
             // 登録または更新を行い、参照履歴超過分を削除
@@ -432,12 +437,12 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
                 {
                     query = query.Where(j => j.JuchuuGyoNo == model.JuchuuNo.JuchuuGyoNo);
                 }
-                // 着工開始日
+                // 着工日From
                 if (model.ChaYmd.From.HasValue)
                 {
                     query = query.Where(j => model.ChaYmd.From <= j.ChaYmd);
                 }
-                // 着工終了日
+                // 着工日To
                 if (model.ChaYmd.To.HasValue)
                 {
                     query = query.Where(j => j.ChaYmd <= model.ChaYmd.To);

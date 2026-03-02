@@ -5,6 +5,7 @@ using Model.Data;
 using Model.Extensions;
 using Model.Model;
 using Zouryoku.Attributes;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 
@@ -105,7 +106,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
             {
                 // 並び替え操作中に部署マスタが削除されている可能性があるため、存在を確認する
                 if (!updateBusyoMap.TryGetValue(bo.Id, out var b))
-                    return Error(ErrorConflictBusyo);
+                    return ErrorJson(ErrorConflictBusyo);
 
                 b.Jyunjyo = bo.Jyunjyo!.Value;
                 db.SetOriginalValue(b, b => b.Version, bo.Version);
@@ -115,10 +116,8 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
             await SaveWithConcurrencyCheckAsync(ErrorConflictBusyo);
 
             // 排他エラーが発生した場合、エラーレスポンスを返す
-            if (!ModelState.IsValid)
-            {
-                return CommonErrorResponse();
-            }
+            var errorJson = ModelState.ErrorJson();
+            if (errorJson is not null) return errorJson;
 
             return Success();
         }

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Model.Enums;
 using Model.Model;
 using System.Text;
@@ -168,6 +167,20 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             Assert.AreEqual(expectedSyukkinTime3, timeInputResult.SyukkinTime3, "SyukkinTime3 が一致しません。");
             Assert.AreEqual(expectedTaikinTime3, timeInputResult.TaikinTime3, "TaikinTime3 が一致しません。");
             Assert.AreEqual(expectedIsDairiInput, timeInputResult.IsDairiInput, "IsDairiInput が一致しません。");
+        }
+
+        /// <summary>
+        /// <paramref name="result"/> が期待するエラーメッセージであることを検証します。
+        /// </summary>
+        /// <param name="result">検証する <see cref="IActionResult"/></param>
+        /// <param name="expectedErrors">期待するエラーメッセージ配列</param>
+        private void AssertErrors(IActionResult result, params string[] expectedErrors)
+        {
+            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors, "エラーメッセージが存在しません。");
+            Assert.HasCount(1, errors, "エラーメッセージの件数が一致しません。");
+            CollectionAssert.AreEqual(expectedErrors, errors, "エラーメッセージが一致しません。");
         }
         #endregion
 
@@ -892,7 +905,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
 
             var result = await model.OnPostRegisterAsync();
 
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤1、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤1、時間と分の両方"));
         }
         #endregion
 
@@ -912,7 +925,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
 
             var result = await model.OnPostRegisterAsync();
 
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤1、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤1、時間と分の両方"));
         }
         #endregion
 
@@ -932,7 +945,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
 
             var result = await model.OnPostRegisterAsync();
 
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤1、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤1、時間と分の両方"));
         }
         #endregion
 
@@ -952,7 +965,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
 
             var result = await model.OnPostRegisterAsync();
 
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤1、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤1、時間と分の両方"));
         }
         #endregion
 
@@ -975,7 +988,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤2、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤2、時間と分の両方"));
         }
         #endregion
 
@@ -998,7 +1011,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤2、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤2、時間と分の両方"));
         }
         #endregion
 
@@ -1021,7 +1034,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤2、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤2、時間と分の両方"));
         }
         #endregion
 
@@ -1044,7 +1057,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤2、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤2、時間と分の両方"));
         }
         #endregion
 
@@ -1067,7 +1080,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤3、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤3、時間と分の両方"));
         }
         #endregion
 
@@ -1090,7 +1103,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤3、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤3、時間と分の両方"));
         }
         #endregion
 
@@ -1113,7 +1126,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤3、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤3、時間と分の両方"));
         }
         #endregion
 
@@ -1136,7 +1149,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorSet, "出退勤3、時間と分の両方"));
+            AssertErrors(result, string.Format(Const.ErrorSet, "出退勤3、時間と分の両方"));
         }
         #endregion
 
@@ -1159,7 +1172,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorInputRequired, "出退勤1、出勤と退勤の時間両方"));
+            AssertErrors(result, string.Format(Const.ErrorInputRequired, "出退勤1、出勤と退勤の時間両方"));
         }
         #endregion
 
@@ -1182,7 +1195,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorInputRequired, "出退勤1、出勤と退勤の時間両方"));
+            AssertErrors(result, string.Format(Const.ErrorInputRequired, "出退勤1、出勤と退勤の時間両方"));
         }
         #endregion
 
@@ -1205,7 +1218,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorInputRequired, "出退勤2、出勤と退勤の時間両方"));
+            AssertErrors(result, string.Format(Const.ErrorInputRequired, "出退勤2、出勤と退勤の時間両方"));
         }
         #endregion
 
@@ -1228,7 +1241,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorInputRequired, "出退勤2、出勤と退勤の時間両方"));
+            AssertErrors(result, string.Format(Const.ErrorInputRequired, "出退勤2、出勤と退勤の時間両方"));
         }
         #endregion
 
@@ -1251,7 +1264,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorInputRequired, "出退勤3、出勤と退勤の時間両方"));
+            AssertErrors(result, string.Format(Const.ErrorInputRequired, "出退勤3、出勤と退勤の時間両方"));
         }
         #endregion
 
@@ -1274,7 +1287,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorInputRequired, "出退勤3、出勤と退勤の時間両方"));
+            AssertErrors(result, string.Format(Const.ErrorInputRequired, "出退勤3、出勤と退勤の時間両方"));
         }
         #endregion
 
@@ -1297,7 +1310,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorReverse, "出退勤1、出退勤時間"));
+            AssertErrors(result, string.Format(Const.ErrorReverse, "出退勤1、出退勤時間"));
         }
         #endregion
 
@@ -1343,7 +1356,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorReverse, "出退勤2、出退勤時間"));
+            AssertErrors(result, string.Format(Const.ErrorReverse, "出退勤2、出退勤時間"));
         }
         #endregion
 
@@ -1389,7 +1402,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorReverse, "出退勤3、出退勤時間"));
+            AssertErrors(result, string.Format(Const.ErrorReverse, "出退勤3、出退勤時間"));
         }
         #endregion
 
@@ -1436,7 +1449,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, Const.ErrorNippouLocked);
+            AssertErrors(result, Const.ErrorNippouLocked);
         }
         #endregion
 
@@ -1547,7 +1560,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorOverlapInputTime, "出退勤1", "出退勤2"));
+            AssertErrors(result, string.Format(Const.ErrorOverlapInputTime, "出退勤1", "出退勤2"));
         }
         #endregion
 
@@ -1570,7 +1583,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorOverlapInputTime, "出退勤1", "出退勤3"));
+            AssertErrors(result, string.Format(Const.ErrorOverlapInputTime, "出退勤1", "出退勤3"));
         }
         #endregion
 
@@ -1593,7 +1606,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorOverlapInputTime, "出退勤2", "出退勤3"));
+            AssertErrors(result, string.Format(Const.ErrorOverlapInputTime, "出退勤2", "出退勤3"));
         }
         #endregion
 
@@ -1616,7 +1629,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorReverse, $"出退勤1と出退勤2"));
+            AssertErrors(result, string.Format(Const.ErrorReverse, $"出退勤1と出退勤2"));
         }
         #endregion
 
@@ -1639,7 +1652,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorReverse, $"出退勤2と出退勤3"));
+            AssertErrors(result, string.Format(Const.ErrorReverse, $"出退勤2と出退勤3"));
         }
         #endregion
 
@@ -1662,7 +1675,7 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             var result = await model.OnPostRegisterAsync();
 
             // Then
-            AssertError(result, string.Format(Const.ErrorReverse, $"出退勤2と出退勤3"));
+            AssertErrors(result, string.Format(Const.ErrorReverse, $"出退勤2と出退勤3"));
         }
         #endregion
     }

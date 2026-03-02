@@ -1,6 +1,5 @@
 using CommonLibrary.Extensions;
 using Model.Model;
-using ZouryokuTest.Builder;
 
 namespace ZouryokuTest.Pages.KokyakuMeiKensaku
 {
@@ -119,12 +118,13 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         {
             //Arrange
             var model = CreateModel();
-            db.Add(new KokyakuKaisyaSansyouRireki(){
+            db.Add(new KokyakuKaisyaSansyouRireki()
+            {
                 Id = 12,
                 KokyakuKaisyaId = 1,
                 SyainBaseId = 1,
                 SansyouTime = fakeTimeProvider.Now().AddDays(-1),
-                });
+            });
             db.SaveChanges();
 
             // Act

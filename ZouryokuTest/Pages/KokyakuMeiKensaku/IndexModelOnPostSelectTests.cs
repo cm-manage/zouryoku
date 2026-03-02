@@ -1,7 +1,6 @@
 using CommonLibrary.Extensions;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Model.Model;
-using ZouryokuTest.Builder;
 using static Zouryoku.Utils.Const;
 
 namespace ZouryokuTest.Pages.KokyakuMeiKensaku
@@ -30,7 +29,12 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
             var response = await model.OnPostSelectAsync(customerId);
 
             // Assert
-            AssertError(response, ErrorSelectedDataNotExists);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(ErrorSelectedDataNotExists, errors[0]);
         }
 
         /// <summary>
@@ -120,13 +124,15 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         {
             // Arrange
             var model = CreateModel();
-            db.Add(new KokyakuKaisyaSansyouRireki(){
+            db.Add(new KokyakuKaisyaSansyouRireki()
+            {
                 Id = 3,
                 SyainBaseId = 1,
                 KokyakuKaisyaId = 3,
                 SansyouTime = fakeTimeProvider.Now().AddDays(-1),
-                });
-            db.Add(new KokyakuKaisha(){
+            });
+            db.Add(new KokyakuKaisha()
+            {
                 Id = 3,
                 Name = "株式会社サンプル",
                 NameKana = "カブシキガイシャサンプル",
@@ -211,7 +217,8 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
             CreateDataForAcquire(countBefore);
             // 履歴に追加するための顧客会社を用意する
             var customerId = 100;
-            db.Add(new KokyakuKaisha(){
+            db.Add(new KokyakuKaisha()
+            {
                 Id = customerId,
                 Name = "株式会社サンプル",
                 NameKana = "カブシキガイシャサンプル",
@@ -249,7 +256,8 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
             db.SaveChanges();
             // 履歴に追加するための顧客会社を用意する
             var customerId = 100;
-            db.Add(new KokyakuKaisha(){
+            db.Add(new KokyakuKaisha()
+            {
                 Id = customerId,
                 Name = "株式会社サンプル",
                 NameKana = "カブシキガイシャサンプル",

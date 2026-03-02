@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Model.Model;
 using Zouryoku.Pages.AnkenMeiKensaku;
 using static Zouryoku.Utils.Const;
@@ -64,7 +65,12 @@ namespace ZouryokuTest.Pages.AnkenMeiKensaku
             var response = await Model!.OnGetCheckExistenceAsync(2);
 
             // Assert
-            AssertError(response, ErrorSelectedDataNotExists);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(ErrorSelectedDataNotExists, errors[0]);
         }
     }
 }

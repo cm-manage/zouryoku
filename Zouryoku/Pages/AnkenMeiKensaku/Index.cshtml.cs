@@ -238,7 +238,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
             }
 
             ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-            return CommonErrorResponse();
+            return ModelState.ErrorJson()!;
         }
 
         // -- POST ------------------------------
@@ -258,7 +258,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
             if (!await IsExistAnkenAsync(ankenId))
             {
                 ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
             await DeleteHistoryAsync(LoginInfo.User.SyainBaseId, ankenId, version);
@@ -266,7 +266,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
             // 同時実行制御が働いたとき
             if (!ModelState.IsValid)
             {
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
             return Success();
@@ -288,7 +288,7 @@ namespace Zouryoku.Pages.AnkenMeiKensaku
                 ModelState.Clear();
 
                 ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
             // 登録または更新を行い、参照履歴超過分を削除

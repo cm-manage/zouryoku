@@ -13,7 +13,9 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
     [TestClass]
     public class IndexModelTests : BaseInMemoryDbContextTest
     {
+        // TODO: DateOnly.MaxValue
         private static readonly DateOnly MaxEndYmd = new(9999, 12, 31);
+        // TODO: fakeTimeProviderの現在日付であることを分かりやすくする
         private static readonly DateOnly FixedToday = new(2025, 7, 1);
 
         private IndexModel CreateModel()
@@ -30,6 +32,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
             };
         }
 
+        // TODO: BaseInMemoryDbContextTest内に該当メソッドはありませんか
         private static object? GetData(JsonResult result)
         {
             var value = result.Value ?? throw new ArgumentException("JsonResult.Value が null です。");
@@ -37,6 +40,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
             return prop?.GetValue(value);
         }
 
+        // TODO: ヘルパーは基本的に組まない方針です
         private void SeedMasters()
         {
             var busyo1 = CreateBusyo(
@@ -60,12 +64,14 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
                 code: 1,
                 name: "ROLE-1",
                 jyunjo: 1,
+                // TODO: 列挙体のままで実装する
                 kengen: (EmployeeAuthority)((1 << 0) | (1 << 14)));
             var role2 = CreateUserRole(
                 id: 2,
                 code: 2,
                 name: "ROLE-2",
                 jyunjo: 2,
+                // TODO: 列挙体のままで実装する ビット演算は不要
                 kengen: (EmployeeAuthority)(1 << 4));
 
             db.AddRange(
@@ -165,6 +171,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
                 StartYmd = startYmd ?? new DateOnly(2025, 1, 1),
                 EndYmd = endYmd ?? MaxEndYmd,
                 Kyusyoku = 1,
+                // TODO: キャストしない そのまま入れる
                 SyucyoSyokui = (BusinessTripRole)6,
                 KingsSyozoku = "10000",
                 KintaiZokuseiId = 1,
@@ -186,6 +193,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
                 Perm15Checked = true,
             };
         }
+
+        // TODO: DisplayNameの使い方は他画面を参考にして下さい
 
         [TestMethod(DisplayName = "初期表示 目的：id未指定時に新規作成初期値と選択肢を設定すること 前提：" +
             "部署Id=1,2・勤怠属性Id=1,2・ロールId=1,2・業務種別Id=1,2が登録済み")]
@@ -583,6 +592,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
                 Code = 50,
                 Name = "ROLE-50",
                 Jyunjo = 1,
+                // TODO: ビット演算を使うとEnum化の意味がない
                 Kengen = (EmployeeAuthority)((1 << 0) | (1 << 4) | (1 << 14))
             });
             await db.SaveChangesAsync();

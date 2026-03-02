@@ -31,7 +31,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             model.ModelState.AddModelError("AnyKey", "AnyError");
             var request = CreateRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
+            var result = await OnPostRegisterAsync(model, request); // Act
 
             // Assert
             var jsonResult = Assert.IsInstanceOfType<JsonResult>(result);
@@ -58,8 +58,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
                 new IndexModel.Meisai { Ymd = new DateOnly(2024, 12, 6), IsTokukyu = false },
                 new IndexModel.Meisai { Ymd = new DateOnly(2024, 12, 7), IsTokukyu = false });
 
-            var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, Const.ErrorThereAreNotExactly2Tokukyus); // Assert
+            var result = await OnPostRegisterAsync(model, request); // Act
+            AssertErrors(result, Const.ErrorThereAreNotExactly2Tokukyus); // Assert
         }
 
         /// <summary>
@@ -81,8 +81,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
                 new IndexModel.Meisai { Ymd = new DateOnly(2024, 12, 6), IsTokukyu = false },
                 new IndexModel.Meisai { Ymd = new DateOnly(2024, 12, 7), IsTokukyu = false });
 
-            var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, Const.ErrorThereAreNotExactly2Tokukyus); // Assert
+            var result = await OnPostRegisterAsync(model, request); // Act
+            AssertErrors(result, Const.ErrorThereAreNotExactly2Tokukyus); // Assert
         }
 
         /// <summary>
@@ -104,8 +104,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
                 new IndexModel.Meisai { Ymd = new DateOnly(2024, 12, 6), IsTokukyu = false },
                 new IndexModel.Meisai { Ymd = new DateOnly(2024, 12, 7), IsTokukyu = false });
 
-            var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, Const.ErrorYmdDuplicate); // Assert
+            var result = await OnPostRegisterAsync(model, request); // Act
+            AssertErrors(result, Const.ErrorYmdDuplicate); // Assert
         }
 
         /// <summary>
@@ -133,8 +133,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateInsertRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRegisterAsync(model, request); // Act
+            AssertErrorJson(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -162,8 +162,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRegisterAsync(model, request); // Act
+            AssertErrorJson(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -192,8 +192,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRegisterAsync(model, request); // Act
+            AssertErrorJson(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -222,8 +222,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRegisterAsync(model, request); // Act
+            AssertErrorJson(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -245,8 +245,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRegisterAsync(model, request); // Act
+            AssertErrorJson(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -274,8 +274,8 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest(yukyuKeikaku.Version + 1); // バージョン不整合を発生させる
 
-            var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
+            var result = await OnPostRegisterAsync(model, request); // Act
+            AssertErrors(result, IndexModel.ErrorConflictYukyuKeikaku); // Assert
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,7 +308,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateInsertRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
+            var result = await OnPostRegisterAsync(model, request); // Act
             await AssertAddsNewRecord(loginUserSyain, yukyuNendoOfThisYear, true, result); // Assert
         }
 
@@ -338,7 +338,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateInsertRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
+            var result = await OnPostRegisterAsync(model, request); // Act
             await AssertAddsNewRecord(loginUserSyain, yukyuNendoOfThisYear, true, result); // Assert
         }
 
@@ -369,7 +369,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateInsertRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
+            var result = await OnPostRegisterAsync(model, request); // Act
             await AssertAddsNewRecord(loginUserSyain, yukyuNendoOfThisYear, true, result); // Assert
         }
 
@@ -393,7 +393,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateInsertRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
+            var result = await OnPostRegisterAsync(model, request); // Act
             await AssertAddsNewRecord(loginUserSyain, yukyuNendoOfThisYear, false, result); // Assert
         }
 
@@ -422,7 +422,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             var model = CreateModel(loginUserSyain);
             var request = CreateUpdateRequest();
 
-            var result = await model.OnPostRegisterAsync(request); // Act
+            var result = await OnPostRegisterAsync(model, request); // Act
             await AssertUpdatesExistingRecord(loginUserSyain, yukyuNendoOfThisYear, result); // Assert
         }
 
@@ -454,6 +454,16 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
             new IndexModel.Meisai { Id = 5, Ymd = new DateOnly(2024, 12, 5), IsTokukyu = false },
             new IndexModel.Meisai { Id = 6, Ymd = new DateOnly(2024, 12, 6), IsTokukyu = false },
             new IndexModel.Meisai { Id = 7, Ymd = new DateOnly(2024, 12, 7), IsTokukyu = false });
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Act用ヘルパーメソッド
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private static async Task<IActionResult> OnPostRegisterAsync(IndexModel model, IndexModel.YukyuKeikakuViewModel request)
+        {
+            model.LoginUsersYukyuKeikaku = request;
+            return await model.OnPostRegisterAsync();
+        }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         // Assert用ヘルパーメソッド

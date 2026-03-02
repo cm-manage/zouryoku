@@ -184,7 +184,7 @@
                 $("#Search_BusyoName").val(list[0].name);
 
                 // 社員リスト再検索
-                sendAjax(toUrl("Busyo"), $('form').serializeArray(), function(data) {
+                sendAjax(toUrl("Busyo"), $('form'), $('form').serializeArray(), function(data) {
                     $("#SyainView_SelectedId").empty();
                     $.each(data, function(i, item){
                         $("#SyainView_SelectedId").append(
@@ -210,7 +210,7 @@
                     jissekiDate,            // 実績日
                 });
                 
-                const url = `${'@Url.Page("../../DakokuJikanSyusei/Index")'}?${params.toString()}`;
+                const url = `${'@Url.Page("/DakokuJikanSyusei/Index")'}?${params.toString()}`;
                 const title = '打刻時間修正';
 
                 showInputModal(
@@ -272,7 +272,7 @@
                     .addClass("field-validation-valid")
                     .text("");
 
-                sendAjax(toUrl("Search"), $('form').serializeArray(), function(data) {
+                sendAjax(toUrl("Search"), $('form'), $('form').serializeArray(), function(data) {
                     $("#kinmuhyo").html(data);
                     var message = $("#warning-message").val();
                     if (message) warningMessage(message);

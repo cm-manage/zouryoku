@@ -237,7 +237,7 @@
             // 検索実行時の条件を保持する変数
             let searchedParams = [];
             // 案件新規作成が行われたことを保持するフラグ
-            let isCreatedAnken = false;
+            let isEditedAnken = false;
 
             // オートコンプリート設定
             initAutocomplete($kokyakuNameInput, URL_AUTOCOMPLETE_KOKYAKU_NAME);
@@ -374,12 +374,22 @@
                 const ankenId = $(this).data('anken-id');
 
                 // 選択された案件情報が存在するかチェック
-                sendGetAjax(URL_CHECK_EXISTENCE, {ankenId,}, () => {
+                sendGetAjax(URL_CHECK_EXISTENCE, $searchForm, {ankenId,}, async () => {
                     // パラメーター設定
                     const modalId = 'anken-info-modal';
                     const url = `${URL_ANKEN_JOHO_HYOJI}?id=${ankenId}&canAdd=@(Model.CanAdd)`;
                     const title = '案件情報画面';
-                    const closedFunc = async () => updatePartialPage(await reloadContents());
+                    const closedFunc = async () => {
+                        // 登録／更新が行われたとき
+                        if (isEditedAnken) {
+                            // 参照履歴の1ページ目を表示する
+                            updatePartialPage(await getAsync(URL_REFERENCE_HISTORY));
+                            isEditedAnken = false;
+                        } else {
+                            // 現在の検索条件で再検索を行う
+                            updatePartialPage(await reloadContents());
+                        }
+                    };
 
                     showModal(modalId, url, title, '', closedFunc, 1000, 700, MODAL_HEADER_COLOR);
                 });
@@ -393,10 +403,10 @@
                 const title = '案件情報作成';
                 const closedFunc = async function() {
                     // 新規登録が行われたとき
-                    if (isCreatedAnken) {
+                    if (isEditedAnken) {
                         // 参照履歴の1ページ目を表示する
                         updatePartialPage(await getAsync(URL_REFERENCE_HISTORY));
-                        isCreatedAnken = false;
+                        isEditedAnken = false;
                     } else {
                         // 現在の検索条件で再検索を行う
                         updatePartialPage(await reloadContents());
@@ -424,10 +434,10 @@
                         $('#sekinin-sya-base-id-input').val(event.data.selectedSyain.syainBaseId);
                         break;
 
-                    // 案件新規追加時
+                    // 案件新規追加／登録／更新時
                     case 'ankenRegistered':
-                        // 新規登録が行われたことを保持
-                        isCreatedAnken = true;
+                        // 案件情報の変更が行われたことを保持
+                        isEditedAnken = true;
                         break;
 
                     default:
@@ -453,7 +463,7 @@
              */
             function getAsync(url, params = null) {
                 return new Promise(resolve => {
-                    sendGetAjax(url, params, data => resolve(data), false);
+                    sendGetAjax(url, $searchForm, params, data => resolve(data), false);
                 });
             }
 
@@ -465,7 +475,7 @@
              */
             function postAsync(url, params = null) {
                 return new Promise(resolve => {
-                    sendAjax(url, params, data => resolve(data), false, null, true);
+                    sendAjax(url, $searchForm, params, data => resolve(data), false, null, true);
                 });
             }
 

@@ -1,0 +1,74 @@
+﻿@using System.Text.RegularExpressions
+@model Zouryoku.Pages.Shared.Components.MonthPickerModel
+
+@* JavaScript ************************************************************************************************@
+<script>
+    (function () {
+        async function setDatepicker() {
+            const id2Selector = id => '#' + id.replace(/[.\[\]]/g, '_');
+            const targetInputSelector = id2Selector('@Model.Id');
+            const $targetInput = $(targetInputSelector);
+            if ($targetInput.length === 0) console.error(`セレクタ '${targetInputSelector}' は見つかりません。`);
+    
+            // カレンダーボタンを追加
+            const disabled = $targetInput.prop("readonly") || $targetInput.prop("disabled");
+            $.MonthPicker = {
+                i18n: {
+                    year: '年',
+                    prevYear: '前年',
+                    nextYear: '翌年',
+                    next12Years: '12年進む',
+                    prev12Years: '12年戻る',
+                    nextLabel: '次へ',
+                    prevLabel: '前へ',
+                    buttonText: '月選択を開く',
+                    jumpYears: '年ジャンプ',
+                    backTo: '戻る',
+                    months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+                }
+            };
+            $targetInput.MonthPicker({
+                Button: `<button type="button" class="btn btn-primary app-btn__base" ${disabled ? 'disabled' : ''}>
+                             <i class="fa-solid fa-calendar-days"></i>
+                         </button>`,
+                MonthFormat: 'yy/mm',
+                OnAfterChooseMonth: function (selectedDate) { $targetInput.trigger('change'); },
+                OnAfterMenuOpen: function () {
+                    setTimeout(function () {
+                        $('.month-picker-previous>a')
+                            .removeClass('ui-state-disabled')
+                            .html('<span class="ui-button-icon-primary ui-icon ui-icon-circle-triangle-w app-month-btn"></span>');
+                        $('.month-picker-next>a')
+                            .removeClass('ui-state-disabled')
+                            .html('<span class="ui-button-icon-primary ui-icon ui-icon-circle-triangle-e app-month-btn"></span>');
+                    });
+                },
+                ShowOn: 'both'
+            });
+    
+            // <input>を読み取り専用に変更
+            $targetInput.prop('readonly', true);
+        }
+        if (document.readyState === 'complete') {
+            setDatepicker(); // 動的挿入に対応するため、ロード完了済みなら即実行
+        } else {
+            window.addEventListener('DOMContentLoaded', setDatepicker);
+        }
+    }());
+</script>
+
+@* CSS ******************************************************************************************************@
+<style>
+    /* 月送りボタン */
+    .app-month-btn {
+        top: -0.125rem;
+        left: -0.5rem;
+    }
+
+    /* MonthPicker のスタイル */
+    .button-1, .button-2, .button-3, .button-4, .button-5, .button-6,
+    .button-7, .button-8, .button-9, .button-10, .button-11, .button-12 {
+        /* MonthPicker のボタンのテキストが折り返されないようにする */
+        white-space: nowrap;
+    }
+</style>

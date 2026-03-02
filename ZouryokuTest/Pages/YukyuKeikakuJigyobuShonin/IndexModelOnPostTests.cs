@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Model.Model;
 using Zouryoku.Pages.YukyuKeikakuJigyobuShonin;
 using Zouryoku.Utils;
+using static Model.Enums.EmployeeAuthority;
 using static Model.Enums.LeavePlanStatus;
 
 namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
@@ -14,7 +15,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
     {
         private const string BumoncyoDisplayName = """
             ログインユーザー社員マスタ
-            「ID：1、部署ID：1、社員権限：空」
+            「ID：1、部署ID：1、社員権限：計画休暇承認(32768)」
             
             部署マスタデータあり
             「ID：1、部署Baseの部門長ID：1」
@@ -22,7 +23,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
 
         private const string JinzaiDisplayName = """
             ログインユーザー社員マスタ
-            「ID：1、部署ID：1、社員権限：計画休暇承認(16384)」
+            「ID：1、部署ID：1、社員権限：指示最終承認者(8192)」
             
             部署マスタデータあり
             「ID：1、部署Baseの部門長ID：2」
@@ -30,7 +31,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
 
         private const string BumoncyoAndJinzaiDisplayName = """
             ログインユーザー社員マスタ
-            「ID：1、部署ID：1、社員権限：計画休暇承認(16384)」
+            「ID：1、部署ID：1、社員権限：指示最終承認者(8192)」
             
             部署マスタデータあり
             「ID：1、部署Baseの部門長ID：1」
@@ -122,15 +123,16 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         {
             // Arrange
             var loginUserSyain = await SeedLoginUserSyain(true, false);
+            loginUserSyain.Kengen = 計画休暇承認;
             var yukyuNendoOfThisYear = CreateYukyuNendo(true);
             var yukyuKeikaku = CreateYukyuKeikaku(loginUserSyain, yukyuNendoOfThisYear, 事業部承認待ち);
             db.AddRange(yukyuNendoOfThisYear, yukyuKeikaku);
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
-            var request = CreateViewModelForRequest((yukyuKeikaku, false));
+            var request = CreateViewModelForRequest(false, (yukyuKeikaku, false));
 
             var result = await PostAsync(model, actionType, request); // Act
-            AssertError(result, Const.ErrorNotChecked); // Assert
+            AssertErrors(result, Const.ErrorNotChecked); // Assert
         }
 
         /// <summary>
@@ -153,15 +155,16 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             busyo1.Oya = busyo2;
             busyo2.Oya = busyo1;
             var loginUserSyain = CreateSyainWithBusyo(busyo1);
+            loginUserSyain.Kengen = 計画休暇承認;
             var yukyuNendoOfThisYear = CreateYukyuNendo(true);
             var yukyuKeikaku = CreateYukyuKeikaku(loginUserSyain, yukyuNendoOfThisYear, 事業部承認待ち);
             db.AddRange(busyo1, busyo2, loginUserSyain, yukyuNendoOfThisYear, yukyuKeikaku);
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
-            var request = CreateViewModelForRequest((yukyuKeikaku, true));
+            var request = CreateViewModelForRequest(false, (yukyuKeikaku, true));
 
             var result = await PostAsync(model, actionType, request); // Act
-            AssertError(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
+            AssertErrorJson(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
         }
 
         /// <summary>
@@ -182,15 +185,16 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             var busyo1 = CreateBusyo();
             busyo1.OyaId = 2;
             var loginUserSyain = CreateSyainWithBusyo(busyo1);
+            loginUserSyain.Kengen = 計画休暇承認;
             var yukyuNendoOfThisYear = CreateYukyuNendo(true);
             var yukyuKeikaku = CreateYukyuKeikaku(loginUserSyain, yukyuNendoOfThisYear, 事業部承認待ち);
             db.AddRange(busyo1, loginUserSyain, yukyuNendoOfThisYear, yukyuKeikaku);
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
-            var request = CreateViewModelForRequest((yukyuKeikaku, true));
+            var request = CreateViewModelForRequest(false, (yukyuKeikaku, true));
 
             var result = await PostAsync(model, actionType, request); // Act
-            AssertError(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
+            AssertErrorJson(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
         }
 
         /// <summary>
@@ -209,15 +213,16 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         {
             // Arrange
             var loginUserSyain = CreateSyainWithBusyo();
+            loginUserSyain.Kengen = 計画休暇承認;
             var yukyuNendoOfThisYear = CreateYukyuNendo(true);
             var yukyuKeikaku = CreateYukyuKeikaku(loginUserSyain, yukyuNendoOfThisYear, 事業部承認待ち);
             db.AddRange(loginUserSyain, yukyuNendoOfThisYear, yukyuKeikaku);
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
-            var request = CreateViewModelForRequest((yukyuKeikaku, true));
+            var request = CreateViewModelForRequest(false, (yukyuKeikaku, true));
 
             var result = await PostAsync(model, actionType, request); // Act
-            AssertError(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
+            AssertErrorJson(result, string.Format(Const.ErrorRead, "部署マスタ")); // Assert
         }
 
         /// <summary>
@@ -241,10 +246,10 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             db.AddRange(yukyuNendoOfThisYear, yukyuKeikaku);
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
-            var request = CreateViewModelForRequest((yukyuKeikaku, true));
+            var request = CreateViewModelForRequest(false, (yukyuKeikaku, true));
 
             var result = await PostAsync(model, actionType, request); // Act
-            AssertError(result, string.Format(Const.ErrorRegister, "ログインユーザー", "権限不適格")); // Assert
+            AssertErrorJson(result, string.Format(Const.ErrorRegister, "ログインユーザー", "権限不適格")); // Assert
         }
 
         /// <summary>
@@ -286,10 +291,10 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             // Arrange
             var loginUserSyain = await SeedLoginUserSyain(bumoncyo, jinzai);
             var model = CreateModel(loginUserSyain);
-            var request = CreateViewModelForRequest((new YukyuKeikaku(), true));
+            var request = CreateViewModelForRequest(jinzai, (new YukyuKeikaku(), true));
 
             var result = await PostAsync(model, actionType, request); // Act
-            AssertError(result, IndexModel.ErrorConflictReloadYukyuKeikaku); // Assert
+            AssertErrors(result, IndexModel.ErrorConflictReloadYukyuKeikaku); // Assert
         }
 
         /// <summary>
@@ -336,11 +341,11 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             db.AddRange(yukyuNendoOfThisYear, yukyuKeikaku);
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
-            var request = CreateViewModelForRequest((yukyuKeikaku, true));
+            var request = CreateViewModelForRequest(jinzai, (yukyuKeikaku, true));
             request.Keikakus[0].Version = yukyuKeikaku.Version + 1; // バージョン不整合を発生させる
 
             var result = await PostAsync(model, actionType, request); // Act
-            AssertError(result, IndexModel.ErrorConflictReloadYukyuKeikaku); // Assert
+            AssertErrors(result, IndexModel.ErrorConflictReloadYukyuKeikaku); // Assert
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -392,7 +397,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             db.AddRange(yukyuNendoOfThisYear, yukyuKeikaku);
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
-            var request = CreateViewModelForRequest((yukyuKeikaku, true));
+            var request = CreateViewModelForRequest(jinzai, (yukyuKeikaku, true));
 
             var result = await PostAsync(model, actionType, request); // Act
 
@@ -462,7 +467,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             db.AddRange(sameBusyoSyain, yukyuNendoOfThisYear, yukyuKeikakuChecked, yukyuKeikakuNotChecked);
             await db.SaveChangesAsync();
             var model = CreateModel(loginUserSyain);
-            var request = CreateViewModelForRequest((yukyuKeikakuChecked, true), (yukyuKeikakuNotChecked, false));
+            var request = CreateViewModelForRequest(jinzai, (yukyuKeikakuChecked, true), (yukyuKeikakuNotChecked, false));
 
             var result = await PostAsync(model, actionType, request); // Act
 

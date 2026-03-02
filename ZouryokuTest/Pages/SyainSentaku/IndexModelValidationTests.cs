@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Zouryoku.Pages.SyainSentaku;
+using Zouryoku.Utils;
 
 namespace ZouryokuTest.Pages.SyainSentaku
 {
@@ -66,19 +69,30 @@ namespace ZouryokuTest.Pages.SyainSentaku
         /// 異常系：未選択時、エラーになる
         /// </summary>
         [TestMethod]
-        public void SelectCounts_0の場合_バリデーションエラーメッセージが表示される()
+        public async Task SelectCounts_0の場合_バリデーションエラーメッセージが表示される()
         {
             // Arrange
+            var model = CreateModel();
+            model.SyainName = "社員名";
             var input = new IndexModel.ValidateSelectionRequest
             {
                 SelectCounts = 0
             };
+
             // Act
-            var (isValid, results) = ValidateModel(input);
+            var response = await model.OnPostValidateSelectionAsync(input);
+            var result = (JsonResult)response;
 
             // Assert
-            Assert.IsFalse(isValid);
-            Assert.AreEqual(ErrorMsgSyainSelectRequired, results.Single().ErrorMessage);
+            Assert.IsNotNull(result.Value);
+            var errorMessage = model.ModelState
+                .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
+                .First()
+                .ErrorMessage;
+            Assert.AreEqual(
+                string.Format(Const.ErrorSelectRequired, "社員"),
+                errorMessage
+            );
         }
     }
 }

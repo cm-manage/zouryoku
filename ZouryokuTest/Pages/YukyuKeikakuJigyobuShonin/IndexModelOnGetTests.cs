@@ -307,7 +307,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         /// 正常:
         /// #07 初期表示
         /// ログインユーザー社員マスタ
-        /// 「ID：3、部署ID：3、社員権限：空」
+        /// 「ID：3、部署ID：3、社員権限：計画休暇承認(32768)」
         ///
         /// 部署マスタデータあり
         /// 「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -330,7 +330,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         [TestMethod(DisplayName = """
             #07 初期表示
             ログインユーザー社員マスタ
-            「ID：3、部署ID：3、社員権限：空」
+            「ID：3、部署ID：3、社員権限：計画休暇承認(32768)」
 
             部署マスタデータあり
             「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -355,6 +355,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             // Arrange
             var yukyuNendoOfThisYear = CreateYukyuNendo(true);
             var syainSet = CreateSyainSet();
+            syainSet.Syain3.SetKengen(計画休暇承認);
             var yukyuKeikakuSet = InitializeSyainYukyuKeikakus(syainSet, yukyuNendoOfThisYear);
             db.Add(yukyuNendoOfThisYear);
             db.AddRange(syainSet);
@@ -372,7 +373,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         /// 正常:
         /// #08 初期表示
         /// ログインユーザー社員マスタ
-        /// 「ID：3、部署ID：3、社員権限：空」
+        /// 「ID：3、部署ID：3、社員権限：計画休暇承認(32768)」
         ///
         /// 部署マスタデータあり
         /// 「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -395,7 +396,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         [TestMethod(DisplayName = """
             #08 初期表示
             ログインユーザー社員マスタ
-            「ID：3、部署ID：3、社員権限：空」
+            「ID：3、部署ID：3、社員権限：計画休暇承認(32768)」
 
             部署マスタデータあり
             「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -420,13 +421,14 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             // Arrange
             var yukyuNendoOfNotThisYear = CreateYukyuNendo(false);
             var syainSet = CreateSyainSet();
+            syainSet.Syain3.SetKengen(計画休暇承認);
             InitializeSyainYukyuKeikakus(syainSet, yukyuNendoOfNotThisYear);
             db.Add(yukyuNendoOfNotThisYear);
             db.AddRange(syainSet);
             await db.SaveChangesAsync();
             var model = CreateModel(syainSet.Syain3);
 
-            await model.OnGetAsync(); // Act
+            await model.OnGetAsync(false); // Act
             AssertSetsEmptyList(true, model.LoginUserJigyoubuShoninViewModel); // Assert
         }
 
@@ -434,7 +436,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         /// 正常:
         /// #09 初期表示
         /// ログインユーザー社員マスタ
-        /// 「ID：3、部署ID：3、社員権限：空」
+        /// 「ID：3、部署ID：3、社員権限：計画休暇承認(32768)」
         ///
         /// 部署マスタデータあり
         /// 「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -457,7 +459,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         [TestMethod(DisplayName = """
             #09 初期表示
             ログインユーザー社員マスタ
-            「ID：3、部署ID：3、社員権限：空」
+            「ID：3、部署ID：3、社員権限：計画休暇承認(32768)」
 
             部署マスタデータあり
             「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -481,6 +483,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         {
             // Arrange
             var syainSet = CreateSyainSet();
+            syainSet.Syain3.SetKengen(計画休暇承認);
             db.AddRange(syainSet);
             await db.SaveChangesAsync();
             var model = CreateModel(syainSet.Syain3);
@@ -497,7 +500,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         /// 正常:
         /// #10 初期表示
         /// ログインユーザー社員マスタ
-        /// 「ID：5、部署ID：5、社員権限：計画休暇承認(16384)」
+        /// 「ID：5、部署ID：5、社員権限：指示最終承認者(8192)」
         ///
         /// 部署マスタデータあり
         /// 「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -517,7 +520,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         [TestMethod(DisplayName = """
             #10 初期表示
             ログインユーザー社員マスタ
-            「ID：5、部署ID：5、社員権限：計画休暇承認(16384)」
+            「ID：5、部署ID：5、社員権限：指示最終承認者(8192)」
 
             部署マスタデータあり
             「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -540,7 +543,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             var yukyuNendoOfThisYear = CreateYukyuNendo(true);
             var yukyuNendoOfNotThisYear = CreateYukyuNendo(false);
             var syainSet = CreateSyainSet();
-            syainSet.Syain5.SetKengen(計画休暇承認);
+            syainSet.Syain5.SetKengen(指示最終承認者);
             var yukyuKeikakus = InitializeSyainYukyuKeikakus(
                 // 「有給年度ID：有給年度「今年度フラグ：TRUE」のID、ステータス：人財承認待ち」
                 (syainSet.Syain7A, yukyuNendoOfThisYear, 人財承認待ち, SyainSetConst.Syain7AMonth),
@@ -560,7 +563,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             await db.SaveChangesAsync();
             var model = CreateModel(syainSet.Syain5);
 
-            await model.OnGetAsync(); // Act
+            await model.OnGetAsync(true); // Act
 
             // Assert
             AssertPopulatesListWhenJinzai(
@@ -571,7 +574,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         /// 正常:
         /// #11 初期表示
         /// ログインユーザー社員マスタ
-        /// 「ID：3、部署ID：3、社員権限：計画休暇承認(16384)」
+        /// 「ID：3、部署ID：3、社員権限：指示最終承認者(8192)」
         ///
         /// 部署マスタデータあり
         /// 「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -591,7 +594,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         [TestMethod(DisplayName = """
             #11 初期表示
             ログインユーザー社員マスタ
-            「ID：3、部署ID：3、社員権限：計画休暇承認(16384)」
+            「ID：3、部署ID：3、社員権限：指示最終承認者(8192)」
 
             部署マスタデータあり
             「ID：1、親ID：空、部署Baseの部門長ID：空」
@@ -614,7 +617,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             var yukyuNendoOfThisYear = CreateYukyuNendo(true);
             var yukyuNendoOfNotThisYear = CreateYukyuNendo(false);
             var syainSet = CreateSyainSet();
-            syainSet.Syain3.SetKengen(計画休暇承認);
+            syainSet.Syain3.SetKengen(指示最終承認者);
             var yukyuKeikakus = InitializeSyainYukyuKeikakus(
                 // 「有給年度ID：有給年度「今年度フラグ：TRUE」のID、ステータス：人財承認待ち」
                 (syainSet.Syain7A, yukyuNendoOfThisYear, 人財承認待ち, SyainSetConst.Syain7AMonth),
@@ -634,7 +637,7 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             await db.SaveChangesAsync();
             var model = CreateModel(syainSet.Syain3);
 
-            await model.OnGetAsync(); // Act
+            await model.OnGetAsync(true); // Act
 
             // Assert
             AssertPopulatesListWhenJinzai(

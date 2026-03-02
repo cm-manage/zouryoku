@@ -39,7 +39,7 @@
                             <input asp-for="SearchConditions.JuchuuNo.JuchuuNo" class="form-control app-input__textbox" />
                         </div>
                         <div class="col-2 p-1">
-                            <input class="form-control app-input__textbox" type="text" asp-for="SearchConditions.JuchuuNo.JuchuuGyoNo"/>
+                            <input class="form-control numeric app-input__textbox" type="text" asp-for="SearchConditions.JuchuuNo.JuchuuGyoNo"/>
                         </div>
                     </div>
                 </div>
@@ -390,7 +390,7 @@
                 const juchuId = $(this).data('juchu-id');
 
                 // 選択された受注情報が存在するかチェック
-                sendGetAjax(URL_CHECK_EXISTENCE, {juchuId,}, () => {
+                sendGetAjax(URL_CHECK_EXISTENCE, $searchForm, {juchuId,}, () => {
                     // パラメーター設定
                     const modalId = 'juchu-info-modal';
                     const url = `${URL_JUCHU_JOHO_HYOJI}?id=${juchuId}`;
@@ -427,7 +427,7 @@
              */
             function getAsync(url, params = null) {
                 return new Promise(resolve => {
-                    sendGetAjax(url, params, data => resolve(data), false);
+                    sendGetAjax(url, $searchForm, params, data => resolve(data), false);
                 });
             }
 
@@ -439,7 +439,7 @@
              */
             function postAsync(url, params = null) {
                 return new Promise(resolve => {
-                    sendAjax(url, params, data => resolve(data), false, null, true);
+                    sendAjax(url, $searchForm, params, data => resolve(data), false, null, true);
                 });
             }
 

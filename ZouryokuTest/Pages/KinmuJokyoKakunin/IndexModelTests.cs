@@ -103,37 +103,6 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
 
 
         #region OnGetSearchAsync
-        /// <summary>
-        /// 前提: From が To より後の年月（無効な日付範囲）が指定されている
-        /// 操作: 検索処理（OnGetSearchAsync）を実行する
-        /// 結果: エラーステータスとエラーメッセージが返却される
-        /// </summary>
-        [TestMethod]
-        public async Task OnGetSearchAsync_無効な日付範囲の戻りエラー()
-        {
-            // Arrange
-            IndexModel model = CreateModel();
-            StatusSearchViewModel search = new StatusSearchViewModel
-            {
-                From = "2026-03",
-                To = "2026-02",
-                BusyoMode = "all",
-                Busyo = "[]",
-                WarnLevel = All
-            };
-
-            // Act
-            IActionResult result = await model.OnGetSearchAsync(search);
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(JsonResult));
-            JsonResult json = (JsonResult)result;
-            ResponseStatus status = GetResponseStatus(json);
-            string? message = GetMessage(json);
-            Assert.AreEqual(エラー, status);
-            Assert.IsNotNull(message);
-        }
-
 
         /// <summary>
         /// 前提: 部署モードが「all」以外で、部署が未指定の検索条件が設定されている

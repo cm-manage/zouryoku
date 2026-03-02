@@ -1,4 +1,8 @@
+using Azure;
 using CommonLibrary.Extensions;
+using LanguageExt.Pipes;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
 using Zouryoku.Data;
@@ -1229,14 +1233,15 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[0].End.Hour = taikinHour;
             model.ViewModel.TimeSets[0].End.Minute = taikinMinute;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
-            Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorSet, "出退勤1" + "、時間と分の両方"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorSet, "出退勤1" + "、時間と分の両方"), errors[0]);
         }
 
         [TestMethod(DisplayName = "出勤時間１と退勤時間１の入力値が逆転 → IsValidがfalseで返却される")]
@@ -1302,14 +1307,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[0].End.Hour = 9;
             model.ViewModel.TimeSets[0].End.Minute = 0;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤1、出退勤時間"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤1、出退勤時間"), errors[0]);
         }
 
         [DataRow(null, 0, 16, 0, DisplayName = "出勤時間２の時が未入力 → IsValidがfalseで返却される")]
@@ -1390,14 +1397,17 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[1].End.Hour = taikinHour;
             model.ViewModel.TimeSets[1].End.Minute = taikinMinute;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorSet, "出退勤2" + "、時間と分の両方"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorSet, "出退勤2" + "、時間と分の両方"), errors[0]);
+
         }
 
         [TestMethod(DisplayName = "出勤時間２と退勤時間２の入力値が逆転 → IsValidがfalseで返却される")]
@@ -1470,14 +1480,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[1].End.Hour = 12;
             model.ViewModel.TimeSets[1].End.Minute = 0;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤2、出退勤時間"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤2、出退勤時間"), errors[0]);
         }
 
         [DataRow(null, 0, 21, 0, DisplayName = "出勤時間３の時が未入力 → IsValidがfalseで返却される")]
@@ -1564,14 +1576,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[2].End.Hour = taikinHour;
             model.ViewModel.TimeSets[2].End.Minute = taikinMinute;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorSet, "出退勤3" + "、時間と分の両方"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorSet, "出退勤3" + "、時間と分の両方"), errors[0]);
         }
 
         [TestMethod(DisplayName = "出退勤３の入力値が逆転 → IsValidがfalseで返却される")]
@@ -1650,14 +1664,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[2].End.Hour = 17;
             model.ViewModel.TimeSets[2].End.Minute = 0;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤3、出退勤時間"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤3、出退勤時間"), errors[0]);
         }
 
         [TestMethod(DisplayName = "退勤時間１と出勤時間２が逆転 → IsValidがfalseで返却される")]
@@ -1730,14 +1746,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[1].End.Hour = 8;
             model.ViewModel.TimeSets[1].End.Minute = 0;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤1と出退勤2"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤1と出退勤2"), errors[0]);
         }
 
         [TestMethod(DisplayName = "退勤時間２と出勤時間３が逆転 → IsValidがfalseで返却される")]
@@ -1816,14 +1834,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[2].End.Hour = 17;
             model.ViewModel.TimeSets[2].End.Minute = 0;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤2と出退勤3"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorReverse, "出退勤2と出退勤3"), errors[0]);
         }
 
         [TestMethod(DisplayName = "出退勤時間全てが未入力 → IsValidがfalseで返却される")]
@@ -1902,14 +1922,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[2].End.Hour = null;
             model.ViewModel.TimeSets[2].End.Minute = null;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorInputRequired, "出退勤時間"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorInputRequired, "出退勤時間"), errors[0]);
         }
 
         [DataRow(9, 11, 10, 15, 16, 18, "出退勤1", "出退勤2", DisplayName = "出退勤１と出退勤２が重複 → IsValidがfalseで返却される")]
@@ -1999,14 +2021,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[2].End.Hour = taikinHour3;
             model.ViewModel.TimeSets[2].End.Minute = 0;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorOverlapInputTime, inputLabel1, inputLabel2), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorOverlapInputTime, inputLabel1, inputLabel2), errors[0]);
         }
 
         [TestMethod(DisplayName = "入力したユーザ != 修正したユーザ かつ 社員権限が代理入力者に該当せず、修正理由が未入力 → IsValidがfalseで返却される")]
@@ -2078,14 +2102,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
 
             // 修正理由
             model.ViewModel.SyuseiReason = "";
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorInputRequired, "修正理由"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorInputRequired, "修正理由"), errors[0]);
         }
 
         [TestMethod(DisplayName = "パラメータの実績日の日報実績が確定 → IsValidがfalseで返却される")]
@@ -2184,14 +2210,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
             model.ViewModel.TimeSets[0].End.Hour = 21;
             model.ViewModel.TimeSets[0].End.Minute = 00;
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(Const.ErrorNippouLocked, entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(Const.ErrorNippouLocked, errors[0]);
         }
 
         [DataRow(true, false, DisplayName = "未削除の勤怠打刻情報の件数が異常 → IsValidがfalseで返却される")]
@@ -2351,14 +2379,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
 
             await db.SaveChangesAsync();
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorConflictReload, "打刻情報"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorConflictReload, "打刻情報"), errors[0]);
         }
 
         [TestMethod(DisplayName = "伺い申請情報の件数が異常 → IsValidがfalseで返却される")]
@@ -2504,14 +2534,16 @@ namespace ZouryokuTest.Pages.DakokuJikanSyusei
 
             await db.SaveChangesAsync();
 
-            await model.OnPostRegisterAsync();
+            var response = await model.OnPostRegisterAsync();
 
             // ================ Assert ================ //
             Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsTrue(model.ModelState.TryGetValue(string.Empty, out var entry));
-            Assert.IsNotNull(entry);
-            Assert.IsNotEmpty(entry.Errors);
-            Assert.AreEqual(string.Format(Const.ErrorConflictReload, "打刻情報"), entry.Errors[0].ErrorMessage);
+            Assert.IsInstanceOfType<JsonResult>(response);
+            var jsonResult = (JsonResult)response;
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors);
+            Assert.HasCount(1, errors);
+            Assert.AreEqual(string.Format(Const.ErrorConflictReload, "打刻情報"), errors[0]);
         }
     }
 }

@@ -390,7 +390,7 @@
             // -----------------------------------
             function sendRegisterAjaxAsync(url, data) {
                 return new Promise((resolve) => {
-                    sendRegisterAjax(url, data, (result) => resolve(result));
+                    sendRegisterAjax(url, $form, data, (result) => resolve(result));
                 });
             }
 

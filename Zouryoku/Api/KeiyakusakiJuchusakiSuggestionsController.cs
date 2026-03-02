@@ -79,7 +79,7 @@ namespace Zouryoku.Api
                 .Select(grp => new
                 {
                     Name = grp.Key,
-                    grp.First().NameKana,
+                    NameKana = grp.Min(x => x.NameKana),
                 })
                 .OrderBy(x => x.NameKana)
                 .Take(MaxSuggestionsCount)

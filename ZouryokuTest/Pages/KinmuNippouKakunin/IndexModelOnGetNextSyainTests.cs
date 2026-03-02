@@ -28,7 +28,7 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
             // ログインユーザーの社員IDに1を加算した値を対象社員IDとすることで、存在しない社員IDを指定する
             var result = await model.OnGetNextSyainAsync(CreateDaysQuery(loginUserSyain.Id + 1));
 
-            AssertError(result, Const.ErrorSelectedDataNotExists); // Assert
+            AssertErrorJson(result, Const.ErrorSelectedDataNotExists); // Assert
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////

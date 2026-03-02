@@ -1,10 +1,8 @@
 using CommonLibrary.Extensions;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.KokyakuMeiKensaku;
-using ZouryokuTest.Builder;
 using static Model.Enums.BusinessTripRole;
 
 namespace ZouryokuTest.Pages.KokyakuMeiKensaku

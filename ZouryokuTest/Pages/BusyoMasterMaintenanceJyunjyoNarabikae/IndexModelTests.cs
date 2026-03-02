@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Mvc;
 using Model.Model;
 using Zouryoku.Pages.BusyoMasterMaintenanceJyunjyoNarabikae;
+using Zouryoku.Pages.Shared;
+using static Model.Enums.ResponseStatus;
 
 namespace ZouryokuTest.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
 {
@@ -121,7 +124,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
             };
 
             var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictBusyo); // Assert
+            AssertErrorJson(result, IndexModel.ErrorConflictBusyo); // Assert
         }
 
         /// <summary>
@@ -141,7 +144,7 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
             };
 
             var result = await model.OnPostRegisterAsync(request); // Act
-            AssertError(result, IndexModel.ErrorConflictBusyo); // Assert
+            AssertErrors(result, IndexModel.ErrorConflictBusyo); // Assert
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -323,6 +326,34 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceJyunjyoNarabikae
         private static void AssertBusyoJyunjyoEqual(short expectedBusyoJyunjyo, Busyo actualBusyo)
         {
             Assert.AreEqual(expectedBusyoJyunjyo, actualBusyo.Jyunjyo, $"Jyunjyo が一致しません。");
+        }
+
+        /// <summary>
+        /// <paramref name="result"/> がエラーレスポンス (<see cref="エラー"/>) かつ
+        /// 期待するエラーメッセージであることを検証します。
+        /// </summary>
+        /// <param name="result">検証する <see cref="IActionResult"/></param>
+        /// <param name="expectedMessage">期待するエラーメッセージ</param>
+        private static void AssertErrorJson(IActionResult result, string expectedMessage)
+        {
+            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
+            var responseJson = Assert.IsInstanceOfType<ResponseJson>(jsonResult.Value, "ResponseJson が返るべきです。");
+            Assert.AreEqual(エラー, responseJson.Status, "ステータスが一致しません。");
+            Assert.AreEqual(expectedMessage, responseJson.Message, "エラーメッセージが一致しません。");
+        }
+
+        /// <summary>
+        /// <paramref name="result"/> が期待するエラーメッセージであることを検証します。
+        /// </summary>
+        /// <param name="result">検証する <see cref="IActionResult"/></param>
+        /// <param name="expectedErrors">期待するエラーメッセージ配列</param>
+        private void AssertErrors(IActionResult result, params string[] expectedErrors)
+        {
+            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors, "エラーメッセージが存在しません。");
+            Assert.HasCount(1, errors, "エラーメッセージの件数が一致しません。");
+            CollectionAssert.AreEqual(expectedErrors, errors, "エラーメッセージが一致しません。");
         }
     }
 }

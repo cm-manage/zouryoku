@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using Model.Data;
 using Model.Extensions;
 using Model.Model;
-using NPOI.SS.Formula.Functions;
 using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
 using Zouryoku.Data;
@@ -206,7 +205,7 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
             }
 
             ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-            return CommonErrorResponse();
+            return ModelState.ErrorJson()!;
         }
 
         // -- POST ------------------------------
@@ -226,14 +225,14 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
             if (!await IsExistCustomerAsync(customerId))
             {
                 ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
             await DeleteHistoryAsync(LoginInfo.User.SyainBaseId, customerId, version);
 
             // 同時実行制御が働いたとき
             if (!ModelState.IsValid)
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
 
             return Success();
         }
@@ -252,7 +251,7 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
                 ModelState.Clear();
 
                 ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
             // 登録または更新を行い、参照履歴超過分を削除

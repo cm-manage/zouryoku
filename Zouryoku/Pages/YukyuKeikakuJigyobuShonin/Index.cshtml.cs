@@ -8,6 +8,7 @@ using Model.Extensions;
 using Model.Model;
 using System.Collections.Immutable;
 using Zouryoku.Attributes;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 using static Model.Enums.LeavePlanStatus;
@@ -67,17 +68,18 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
         /// ログインユーザーの権限（人財・部門長など）に応じて検索範囲を切り替え、取得した検索結果を元に画面表示用ビュー
         /// モデルを構築し、その結果を描画した Razor Pages のページレスポンスを返却する。
         /// </summary>
+        /// <param name="finalApproval">最終承認フラグ</param>
         /// <returns>
         /// ログインユーザーの権限に応じた検索結果を描画した計画有給休暇事業部承認画面のページレスポンス。
         /// </returns>
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(bool finalApproval = false)
         {
             // ログインユーザの権限情報を取得
+            var loginUserAuthority = GetLoginUserAuthority(finalApproval);
+
             var allBusyos = await GetAllBusyosWithRelationsAsync();
             if (!TryGetBumoncyoBusyoId(LoginInfo.User.BusyoId, allBusyos, out var bumoncyoBusyoId))
                 return RedirectToPage("/ErrorMessage", new { errorMessage = ErrorReadBusyo });
-
-            var loginUserAuthority = GetLoginUserAuthority(allBusyos[bumoncyoBusyoId]);
 
             // 検索結果情報を取得
             var viewModel = await CreateViewModelAsync(loginUserAuthority, bumoncyoBusyoId, allBusyos);
@@ -121,16 +123,12 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
             // 登録前チェック
             // 複合項目チェック
             ValidateNotChecked(viewModel);
-            if (!ModelState.IsValid) return CommonErrorResponse();
+            var errorJson = ModelState.ErrorJson();
+            if (errorJson is not null) return errorJson;
 
             // ログインユーザの権限情報を取得
-            var allBusyos = await GetAllBusyosWithRelationsAsync();
-            if (!TryGetBumoncyoBusyoId(LoginInfo.User.BusyoId, allBusyos, out var bumoncyoBusyoId))
-                return CommonErrorResponseWithMessage(ErrorReadBusyo);
-
-            var loginUserAuthority = GetLoginUserAuthority(allBusyos[bumoncyoBusyoId]);
-            if (loginUserAuthority == Authority.None)
-                return CommonErrorResponseWithMessage(ErrorRegisterUnauthorized);
+            var loginUserAuthority = GetLoginUserAuthority(viewModel.FinalApproval);
+            if (loginUserAuthority == Authority.None) return ErrorJson(ErrorRegisterUnauthorized);
 
             // 更新条件の設定
             LeavePlanStatus newStatus;
@@ -145,10 +143,13 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
 
             // 計画有給休暇情報の更新
             await UpdateStatusAsync(viewModel, newStatus);
-            if (!ModelState.IsValid) return CommonErrorResponse();
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null) return errorJson;
 
             // 完了メッセージを表示（ビューで処理）
             // 画面を再表示（ビューで処理）
+            var allBusyos = await GetAllBusyosWithRelationsAsync();
+            if (!TryGetBumoncyoBusyoId(LoginInfo.User.BusyoId, allBusyos, out var bumoncyoBusyoId)) return ErrorJson(ErrorReadBusyo);
             var partialViewModel = await CreateViewModelAsync(loginUserAuthority, bumoncyoBusyoId, allBusyos);
             var data = await PartialToJsonAsync("_YukyuKeikakuList", partialViewModel);
             return SuccessJson(data: data);
@@ -157,15 +158,6 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
         // ---------------------------------------------
         // 6. private メソッド
         // ---------------------------------------------
-        /// <summary>
-        /// メッセージを指定して共通エラーレスポンスを返す
-        /// </summary>
-        private IActionResult CommonErrorResponseWithMessage(string message)
-        {
-            ModelState.AddModelError("", message);
-            return CommonErrorResponse();
-        }
-
         private async Task<Dictionary<long, Busyo>> GetAllBusyosWithRelationsAsync() => await db.Busyos
             .Include(b => b.Oya)
             .Include(b => b.BusyoBase)
@@ -175,17 +167,17 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
         /// <summary>
         /// ログインユーザーの権限 <see cref="Authority"/> を取得する
         /// </summary>
-        /// <param name="bumoncyoBusyo">ログインユーザーの所属部門長部署。</param>
+        /// <param name="finalApproval">最終承認フラグ</param>
         /// <returns>
         /// ログインユーザーの権限を表す <see cref="Authority"/>。
         /// 計画休暇承認権限を持つ場合は <see cref="Authority.Jinzai"/>、
         /// 部門長に該当する場合は <see cref="Authority.Bumoncyo"/>、
         /// それ以外の場合は <see cref="Authority.None"/> を返す。
         /// </returns>
-        private Authority GetLoginUserAuthority(Busyo bumoncyoBusyo)
+        private Authority GetLoginUserAuthority(bool finalApproval)
         {
-            if (LoginInfo.User.IsPlannedLeaveApproval) return Authority.Jinzai;
-            if (bumoncyoBusyo.BusyoBase.BumoncyoId == LoginInfo.User.SyainBaseId) return Authority.Bumoncyo;
+            if (LoginInfo.User.IsFinalInstructionApprover && finalApproval) return Authority.Jinzai;
+            if (LoginInfo.User.IsPlannedLeaveApproval) return Authority.Bumoncyo;
             return Authority.None;
         }
 
@@ -233,7 +225,7 @@ namespace Zouryoku.Pages.YukyuKeikakuJigyobuShonin
             // チェックボックスの選択が1件以上あるかチェックする。
             if (!viewModel.Keikakus.Any(k => k.IsChecked))
             {
-                ModelState.AddModelError("Keikakus", Const.ErrorNotChecked);
+                ModelState.AddModelError("", Const.ErrorNotChecked);
             }
         }
 

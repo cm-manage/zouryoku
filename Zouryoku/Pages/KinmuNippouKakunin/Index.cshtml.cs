@@ -94,13 +94,13 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
 
             // 全社員を指定可能
             var targetSyain = await GetTargetSyainAsync(targetDaysQuery.TargetSyainId);
-            if (targetSyain is null) return CommonErrorResponseWithMessage(Const.ErrorSelectedDataNotExists);
+            if (targetSyain is null) return ErrorJson(Const.ErrorSelectedDataNotExists);
 
             var (daysViewModel, errorMessage) = await CreateDaysViewModelAsync(targetYm, targetSyain);
             if (daysViewModel is null)
             {
                 // エラーメッセージを画面上部に表示する。
-                return CommonErrorResponseWithMessage(errorMessage);
+                return ErrorJson(errorMessage);
             }
 
             return SuccessJson(data: new
@@ -123,7 +123,7 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
         {
             // 現在表示中の社員を取得
             var currentSyain = await GetTargetSyainAsync(targetDaysQuery.TargetSyainId);
-            if (currentSyain is null) return CommonErrorResponseWithMessage(Const.ErrorSelectedDataNotExists);
+            if (currentSyain is null) return ErrorJson(Const.ErrorSelectedDataNotExists);
 
             // 逆順で次 (＝元の順で手前) または最初（＝元の順で最後）の社員を取得
             // 並び順序の昇順、社員番号の降順に並べつつ、現在社員よりも並び順序および社員番号が後の社員を検索する。
@@ -133,7 +133,7 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
                     (currentSyain.Jyunjyo == s.Jyunjyo &&
                     string.Compare(s.Code, currentSyain.Code) < 0),
                 q => q.OrderBy(s => s.Jyunjyo).ThenByDescending(s => s.Code));
-            if (prevSyainId is null) return CommonErrorResponseWithMessage(Const.ErrorSelectedDataNotExists);
+            if (prevSyainId is null) return ErrorJson(Const.ErrorSelectedDataNotExists);
 
             // 検索結果情報を取得（ビューで処理）
             return SuccessJson(data: prevSyainId);
@@ -151,7 +151,7 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
         {
             // 現在表示中の社員を取得
             var currentSyain = await GetTargetSyainAsync(targetDaysQuery.TargetSyainId);
-            if (currentSyain is null) return CommonErrorResponseWithMessage(Const.ErrorSelectedDataNotExists);
+            if (currentSyain is null) return ErrorJson(Const.ErrorSelectedDataNotExists);
 
             // 次または最初の社員を取得
             // 並び順序の降順、社員番号の昇順に並べつつ、現在社員よりも並び順序および社員番号が後の社員を検索する。
@@ -161,7 +161,7 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
                     (s.Jyunjyo == currentSyain.Jyunjyo &&
                     string.Compare(currentSyain.Code, s.Code) < 0), // DBでの currentSyain.Code < s.Code に相当
                 q => q.OrderByDescending(s => s.Jyunjyo).ThenBy(s => s.Code));
-            if (nextSyainId is null) return CommonErrorResponseWithMessage(Const.ErrorSelectedDataNotExists);
+            if (nextSyainId is null) return ErrorJson(Const.ErrorSelectedDataNotExists);
 
             // 検索結果情報を取得（ビューで処理）
             return SuccessJson(data: nextSyainId);
@@ -170,15 +170,6 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
         // ---------------------------------------------
         // 5. private メソッド
         // ---------------------------------------------
-        /// <summary>
-        /// メッセージを指定して共通エラーレスポンスを返す
-        /// </summary>
-        private IActionResult CommonErrorResponseWithMessage(string message)
-        {
-            ModelState.AddModelError("", message);
-            return CommonErrorResponse();
-        }
-
         /// <summary>
         /// 指定された社員IDの社員マスタ情報を取得します。指定されていない場合はログインユーザを取得します。
         /// </summary>

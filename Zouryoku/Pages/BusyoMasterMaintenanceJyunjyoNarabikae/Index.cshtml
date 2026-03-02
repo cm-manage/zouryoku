@@ -66,21 +66,31 @@
             });
 
             // 共通登録 Ajax 処理
-            // data: 省略時は form の内容をシリアライズ
+            // $data: 省略時は form
             // 戻り値: Promise オブジェクト
-            function commonSendRegisterAjax(url, data = $('form').serializeArray()) {
-                return new Promise((resolve, reject) => {
-                    sendRegisterAjax(url, data, function(result) {
+            function commonSendRegisterAjax(url, $form = $('form')) {
+                return new Promise(resolve => {
+                    sendRegisterAjax(url, $form, $form.serializeArray(), function(result) {
+                        // sendRegisterAjax の成功コールバック
                         switch (result.status) {
                             case responseStatusSuccess: // 成功
                                 resolve(result);
                                 break;
+                            case responseStatusWarning: // 警告
+                                commonConfirm(result.message, null, function () {
+                                    resolve(result);
+                                });
+                                break;
                             case responseStatusError: // エラー
+                            default: // 不正なステータス
                                 errorMessage(result.message);
                                 scrollTo(0, 0);
                                 resolve(null);
                                 break;
                         }
+                    }, function () {
+                        // sendRegisterAjax の失敗コールバック
+                        resolve(null); // sendRegisterAjax の機能によりエラー表示済みのため何もしない
                     });
                 });
             }

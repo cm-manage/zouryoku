@@ -194,13 +194,13 @@
                 const data = $('form').serializeArray();
 
                 //登録処理
-                sendAjax(
+                sendRegisterAjax(
                     toUrl("Register"),
+                    $('form'),
                     data,
                     function () {
                        closeCurrentIziModal();
-                    },
-                    false
+                    }
                 );
             });
         });

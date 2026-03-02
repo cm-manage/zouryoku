@@ -1,13 +1,11 @@
 using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
 using Model.Enums;
 using Model.Model;
 using System.Text.Json;
 using Zouryoku.Pages.BusyoSentaku;
 using Zouryoku.Utils;
-using ZouryokuTest.Pages.Builder;
 
 namespace ZouryokuTest.Pages.BusyoSentaku
 {
@@ -36,16 +34,22 @@ namespace ZouryokuTest.Pages.BusyoSentaku
             DateOnly startYmd = start == null ? DateOnly.MinValue : today.AddDays(start.Value);
             DateOnly endYmd = end == null ? DateOnly.MaxValue : today.AddDays(end.Value);
 
-            var busyo = new Busyo(){
+            var busyo = new Busyo()
+            {
                 Id = id,
                 Code = code,
                 Name = name,
-                Jyunjyo = jyunjyo,
-                OyaId = parentId,
-                IsActive = active,
+                KanaName = "ブショエー",
+                OyaCode = string.Empty,
                 StartYmd = startYmd,
                 EndYmd = endYmd,
-                };
+                Jyunjyo = jyunjyo,
+                KasyoCode = "1",
+                KaikeiCode = "1",
+                IsActive = active,
+                BusyoBaseId = 1,
+                OyaId = parentId,
+            };
 
             db.Busyos.Add(busyo);
             return busyo;
@@ -213,7 +217,7 @@ namespace ZouryokuTest.Pages.BusyoSentaku
         }
 
         /// <summary>
-        /// ⑦入力チェックエラー: 複数選択モードで 未選択→確定の場合 ObjectResult（errorsあり）が返却されること
+        /// ⑦入力チェックエラー: 複数選択モードで 未選択→確定の場合 JsonResult（errorsあり）が返却されること
         /// </summary>
         [TestMethod]
         public void OnPostValidateSelection_複数選択モードで未選択のまま確定ボタン押下_エラー()
@@ -228,16 +232,21 @@ namespace ZouryokuTest.Pages.BusyoSentaku
             };
 
             // Act
-            model.OnPostValidateSelection(input);
+            var result = model.OnPostValidateSelection(input);
 
             // Assert
-            Assert.IsFalse(model.ModelState.IsValid, "ModelStateは無効であるべきです。");
+            // Jsonが返却されることを確認
+            var json = AssertJson(result);
+            Assert.IsNotNull(json);
 
+            // ModelState にエラーメッセージが含まれていることを確認
             var errorMessage = model.ModelState
                 .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
                 .First()
                 .ErrorMessage;
+            Assert.IsNotNull(errorMessage);
 
+            // メッセージ内容を確認
             Assert.AreEqual(
                 string.Format(Const.ErrorSelectRequired, "部署"),
                 errorMessage
@@ -246,7 +255,7 @@ namespace ZouryokuTest.Pages.BusyoSentaku
 
         /// <summary>
         /// ⑧入力チェック合格: 複数選択モードで 選択→確定の場合
-        /// ObjectResult（errorsなし）が返却されること
+        /// JsonResult（errorsなし）が返却されること
         /// </summary>
         [TestMethod]
         public void OnPostValidateSelection_複数選択モードで１つ以上選択し確定ボタン押下_合格()

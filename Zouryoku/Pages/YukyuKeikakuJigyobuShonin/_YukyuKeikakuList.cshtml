@@ -1,6 +1,7 @@
 @model Zouryoku.Pages.YukyuKeikakuJigyobuShonin.IndexModel.JigyoubuShoninViewModel
 @* チェックボックスで自動生成される hidden 項目も合わせて再表示されるように、部分ビュー内に <form> を記述する必要がある *@
 <form method="post">
+    <input asp-for="FinalApproval" type="hidden" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <table class="table app-table__base table-bordered table-striped w-100 text-center">

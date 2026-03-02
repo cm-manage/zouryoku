@@ -1,6 +1,5 @@
 using Model.Model;
 using Zouryoku.Pages.KokyakuMeiKensaku;
-using ZouryokuTest.Builder;
 
 namespace ZouryokuTest.Pages.KokyakuMeiKensaku
 {
@@ -35,24 +34,27 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         private KokyakuKaisyaSansyouRireki CreateEntityForViewModelTest()
         {
             // 顧客会社参照履歴
-            var rireki = new KokyakuKaisyaSansyouRireki(){
+            var rireki = new KokyakuKaisyaSansyouRireki()
+            {
                 Version = Version,
-                };
+            };
 
             // 顧客会社
-            rireki.KokyakuKaisya = new KokyakuKaisha(){
+            rireki.KokyakuKaisya = new KokyakuKaisha()
+            {
                 Id = CustomerId,
                 Name = CustomerName,
                 NameKana = CustomerNameKana,
-                };
+            };
 
             // 社員BASE
-            rireki.KokyakuKaisya.EigyoBaseSyain = new SyainBasis(){};
+            rireki.KokyakuKaisya.EigyoBaseSyain = new SyainBasis() { };
 
             // 社員マスタ
-            rireki.KokyakuKaisya.EigyoBaseSyain.Syains.Add(new Syain(){
+            rireki.KokyakuKaisya.EigyoBaseSyain.Syains.Add(new Syain()
+            {
                 Name = SalesEmpName,
-                });
+            });
 
             return rireki;
         }
@@ -328,7 +330,7 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
         {
             // Arrange
             // 顧客会社の情報を持たない参照履歴のエンティティを引数に渡す
-            var history = new KokyakuKaisyaSansyouRireki(){};
+            var history = new KokyakuKaisyaSansyouRireki() { };
             var viewModel = new CustomerViewModel(history);
 
             // Act / Assert

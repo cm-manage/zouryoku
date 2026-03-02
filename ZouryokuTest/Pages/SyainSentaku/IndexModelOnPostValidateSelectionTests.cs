@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Pages.SyainSentaku;
@@ -76,13 +77,15 @@ namespace ZouryokuTest.Pages.SyainSentaku
             {
                 SelectCounts = 0
             };
-            model.ModelState.AddModelError(nameof(input), Const.ErrorSelectRequired);
+
             // Act
             var response = await model.OnPostValidateSelectionAsync(input);
+            var result = (JsonResult)response;
 
             // Assert
-            var result = (ObjectResult)response;
-            Assert.AreEqual(エラー, GetResponseStatus(result));
+            var errorJson = GetErrors(result, string.Empty);
+            Assert.IsNotNull(errorJson);
+            Assert.AreEqual(ErrorMsgSyainSelectRequired, errorJson[0]);
         }
 
     }

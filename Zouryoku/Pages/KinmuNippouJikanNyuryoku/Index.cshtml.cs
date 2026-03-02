@@ -9,6 +9,7 @@ using Model.Model;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 using static Model.Enums.ApprovalStatus;
@@ -305,11 +306,8 @@ namespace Zouryoku.Pages.KinmuNippouJikanNyuryoku
         {
             // 関連性チェック
             ValidateRegister();
-
-            if (!ModelState.IsValid)
-            {
-                return CommonErrorResponse();
-            }
+            var errorJson = ModelState.ErrorJson();
+            if (errorJson is not null) return errorJson;
 
             var nippouOutput = ConvertTimeInputResult();
             return SuccessJson(data: nippouOutput);

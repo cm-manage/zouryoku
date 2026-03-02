@@ -11,6 +11,7 @@ using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
 using Zouryoku.Data;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
 using static Model.Enums.ApprovalStatus;
@@ -319,9 +320,10 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             // 関連性チェック
             ValidateRegister(isNotDairi);
 
-            if (!ModelState.IsValid)
+            JsonResult? errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             // 更新する勤怠打刻の取得
@@ -342,9 +344,10 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             // バージョンの件数を確認
             ValidateVersions(workingHours, ukagaishinseis);
 
-            if (!ModelState.IsValid)
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             // 勤怠打刻に伺いヘッダIDが登録されている場合、伺いヘッダ/伺い申請を削除する
@@ -363,10 +366,11 @@ namespace Zouryoku.Pages.DakokuJikanSyusei
             RegisterWorkingHoursAsync(workingHours, isNotDairi);
 
             await SaveWithConcurrencyCheckAsync(string.Format(Const.ErrorConflictReload, "打刻情報"));
-            
-            if (!ModelState.IsValid)
+
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             return Success();

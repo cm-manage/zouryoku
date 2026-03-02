@@ -38,7 +38,7 @@
 
 @section InputScripts {
     <script>
-        $(function () {
+        $(function() {
             // ==================================
             // 定数
             // ==================================
@@ -116,7 +116,7 @@
             // カードクリック時
             $(document).on('click', SELECTOR_SELECT_CUSTOMER, async function() {
                 // 参照モードでないなら処理を行わない
-                if(!canCardClick)
+                if (!canCardClick)
                     return;
 
                 // 参照履歴テーブルに履歴を追加
@@ -219,7 +219,7 @@
                 const customerId = $(this).data('customer-id');
 
                 // 選択された顧客情報が存在するかチェック
-                sendGetAjax(URL_CHECK_EXISTENCE, {customerId,}, () => {
+                sendGetAjax(URL_CHECK_EXISTENCE, $searchForm, { customerId, }, () => {
                     // 存在したときは顧客情報画面を表示
                     showModal(
                         'kokyaku-info-modal',
@@ -246,7 +246,7 @@
              */
             function getAsync(url, params = null) {
                 return new Promise(resolve => {
-                    sendGetAjax(url, params, data => resolve(data), false);
+                    sendGetAjax(url, $searchForm, params, data => resolve(data), false);
                 });
             }
 
@@ -258,7 +258,7 @@
              */
             function postAsync(url, params = null) {
                 return new Promise(resolve => {
-                    sendAjax(url, params, data => resolve(data), false, null, true);
+                    sendAjax(url, $searchForm, params, data => resolve(data), false, null, true);
                 });
             }
 

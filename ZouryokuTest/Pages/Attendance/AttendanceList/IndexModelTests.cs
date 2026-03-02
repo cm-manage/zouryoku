@@ -44,6 +44,7 @@ namespace ZouryokuTest.Pages.Attendance.AttendanceList
                 TempData = GetTempData()
             };
 
+            // テスト日設定
             fakeTimeProvider.SetLocalNow(new(2026, 2, 10));
             // セッション保存
             model.HttpContext.Session.Set(new LoginInfo { User = loginUser });

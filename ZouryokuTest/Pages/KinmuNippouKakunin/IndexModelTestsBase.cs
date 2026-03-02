@@ -1,6 +1,4 @@
-using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Time.Testing;
@@ -373,6 +371,20 @@ namespace ZouryokuTest.Pages.KinmuNippouKakunin
             var redirect = Assert.IsInstanceOfType<RedirectToPageResult>(actualResult);
             Assert.AreEqual("/ErrorMessage", redirect.PageName);
             Assert.AreEqual(expectedErrorMessage, redirect.RouteValues?["errorMessage"]);
+        }
+
+        /// <summary>
+        /// <paramref name="result"/> がエラーレスポンス (<see cref="エラー"/>) かつ
+        /// 期待するエラーメッセージであることを検証します。
+        /// </summary>
+        /// <param name="result">検証する <see cref="IActionResult"/></param>
+        /// <param name="expectedMessage">期待するエラーメッセージ</param>
+        protected static void AssertErrorJson(IActionResult result, string expectedMessage)
+        {
+            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
+            var responseJson = Assert.IsInstanceOfType<ResponseJson>(jsonResult.Value, "ResponseJson が返るべきです。");
+            Assert.AreEqual(エラー, responseJson.Status, "ステータスが一致しません。");
+            Assert.AreEqual(expectedMessage, responseJson.Message, "エラーメッセージが一致しません。");
         }
     }
 }

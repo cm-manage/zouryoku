@@ -141,7 +141,7 @@
             function updateView() {
                 errorClear();
                 $targetYmInput.val($targetYm.val().slice(0, 7).replace(/-/g, '/')); // 年月表示「YYYY/MM」を更新する
-                sendGetAjax(toUrl('Search'), $searchForm.serializeArray(), function (data) {
+                sendGetAjax(toUrl('Search'), $searchForm, $searchForm.serializeArray(), function (data) {
                     $targetSyainHierarchicalBusyoName.text(data.targetSyainJoinedBusyoName);
                     $targetSyainName.text(data.targetSyainName);
                     $targetSyainInput.val(data.targetSyainName);

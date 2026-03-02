@@ -6,6 +6,7 @@ using Model.Data;
 using Model.Model;
 using System.ComponentModel.DataAnnotations;
 using Zouryoku.Attributes;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using static Zouryoku.Utils.Const;
 
@@ -85,13 +86,14 @@ namespace Zouryoku.Pages.BusyoSentaku
         {
             if (input.SelectedIds == null || input.SelectedIds.Count == 0)
             {
-                ModelState.AddModelError(nameof(input.SelectedIds),
+                ModelState.AddModelError(string.Empty,
                     string.Format(ErrorSelectRequired, "部署"));
             }
 
-            if (!ModelState.IsValid)
+            var errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             return SuccessJson();

@@ -92,9 +92,10 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
 
             // 業務ルールチェック
             await ValidateBusinessRulesAsync();
-            if (!ModelState.IsValid)
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             // 新規作成・更新処理
@@ -113,9 +114,10 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
             await SaveWithConcurrencyCheckAsync(string.Format(Const.ErrorConflictReload, "部署"));
 
             // 排他エラー
-            if (!ModelState.IsValid)
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                return CommonErrorResponse();
+                return errorJson;
             }
 
             return Success();
@@ -148,7 +150,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
             if (existsSameCode)
             {
                 ModelState.AddModelError(
-                    nameof(Input.BusyoCode),
+                    string.Empty,
                     string.Format(Const.ErrorUnique, "部署番号", Input.BusyoCode)
                 );
             }
@@ -165,7 +167,7 @@ namespace Zouryoku.Pages.BusyoMasterMaintenanceTouroku
             if (HasRirekiChange(busyo) && Input.ApplyDate < Input.StartYmd)
             {
                 ModelState.AddModelError(
-                    nameof(Input.ApplyDate),
+                    string.Empty,
                     string.Format(Const.ErrorMoreThanDateTime, "適用開始日", "有効開始日")
                 );
             }

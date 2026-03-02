@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Model.Enums;
 using Model.Model;
 using Zouryoku.Data;
@@ -203,9 +202,13 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
                 loginUserSyain = CreateSyainWithBusyo(bumoncyoSyain.Busyo);
                 db.AddRange(bumoncyoSyain, loginUserSyain);
             }
+            if (bumoncyo)
+            {
+                loginUserSyain.Kengen |= 計画休暇承認;
+            }
             if (jinzai)
             {
-                loginUserSyain.Kengen = 計画休暇承認;
+                loginUserSyain.Kengen |= 指示最終承認者;
             }
             await db.SaveChangesAsync();
             return loginUserSyain;
@@ -219,8 +222,9 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
         /// 更新系リクエストの作成
         /// </summary>
         protected static IndexModel.JigyoubuShoninViewModel CreateViewModelForRequest(
+            bool jinzai,
             params IEnumerable<(YukyuKeikaku yukyuKeikaku, bool isChecked)> keikakus) => new IndexModel.JigyoubuShoninViewModel(
-                default,
+                jinzai ? IndexModel.Authority.Jinzai : IndexModel.Authority.Bumoncyo,
                 [.. keikakus.Select(k => new IndexModel.Keikaku
                 {
                     Id = k.yukyuKeikaku.Id,
@@ -270,6 +274,34 @@ namespace ZouryokuTest.Pages.YukyuKeikakuJigyobuShonin
             var redirect = Assert.IsInstanceOfType<RedirectToPageResult>(actualResult);
             Assert.AreEqual("/ErrorMessage", redirect.PageName);
             Assert.AreEqual(expectedErrorMessage, redirect.RouteValues?["errorMessage"]);
+        }
+
+        /// <summary>
+        /// <paramref name="result"/> がエラーレスポンス (<see cref="エラー"/>) かつ
+        /// 期待するエラーメッセージであることを検証します。
+        /// </summary>
+        /// <param name="result">検証する <see cref="IActionResult"/></param>
+        /// <param name="expectedMessage">期待するエラーメッセージ</param>
+        protected static void AssertErrorJson(IActionResult result, string expectedMessage)
+        {
+            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
+            var responseJson = Assert.IsInstanceOfType<ResponseJson>(jsonResult.Value, "ResponseJson が返るべきです。");
+            Assert.AreEqual(エラー, responseJson.Status, "ステータスが一致しません。");
+            Assert.AreEqual(expectedMessage, responseJson.Message, "エラーメッセージが一致しません。");
+        }
+
+        /// <summary>
+        /// <paramref name="result"/> が期待するエラーメッセージであることを検証します。
+        /// </summary>
+        /// <param name="result">検証する <see cref="IActionResult"/></param>
+        /// <param name="expectedErrors">期待するエラーメッセージ配列</param>
+        protected void AssertErrors(IActionResult result, params string[] expectedErrors)
+        {
+            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
+            var errors = GetErrors(jsonResult, string.Empty);
+            Assert.IsNotNull(errors, "エラーメッセージが存在しません。");
+            Assert.HasCount(1, errors, "エラーメッセージの件数が一致しません。");
+            CollectionAssert.AreEqual(expectedErrors, errors, "エラーメッセージが一致しません。");
         }
     }
 }

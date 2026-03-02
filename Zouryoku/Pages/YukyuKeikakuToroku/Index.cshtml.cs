@@ -47,7 +47,8 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
         /// <summary>
         /// ログインユーザーの今年度の有給休暇計画モデルを取得または設定します。
         /// </summary>
-        public YukyuKeikakuViewModel LoginUsersYukyuKeikaku { get; private set; } = YukyuKeikakuViewModel.Empty;
+        [BindProperty]
+        public YukyuKeikakuViewModel LoginUsersYukyuKeikaku { get; set; } = YukyuKeikakuViewModel.Empty;
 
         // ---------------------------------------------
         // 4. OnGet
@@ -68,7 +69,7 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
         /// イベント仕様_申請（ボタン押下）
         /// イベント仕様_再申請（ボタン押下）
         /// </summary>
-        public async Task<IActionResult> OnPostRegisterAsync(YukyuKeikakuViewModel loginUsersYukyuKeikaku)
+        public async Task<IActionResult> OnPostRegisterAsync()
         {
             // 登録前チェック
             // 単項目チェック
@@ -76,9 +77,10 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
             if (errorJson is not null) return errorJson;
 
             // 複合項目チェック
-            ValidateTokukyuCountIsExactly2(loginUsersYukyuKeikaku);
-            ValidateYmdNoDuplicate(loginUsersYukyuKeikaku);
-            if (!ModelState.IsValid) return CommonErrorResponse();
+            ValidateTokukyuCountIsExactly2(LoginUsersYukyuKeikaku);
+            ValidateYmdNoDuplicate(LoginUsersYukyuKeikaku);
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null) return errorJson;
 
             // 登録・更新条件の設定
             var newStatus = 事業部承認待ち;
@@ -88,23 +90,24 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
 
             // 同時実行制御
             // 取得時と登録時でレコードの有無が不整合な場合は同時実行エラーとする
-            if (!IsConsistentWithExistingData(yukyuKeikaku, loginUsersYukyuKeikaku))
-                return CommonErrorResponseWithMessage(ErrorConflictYukyuKeikaku);
+            if (!IsConsistentWithExistingData(yukyuKeikaku, LoginUsersYukyuKeikaku)) return ErrorJson(ErrorConflictYukyuKeikaku);
 
             // 計画有給休暇情報の登録・更新
             if (yukyuKeikaku is null)
             {
-                await InsertNewYukyuKeikaku(loginUsersYukyuKeikaku, newStatus);
+                await InsertNewYukyuKeikaku(LoginUsersYukyuKeikaku, newStatus);
             }
             else
             {
-                UpdateExistingYukyuKeikaku(yukyuKeikaku, loginUsersYukyuKeikaku, newStatus);
-                UpdateExistingYukyuKeikakuMeisais(yukyuKeikaku.YukyuKeikakuMeisais, loginUsersYukyuKeikaku);
-                if (!ModelState.IsValid) return CommonErrorResponse();
+                UpdateExistingYukyuKeikaku(yukyuKeikaku, LoginUsersYukyuKeikaku, newStatus);
+                UpdateExistingYukyuKeikakuMeisais(yukyuKeikaku.YukyuKeikakuMeisais, LoginUsersYukyuKeikaku);
+                errorJson = ModelState.ErrorJson();
+                if (errorJson is not null) return errorJson;
             }
 
             await SaveWithConcurrencyCheckAsync(ErrorConflictYukyuKeikaku);
-            if (!ModelState.IsValid) return CommonErrorResponse();
+            errorJson = ModelState.ErrorJson();
+            if (errorJson is not null) return errorJson;
 
             // 完了メッセージを表示（ビューで処理）
             // 画面を表示（ビューで処理）
@@ -114,7 +117,7 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
         /// <summary>
         /// イベント仕様_取下げ（ボタン押下）
         /// </summary>
-        public async Task<IActionResult> OnPostRevokeAsync(YukyuKeikakuViewModel loginUsersYukyuKeikaku)
+        public async Task<IActionResult> OnPostRevokeAsync()
         {
             // 取下げ時はバリデーション不要のため、ModelStateをクリアする
             ModelState.Clear();
@@ -127,12 +130,13 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
 
             // 同時実行制御
             // 取得時と登録時でレコードの有無が不整合な場合は同時実行エラーとする
-            if (yukyuKeikaku is null) return CommonErrorResponseWithMessage(ErrorConflictYukyuKeikaku);
+            if (yukyuKeikaku is null) return ErrorJson(ErrorConflictYukyuKeikaku);
 
             // 計画有給休暇情報の更新
-            UpdateExistingYukyuKeikaku(yukyuKeikaku, loginUsersYukyuKeikaku, newStatus);
+            UpdateExistingYukyuKeikaku(yukyuKeikaku, LoginUsersYukyuKeikaku, newStatus);
             await SaveWithConcurrencyCheckAsync(ErrorConflictYukyuKeikaku);
-            if (!ModelState.IsValid) return CommonErrorResponse();
+            var errorJson = ModelState.ErrorJson();
+            if (errorJson is not null) return errorJson;
 
             // 完了メッセージを表示（ビューで処理）
             // 画面を表示（ビューで処理）
@@ -156,15 +160,6 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
         {
             var recordExists = yukyuKeikaku is not null;
             return recordExists == yukyuKeikakuViewModel.RecordExists;
-        }
-
-        /// <summary>
-        /// メッセージを指定して共通エラーレスポンスを返す
-        /// </summary>
-        private IActionResult CommonErrorResponseWithMessage(string message)
-        {
-            ModelState.AddModelError("", message);
-            return CommonErrorResponse();
         }
 
         // ---------------------------------------------
@@ -300,7 +295,7 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
             var tokukyuCount = yukyuKeikakuViewModel.Meisais.Count(m => m.IsTokukyu);
             if (tokukyuCount != RequiredTokukyuCount)
             {
-                ModelState.AddModelError(nameof(yukyuKeikakuViewModel.Meisais), Const.ErrorThereAreNotExactly2Tokukyus);
+                ModelState.AddModelError("", Const.ErrorThereAreNotExactly2Tokukyus);
             }
         }
 
@@ -316,7 +311,7 @@ namespace Zouryoku.Pages.YukyuKeikakuToroku
 
             if (duplicateExists)
             {
-                ModelState.AddModelError(nameof(yukyuKeikakuViewModel.Meisais), Const.ErrorYmdDuplicate);
+                ModelState.AddModelError("", Const.ErrorYmdDuplicate);
             }
         }
     }

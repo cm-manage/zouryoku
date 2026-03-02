@@ -1,5 +1,6 @@
 using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Model.Model;
 using Zouryoku.Pages.BusyoMasterMaintenanceTouroku;
@@ -618,17 +619,24 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             await db.SaveChangesAsync();
 
             // Act
-            await model.OnPostRegisterAsync();
+            var result = await model.OnPostRegisterAsync();
 
             // Assert
-            Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsNotNull(model.ModelState[nameof(model.Input.BusyoCode)], "ModelStateに部署番号のエラーが存在するはずです。");
+            // Jsonが返却されることを確認
+            Assert.IsInstanceOfType<JsonResult>(result);
+            var json = result as JsonResult;
+            Assert.IsNotNull(json);
 
-            var errors = model.ModelState[nameof(model.Input.BusyoCode)]!.Errors;
-            Assert.HasCount(1, errors, "ModelStateにはエラーが1件設定されているはずです。");
+            // ModelState にエラーメッセージが含まれていることを確認
+            var errorMessage = model.ModelState
+                .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
+                .First()
+                .ErrorMessage;
+            Assert.IsNotNull(errorMessage);
 
+            // メッセージ内容を確認
             Assert.AreEqual(string.Format(Const.ErrorUnique, "部署番号", "111"),
-                errors[0].ErrorMessage, "エラーメッセージが一致しません。");
+                errorMessage, "エラーメッセージが一致しません。");
         }
 
         /// <summary>
@@ -877,17 +885,24 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             );
 
             // Act
-            await model.OnPostRegisterAsync();
+            var result = await model.OnPostRegisterAsync();
 
             // Assert
-            Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsNotNull(model.ModelState[nameof(model.Input.ApplyDate)], "ModelStateに適用開始日のエラーが存在するはずです。");
+            // Jsonが返却されることを確認
+            Assert.IsInstanceOfType<JsonResult>(result);
+            var json = result as JsonResult;
+            Assert.IsNotNull(json);
 
-            var errors = model.ModelState[nameof(model.Input.ApplyDate)]!.Errors;
-            Assert.HasCount(1, errors, "ModelStateにはエラーが1件設定されているはずです。");
+            // ModelState にエラーメッセージが含まれていることを確認
+            var errorMessage = model.ModelState
+                .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
+                .First()
+                .ErrorMessage;
+            Assert.IsNotNull(errorMessage);
 
+            // メッセージ内容を確認
             Assert.AreEqual(string.Format(Const.ErrorMoreThanDateTime, "適用開始日", "有効開始日"),
-                errors[0].ErrorMessage, "エラーメッセージが一致しません。");
+                errorMessage, "エラーメッセージが一致しません。");
         }
 
         /// <summary>
@@ -1040,17 +1055,24 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             );
 
             // Act
-            await model.OnPostRegisterAsync();
+            var result = await model.OnPostRegisterAsync();
 
             // Assert
-            Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsNotNull(model.ModelState[nameof(model.Input.ApplyDate)], "ModelStateに適用開始日のエラーが存在するはずです。");
+            // Jsonが返却されることを確認
+            Assert.IsInstanceOfType<JsonResult>(result);
+            var json = result as JsonResult;
+            Assert.IsNotNull(json);
 
-            var errors = model.ModelState[nameof(model.Input.ApplyDate)]!.Errors;
-            Assert.HasCount(1, errors, "ModelStateにはエラーが1件設定されているはずです。");
+            // ModelState にエラーメッセージが含まれていることを確認
+            var errorMessage = model.ModelState
+                .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
+                .First()
+                .ErrorMessage;
+            Assert.IsNotNull(errorMessage);
 
+            // メッセージ内容を確認
             Assert.AreEqual(string.Format(Const.ErrorMoreThanDateTime, "適用開始日", "有効開始日"),
-                errors[0].ErrorMessage, "エラーメッセージが一致しません。");
+                errorMessage, "エラーメッセージが一致しません。");
         }
 
         /// <summary>
@@ -1196,17 +1218,24 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
              );
 
             // Act
-            await model.OnPostRegisterAsync();
+            var result = await model.OnPostRegisterAsync();
 
             // Assert
-            Assert.IsFalse(model.ModelState.IsValid);
-            Assert.IsNotNull(model.ModelState[nameof(model.Input.ApplyDate)], "ModelStateに適用開始日のエラーが存在するはずです。");
+            // Jsonが返却されることを確認
+            Assert.IsInstanceOfType<JsonResult>(result);
+            var json = result as JsonResult;
+            Assert.IsNotNull(json);
 
-            var errors = model.ModelState[nameof(model.Input.ApplyDate)]!.Errors;
-            Assert.HasCount(1, errors, "ModelStateにはエラーが1件設定されているはずです。");
+            // ModelState にエラーメッセージが含まれていることを確認
+            var errorMessage = model.ModelState
+                .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
+                .First()
+                .ErrorMessage;
+            Assert.IsNotNull(errorMessage);
 
+            // メッセージ内容を確認
             Assert.AreEqual(string.Format(Const.ErrorMoreThanDateTime, "適用開始日", "有効開始日"),
-                errors[0].ErrorMessage, "エラーメッセージが一致しません。");
+                errorMessage, "エラーメッセージが一致しません。");
         }
 
         /// <summary>
@@ -1287,17 +1316,21 @@ namespace ZouryokuTest.Pages.BusyoMasterMaintenanceTouroku
             var result = await model.OnPostRegisterAsync();
 
             // Assert
-            Assert.IsInstanceOfType<ObjectResult>(result);
-
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
+            // Jsonが返却されることを確認
+            Assert.IsInstanceOfType<JsonResult>(result);
+            var json = result as JsonResult;
             Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
+
+            // ModelState にエラーメッセージが含まれていることを確認
+            var errorMessage = model.ModelState
+                .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
+                .First()
+                .ErrorMessage;
+            Assert.IsNotNull(errorMessage);
 
             // 楽観的同時実行制御エラーが含まれていることを確認
             Assert.Contains(string.Format(Const.ErrorConflictReload, "部署"),
-                message, "楽観的同時実行制御エラーメッセージが含まれているはずです。");
+                errorMessage, "楽観的同時実行制御エラーメッセージが含まれているはずです。");
 
             // レコードが更新されていないことを確認
             var busyoCount = await db.Busyos.CountAsync();

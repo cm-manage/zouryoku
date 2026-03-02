@@ -19,6 +19,7 @@ namespace Zouryoku.Services
         private const string ParamIsDairiSinsei = "IsDairiSinsei";
         private const string ParamCanAdd = "CanAdd";
         private const string ParamCanCardClick = "CanCardClick";
+        private const string ParamFinalApproval = "FinalApproval";
 
         // メニュータイトル
         private const string TopTitle = "トップページ";
@@ -127,8 +128,8 @@ namespace Zouryoku.Services
                 .AddChildMenu(有給_振替休暇確認, IconCalendarCheck, false)
                 .AddChildMenu(振替休暇取得管理, IconCalendarPlus, false)
                 .AddChildMenu(計画有給休暇登録, IconCalendarEdit, false)
-                .AddChildMenu(計画有給休暇事業部承認, IconUserCheck, false)
-                .AddChildMenu(計画有給休暇最終承認, IconUserShield, false);
+                .AddChildMenu(計画有給休暇事業部承認, IconUserCheck, false, CreateYukyuKeikakuJigyobuShoninParams(false))
+                .AddChildMenu(計画有給休暇最終承認, IconUserShield, false, CreateYukyuKeikakuJigyobuShoninParams(true));
 
             // 検索
             kensakuParentMenu
@@ -212,6 +213,12 @@ namespace Zouryoku.Services
             => new()
             {
                 { ParamIsDairiSinsei, isDairiSinsei.ToString() }
+            };
+
+        private static Dictionary<string, string> CreateYukyuKeikakuJigyobuShoninParams(bool finalApproval)
+            => new()
+            {
+                { ParamFinalApproval, finalApproval.ToString() }
             };
 
         /// <summary>

@@ -11,7 +11,7 @@
 }
 <partial name="_ZouryokuHeader" />
 
-<div class="align-self-center m-auto w-75 app-screen--search">
+<div class="align-self-center m-auto app-screen--search">
     <div class="app-area__search-criteria">
         <form id="nippou-search-form">
             @* 部署に関する検索条件部分 *@
@@ -41,7 +41,7 @@
                     }
                 </div>
                 @* 部署選択 *@
-                <div class="col">
+                <div class="col-5">
                     <div class="input-group">
                         <input id="busyo-name-input" class="form-control app-input__textbox" type="text" asp-for="SearchConditions.Busyo.Name" readonly />
                         <button id="select-busyo-btn" class="btn btn-primary app-btn__base" type="button">
@@ -108,8 +108,8 @@
             // ----------------------------------
             const $searchForm = $(SELECTOR_SEARCH_FORM);
 
-            // 部署選択ラジオボタンで「全社」を選択できるかどうか
-            const CAN_SELECT_ALL = @(Model.LoginInfo.User.IsCheckPendingReports.ToString().ToLower());
+            // 「勤務日報未確定チェック」権限の有無
+            const IS_CHECK_PENDING_REPORTS = @(Model.LoginInfo.User.IsCheckPendingReports.ToString().ToLower());
 
             // ==================================
             // イベント
@@ -119,7 +119,9 @@
             // ----------------------------------
 
             // 部署選択ラジオボタンの「全社」の選択可否を反映
-            $(`#busyo-radio-@BusyoRange.全社`).prop('disabled', !CAN_SELECT_ALL);
+            $(`#busyo-radio-@BusyoRange.全社`).prop('disabled', !IS_CHECK_PENDING_REPORTS);
+            // 部署選択ボタンのクリック可否を反映
+            $('#select-busyo-btn').prop('disabled', !IS_CHECK_PENDING_REPORTS);
 
             // バリデーション設定
             initValidation(SELECTOR_SEARCH_FORM);
@@ -224,7 +226,7 @@
              */
             function getAsync(url, params = null) {
                 return new Promise(resolve => {
-                    sendGetAjax(url, params, data => resolve(data), false);
+                    sendGetAjax(url, $('#nippou-search-form'), params, data => resolve(data), false);
                 });
             }
         });

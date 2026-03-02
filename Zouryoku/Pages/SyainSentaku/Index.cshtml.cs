@@ -112,7 +112,6 @@ namespace Zouryoku.Pages.SyainSentaku
         public class ValidateSelectionRequest
         {
             [Display(Name = "社員")]
-            [Range(1, int.MaxValue, ErrorMessage = Const.ErrorSelectRequired)]
             public int SelectCounts { get; set; }
 
             public long BusyoId { get; set; }
@@ -329,9 +328,18 @@ namespace Zouryoku.Pages.SyainSentaku
 
             ModelState.Remove(nameof(SyainName));
 
+            if (data.SelectCounts <= 0)
+            {
+                ModelState.AddModelError(string.Empty,
+                    string.Format(Const.ErrorSelectRequired, "社員"));
+            }
+
             // 選択数が0の場合、アラート表示
-            if (!ModelState.IsValid)
-                return CommonErrorResponse();
+            var errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
+            {
+                return errorJson;
+            }
 
             // セッションに部署IDを保存
             HttpContext.Session.Set(data.BusyoId, SaveSessionName);

@@ -13,15 +13,18 @@ using Zouryoku.Attributes;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
+// TODO: using staticを使用してEmployeeAuthority.~~~を省略する
 
 namespace Zouryoku.Pages.Maintenance.Syains.Touroku;
 
+// TODO: Attributeは不要
 /// <summary>
 /// 社員マスタ登録画面モデル
 /// </summary>
 [FunctionAuthorizationAttribute]
 public class IndexModel : BasePageModel<IndexModel>
 {
+    // TODO: DateOnly.MaxValue
     /// <summary>
     /// 有効終了日の最大値
     /// </summary>
@@ -32,16 +35,19 @@ public class IndexModel : BasePageModel<IndexModel>
         ILogger<IndexModel> logger,
         IOptions<AppConfig> options,
         ICompositeViewEngine viewEngine,
+        // デフォルト値は不要
         TimeProvider? timeProvider = null)
         : base(db, logger, options, viewEngine, timeProvider) { }
 
-    public override bool UseInputAssets { get; } = true;
+    public override bool UseInputAssets => true;
 
     /// <summary>
     /// 入力モデル
     /// </summary>
     [BindProperty]
     public SyainInputModel Input { get; set; } = new();
+
+    // TODO: セレクトボックス作成にSelectListItemは使わない方針
 
     /// <summary>業務種別選択肢</summary>
     public IEnumerable<SelectListItem> GyoumuTypeOptions { get; private set; } = [];
@@ -77,21 +83,25 @@ public class IndexModel : BasePageModel<IndexModel>
 
         if (syain is null)
         {
+            // TODO: 共通エラーページに飛ばす
             ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
             Input = SyainInputModel.CreateForCreate(today);
             return Page();
         }
 
+        // TODO: Includeでsyainと同時に取得すればいい
         var yuukyuuZan = await db.YuukyuuZans
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.SyainBaseId == id.Value);
 
+        // TODO: Includeでsyainと同時に取得
         var overtimeExcessLimit = await db.OvertimeExcessLimits
             .AsNoTracking()
             .Where(x => x.SyainBaseId == id.Value)
             .OrderByDescending(x => x.DisabledYm)
             .FirstOrDefaultAsync();
 
+        // TODO: FromEntityは廃止された
         Input = SyainInputModel.FromEntity(
             syain,
             yuukyuuZan,
@@ -113,6 +123,7 @@ public class IndexModel : BasePageModel<IndexModel>
             return errorJson;
         }
 
+        // TODO: いる？
         if (string.IsNullOrWhiteSpace(Input.KeitaiMail))
         {
             Input.KeitaiMail = null;
@@ -120,17 +131,16 @@ public class IndexModel : BasePageModel<IndexModel>
 
         ValidateOvertimeExcessLimitInput();
 
-        errorJson = ModelState.ErrorJson();
+        // TODO: 他のValidationと分ける必要はある？
         if (!ModelState.IsValid)
         {
-            return CommonErrorResponse();
+            return ModelState.ErrorJson()!;
         }
 
         var busyo = await ValidateAndGetBusyoAsync();
         if (busyo is null)
         {
-            errorJson = ModelState.ErrorJson();
-            return CommonErrorResponse();
+            return ModelState.ErrorJson()!;
         }
 
         if (Input.IsCreate)
@@ -142,8 +152,7 @@ public class IndexModel : BasePageModel<IndexModel>
                     nameof(Input.Code),
                     string.Format(Const.ErrorUnique, "社員番号", Input.Code));
 
-                errorJson = ModelState.ErrorJson();
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
             await HandleCreateAsync(busyo);
@@ -153,20 +162,20 @@ public class IndexModel : BasePageModel<IndexModel>
             var syain = await db.Syains.SingleOrDefaultAsync(s => s.Id == Input.Id);
             if (syain is null)
             {
+                // TODO: エラーメッセージはConst化
                 ModelState.AddModelError(nameof(Input.Id), $"syainId:{Input.Id} の社員が見つかりません。");
 
-                errorJson = ModelState.ErrorJson();
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
             var syainBase = await db.SyainBases.SingleOrDefaultAsync(sb => sb.Id == Input.SyainBaseId);
             if (syainBase is null)
             {
+                // TODO: エラーメッセージはConst化
                 ModelState.AddModelError(nameof(Input.SyainBaseId), $"syainBaseId:{Input.SyainBaseId} の" +
                     $"社員が見つかりません。");
 
-                errorJson = ModelState.ErrorJson();
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
             var existsSameCode = await db.Syains.AnyAsync(s =>
@@ -178,10 +187,10 @@ public class IndexModel : BasePageModel<IndexModel>
                     nameof(Input.Code),
                     string.Format(Const.ErrorUnique, "社員番号", Input.Code));
 
-                errorJson = ModelState.ErrorJson();
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
+            // TODO: StartDateをnull許容にする意味は？
             var applyDate = Input.StartDate!.Value;
             if (HasRirekiChange(syain, busyo) && applyDate < syain.StartYmd)
             {
@@ -189,8 +198,7 @@ public class IndexModel : BasePageModel<IndexModel>
                     nameof(Input.StartDate),
                     string.Format(Const.ErrorMoreThanDateTime, "適用開始日", "有効開始日"));
 
-                errorJson = ModelState.ErrorJson();
-                return CommonErrorResponse();
+                return ModelState.ErrorJson()!;
             }
 
             await HandleUpdateAsync(syain, syainBase, busyo, applyDate);
@@ -206,12 +214,14 @@ public class IndexModel : BasePageModel<IndexModel>
     /// <param name="roleId">ロールID</param>
     public async Task<IActionResult> OnGetRoleDefaultsAsync(long roleId)
     {
+        // TODO: First？
         var role = await db.UserRoles
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Id == roleId);
 
         if (role is null)
         {
+            // TODO: ModelState.ErrorJson()にする
             return ErrorJson(string.Format(Const.ErrorNotExists, "ロール", roleId));
         }
 
@@ -223,6 +233,7 @@ public class IndexModel : BasePageModel<IndexModel>
         return SuccessJson(data: html);
     }
 
+    // TODO: コメント
     private async Task<Busyo?> ValidateAndGetBusyoAsync()
     {
         if (!Input.BusyoId.HasValue)
@@ -231,6 +242,7 @@ public class IndexModel : BasePageModel<IndexModel>
             return null;
         }
 
+        // TODO: First?
         var busyo = await db.Busyos
             .AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == Input.BusyoId.Value);
@@ -244,6 +256,7 @@ public class IndexModel : BasePageModel<IndexModel>
 
         if (Input.KintaiZokuseiId.HasValue)
         {
+            // TODO: EmployeeWorkTypeを使う
             var existsKintaiZokusei = await db.KintaiZokuseis.AnyAsync(x => x.Id == Input.KintaiZokuseiId.Value);
             if (!existsKintaiZokusei)
             {
@@ -278,6 +291,7 @@ public class IndexModel : BasePageModel<IndexModel>
         return ModelState.IsValid ? busyo : null;
     }
 
+    // TODO: コメント
     private async Task HandleCreateAsync(Busyo busyo)
     {
         var syainBase = new SyainBasis
@@ -285,8 +299,9 @@ public class IndexModel : BasePageModel<IndexModel>
             Name = Input.Name,
             Code = Input.Code
         };
-        db.SyainBases.Add(syainBase);
+        await db.SyainBases.AddAsync(syainBase);
 
+        // TODO: マジックナンバーを定数化する
         var syain = new Syain
         {
             SyainBase = syainBase,
@@ -298,12 +313,13 @@ public class IndexModel : BasePageModel<IndexModel>
         ApplyInputToSyain(
             syain,
             busyo,
+            // TODO: なぜNULL許容？
             Input.StartDate!.Value,
             MaxEndYmd);
 
-        db.Syains.Add(syain);
+        await db.Syains.AddAsync(syain);
 
-        db.YuukyuuZans.Add(new YuukyuuZan
+        await db.YuukyuuZans.AddAsync(new YuukyuuZan
         {
             SyainBase = syainBase,
             Wariate = Input.Wariate ?? 0m,
@@ -317,8 +333,10 @@ public class IndexModel : BasePageModel<IndexModel>
         await UpsertOvertimeExcessLimitAsync(0, syainBase);
     }
 
+    // TODO: コメント
     private async Task HandleUpdateAsync(Syain syain, SyainBasis syainBase, Busyo busyo, DateOnly applyDate)
     {
+        // TODO: 引数を書き換えるのは基本的に危険 やめる 参照1なので、各ロジックをハンドラ内でやれば十分では？
         syainBase.Name = Input.Name;
         syainBase.Code = Input.Code;
 
@@ -341,19 +359,20 @@ public class IndexModel : BasePageModel<IndexModel>
             };
 
             ApplyInputToSyain(newSyain, busyo, applyDate, MaxEndYmd);
-            db.Syains.Add(newSyain);
+            await db.Syains.AddAsync(newSyain);
         }
 
         await UpsertYuukyuuZanAsync(syainBase.Id);
         await UpsertOvertimeExcessLimitAsync(syainBase.Id);
     }
 
+    // TODO: コメント
     private async Task UpsertYuukyuuZanAsync(long syainBaseId)
     {
         var yuukyuuZan = await db.YuukyuuZans.SingleOrDefaultAsync(x => x.SyainBaseId == syainBaseId);
         if (yuukyuuZan is null)
         {
-            db.YuukyuuZans.Add(new YuukyuuZan
+            await db.YuukyuuZans.AddAsync(new YuukyuuZan
             {
                 SyainBaseId = syainBaseId,
                 Wariate = Input.Wariate ?? 0m,
@@ -371,10 +390,12 @@ public class IndexModel : BasePageModel<IndexModel>
         yuukyuuZan.Syouka = Input.Syouka ?? 0m;
     }
 
+    // TODO: コメント
     private async Task UpsertOvertimeExcessLimitAsync(long syainBaseId, SyainBasis? syainBase = null)
     {
         if (!Input.IsOvertimeExcessLimitStart)
         {
+            // TODO: ？
             if (syainBaseId <= 0)
             {
                 return;
@@ -430,7 +451,7 @@ public class IndexModel : BasePageModel<IndexModel>
                 newLimit.SyainBaseId = syainBaseId;
             }
 
-            db.OvertimeExcessLimits.Add(newLimit);
+            await db.OvertimeExcessLimits.AddAsync(newLimit);
             return;
         }
 
@@ -441,6 +462,7 @@ public class IndexModel : BasePageModel<IndexModel>
         }
     }
 
+    // TODO: コメント
     private void ValidateOvertimeExcessLimitInput()
     {
         if (!Input.IsOvertimeExcessLimitStart)
@@ -465,9 +487,11 @@ public class IndexModel : BasePageModel<IndexModel>
             return;
         }
 
+        // TODO: DateTime.ToYYYYMMSlash()を使用する DateOnlyExtensionsに定義してもいい
         Input.OvertimeExcessLimitYm = parsedYm.ToString("yyyy/MM", CultureInfo.InvariantCulture);
     }
 
+    // TODO: コメント
     private static bool TryParseOvertimeExcessLimitYm(string? rawValue, out DateOnly parsedYm)
     {
         parsedYm = default;
@@ -502,19 +526,25 @@ public class IndexModel : BasePageModel<IndexModel>
         return false;
     }
 
+    // TODO: 引数を関数内で書き換えない 戻り値でSyainインスタンスを出せばいい もしくはExtensions化
     private void ApplyInputToSyain(Syain syain, Busyo busyo, DateOnly startYmd, DateOnly endYmd)
     {
         syain.Code = Input.Code;
         syain.Name = Input.Name;
         syain.KanaName = Input.KanaName;
+        // TODO: !を付けるならNULL許容にする必要はないのでは？
         syain.Seibetsu = Input.Seibetsu!.Value;
         syain.BusyoCode = busyo.Code;
+        // TODO: !を付けるならNULL許容にする必要はないのでは？
         syain.NyuusyaYmd = Input.NyuusyaYmd!.Value;
         syain.StartYmd = startYmd;
         syain.EndYmd = endYmd;
+        // TODO: !を付けるならNULL許容にする必要はないのでは？
         syain.Kyusyoku = Input.Kyusyoku!.Value;
+        // TODO: !を付けるならNULL許容にする必要はないのでは？
         syain.SyucyoSyokui = Input.SyucyoSyokui!.Value;
         syain.KingsSyozoku = Input.KingsSyozoku;
+        // TODO: !を付けるならNULL許容にする必要はないのでは？
         syain.KaisyaCode = Input.KaisyaCode!.Value;
         syain.IsGenkaRendou = Input.IsGenkaRendou;
         syain.EMail = EmptyToNull(Input.EMail);
@@ -523,11 +553,16 @@ public class IndexModel : BasePageModel<IndexModel>
         syain.Retired = Input.Retired;
         syain.GyoumuTypeId = Input.GyoumuTypeId;
         syain.PhoneNumber = EmptyToNull(Input.PhoneNumber);
+        // TODO: Busyoにbusyoを直接指定する方が安全
         syain.BusyoId = busyo.Id;
+        // TODO: syain.KintaiZokusei.CodeにEmployeeWorkTypeを指定する
         syain.KintaiZokuseiId = Input.KintaiZokuseiId!.Value;
+        // TODO: !を付けるならNULL許容にする必要はないのでは？
         syain.UserRoleId = Input.UserRoleId!.Value;
     }
 
+    // TODO: コメント
+    // TODO: Inputは引数で受け取る（可読性が悪い）
     private bool HasRirekiChange(Syain syain, Busyo busyo) =>
         syain.Name != Input.Name
         || syain.BusyoId != busyo.Id
@@ -537,6 +572,7 @@ public class IndexModel : BasePageModel<IndexModel>
         || syain.IsGenkaRendou != Input.IsGenkaRendou
         || syain.KaisyaCode != Input.KaisyaCode!.Value;
 
+    // TODO: 保守性・拡張性が悪いため削除する
     private EmployeeAuthority BuildKengen()
     {
         var flags = new[]
@@ -563,6 +599,7 @@ public class IndexModel : BasePageModel<IndexModel>
         {
             if (flags[i])
             {
+                // TODO: Enumの定義が変わると全く使えなくなる こうしたいなら kengen |= EmployeeAuthority.Xxx でいい
                 kengen |= (EmployeeAuthority)(1 << i);
             }
         }
@@ -570,9 +607,11 @@ public class IndexModel : BasePageModel<IndexModel>
         return kengen;
     }
 
+    // TODO: 不要 syain.Kengen.HasFlag(EmployeeAuthority.Xxx)でいい
     private static bool HasAuthority(EmployeeAuthority authority, int bitIndex)
         => authority.HasFlag((EmployeeAuthority)(1 << bitIndex));
 
+    // TODO: 不要 EmployeeAuthority型のプロパティを持てば十分
     private void SetPermissionChecks(EmployeeAuthority authority)
     {
         Input.Perm1Checked = HasAuthority(authority, 0);
@@ -592,7 +631,9 @@ public class IndexModel : BasePageModel<IndexModel>
         Input.Perm15Checked = HasAuthority(authority, 14);
     }
 
+    // TODO: コメント
     private async Task<Syain?> GetCurrentSyainByBaseIdAsync(long syainBaseId) =>
+        // TODO: 不要なコメントは削除する
         //await db.Syains
         //    .AsNoTracking()
         //    .Include(s => s.Busyo)
@@ -606,6 +647,7 @@ public class IndexModel : BasePageModel<IndexModel>
             .FirstOrDefaultAsync(s =>
                 s.SyainBaseId == syainBaseId);
 
+    // TODO: 削除する ビュー側で作成する SelectListItemは使用しない
     private async Task LoadOptionsAsync()
     {
         var gyoumuTypeItems = await db.GyoumuTypes
@@ -661,6 +703,7 @@ public class IndexModel : BasePageModel<IndexModel>
         SyucyoSyokuiOptions = AddEmptyOption(syucyoSyokuiItems, "選択してください");
     }
 
+    // TODO: viewでやる 削除
     private static IEnumerable<SelectListItem> AddEmptyOption(IEnumerable<SelectListItem> items, string emptyText)
     {
         var list = new List<SelectListItem>
@@ -671,6 +714,7 @@ public class IndexModel : BasePageModel<IndexModel>
         return list;
     }
 
+    // TODO: 関数名以上の機能がある
     private static string? EmptyToNull(string? value)
         => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
@@ -679,28 +723,37 @@ public class IndexModel : BasePageModel<IndexModel>
     /// </summary>
     public class SyainInputModel
     {
+        // TODO: RequiredでNULL許容なのはどういう意味ですか？
+
+        // TODO: コメント
         public bool IsCreate { get; set; }
 
+        // TODO: コメント
         public long Id { get; set; }
 
+        // TODO: コメント
         public long SyainBaseId { get; set; }
 
+        // TODO: コメント
         [Display(Name = "社員番号")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         [StringLength(5, ErrorMessage = Const.ErrorLength)]
         [RegularExpression(@"^\d+$", ErrorMessage = Const.ErrorNumber)]
         public string Code { get; set; } = string.Empty;
 
+        // TODO: コメント
         [Display(Name = "社員氏名")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         [StringLength(32, ErrorMessage = Const.ErrorLength)]
         public string Name { get; set; } = string.Empty;
 
+        // TODO: コメント
         [Display(Name = "社員氏名カナ")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         [StringLength(32, ErrorMessage = Const.ErrorLength)]
         public string KanaName { get; set; } = string.Empty;
 
+        // TODO: 以下ずべてコメントなし 追記する
         [Display(Name = "入社年月日")]
         [Required(ErrorMessage = Const.ErrorRequired)]
         public DateOnly? NyuusyaYmd { get; set; }
@@ -755,16 +808,19 @@ public class IndexModel : BasePageModel<IndexModel>
         [Required(ErrorMessage = Const.ErrorSelectRequired)]
         public short? KaisyaCode { get; set; }
 
+        // TODO: EMailAddress属性を使用する
         [Display(Name = "Email")]
         [StringLength(50, ErrorMessage = Const.ErrorLength)]
         [EmailAddress(ErrorMessage = Const.ErrorInvalidInput)]
         public string? EMail { get; set; }
 
+        // TODO: EMailAddress属性を使用する
         [Display(Name = "携帯Mail")]
         [StringLength(50, ErrorMessage = Const.ErrorLength)]
         [EmailAddress(ErrorMessage = Const.ErrorInvalidInput)]
         public string? KeitaiMail { get; set; }
 
+        // TODO: Phone属性を検討する
         [Display(Name = "携帯番号")]
         [StringLength(15, ErrorMessage = Const.ErrorLength)]
         [RegularExpression(@"^\d{3}-\d{4}-\d{4}$", ErrorMessage = Const.ErrorInvalidInput)]
@@ -797,6 +853,7 @@ public class IndexModel : BasePageModel<IndexModel>
 
         public long Kengen { get; set; }
 
+        // TODO: 以下不要 EmployeeAuthority型のプロパティ1つで実現できるはず
         public bool Perm1Checked { get; set; }
         public bool Perm2Checked { get; set; }
         public bool Perm3Checked { get; set; }
@@ -813,6 +870,7 @@ public class IndexModel : BasePageModel<IndexModel>
         public bool Perm14Checked { get; set; }
         public bool Perm15Checked { get; set; }
 
+        // TODO: プロパティのデフォルト値をこれにすればいい
         public static SyainInputModel CreateForCreate(DateOnly today) => new()
         {
             IsCreate = true,
@@ -825,6 +883,8 @@ public class IndexModel : BasePageModel<IndexModel>
             IsOvertimeExcessLimitStart = false,
         };
 
+        // TODO: privateでSyainエンティティを保持し、各プロパティはそこから値を取得するようにする
+        // すべてSyainからたどれませんか？
         public static SyainInputModel FromEntity(
             Syain syain,
             YuukyuuZan? yuukyuuZan,
@@ -861,8 +921,10 @@ public class IndexModel : BasePageModel<IndexModel>
                 Syouka = yuukyuuZan?.Syouka,
                 HannitiKaisuu = yuukyuuZan?.HannitiKaisuu ?? 0,
                 IsOvertimeExcessLimitStart = overtimeExcessLimit is not null,
+                // TODO: DateTime.ToYYYYMMSlash()を使用する DateOnlyExtensionsに定義してもいい
                 OvertimeExcessLimitYm = overtimeExcessLimit?.DisabledYm.ToString("yyyy/MM"),
                 UserRoleId = syain.UserRoleId,
+                // TODO: キャストしない
                 Kengen = (long)syain.Kengen,
                 Perm1Checked = HasAuthority(syain.Kengen, 0),
                 Perm2Checked = HasAuthority(syain.Kengen, 1),

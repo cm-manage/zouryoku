@@ -106,17 +106,30 @@ public class IndexModel : BasePageModel<IndexModel>
     /// </summary>
     public async Task<IActionResult> OnPostRegisterAsync()
     {
-        ValidateOvertimeExcessLimitInput();
-
+        // 単項目チェック
         JsonResult? errorJson = ModelState.ErrorJson();
         if (errorJson is not null)
         {
             return errorJson;
         }
 
+        if (string.IsNullOrWhiteSpace(Input.KeitaiMail))
+        {
+            Input.KeitaiMail = null;
+        }
+
+        ValidateOvertimeExcessLimitInput();
+
+        errorJson = ModelState.ErrorJson();
+        if (!ModelState.IsValid)
+        {
+            return CommonErrorResponse();
+        }
+
         var busyo = await ValidateAndGetBusyoAsync();
         if (busyo is null)
         {
+            errorJson = ModelState.ErrorJson();
             return CommonErrorResponse();
         }
 
@@ -128,6 +141,8 @@ public class IndexModel : BasePageModel<IndexModel>
                 ModelState.AddModelError(
                     nameof(Input.Code),
                     string.Format(Const.ErrorUnique, "社員番号", Input.Code));
+
+                errorJson = ModelState.ErrorJson();
                 return CommonErrorResponse();
             }
 
@@ -139,6 +154,8 @@ public class IndexModel : BasePageModel<IndexModel>
             if (syain is null)
             {
                 ModelState.AddModelError(nameof(Input.Id), $"syainId:{Input.Id} の社員が見つかりません。");
+
+                errorJson = ModelState.ErrorJson();
                 return CommonErrorResponse();
             }
 
@@ -147,6 +164,8 @@ public class IndexModel : BasePageModel<IndexModel>
             {
                 ModelState.AddModelError(nameof(Input.SyainBaseId), $"syainBaseId:{Input.SyainBaseId} の" +
                     $"社員が見つかりません。");
+
+                errorJson = ModelState.ErrorJson();
                 return CommonErrorResponse();
             }
 
@@ -158,6 +177,8 @@ public class IndexModel : BasePageModel<IndexModel>
                 ModelState.AddModelError(
                     nameof(Input.Code),
                     string.Format(Const.ErrorUnique, "社員番号", Input.Code));
+
+                errorJson = ModelState.ErrorJson();
                 return CommonErrorResponse();
             }
 
@@ -167,6 +188,8 @@ public class IndexModel : BasePageModel<IndexModel>
                 ModelState.AddModelError(
                     nameof(Input.StartDate),
                     string.Format(Const.ErrorMoreThanDateTime, "適用開始日", "有効開始日"));
+
+                errorJson = ModelState.ErrorJson();
                 return CommonErrorResponse();
             }
 

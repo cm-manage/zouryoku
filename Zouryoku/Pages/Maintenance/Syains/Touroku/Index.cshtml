@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <form method="post">
+    <form method="post" id="form-input">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Input.IsCreate" />
         <input type="hidden" asp-for="Input.Id" />
@@ -66,7 +66,7 @@
 
                 <div class="row mb-3 align-items-center">
                     <label asp-for="Input.Code" class="col-md-3 col-form-label fw-bold small">
-                       <span class="text-danger fw-bold">*</span>
+                        社員番号<span class="text-danger fw-bold">*</span>
                     </label>
                     <div class="col-md-3">
                         <input asp-for="Input.Code" class="form-control form-control-sm" />
@@ -250,7 +250,7 @@
                 <div class="row mb-3 align-items-center">
                     <label asp-for="Input.KeitaiMail" class="col-md-3 col-form-label fw-bold small">携帯Mail</label>
                     <div class="col-md-4">
-                        <input asp-for="Input.KeitaiMail" class="form-control form-control-sm" />
+                        <input asp-for="Input.KeitaiMail" class="form-control form-control-sm" data-val-email="false" />
                     </div>
                 </div>
 
@@ -347,6 +347,7 @@
             // -----------------------------
             // 初期データ
             // -----------------------------
+            const $form = $("#form-input");
             const $overtimeStartSwitch = $('#Input_IsOvertimeExcessLimitStart');
             const $overtimeStartYm = $('#Input_OvertimeExcessLimitYm');
             let previousRoleId = $('#Input_UserRoleId').val();
@@ -418,6 +419,7 @@
             });
 
             $(document).on('change', '#Input_UserRoleId', function () {
+                const $form = $("#form-input");
                 const $currentRoleSelect = $(this);
                 const roleId = $currentRoleSelect.val();
                 if (!roleId) {
@@ -429,7 +431,7 @@
                     '権限のチェックをロールの初期権限で上書きします。よろしいですか？',
                     null,
                     function () {
-                        sendGetAjax('@Url.Page("./Index", "RoleDefaults")', { roleId: roleId }, function (partialView) {
+                        sendGetAjax('@Url.Page("./Index", "RoleDefaults")', $form, { roleId: roleId }, function (partialView) {
                             $('#authority-section').html(partialView);
                             previousRoleId = roleId;
                         }, false);
@@ -449,7 +451,8 @@
 
             // 登録
             $('#registerBtn').on('click', function () {
-                register('登録', 'Register');
+                const $form = $("#form-input");
+                register('登録', 'Register', $form);
             });
         });
 
@@ -477,9 +480,9 @@
         }
 
         /** 登録 */
-        function register(actionName, handler) {
+        function register(actionName, handler, form) {
             commonConfirm(actionName + 'します。よろしいですか？', null, function () {
-                sendRegisterAjax(toUrl(handler), $('form').serializeArray(), function (data) {
+                sendRegisterAjax(toUrl(handler), form, form.serializeArray(), function (data) {
                     registerSuccessSwal(actionName + 'しました', null, function () {
                         closeCurrentIziModal();
                     });

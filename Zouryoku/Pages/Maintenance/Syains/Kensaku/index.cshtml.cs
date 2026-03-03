@@ -16,7 +16,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
     /// <summary>
     /// 社員検索ページモデル
     /// </summary>
-    [FunctionAuthorizationAttribute]
+    [FunctionAuthorization]
     public class IndexModel : BasePageModel<IndexModel>
     {
         public IndexModel(
@@ -24,7 +24,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
             ILogger<IndexModel> logger,
             IOptions<AppConfig> optionsAccessor,
             ICompositeViewEngine viewEngine,
-            TimeProvider? timeProvider = null)
+            TimeProvider timeProvider)
             : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets => true;
@@ -33,7 +33,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
         /// 検索条件
         /// </summary>
         [BindProperty(SupportsGet = true)]
-        public SyainSearchCondition Condition { get; set; } = new SyainSearchCondition();
+        public SyainSearchCondition SearchCondition { get; set; } = new SyainSearchCondition();
 
         /// <summary>
         /// 検索結果社員リスト
@@ -41,13 +41,28 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
         public List<SyainViewModel> Results { get; set; } = [];
 
         /// <summary>
+        /// 勤怠属性の選択肢
+        /// </summary>
+        public SelectList KintaiZokuseiOptions { get; set; } = default!;
+
+        /// <summary>
+        /// ロールの選択肢
+        /// </summary>
+        public SelectList UserRoleOptions { get; set; } = default!;
+
+        /// <summary>
+        /// 社員権限の選択肢
+        /// </summary>
+        public SelectList KengenOptions { get; set; } = default!;
+
+        /// <summary>
         /// 画面初期表示
         /// </summary>
         /// <returns>社員マスタメンテナンスページ</returns>
         public async Task<IActionResult> OnGetAsync()
         {
-            await InitializeSearchConditionOptionsAsync();
-            Results = await GetSyainListAsync();
+            SearchCondition = await InitializeSearchConditionOptionsAsync();
+            Results = await GetSyainListAsync(SearchCondition);
             return Page();
         }
 
@@ -57,52 +72,49 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
         /// <returns></returns>
         public async Task<IActionResult> OnGetSearchAsync()
         {
-            Results = await GetSyainListAsync();
+            Results = await GetSyainListAsync(SearchCondition);
 
             var data = await PartialToJsonAsync("_SyainSearchResults", this);
             return SuccessJson(data: data);
         }
 
-        private async Task InitializeSearchConditionOptionsAsync()
+        private async Task<SyainSearchCondition> InitializeSearchConditionOptionsAsync()
         {
+            var searchCondition = new SyainSearchCondition();
+
             // 勤怠属性一覧
-            var kintaiList = await db.KintaiZokuseis
-                .AsNoTracking()
-                .Select(k => new { k.Id, k.Name })
-                .ToListAsync();
-            var defaultKintaiZokuseiId = kintaiList.FirstOrDefault(k => k.Id == (short)みなし対象者)?.Id;
+            var kintaiList = Enum.GetValues<EmployeeWorkType>()
+                .Select(e => new SelectOption
+                {
+                    Code = e,
+                    Name = e.ToString()
+                })
+                .ToList();
+            searchCondition.KintaiZokuseiId = kintaiList.FirstOrDefault(k => k.Code == みなし対象者)?.Code;
 
-            if (!Condition.KintaiZokuseiId.HasValue && defaultKintaiZokuseiId.HasValue)
-            {
-                Condition.KintaiZokuseiId = defaultKintaiZokuseiId.Value;
-            }
-
-            Condition.KintaiZokuseiOptions = new SelectList(
-                kintaiList,
-                "Id",
-                "Name",
-                Condition.KintaiZokuseiId);
+            KintaiZokuseiOptions = new SelectList(kintaiList, "Code", "Name", SearchCondition.KintaiZokuseiId);
 
             // ロール一覧
             var roles = await db.UserRoles
                 .AsNoTracking()
-                .Select(r => new { r.Id, r.Name })
+                .Select(r => new { r.Code, r.Name })
                 .ToListAsync();
-            Condition.UserRoleOptions = new SelectList(roles, "Id", "Name");
+            UserRoleOptions = new SelectList(roles, "Code", "Name", SearchCondition.UserRoleId);
 
             // 社員権限一覧
-            var kengenList = Enum.GetValues(typeof(EmployeeAuthority))
-                .Cast<EmployeeAuthority>()
+            var kengenList = Enum.GetValues<EmployeeAuthority>()
                 .Where(e => e != EmployeeAuthority.None)
-                .Select(e => new { Id = (int)e, Name = e.ToString() })
+                .Select(e => new { Code = e, Name = e.ToString() })
                 .ToList();
-            Condition.KengenOptions = new SelectList(kengenList, "Id", "Name");
+            KengenOptions = new SelectList(kengenList, "Code", "Name", SearchCondition.Kengen);
+
+            return searchCondition;
         }
 
         /// <summary>
         /// 社員一覧取得
         /// </summary>
-        private async Task<List<SyainViewModel>> GetSyainListAsync()
+        private async Task<List<SyainViewModel>> GetSyainListAsync(SyainSearchCondition searchCondition)
         {
             var query = db.Syains
                 .Include(s => s.Busyo)
@@ -112,51 +124,51 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
                 .AsQueryable();
 
             // 社員番号
-            if (!string.IsNullOrEmpty(Condition.SyainNo))
+            if (!string.IsNullOrEmpty(SearchCondition.SyainNo))
             {
-                query = query.Where(s => s.Code.Contains(Condition.SyainNo));
+                query = query.Where(s => s.Code.Contains(SearchCondition.SyainNo));
             }
 
             // 社員名
-            if (!string.IsNullOrEmpty(Condition.SyainName))
+            if (!string.IsNullOrEmpty(SearchCondition.SyainName))
             {
-                query = query.Where(s => s.Name.Contains(Condition.SyainName));
+                query = query.Where(s => s.Name.Contains(SearchCondition.SyainName));
             }
 
             // 部署
-            if (!string.IsNullOrEmpty(Condition.BusyoName))
+            if (!string.IsNullOrEmpty(SearchCondition.BusyoName))
             {
-                query = query.Where(s => s.Busyo.Name.Contains(Condition.BusyoName));
+                query = query.Where(s => s.Busyo.Name.Contains(SearchCondition.BusyoName));
             }
 
             // 退職者を含む
-            if (!Condition.IncludeRetired)
+            if (!SearchCondition.IncludeRetired)
             {
-                query = query.Where(s => s.Retired == false);
+                query = query.Where(s => !s.Retired);
             }
 
             // 勤怠属性
-            if (Condition.KintaiZokuseiId.HasValue)
+            if (SearchCondition.KintaiZokuseiId.HasValue)
             {
-                query = query.Where(s => s.KintaiZokuseiId == Condition.KintaiZokuseiId.Value);
+                query = query.Where(s => (EmployeeWorkType)s.KintaiZokuseiId == searchCondition.KintaiZokuseiId.Value);
             }
 
             // ロール
-            if (Condition.UserRoleId.HasValue)
+            if (SearchCondition.UserRoleId.HasValue)
             {
-                query = query.Where(s => s.UserRoleId == Condition.UserRoleId.Value);
+                query = query.Where(s => s.UserRoleId == SearchCondition.UserRoleId.Value);
             }
 
             // 社員権限
-            if (Condition.Kengen.HasValue)
+            if (SearchCondition.Kengen.HasValue)
             {
-                query = query.Where(s => (s.Kengen & Condition.Kengen.Value) != 0);
+                query = query.Where(s => s.Kengen == searchCondition.Kengen.Value);
             }
 
             // 社員級職
-            if (Condition.Grade.HasValue)
+            if (SearchCondition.Kyusyoku.HasValue)
             {
-                query = query.Where(s => s.Kyusyoku == Condition.Grade.Value);
+                query = query.Where(s => s.Kyusyoku == SearchCondition.Kyusyoku.Value);
             }
 
             var syainList = await query.OrderBy(s => s.Busyo.Jyunjyo)
@@ -180,7 +192,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="busyo">部署エンティティ </param>
+        /// <param name="syain">社員エンティティ</param>
         public SyainViewModel(Syain syain)
         {
             _syain = syain;
@@ -204,7 +216,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
 
         /// <summary>社員級職</summary>
         [Display(Name = "級職")]
-        public short Grade => _syain.Kyusyoku;
+        public short Kyusyoku => _syain.Kyusyoku;
 
         /// <summary>勤怠属性</summary>
         [Display(Name = "勤怠属性")]
@@ -216,7 +228,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
 
         /// <summary>退職</summary>
         [Display(Name = "退職")]
-        public string RetiredDisplay => _syain.Retired == true ? "退職" : string.Empty;
+        public string RetiredDisplay => _syain.Retired ? "退職" : string.Empty;
     }
 
     /// <summary>
@@ -240,7 +252,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
 
         /// <summary>級職</summary>
         [Display(Name = "級職")]
-        public short? Grade { get; set; }
+        public short? Kyusyoku { get; set; }
 
         /// <summary>退職者を含む</summary>
         [Display(Name = "退職者を含む")]
@@ -248,27 +260,23 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
 
         // / <summary>勤怠属性</summary>
         [Display(Name = "勤怠属性")]
-        public long? KintaiZokuseiId { get; set; }
+        public EmployeeWorkType? KintaiZokuseiId { get; set; }
+
         /// <summary>ロール</summary>
         [Display(Name = "ロール")]
         public long? UserRoleId { get; set; }
+
         /// <summary>社員権限</summary>
         [Display(Name = "社員権限")]
         public EmployeeAuthority? Kengen { get; set; }
+    }
 
-        /// <summary>
-        /// 勤怠属性の選択肢
-        /// </summary>
-        public SelectList KintaiZokuseiOptions { get; set; } = default!;
-
-        /// <summary>
-        /// ロールの選択肢
-        /// </summary>
-        public SelectList UserRoleOptions { get; set; } = default!;
-
-        /// <summary>
-        /// 社員権限の選択肢
-        /// </summary>
-        public SelectList KengenOptions { get; set; } = default!;
+    /// <summary>
+    /// 共通セレクトボックス用オプション
+    /// </summary>
+    public class SelectOption
+    {
+        public EmployeeWorkType Code { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }

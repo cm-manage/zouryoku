@@ -48,20 +48,20 @@
                 <!-- 左カラム -->
                 <div class="col-md-6">
                     <div class="row mb-2">
-                        <label asp-for="Condition.SyainNo"
+                        <label asp-for="SearchCondition.SyainNo"
                             class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
-                            <input asp-for="Condition.SyainNo" class="form-control" />
+                            <input asp-for="SearchCondition.SyainNo" class="form-control" />
                         </div>
                     </div>
 
                     <div class="row mb-3 align-items-center">
-                        <label asp-for="Condition.BusyoName"
+                        <label asp-for="SearchCondition.BusyoName"
                              class="col-2 col-form-label app-input__label"></label>
                         <div class="col">
                             <div class="input-group">
                                 <!-- 表示用：部署名 -->
-                                <input asp-for="Condition.BusyoName"
+                                <input asp-for="SearchCondition.BusyoName"
                                        class="form-control bg-light"
                                        readonly />
                                 <!-- 検索ボタンのみ -->
@@ -74,18 +74,18 @@
 
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.Grade"
+                        <label asp-for="SearchCondition.Kyusyoku"
                              class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
-                            <input asp-for="Condition.Grade" type="text" class="form-control w-50" />
+                            <input asp-for="SearchCondition.Kyusyoku" type="text" class="form-control w-50" />
                         </div>
                     </div>
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.UserRoleId"
+                        <label asp-for="SearchCondition.UserRoleId"
                              class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
-                            <select asp-for="Condition.UserRoleId" asp-items="Model.Condition.UserRoleOptions"
+                            <select asp-for="SearchCondition.UserRoleId" asp-items="Model.UserRoleOptions"
                                 class="form-select">
                                 <option value="">-- 未選択 --</option>
                             </select>
@@ -96,30 +96,28 @@
                 <!-- 右カラム -->
                 <div class="col-md-6">
                     <div class="row mb-2">
-                        <label asp-for="Condition.SyainName"
+                        <label asp-for="SearchCondition.SyainName"
                              class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
-                            <input asp-for="Condition.SyainName" class="form-control" />
+                            <input asp-for="SearchCondition.SyainName" class="form-control" />
                         </div>
                     </div>
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.IncludeRetired"
+                        <label asp-for="SearchCondition.IncludeRetired"
                              class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col d-flex align-items-center">
                             <div class="form-check form-switch m-0">
-                                <input asp-for="Condition.IncludeRetired" class="form-check-input" />
+                                <input asp-for="SearchCondition.IncludeRetired" class="form-check-input" />
                             </div>
                         </div>
                     </div>
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.KintaiZokuseiId"
+                        <label asp-for="SearchCondition.KintaiZokuseiId"
                              class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
-                            <select 
-                                 asp-for="Condition.KintaiZokuseiId" 
-                                 asp-items="Model.Condition.KintaiZokuseiOptions"
+                            <select asp-for="SearchCondition.KintaiZokuseiId" asp-items="Model.KintaiZokuseiOptions"
                                  class="form-select">
                                 <option value="">-- 未選択 --</option>
                             </select>
@@ -128,11 +126,11 @@
                     </div>
 
                     <div class="row mb-2">
-                        <label asp-for="Condition.Kengen"
+                        <label asp-for="SearchCondition.Kengen"
                              class="col-2 col-form-label text-nowrap app-input__label"></label>
                         <div class="col">
-                            <select asp-for="Condition.Kengen"
-                                class="form-select" asp-items="Model.Condition.KengenOptions">
+                            <select asp-for="SearchCondition.Kengen" asp-items="Model.KengenOptions"
+                                class="form-select">
                                 <option value="">-- 未選択 --</option>
                             </select>
                         </div>
@@ -257,7 +255,7 @@
             // -----------------------------
             // 部署名リンク押下
             // -----------------------------
-            $partialPage.on('click', '.syain-link', function () {
+            $partialPage.on('click', '[data-js="syain-link"]', function () {
                 const id = $(this).data('id');
                 openInsert(id);
             });
@@ -283,30 +281,11 @@
                     if (!busyo) return;
 
                     // 部署名を設定
-                    const $nameInput = $('[name="@Html.NameFor(m => m.Condition.BusyoName)"]');
+                    const $nameInput = $('[name="@Html.NameFor(m => m.SearchCondition.BusyoName)"]');
 
                     if ($nameInput.length) {
                         $nameInput.val(busyo.name ?? "");
                         $nameInput.trigger("input");
-                    }
-
-                    // 部署Idを設定
-                    const $idInput = $('[name="@Html.NameFor(m => m.Condition.BusyoId)"]');
-
-                    if ($idInput.length) {
-                        $idInput.val(busyo.id ?? "");
-                    } else {
-                        // hidden が無い場合は追加
-                        const $form = $('#syain-search-form');
-
-                        if ($form.length) {
-                            const $busyoId = $('<input>')
-                                .attr('type', 'hidden')
-                                .attr('name', 'Condition.BusyoId')
-                                .val(busyo.id ?? "");
-
-                                $form.append($busyoId);
-                        }
                     }
                 }
             });

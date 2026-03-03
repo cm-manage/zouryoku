@@ -18,6 +18,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             部署選択 = 2,
         }
 
+        public DateOnly DisplayYearMonthDate { get; set; }
+
         /// <summary>
         /// 期間(From)
         /// </summary>

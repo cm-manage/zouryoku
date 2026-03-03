@@ -68,7 +68,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// </summary>
         public void OnGet()
         {
-            var today = timeProvider.Today();
+            SearchIndex.DisplayYearMonthDate = timeProvider.Today();
+            var today = SearchIndex.DisplayYearMonthDate;
             SearchIndex.From = today.ToString("yyyy-MM");
             SearchIndex.To = today.ToString("yyyy-MM");
             SearchIndex.WarnLevel = All;

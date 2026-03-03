@@ -37,6 +37,10 @@
             font-weight: bold;
             font-size: 1rem;
         }
+
+        .app-month-input {
+            width: 10rem;
+        }
     </style>
 }
 
@@ -49,28 +53,48 @@
             <!-- 期間 -->
             <div class="row align-items-center mt-3">
                 <div class="col-12 col-md-auto d-flex">
-                    <label for="search-from" class="me-5 fw-bold">
+                    <label for="search-fr-input" class="me-5 fw-bold">
                         期間 <span class="text-danger">*</span>
                     </label>
                 </div>
                 <div class="col-5 col-md-auto d-flex">
-                    <input type="month"
-                        asp-for="SearchIndex.From"
-                        id="search-from"
-                        class="form-control"
-                        min="2001-01"
-                        max="2099-12" />
+                    <div class="input-group app-month-input">
+                        <input id="search-fr-input"
+                               class="form-control app_input__textbox"
+                               type="text"
+                               asp-for="SearchIndex.From"
+                               readonly
+                               aria-label="display year month" />
+                        <input id="search-fr-picker"
+                               class="visually-hidden"
+                               type="month"
+                               value="@Model.SearchIndex.DisplayYearMonthDate.ToString("yyyy-MM")"
+                               tabindex="-1" />
+                        <button id="search-fr-picker-btn" class="btn btn-primary" type="button" aria-label="select month">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class=" col-auto d-flex">
                     <span class="mx-2">〜</span>
                 </div>
                 <div class="col-5 col-md-auto d-flex">
-                    <input type="month"
-                        asp-for="SearchIndex.To"
-                        id="search-to"
-                        class="form-control"
-                        min="2001-01"
-                        max="2099-12" />
+                    <div class="input-group app-month-input">
+                        <input id="search-to-input"
+                               class="form-control app_input__textbox"
+                               type="text"
+                               asp-for="SearchIndex.To"
+                               readonly
+                               aria-label="display year month" />
+                        <input id="search-to-picker"
+                               class="visually-hidden"
+                               type="month"
+                               value="@Model.SearchIndex.DisplayYearMonthDate.ToString("yyyy-MM")"
+                               tabindex="-1" />
+                        <button id="search-to-picker-btn" class="btn btn-primary" type="button" aria-label="select month">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -160,20 +184,60 @@
             // 初期処理
             // =================================================
             const $form = $('search-form');
-            // 期間Fromを入力不可能にする
-            const inputSearchFrom = document.getElementById('search-from');
-            inputSearchFrom?.addEventListener('keydown', e => e.preventDefault());
-            inputSearchFrom?.addEventListener('paste', e => e.preventDefault());
-            // 期間Toを入力不可能にする
-            const inputSearchTo = document.getElementById('search-to');
-            inputSearchTo?.addEventListener('keydown', e => e.preventDefault());
-            inputSearchTo?.addEventListener('paste', e => e.preventDefault());
+            let currentYear = @Model.SearchIndex.DisplayYearMonthDate.Year;
+            let currentMonth = @Model.SearchIndex.DisplayYearMonthDate.Month;
+            const $searchFmInput = $('#search-fr-input');
+            const $searchFrPicker = $('#search-fr-picker');
+            const $searchToInput = $('#search-to-input');
+            const $searchToPicker = $('#search-to-picker');
+
+            function syncSearchYmDisplay($input, $picker) {
+                const yyyy = String(currentYear).padStart(4, '0');
+                const mm = String(currentMonth).padStart(2, '0');
+                $input.val(`${yyyy}-${mm}`);
+                $picker.val(`${yyyy}-${mm}`);
+            }
+
+            function updateSearchYmDisplay(val, $input, $picker) {
+                if (!val) return;
+                const parts = ('' + val).split('-');
+                if (parts.length !== 2) return;
+
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10);
+                if (isNaN(y) || isNaN(m)) return;
+                currentYear = y; currentMonth = m;
+                syncSearchYmDisplay($input, $picker);
+            }
 
             // =================================================
             // 初期検索
             // =================================================
             $(function () {
+                syncSearchYmDisplay($searchFmInput, $searchFrPicker);
+                syncSearchYmDisplay($searchToInput, $searchToPicker);
+
                 $('#btn-search').trigger('click');
+
+                $(document).on('click', '#search-fr-input,#search-fr-picker-btn', function() {
+                    syncSearchYmDisplay($searchFmInput, $searchFrPicker);
+                    $searchFrPicker[0].showPicker?.();
+                });
+
+                $(document).on('click', '#search-to-input,#search-to-picker-btn', function() {
+                    syncSearchYmDisplay($searchToInput, $searchToPicker);
+                    $searchToPicker[0].showPicker?.();
+                });
+
+                $(document).on('change', '#search-fr-picker', function() {
+                    const val = $searchFrPicker.val();
+                    updateSearchYmDisplay(val, $searchFmInput, $searchFrPicker);
+                });
+
+                $(document).on('change', '#search-to-picker', function() {
+                    const val = $searchToPicker.val();
+                    updateSearchYmDisplay(val, $searchToInput, $searchToPicker);
+                });
             });
 
             // =================================================
@@ -185,8 +249,8 @@
                 errorClear();
 
                 const param = {
-                    from: $('#search-from').val(),
-                    to: $('#search-to').val(),
+                    from: $searchFmInput.val(),
+                    to: $searchToInput.val(),
                     warnLevel: $("input[name='WarnLevel']:checked").val(),
                     busyoMode: $('#busyo-mode').val(),
                     busyo: $('#selected-busyo-ids').val(),

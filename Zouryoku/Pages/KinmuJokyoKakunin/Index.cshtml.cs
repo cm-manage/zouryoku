@@ -10,7 +10,6 @@ using Model.Model;
 using NPOI.SS.UserModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using System.Text.Json;
 using Zouryoku.Extensions;
 using Zouryoku.Pages.Shared;
 using Zouryoku.Utils;
@@ -688,7 +687,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     return BadRequest("検索結果が存在しません。再度検索してください。");
 
                 var vm = vmOption.IfNone(() => null!)!;
-                
+
                 // vmがnullの場合
                 if (vm == null)
                     return BadRequest("検索結果の取得に失敗しました。再度検索してください。");

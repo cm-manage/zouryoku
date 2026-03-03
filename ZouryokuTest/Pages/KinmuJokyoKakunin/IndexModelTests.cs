@@ -1,11 +1,10 @@
 using CommonLibrary.Extensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Model.Enums;
 using Model.Model;
-using System.Text.Json;
 using Zouryoku;
+using Zouryoku.Extensions;
 using Zouryoku.Pages.KinmuJokyoKakunin;
 using Zouryoku.Utils;
 using static Model.Enums.LeaveBalanceFetchStatus;

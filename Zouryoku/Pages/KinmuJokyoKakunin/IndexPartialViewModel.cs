@@ -75,9 +75,9 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             if (warnLevel == WarnLevel.All)
                 return (WorkList, HolidayList);
 
-            var workList = WorkList.Where(r => 
+            var workList = WorkList.Where(r =>
                 warnLevel == WarnLevel.Warn ? r.IsWarn : r.IsNotice).ToList();
-            var holidayList = HolidayList.Where(r => 
+            var holidayList = HolidayList.Where(r =>
                 warnLevel == WarnLevel.Warn ? r.IsWarn : r.IsNotice).ToList();
 
             return (workList, holidayList);
@@ -146,25 +146,25 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// <summary>
         /// 警告レベルが設定されているかを確認します
         /// </summary>
-        public bool HasWarning => !string.IsNullOrEmpty(AverageMaxWarnLevel) || 
-                                   !string.IsNullOrEmpty(YearTotalWarnLevel) || 
+        public bool HasWarning => !string.IsNullOrEmpty(AverageMaxWarnLevel) ||
+                                   !string.IsNullOrEmpty(YearTotalWarnLevel) ||
                                    !string.IsNullOrEmpty(OverLimitCountWarnLevel) ||
                                    !string.IsNullOrEmpty(MaxConsecutiveWorkingDaysWarnLevel);
 
         /// <summary>
         /// 警告レベルが警告以上かを確認します
         /// </summary>
-        public bool IsWarn => AverageMaxWarnLevel == "warn-level" || 
-                              YearTotalWarnLevel == "warn-level" || 
+        public bool IsWarn => AverageMaxWarnLevel == "warn-level" ||
+                              YearTotalWarnLevel == "warn-level" ||
                               OverLimitCountWarnLevel == "warn-level" ||
                               MaxConsecutiveWorkingDaysWarnLevel == "warn-level";
 
         /// <summary>
         /// 警告レベルが通知以上かを確認します
         /// </summary>
-        public bool IsNotice => IsWarn || 
-                                AverageMaxWarnLevel == "notice-level" || 
-                                YearTotalWarnLevel == "notice-level" || 
+        public bool IsNotice => IsWarn ||
+                                AverageMaxWarnLevel == "notice-level" ||
+                                YearTotalWarnLevel == "notice-level" ||
                                 OverLimitCountWarnLevel == "notice-level" ||
                                 MaxConsecutiveWorkingDaysWarnLevel == "notice-level";
     }

@@ -22,13 +22,13 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// 期間(From)
         /// </summary>
         [Display(Name = "期間(From)")]
-        public string From { get; set; } = DateTime.Now.ToString("yyyy-MM");
+        public string From { get; set; } = string.Empty;
 
         /// <summary>
         /// 期間(To)
         /// </summary>
         [Display(Name = "期間(To)")]
-        public string To { get; set; } = DateTime.Now.ToString("yyyy-MM");
+        public string To { get; set; } = string.Empty;
 
         /// <summary>
         /// 警告レベル

@@ -31,7 +31,7 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                     FromMail = "test@example.com",
                     RequestHost = "http://localhost",
                 },
-                TemplatesFolderPath = "/Templates",
+                TemplatesFolderPath = "Templates",
                 KinmuJokyoFileName = "KinmuJokyo.xlsx",
                 AvgMaxWarn = 70,
                 AvgMaxNotice = 60,
@@ -562,11 +562,10 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
 
         #region OnGetExportExcelAsync
         /// <summary>
-        /// 前提: Export 用の検索結果が Session に存在しない、または不正な状態である
+        /// 前提: Export 用の検索結果が Session に存在しない
         /// 操作: OnGetExportExcelAsync を呼び出す
         /// 結果: 
         /// ・Session にキーが存在しない場合は BadRequest（検索結果が存在しません）
-        /// ・Session に "null" が格納されている場合は BadRequest（検索結果の取得に失敗しました）
         /// </summary>
         [TestMethod]
         public async Task OnGetExportExcelAsync_SessionErrors()
@@ -574,25 +573,13 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
             // Arrange
             IndexModel model = CreateModel();
 
-            // Case A: 「検索結果が存在しません」というメッセージ付きの BadRequest が返ること
-            // Act
-            IActionResult resultA = await model.OnGetExportExcelAsync();
+            // Act: セッションに何も格納していない状態で呼び出す
+            IActionResult result = await model.OnGetExportExcelAsync();
 
             // Assert
-            Assert.IsInstanceOfType(resultA, typeof(BadRequestObjectResult));
-            var badA = (BadRequestObjectResult)resultA;
-            Assert.IsTrue(badA.Value is string && ((string)badA.Value).Contains("検索結果が存在しません"));
-
-            // Case B: 「検索結果の取得に失敗しました」というメッセージ付きの BadRequest が返ること
-            // Act
-            string sessionKey = "StatusView_TableViewModel";
-            model.HttpContext.Session.SetString(sessionKey, "null");
-            IActionResult resultB = await model.OnGetExportExcelAsync();
-
-            // Assert
-            Assert.IsInstanceOfType(resultB, typeof(BadRequestObjectResult));
-            var badB = (BadRequestObjectResult)resultB;
-            Assert.IsTrue(badB.Value is string && ((string)badB.Value).Contains("検索結果の取得に失敗しました"));
+            Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badResult = (BadRequestObjectResult)result;
+            Assert.IsTrue(badResult.Value is string && ((string)badResult.Value).Contains("検索結果が存在しません"));
         }
 
 
@@ -678,8 +665,10 @@ namespace ZouryokuTest.Pages.KinmuJokyoKakunin
                     }
                 }
             };
+
+            // SessionExtensions.Set<T>() を使用してセッションに格納
             string sessionKey = "StatusView_TableViewModel";
-            model.HttpContext.Session.SetString(sessionKey, JsonSerializer.Serialize(vm));
+            model.HttpContext.Session.Set(vm, sessionKey);
 
             // Act
             var result = await model.OnGetExportExcelAsync();

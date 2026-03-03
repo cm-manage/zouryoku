@@ -681,94 +681,106 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// <returns></returns>
         public async Task<IActionResult> OnGetExportExcelAsync()
         {
-            var vmOption = HttpContext.Session.Get<TableViewModel>(SessionKey_StatusViewVm);
-            if (!vmOption.IsSome)
-                return BadRequest("検索結果が存在しません。再度検索してください。");
-
-            var vm = vmOption.IfNone(() => null!)!;
-
-            // テンプレートファイル（フルパス指定の場合は Dir を付けない）
-            var folderPath = appSettings.TemplatesFolderPath;
-            var file = appSettings.KinmuJokyoFileName;
-            var template = Path.IsPathRooted(folderPath)
-                ? Path.Combine(folderPath, file)
-                : Path.Combine(Dir, folderPath, file);
-
-            // テンプレートファイルの存在確認
-            if (!System.IO.File.Exists(template))
-                return BadRequest($"テンプレートファイルが見つかりません: {template}");
-
-            // Excel作成（NPOI）
-            byte[] bytes = ExcelUtil.Write(book =>
+            try
             {
-                var sheet = book.GetSheet("勤務状況");
-                if (sheet == null)
-                    throw new InvalidOperationException("テンプレートに「勤務状況」シートが見つかりません。");
+                var vmOption = HttpContext.Session.Get<TableViewModel>(SessionKey_StatusViewVm);
+                if (!vmOption.IsSome)
+                    return BadRequest("検索結果が存在しません。再度検索してください。");
 
-                int rowIndex = excelHeader;
-                int maxCount = Math.Max(vm.WorkList.Count, vm.HolidayList.Count);
+                var vm = vmOption.IfNone(() => null!)!;
+                
+                // vmがnullの場合
+                if (vm == null)
+                    return BadRequest("検索結果の取得に失敗しました。再度検索してください。");
 
-                // 行数分、1行目をコピーして行を追加
-                for (int i = 1; i < maxCount; i++)
+                // テンプレートファイル（フルパス指定の場合は Dir を付けない）
+                var folderPath = appSettings.TemplatesFolderPath;
+                var file = appSettings.KinmuJokyoFileName;
+                var template = Path.IsPathRooted(folderPath)
+                    ? Path.Combine(folderPath, file)
+                    : Path.Combine(Dir, folderPath, file);
+
+                // テンプレートファイルの存在確認
+                if (!System.IO.File.Exists(template))
+                    return BadRequest($"テンプレートファイルが見つかりません: {template}");
+
+                // Excel作成（NPOI）
+                byte[] bytes = ExcelUtil.Write(book =>
                 {
-                    sheet.CopyAndInsertRow(rowIndex, rowIndex + 1);
-                }
+                    var sheet = book.GetSheet("勤務状況");
+                    if (sheet == null)
+                        throw new InvalidOperationException("テンプレートに「勤務状況」シートが見つかりません。");
 
-                // WorkList と HolidayList を同じ行に並べて記入
-                for (int i = 0; i < maxCount; i++)
-                {
-                    IRow? row = sheet.GetRow(rowIndex + i);
-                    if (row == null)
-                        row = sheet.CreateRow(rowIndex + i);
+                    int rowIndex = excelHeader;
+                    int maxCount = Math.Max(vm.WorkList.Count, vm.HolidayList.Count);
 
-                    // WorkList のデータ（存在する場合）
-                    if (i < vm.WorkList.Count)
+                    // 行数分、1行目をコピーして行を追加
+                    for (int i = 1; i < maxCount; i++)
                     {
-                        var w = vm.WorkList[i];
-                        // 共通
-                        GetOrCreateCell(row, 0).SetCellValue(w.BusyoName);
-                        GetOrCreateCell(row, 1).SetCellValue(w.SyainName);
-                        GetOrCreateCell(row, 2).SetCellValue(w.ZokuseiName);
-                        GetOrCreateCell(row, 3).SetCellValue(w.YearMonth);
-                        GetOrCreateCell(row, 4).SetCellValue((double)w.Jitsudo);
-
-                        // 残業
-                        GetOrCreateCell(row, 5).SetCellValue((double)w.ZangyoExceptHoliday);
-                        GetOrCreateCell(row, 6).SetCellValue((double)w.Zangyo);
-                        GetOrCreateCell(row, 7).SetCellValue((double)w.AverageMax);
-                        GetOrCreateCell(row, 8).SetCellValue((double)w.YearTotal);
-                        if (w.OverLimitCount != null) GetOrCreateCell(row, 9).SetCellValue((double)w.OverLimitCount);
-                        GetOrCreateCell(row, 10).SetCellValue(w.MaxConsecutiveWorkingDays);
+                        sheet.CopyAndInsertRow(rowIndex, rowIndex + 1);
                     }
 
-                    // HolidayList のデータ（存在する場合）
-                    if (i < vm.HolidayList.Count)
+                    // WorkList と HolidayList を同じ行に並べて記入
+                    for (int i = 0; i < maxCount; i++)
                     {
-                        var h = vm.HolidayList[i];
-                        // 休暇
-                        GetOrCreateCell(row, 11).SetCellValue((double)h.PaidYearTotal);
-                        GetOrCreateCell(row, 12).SetCellValue((double)h.PaidRemain);
-                        GetOrCreateCell(row, 13).SetCellValue((double)h.PaidHalfRemain);
-                        if (h.SpecialUsed != null) GetOrCreateCell(row, 14).SetCellValue((double)h.SpecialUsed);
-                        GetOrCreateCell(row, 15).SetCellValue((double)h.TransferRemain);
-                        GetOrCreateCell(row, 16).SetCellValue((double)h.Transfer3Month);
-                        GetOrCreateCell(row, 17).SetCellValue((double)h.TransferExpired);
-                    }
-                }
+                        IRow? row = sheet.GetRow(rowIndex + i);
+                        if (row == null)
+                            row = sheet.CreateRow(rowIndex + i);
 
-                for (int i = 0; i <= 17; i++)
-                    sheet.AutoSizeColumn(i);
+                        // WorkList のデータ（存在する場合）
+                        if (i < vm.WorkList.Count)
+                        {
+                            var w = vm.WorkList[i];
+                            // 共通
+                            GetOrCreateCell(row, 0).SetCellValue(w.BusyoName);
+                            GetOrCreateCell(row, 1).SetCellValue(w.SyainName);
+                            GetOrCreateCell(row, 2).SetCellValue(w.ZokuseiName);
+                            GetOrCreateCell(row, 3).SetCellValue(w.YearMonth);
+                            GetOrCreateCell(row, 4).SetCellValue((double)w.Jitsudo);
+
+                            // 残業
+                            GetOrCreateCell(row, 5).SetCellValue((double)w.ZangyoExceptHoliday);
+                            GetOrCreateCell(row, 6).SetCellValue((double)w.Zangyo);
+                            GetOrCreateCell(row, 7).SetCellValue((double)w.AverageMax);
+                            GetOrCreateCell(row, 8).SetCellValue((double)w.YearTotal);
+                            if (w.OverLimitCount != null) GetOrCreateCell(row, 9).SetCellValue((double)w.OverLimitCount);
+                            GetOrCreateCell(row, 10).SetCellValue(w.MaxConsecutiveWorkingDays);
+                        }
+
+                        // HolidayList のデータ（存在する場合）
+                        if (i < vm.HolidayList.Count)
+                        {
+                            var h = vm.HolidayList[i];
+                            // 休暇
+                            GetOrCreateCell(row, 11).SetCellValue((double)h.PaidYearTotal);
+                            GetOrCreateCell(row, 12).SetCellValue((double)h.PaidRemain);
+                            GetOrCreateCell(row, 13).SetCellValue((double)h.PaidHalfRemain);
+                            if (h.SpecialUsed != null) GetOrCreateCell(row, 14).SetCellValue((double)h.SpecialUsed);
+                            GetOrCreateCell(row, 15).SetCellValue((double)h.TransferRemain);
+                            GetOrCreateCell(row, 16).SetCellValue((double)h.Transfer3Month);
+                            GetOrCreateCell(row, 17).SetCellValue((double)h.TransferExpired);
+                        }
+                    }
+
+                    for (int i = 0; i <= 17; i++)
+                        sheet.AutoSizeColumn(i);
+                }
+                , template
+                );
+
+                var fileName = $"勤務状況.xlsx";
+
+                return File(
+                    bytes,
+                    FileUtil.XlsxContextType,
+                    fileName
+                );
             }
-            , template
-            );
-
-            var fileName = $"勤務状況.xlsx";
-
-            return File(
-                bytes,
-                FileUtil.XlsxContextType,
-                fileName
-            );
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Excel出力処理でエラーが発生しました");
+                return BadRequest("Excel出力処理でエラーが発生しました。");
+            }
         }
     }
 

@@ -48,24 +48,14 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         public StatusSearchViewModel SearchIndex { get; set; } = new();
 
         /// <summary>
-        /// 行 通知
-        /// </summary>
-        public bool includesNotice = false;
-
-        /// <summary>
-        /// 行 警告
-        /// </summary>
-        public bool includesWarn = false;
-
-        /// <summary>
         /// 残業 集計年度初月
         /// </summary>
-        public const int zangyoMonth = 7;
+        public const int zangyoMonth = KinmuJokyoConstants.ZangyoMonth;
 
         /// <summary>
         /// 有給 集計年度初月
         /// </summary>
-        public const int yukyuMonth = 4;
+        public const int yukyuMonth = KinmuJokyoConstants.YukyuMonth;
 
         /// <summary>
         /// Excelテンプレートヘッダ行数
@@ -125,39 +115,58 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     .Select(s => long.Parse(s.Trim('"'))) // "1" の場合も対応
                     .ToArray();
 
-            // 1回で取得
+            // Include を分割して AsSplitQuery() を使用（デカルト爆発対策）
             var syains = await db.Syains
                     .AsNoTracking()
+                    .Where(x => selectedBusyoIds.Length == 0
+                        || selectedBusyoIds.Contains(x.BusyoId))
                     .Include(s => s.Busyo)
-                        .Where(x => selectedBusyoIds.Length == 0
-                            || selectedBusyoIds.Contains(x.BusyoId)) // 「全社」or選択中の部署
                     .Include(s => s.KintaiZokusei)
-                    .Include(s => s.Nippous
-                        .Where(n =>
-                            n.NippouYmd >= searchFrom &&
-                            n.NippouYmd <= searchTo)
-                        )
-                    .ThenInclude(n => n.SyukkinKubunId1Navigation) // 出勤区分1
-                    .Include(s => s.Nippous
-                        .Where(n =>
-                            n.NippouYmd >= searchFrom &&
-                            n.NippouYmd <= searchTo)
-                        )
-                        .ThenInclude(n => n.SyukkinKubunId2Navigation) // 出勤区分2
-                    .Include(s => s.FurikyuuZans)
-                    .Include(s => s.SyainBase)
-                        .ThenInclude(b => b.YuukyuuZans)
-                    .Include(s => s.SyainBase)
-                        .ThenInclude(b => b.YukyuRirekis)
-                        .ThenInclude(b => b.YukyuNendo) // 有給年度
-                    .Include(s => s.UkagaiHeaders)
-                        .ThenInclude(h => h.UkagaiShinseis)
+                    .AsSplitQuery()
                     .ToListAsync();
+
+            // 日報データを別途取得（期間条件: searchFrom <= NippouYmd <= searchTo）
+            var nippous = await db.Nippous
+                    .AsNoTracking()
+                    .Where(n => searchFrom <= n.NippouYmd &&
+                                n.NippouYmd <= searchTo &&
+                                syains.Select(s => s.Id).Contains(n.SyainId))
+                    .Include(n => n.SyukkinKubunId1Navigation)
+                    .Include(n => n.SyukkinKubunId2Navigation)
+                    .AsSplitQuery()
+                    .ToListAsync();
+
+            // 伺いデータを別途取得
+            var ukagaiHeaders = await db.UkagaiHeaders
+                    .AsNoTracking()
+                    .Where(h => !h.Invalid && syains.Select(s => s.Id).Contains(h.SyainId))
+                    .Include(h => h.UkagaiShinseis)
+                    .AsSplitQuery()
+                    .ToListAsync();
+
+            // 振替休暇データを別途取得
+            var furikyuuZans = await db.FurikyuuZans
+                    .AsNoTracking()
+                    .Where(z => syains.Select(s => s.Id).Contains(z.SyainId))
+                    .ToListAsync();
+
+            // SyainBase関連データを別途取得
+            var syainBases = await db.SyainBases
+                    .AsNoTracking()
+                    .Where(b => syains.Select(s => s.SyainBaseId).Contains(b.Id))
+                    .Include(b => b.YuukyuuZans)
+                    .Include(b => b.YukyuRirekis)
+                        .ThenInclude(r => r.YukyuNendo)
+                    .AsSplitQuery()
+                    .ToListAsync();
+
+            var syainBaseMap = syainBases.ToDictionary(x => x.Id);
 
             foreach (var s in syains)
             {
-                // ■月別集計
-                var monthlyList = s.Nippous
+                // ■月別集計（月中に社員IDが変わった場合は1行に合算）
+                var monthlyList = nippous
+                    .Where(n => n.SyainId == s.Id)
                     .GroupBy(n => new { n.NippouYmd.Year, n.NippouYmd.Month })
                     .Select(g => new
                     {
@@ -172,16 +181,17 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         // ■残業_残業
                         Zangyo = g.Sum(n => (n.HZangyo ?? 0) + (n.DZangyo ?? 0) + (n.NJitsudou ?? 0)),
                         // ■特別休暇取得
-                        SpecialUsed = g.Sum(n => HasAnyKubun(n, 計画特別休暇) ? 1 : 0),
+                        SpecialUsed = g.Count(n => HasAnyKubun(n, 計画特別休暇)),
+                        Nippous = g.ToList()
                     })
                     .OrderBy(x => x.Year)
                     .ThenBy(x => x.Month)
                     .ToList();
 
                 // 伺い入力ヘッダと伺い申請情報から、残業年度・制限超過回数をMap化
-                var ukagaiByZangyoNendo = s.UkagaiHeaders
-                    .Where(h => !h.Invalid)
-                    .GroupBy(h => h.WorkYmd.Month >= zangyoMonth ? h.WorkYmd.Year : h.WorkYmd.Year - 1)
+                var ukagaiByZangyoNendo = ukagaiHeaders
+                    .Where(h => !h.Invalid && h.SyainId == s.Id)
+                    .GroupBy(h => h.WorkYmd.Month >= KinmuJokyoConstants.ZangyoMonth ? h.WorkYmd.Year : h.WorkYmd.Year - 1)
                     .ToDictionary(
                         g => g.Key,
                         g => g.SelectMany(h => h.UkagaiShinseis)
@@ -199,8 +209,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                 };
 
                 // 出勤日リスト
-                var workingDates = s.Nippous
-                    .Where(n => HasAnyKubun(n, workKubuns))
+                var workingDates = nippous
+                    .Where(n => n.SyainId == s.Id && HasAnyKubun(n, workKubuns))
                     .Select(n => n.NippouYmd)
                     .Distinct()
                     .OrderBy(d => d)
@@ -218,30 +228,21 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     // 集計月末日
                     var finalDay = new DateTime(m.Year, m.Month, 1).ToDateOnly().AddMonths(1).AddDays(-1);
 
-                    includesNotice = false;
-                    includesWarn = false;
-
                     // ■残業_平均最大
                     var avgMax = GetMaxAverageZangyoForRecentMonths(m.Year, m.Month, zangyoMap);
 
                     // 残業年度
-                    var zangyoNendo = m.Month >= zangyoMonth ? m.Year : m.Year - 1;
+                    var zangyoNendo = m.Month >= KinmuJokyoConstants.ZangyoMonth ? m.Year : m.Year - 1;
                     // 残業年度初日
-                    var zangyoFirstDay = new DateTime(zangyoNendo, zangyoMonth, 1).ToDateOnly();
+                    var zangyoFirstDay = new DateTime(zangyoNendo, KinmuJokyoConstants.ZangyoMonth, 1).ToDateOnly();
 
                     // ■残業_年間累計
-                    // 残業（法休除く）の年度累計
-                    // ・「年度開始月〜集計対象月」までの実績のみを対象とする
-                    // ・検索期間や未来月の影響を受けないよう、月別集計結果は使わず日報から直接算出する
-                    var yearTotalZangyoExceptHoliday = s.Nippous
-                        .Where(n =>
-                        {
-                            return zangyoFirstDay <= n.NippouYmd && n.NippouYmd <= finalDay;
-                        })
+                    var yearTotalZangyoExceptHoliday = m.Nippous
+                        .Where(n => zangyoFirstDay <= n.NippouYmd && n.NippouYmd <= finalDay)
                         .Sum(n => (n.HZangyo ?? 0) + (n.DZangyo ?? 0));
 
                     // ■残業_制限超過回数
-                    int? overLimitCount = ukagaiByZangyoNendo.TryGetValue(zangyoNendo, out var c) ? c : null;
+                    int? overLimitCount = ukagaiByZangyoNendo.TryGetValue(zangyoNendo, out var c) && c > 0 ? c : null;
 
                     // ■最大連勤日数 ※6以上の月のみ表示
                     var (maxConsecutiveStr, maxConsecutiveNum) = CalcMaxConsecutiveForMonth(streaks, m.Year, m.Month);
@@ -257,105 +258,78 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
                         ZangyoExceptHoliday = m.ZangyoExceptHoliday,
                         Zangyo = m.Zangyo,
-                        // TODO 残業の閾値について、未定
                         ZangyoWarnLevel = "",
                         AverageMax = avgMax,
-                        AverageMaxWarnLevel = GetWarnLevelCssByZangyoValue(
-                            avgMax,
-                            appSettings.AvgMaxWarn,
-                            appSettings.AvgMaxNotice),
                         YearTotal = yearTotalZangyoExceptHoliday,
-                        YearTotalWarnLevel = GetWarnLevelCssByZangyoValue(
-                            yearTotalZangyoExceptHoliday,
-                            appSettings.YearTotalZangyoExceptHolidayWarn,
-                            appSettings.YearTotalZangyoExceptHolidayNotice),
-                        OverLimitCount = c == 0 ? null : overLimitCount,// ※超えた月のみ表示
-                        OverLimitCountWarnLevel = GetWarnLevelCssByZangyoValue(
-                            overLimitCount,
-                            appSettings.OverLimitCountWarn,
-                            appSettings.OverLimitCountNotice),
+                        OverLimitCount = overLimitCount,
                         MaxConsecutiveWorkingDays = maxConsecutiveStr,
-                        MaxConsecutiveWorkingDaysWarnLevel = GetWarnLevelCssByZangyoValue(
-                            maxConsecutiveNum,
-                            appSettings.MaxConsecutiveWorkingDaysWarn,
-                            appSettings.MaxConsecutiveWorkingDaysNotice),
                     };
 
                     // 有給年度
-                    var yukyuNendo = m.Month >= yukyuMonth ? m.Year : m.Year - 1;
+                    var yukyuNendo = m.Month >= KinmuJokyoConstants.YukyuMonth ? m.Year : m.Year - 1;
                     // 有給年度初日
-                    var yukyuFirstDay = new DateTime(yukyuNendo, yukyuMonth, 1).ToDateOnly();
-
-                    // 日報実績テーブルの有給年度別リスト
-                    var yukyuYearTotal = s.Nippous
-                        .Where(n =>
-                        {
-                            return yukyuFirstDay <= n.NippouYmd && n.NippouYmd <= finalDay;
-                        })
-                        .ToList();
+                    var yukyuFirstDay = new DateTime(yukyuNendo, KinmuJokyoConstants.YukyuMonth, 1).ToDateOnly();
 
                     // ■有給休暇_年間累計
-                    decimal paidYearTotal = yukyuYearTotal.Sum(n =>
-                    {
-                        if (HasAnyKubun(n,
-                            年次有給休暇_1日,
-                            計画有給休暇))
-                            return 1m;
-
-                        if (HasAnyKubun(n, 半日有給))
-                            return 0.5m;
-
-                        return 0m;
-                    });
+                    decimal paidYearTotal = m.Nippous
+                        .Where(n => yukyuFirstDay <= n.NippouYmd && n.NippouYmd <= finalDay)
+                        .Sum(n =>
+                        {
+                            if (HasAnyKubun(n, 年次有給休暇_1日, 計画有給休暇))
+                                return 1m;
+                            if (HasAnyKubun(n, 半日有給))
+                                return 0.5m;
+                            return 0m;
+                        });
 
                     // 年度初めの有給日数
-                    decimal wariate;
+                    decimal wariate = 0;
                     var today = timeProvider.Today();
-                    // 現在の有給年度
-                    var currentNendo = today.Month >= yukyuMonth ? today.Year : today.Year - 1;
+                    var currentNendo = today.Month >= KinmuJokyoConstants.YukyuMonth ? today.Year : today.Year - 1;
 
-                    if (yukyuNendo == currentNendo)
+                    if (syainBaseMap.TryGetValue(s.SyainBaseId, out var syainBase))
                     {
-                        // 残日数テーブルを見る
-                        wariate = s.SyainBase.YuukyuuZans?.SingleOrDefault()?.Wariate ?? 0;
-                    }
-                    else
-                    {
-                        // 履歴テーブルを見る
-                        wariate = s.SyainBase.YukyuRirekis
-                            .SingleOrDefault(z => z.YukyuNendo.Nendo == yukyuNendo)?.Wariate ?? 0;
+                        if (yukyuNendo == currentNendo)
+                        {
+                            wariate = syainBase.YuukyuuZans?.SingleOrDefault()?.Wariate ?? 0;
+                        }
+                        else
+                        {
+                            wariate = syainBase.YukyuRirekis
+                                .SingleOrDefault(z => z.YukyuNendo.Nendo == yukyuNendo)?.Wariate ?? 0;
+                        }
                     }
 
                     // ■有給休暇_残日数
                     var paidRemain = wariate - paidYearTotal;
 
                     // 半日休_年間累計
-                    var halfDayUsed = yukyuYearTotal.Count(n => HasAnyKubun(n, 半日有給));
-                    // ■有給休暇_うち半日残
+                    var halfDayUsed = m.Nippous
+                        .Where(n => yukyuFirstDay <= n.NippouYmd && n.NippouYmd <= finalDay)
+                        .Count(n => HasAnyKubun(n, 半日有給));
                     var paidHalfRemain = 10 - (0.5m * halfDayUsed);
 
                     // ■振替休暇_残日数
-                    var transferRemain = s.FurikyuuZans
-                        .Where(z =>
-                            z.KyuujitsuSyukkinYmd <= finalDay &&
-                            finalDay <= z.DaikyuuKigenYmd
-                        )
+                    var transferRemain = furikyuuZans
+                        .Where(z => z.SyainId == s.Id &&
+                                   z.KyuujitsuSyukkinYmd <= finalDay &&
+                                   finalDay <= z.DaikyuuKigenYmd)
                         .Sum(CalcFurikyuuRemain);
 
                     // ■振替休暇_3ヶ月期限
-                    var transfer3Month = s.FurikyuuZans
-                        .Where(z => m.Month == z.KyuujitsuSyukkinYmd.AddMonths(3).AddDays(-1).Month)
+                    var transfer3Month = furikyuuZans
+                        .Where(z => z.SyainId == s.Id &&
+                                   m.Month == z.KyuujitsuSyukkinYmd.AddMonths(3).AddDays(-1).Month)
                         .Sum(CalcFurikyuuRemain);
 
                     // ■振替休暇_失効日数
-                    var transferExpired = s.FurikyuuZans
-                        .Where(z => m.Month == z.DaikyuuKigenYmd.Month)
+                    var transferExpired = furikyuuZans
+                        .Where(z => z.SyainId == s.Id && m.Month == z.DaikyuuKigenYmd.Month)
                         .Sum(CalcFurikyuuRemain);
 
                     // 有給情報 行作成
                     HolidayRowViewModel yukyuRow = new()
                     {
-                        // 共通
                         BusyoName = zangyoRow.BusyoName,
                         SyainName = zangyoRow.SyainName,
                         ZokuseiName = zangyoRow.ZokuseiName,
@@ -363,19 +337,22 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         Jitsudo = zangyoRow.Jitsudo,
 
                         PaidYearTotal = paidYearTotal,
-                        PaidYearTotalWarnLevel = GetWarnLevelCssByYukyuValue(paidYearTotal, m.Month),
                         PaidRemain = paidRemain,
                         PaidHalfRemain = paidHalfRemain,
-                        SpecialUsed = m.SpecialUsed == 0 ? null : m.SpecialUsed, // 取得月のみ表示
+                        SpecialUsed = m.SpecialUsed == 0 ? null : m.SpecialUsed,
                         TransferRemain = transferRemain,
                         Transfer3Month = transfer3Month,
                         TransferExpired = transferExpired
                     };
 
-                    // 検索条件.警告レベルでの絞り込み
-                    if (Search.WarnLevel == All ||
-                        Search.WarnLevel == Warn && includesWarn ||
-                        Search.WarnLevel == Notice && includesNotice)
+                    // 警告レベルを設定
+                    SetWarningLevels(zangyoRow, avgMax, yearTotalZangyoExceptHoliday, overLimitCount, maxConsecutiveNum);
+                    yukyuRow.PaidYearTotalWarnLevel = GetWarnLevelCssByYukyuValue(paidYearTotal, m.Month);
+
+                    // 警告レベルでの絞り込み
+                    if (Search.WarnLevel == WarnLevel.All ||
+                        Search.WarnLevel == WarnLevel.Warn && (zangyoRow.IsWarn || yukyuRow.IsWarn) ||
+                        Search.WarnLevel == WarnLevel.Notice && (zangyoRow.IsNotice || yukyuRow.IsNotice))
                     {
                         vm.WorkList.Add(zangyoRow);
                         vm.HolidayList.Add(yukyuRow);
@@ -384,13 +361,38 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             }
 
             // Excel出力用にSessionへ保持
-            HttpContext.Session.SetString(
-                SessionKey_StatusViewVm,
-                JsonSerializer.Serialize(vm)
-            );
+            HttpContext.Session.Set(vm, SessionKey_StatusViewVm);
 
             var html = await PartialToJsonAsync("_IndexPartial", vm);
             return SuccessJson(data: html);
+        }
+
+        /// <summary>
+        /// 警告レベルを設定します
+        /// </summary>
+        private void SetWarningLevels(
+            WorkRowViewModel row,
+            decimal avgMax,
+            decimal yearTotal,
+            decimal? overLimitCount,
+            decimal? maxConsecutiveNum)
+        {
+            row.AverageMaxWarnLevel = GetWarnLevelCssByZangyoValue(
+                avgMax,
+                appSettings.AvgMaxWarn,
+                appSettings.AvgMaxNotice);
+            row.YearTotalWarnLevel = GetWarnLevelCssByZangyoValue(
+                yearTotal,
+                appSettings.YearTotalZangyoExceptHolidayWarn,
+                appSettings.YearTotalZangyoExceptHolidayNotice);
+            row.OverLimitCountWarnLevel = GetWarnLevelCssByZangyoValue(
+                overLimitCount,
+                appSettings.OverLimitCountWarn,
+                appSettings.OverLimitCountNotice);
+            row.MaxConsecutiveWorkingDaysWarnLevel = GetWarnLevelCssByZangyoValue(
+                maxConsecutiveNum,
+                appSettings.MaxConsecutiveWorkingDaysWarn,
+                appSettings.MaxConsecutiveWorkingDaysNotice);
         }
 
         /// <summary>
@@ -427,12 +429,10 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             else if (warn <= value)
             {
                 level = Warn;
-                includesWarn = true;
             }
             else if (notice <= value)
             {
                 level = Notice;
-                includesNotice = true;
             }
 
             return ToCssClass(level);
@@ -455,13 +455,11 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                 || secondTerm && value <= appSettings.PaidYearTotalWarn2To3)
             {
                 level = Warn;
-                includesWarn = true;
             }
             else if (firstTerm && value <= appSettings.PaidYearTotalNotice12To1
                 || secondTerm && value <= appSettings.PaidYearTotalNotice2To3)
             {
                 level = Notice;
-                includesNotice = true;
             }
 
             return ToCssClass(level);
@@ -672,18 +670,18 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// <returns></returns>
         public async Task<IActionResult> OnGetExportExcelAsync()
         {
-            var json = HttpContext.Session.GetString(SessionKey_StatusViewVm);
-            if (string.IsNullOrEmpty(json))
+            var vmOption = HttpContext.Session.Get<TableViewModel>(SessionKey_StatusViewVm);
+            if (!vmOption.IsSome)
                 return BadRequest("検索結果が存在しません。再度検索してください。");
 
-            var vm = JsonSerializer.Deserialize<TableViewModel>(json);
-            if (vm == null)
-                return BadRequest("検索結果の取得に失敗しました。");
+            var vm = vmOption.IfNone(() => null!)!;
 
-            // テンプレートファイル
+            // テンプレートファイル（フルパス指定の場合は Dir を付けない）
             var folderPath = appSettings.TemplatesFolderPath;
             var file = appSettings.KinmuJokyoFileName;
-            var template = Dir + folderPath + "/" + file;
+            var template = Path.IsPathRooted(folderPath)
+                ? Path.Combine(folderPath, file)
+                : Path.Combine(Dir, folderPath, file);
 
             // Excel作成（NPOI）
             byte[] bytes = ExcelUtil.Write(book =>

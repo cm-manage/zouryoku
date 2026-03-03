@@ -48,6 +48,15 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
     }
 
     /// <summary>
+    /// 定数値
+    /// </summary>
+    public static class KinmuJokyoConstants
+    {
+        public const int ZangyoMonth = 7;       // 残業 集計年度初月
+        public const int YukyuMonth = 4;        // 有給 集計年度初月
+    }
+
+    /// <summary>
     /// 一覧
     /// </summary>
     public class TableViewModel
@@ -57,6 +66,22 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
         /// <summary>休暇情報</summary>
         public List<HolidayRowViewModel> HolidayList { get; set; } = [];
+
+        /// <summary>
+        /// 指定した警告レベルでフィルタリングされた行を返します
+        /// </summary>
+        public (List<WorkRowViewModel>, List<HolidayRowViewModel>) FilterByWarnLevel(WarnLevel warnLevel)
+        {
+            if (warnLevel == WarnLevel.All)
+                return (WorkList, HolidayList);
+
+            var workList = WorkList.Where(r => 
+                warnLevel == WarnLevel.Warn ? r.IsWarn : r.IsNotice).ToList();
+            var holidayList = HolidayList.Where(r => 
+                warnLevel == WarnLevel.Warn ? r.IsWarn : r.IsNotice).ToList();
+
+            return (workList, holidayList);
+        }
     }
 
     /// <summary>
@@ -117,6 +142,31 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
         /// <summary>最大連勤日数 警告レベル</summary>
         public string MaxConsecutiveWorkingDaysWarnLevel { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 警告レベルが設定されているかを確認します
+        /// </summary>
+        public bool HasWarning => !string.IsNullOrEmpty(AverageMaxWarnLevel) || 
+                                   !string.IsNullOrEmpty(YearTotalWarnLevel) || 
+                                   !string.IsNullOrEmpty(OverLimitCountWarnLevel) ||
+                                   !string.IsNullOrEmpty(MaxConsecutiveWorkingDaysWarnLevel);
+
+        /// <summary>
+        /// 警告レベルが警告以上かを確認します
+        /// </summary>
+        public bool IsWarn => AverageMaxWarnLevel == "warn-level" || 
+                              YearTotalWarnLevel == "warn-level" || 
+                              OverLimitCountWarnLevel == "warn-level" ||
+                              MaxConsecutiveWorkingDaysWarnLevel == "warn-level";
+
+        /// <summary>
+        /// 警告レベルが通知以上かを確認します
+        /// </summary>
+        public bool IsNotice => IsWarn || 
+                                AverageMaxWarnLevel == "notice-level" || 
+                                YearTotalWarnLevel == "notice-level" || 
+                                OverLimitCountWarnLevel == "notice-level" ||
+                                MaxConsecutiveWorkingDaysWarnLevel == "notice-level";
     }
 
     /// <summary>
@@ -147,5 +197,20 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
         /// <summary>振替休暇_失効日数</summary>
         public decimal TransferExpired { get; set; }
+
+        /// <summary>
+        /// 警告レベルが設定されているかを確認します
+        /// </summary>
+        public bool HasWarning => !string.IsNullOrEmpty(PaidYearTotalWarnLevel);
+
+        /// <summary>
+        /// 警告レベルが警告以上かを確認します
+        /// </summary>
+        public bool IsWarn => PaidYearTotalWarnLevel == "warn-level";
+
+        /// <summary>
+        /// 警告レベルが通知以上かを確認します
+        /// </summary>
+        public bool IsNotice => IsWarn || PaidYearTotalWarnLevel == "notice-level";
     }
 }

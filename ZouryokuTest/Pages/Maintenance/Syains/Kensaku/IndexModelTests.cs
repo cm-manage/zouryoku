@@ -167,10 +167,10 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetAsync();
 
             // Assert
-            Assert.AreEqual((long)みなし対象者, model.Condition.KintaiZokuseiId, "初期表示時の勤怠属性IDは" +
+            Assert.AreEqual((EmployeeWorkType)みなし対象者, model.SearchCondition.KintaiZokuseiId, "初期表示時の勤怠属性IDは" +
                 "3であること。");
-            Assert.IsNotNull(model.Condition.KintaiZokuseiOptions, "勤怠属性の選択肢が取得されていること");
-            Assert.AreEqual(3, model.Condition.KintaiZokuseiOptions.Count(), "勤怠属性の選択肢が" +
+            Assert.IsNotNull(model.KintaiZokuseiOptions, "勤怠属性の選択肢が取得されていること");
+            Assert.AreEqual(3, model.KintaiZokuseiOptions.Count(), "勤怠属性の選択肢が" +
                 "2件取得されていること");
         }
 
@@ -185,13 +185,13 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.KintaiZokuseiId = (long)パート;
+            model.SearchCondition.KintaiZokuseiId = (EmployeeWorkType)パート;
 
             // Act
             await model.OnGetAsync();
 
             // Assert
-            Assert.AreEqual((long)パート, model.Condition.KintaiZokuseiId, "事前設定した勤怠属性IDが保持されること");
+            Assert.AreEqual((EmployeeWorkType)パート, model.SearchCondition.KintaiZokuseiId, "事前設定した勤怠属性IDが保持されること");
         }
 
         /// <summary>
@@ -210,9 +210,9 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetAsync();
 
             // Assert
-            Assert.IsFalse(model.Condition.KintaiZokuseiId.HasValue, "みなし対象者が存在しない場合は勤怠属性IDが" +
+            Assert.IsFalse(model.SearchCondition.KintaiZokuseiId.HasValue, "みなし対象者が存在しない場合は勤怠属性IDが" +
                 "設定されないこと");
-            Assert.AreEqual(2, model.Condition.KintaiZokuseiOptions.Count(), "みなし対象者なしの2件が" +
+            Assert.AreEqual(2, model.KintaiZokuseiOptions.Count(), "みなし対象者なしの2件が" +
                 "選択肢になること");
         }
 
@@ -232,8 +232,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetAsync();
 
             // Assert
-            Assert.IsNotNull(model.Condition.UserRoleOptions, "ロールの選択肢が取得されていること");
-            Assert.AreEqual(2, model.Condition.UserRoleOptions.Count(), "ロールの選択肢が2件取得されていること");
+            Assert.IsNotNull(model.UserRoleOptions, "ロールの選択肢が取得されていること");
+            Assert.AreEqual(2, model.UserRoleOptions.Count(), "ロールの選択肢が2件取得されていること");
         }
 
         /// <summary>
@@ -252,10 +252,10 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetAsync();
 
             // Assert
-            Assert.IsNotNull(model.Condition.KengenOptions, "社員権限の選択肢が取得されていること");
+            Assert.IsNotNull(model.KengenOptions, "社員権限の選択肢が取得されていること");
             // EmployeeAuthority enumの全値分
             var expectedCount = Enum.GetValues(typeof(EmployeeAuthority)).Length;
-            Assert.AreEqual(expectedCount, model.Condition.KengenOptions.Count(), "全権限の選択肢が" +
+            Assert.AreEqual(expectedCount, model.KengenOptions.Count(), "全権限の選択肢が" +
                 "取得されていること");
         }
 
@@ -337,7 +337,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.IncludeRetired = true;
+            model.SearchCondition.IncludeRetired = true;
 
             // Act
             await model.OnGetSearchAsync();
@@ -358,7 +358,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.SyainNo = "003"; // S003(鈴木)
+            model.SearchCondition.SyainNo = "003"; // S003(鈴木)
 
             // Act
             await model.OnGetSearchAsync();
@@ -379,7 +379,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.SyainName = "太郎"; // 田中太郎(S001)
+            model.SearchCondition.SyainName = "太郎"; // 田中太郎(S001)
 
             // Act
             await model.OnGetSearchAsync();
@@ -402,7 +402,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.SyainName = "花子"; // 佐藤花子(S002, 退職者)
+            model.SearchCondition.SyainName = "花子"; // 佐藤花子(S002, 退職者)
 
             // Act（実行）
             await model.OnGetSearchAsync();
@@ -426,8 +426,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.SyainName = "花子"; // 佐藤花子(S002, 退職者)
-            model.Condition.IncludeRetired = true;
+            model.SearchCondition.SyainName = "花子"; // 佐藤花子(S002, 退職者)
+            model.SearchCondition.IncludeRetired = true;
 
             // Act（実行）
             await model.OnGetSearchAsync();
@@ -454,7 +454,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.BusyoName = "システム"; // 田中(S001)のみ
+            model.SearchCondition.BusyoName = "システム"; // 田中(S001)のみ
 
             // Act
             await model.OnGetSearchAsync();
@@ -475,8 +475,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.BusyoName = "営業"; // 佐藤(退職)と鈴木
-            model.Condition.IncludeRetired = true;
+            model.SearchCondition.BusyoName = "営業"; // 佐藤(退職)と鈴木
+            model.SearchCondition.IncludeRetired = true;
 
             // Act
             await model.OnGetSearchAsync();
@@ -496,7 +496,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.KintaiZokuseiId = 2; // シフト勤務 → 鈴木(S003)のみ
+            model.SearchCondition.KintaiZokuseiId = EmployeeWorkType._3か月60時間; // シフト勤務 → 鈴木(S003)のみ
 
             // Act
             await model.OnGetSearchAsync();
@@ -517,7 +517,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.UserRoleId = 1; // 管理者 → 田中(S001)のみ
+            model.SearchCondition.UserRoleId = 1; // 管理者 → 田中(S001)のみ
 
             // Act
             await model.OnGetSearchAsync();
@@ -538,7 +538,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.Kengen = 労働状況報告; // 田中(S001)と鈴木(S003)
+            model.SearchCondition.Kengen = 労働状況報告; // 田中(S001)と鈴木(S003)
 
             // Act
             await model.OnGetSearchAsync();
@@ -560,7 +560,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.Kengen = 勤務日報未確定チェック; // 鈴木(S003)のみ
+            model.SearchCondition.Kengen = 勤務日報未確定チェック; // 鈴木(S003)のみ
 
             // Act
             await model.OnGetSearchAsync();
@@ -581,8 +581,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.Grade = 5; // 佐藤(S002, 級職=5, 退職)
-            model.Condition.IncludeRetired = true;
+            model.SearchCondition.Kyusyoku = 5; // 佐藤(S002, 級職=5, 退職)
+            model.SearchCondition.IncludeRetired = true;
 
             // Act
             await model.OnGetSearchAsync();
@@ -603,7 +603,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.Grade = 3; // 田中(級職3)と鈴木(級職3)
+            model.SearchCondition.Kyusyoku = 3; // 田中(級職3)と鈴木(級職3)
 
             // Act
             await model.OnGetSearchAsync();
@@ -623,7 +623,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.SyainNo = "XXXX"; // 存在しない
+            model.SearchCondition.SyainNo = "XXXX"; // 存在しない
 
             // Act
             await model.OnGetSearchAsync();
@@ -643,8 +643,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.BusyoName = "営業"; // 営業部の社員
-            model.Condition.KintaiZokuseiId = 2; // シフト勤務
+            model.SearchCondition.BusyoName = "営業"; // 営業部の社員
+            model.SearchCondition.KintaiZokuseiId = EmployeeWorkType._3か月60時間; // シフト勤務
 
             // Act
             await model.OnGetSearchAsync();
@@ -670,7 +670,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await db.SaveChangesAsync();
 
             var model = CreateModel();
-            model.Condition.IncludeRetired = true; // 全員取得
+            model.SearchCondition.IncludeRetired = true; // 全員取得
 
             // Act
             await model.OnGetSearchAsync();
@@ -719,7 +719,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             Assert.AreEqual("T100", vm.SyainNo, "SyainNoが一致すること");
             Assert.AreEqual("テスト太郎", vm.Name, "Nameが一致すること");
             Assert.AreEqual("テスト部署", vm.BusyoName, "BusyoNameが一致すること");
-            Assert.AreEqual((short)5, vm.Grade, "Gradeが一致すること");
+            Assert.AreEqual((short)5, vm.Kyusyoku, "Kyusyokuが一致すること");
             Assert.AreEqual("通常", vm.KintaiZokuseiName, "KintaiZokuseiNameが一致すること");
             Assert.AreEqual("管理者", vm.UserRoleName, "UserRoleNameが一致すること");
             Assert.AreEqual("退職", vm.RetiredDisplay, "退職フラグが'退職'と表示されること");
@@ -753,7 +753,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             Assert.AreEqual("T200", vm.SyainNo, "SyainNoが一致すること");
             Assert.AreEqual("テスト花子", vm.Name, "Nameが一致すること");
             Assert.AreEqual("営業部", vm.BusyoName, "BusyoNameが一致すること");
-            Assert.AreEqual((short)2, vm.Grade, "Gradeが一致すること");
+            Assert.AreEqual((short)2, vm.Kyusyoku, "Kyusyokuが一致すること");
             Assert.AreEqual("シフト", vm.KintaiZokuseiName, "KintaiZokuseiNameが一致すること");
             Assert.AreEqual("一般", vm.UserRoleName, "UserRoleNameが一致すること");
             Assert.AreEqual(string.Empty, vm.RetiredDisplay, "在職の場合は空文字になること");
@@ -770,15 +770,15 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             var condition = new SyainSearchCondition
             {
                 SyainNo = "S999",
-                Grade = 9,
+                Kyusyoku = 9,
                 IncludeRetired = true
             };
 
             // Act
-            model.Condition = condition;
+            model.SearchCondition = condition;
 
             // Assert
-            Assert.AreSame(condition, model.Condition, "Conditionのsetter/getterで同一インスタンスが保持されること");
+            Assert.AreSame(condition, model.SearchCondition, "Conditionのsetter/getterで同一インスタンスが保持されること");
         }
 
         private static Busyo CreateBusyo(

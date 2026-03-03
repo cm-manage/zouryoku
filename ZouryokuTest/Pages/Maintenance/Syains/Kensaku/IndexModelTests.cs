@@ -15,7 +15,12 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
     {
         private IndexModel CreateModel()
         {
-            var model = new IndexModel(db, GetLogger<IndexModel>(), options, viewEngine, fakeTimeProvider)
+            var model = new IndexModel(
+                db,
+                GetLogger<IndexModel>(),
+                options,
+                viewEngine,
+                fakeTimeProvider)
             {
                 PageContext = GetPageContext(),
                 TempData = GetTempData()

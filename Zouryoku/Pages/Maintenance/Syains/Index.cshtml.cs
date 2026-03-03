@@ -12,7 +12,13 @@ namespace Zouryoku.Pages.Maintenance.Syains
     /// 個人設定ページモデル
     /// </summary>
     [FunctionAuthorizationAttribute]
-    public class IndexModel(ZouContext db, ILogger<IndexModel> logger, IOptions<AppConfig> optionsAccessor) : BasePageModel<IndexModel>(db, logger, optionsAccessor)
+    public class IndexModel(
+      　ZouContext db,
+      　ILogger<IndexModel> logger,
+      　IOptions<AppConfig> optionsAccessor,
+        ICompositeViewEngine viewEngine,
+        timeProviderTimeProvider? timeProvider = null)
+        : BasePageModel<IndexModel>(db, logger, optionsAccessor, viewEngine, timeProvider)
     {
         /// <summary>
         /// 顔写真設定情報

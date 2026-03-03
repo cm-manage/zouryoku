@@ -167,6 +167,36 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                                 YearTotalWarnLevel == "notice-level" ||
                                 OverLimitCountWarnLevel == "notice-level" ||
                                 MaxConsecutiveWorkingDaysWarnLevel == "notice-level";
+
+        /// <summary>
+        /// ワーニング情報を設定します（表示用CSSクラスをViewModel側で決定）
+        /// </summary>
+        public void ApplyWarningLevels(AppSettings settings, decimal avgMax, decimal yearTotal, decimal? overLimitCount, decimal? maxConsecutiveNum)
+        {
+            AverageMaxWarnLevel = GetWarnLevelCssByZangyoValue(avgMax, settings.AvgMaxWarn, settings.AvgMaxNotice);
+            YearTotalWarnLevel = GetWarnLevelCssByZangyoValue(yearTotal, settings.YearTotalZangyoExceptHolidayWarn, settings.YearTotalZangyoExceptHolidayNotice);
+            OverLimitCountWarnLevel = GetWarnLevelCssByZangyoValue(overLimitCount, settings.OverLimitCountWarn, settings.OverLimitCountNotice);
+            MaxConsecutiveWorkingDaysWarnLevel = GetWarnLevelCssByZangyoValue(maxConsecutiveNum, settings.MaxConsecutiveWorkingDaysWarn, settings.MaxConsecutiveWorkingDaysNotice);
+        }
+
+        private static string GetWarnLevelCssByZangyoValue(decimal? value, decimal warn, decimal notice)
+        {
+            WarnLevel level = WarnLevel.All;
+            if (!value.HasValue)
+            {
+                level = WarnLevel.All;
+            }
+            else if (warn <= value)
+            {
+                level = WarnLevel.Warn;
+            }
+            else if (notice <= value)
+            {
+                level = WarnLevel.Notice;
+            }
+
+            return WarnLevelExtensions.ToCssClass(level);
+        }
     }
 
     /// <summary>
@@ -212,5 +242,46 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// 警告レベルが通知以上かを確認します
         /// </summary>
         public bool IsNotice => IsWarn || PaidYearTotalWarnLevel == "notice-level";
+
+        /// <summary>
+        /// 有給関連の警告レベルを設定します（表示用CSSクラスをViewModel側で決定）
+        /// </summary>
+        public void ApplyWarningLevel(AppSettings settings, decimal paidYearTotal, int month)
+        {
+            PaidYearTotalWarnLevel = GetWarnLevelCssByYukyuValue(paidYearTotal, month, settings);
+        }
+
+        private static string GetWarnLevelCssByYukyuValue(decimal value, int month, AppSettings settings)
+        {
+            bool firstTerm = month <= 1 || 12 <= month;
+            bool secondTerm = 2 <= month && month <= 3;
+
+            WarnLevel level = WarnLevel.All;
+            if (firstTerm && value <= settings.PaidYearTotalWarn12To1
+                || secondTerm && value <= settings.PaidYearTotalWarn2To3)
+            {
+                level = WarnLevel.Warn;
+            }
+            else if (firstTerm && value <= settings.PaidYearTotalNotice12To1
+                || secondTerm && value <= settings.PaidYearTotalNotice2To3)
+            {
+                level = WarnLevel.Notice;
+            }
+
+            return WarnLevelExtensions.ToCssClass(level);
+        }
+    }
+
+    internal static class WarnLevelExtensions
+    {
+        public static string ToCssClass(WarnLevel level)
+        {
+            return level switch
+            {
+                WarnLevel.Warn => "warn-level",
+                WarnLevel.Notice => "notice-level",
+                _ => ""
+            };
+        }
     }
 }

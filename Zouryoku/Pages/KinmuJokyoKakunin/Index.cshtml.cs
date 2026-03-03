@@ -75,6 +75,21 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         }
 
         /// <summary>
+        /// 日報実績.出勤区分1または2のいずれかが、指定した出勤区分に含まれるか
+        /// </summary>
+        /// <param name="n">日報実績DTO</param>
+        /// <param name="targets">対象の出勤区分</param>
+        /// <returns></returns>
+        private static bool HasAnyKubun(Nippou n, params AttendanceClassification[] targets)
+        {
+            var code1 = n.SyukkinKubunId1Navigation?.Code;
+            var code2 = n.SyukkinKubunId2Navigation?.Code;
+
+            return (code1.HasValue && targets.Contains(code1.Value))
+                || (code2.HasValue && targets.Contains(code2.Value));
+        }
+
+        /// <summary>
         /// 検索
         /// </summary>
         /// <returns></returns>
@@ -104,6 +119,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             DateOnly searchFrom = startMonth.GetStartOfMonth();
             // 遅いほう → 末日
             DateOnly searchTo = endMonth.GetEndOfMonth();
+            // システム日付
+            var today = timeProvider.Today();
 
             // JSON 文字列を long[] に変換
             var selectedBusyoIds = string.IsNullOrEmpty(Search.Busyo)
@@ -225,7 +242,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                 foreach (var m in monthlyList)
                 {
                     // 集計月末日
-                    var finalDay = new DateTime(m.Year, m.Month, 1).ToDateOnly().AddMonths(1).AddDays(-1);
+                    var finalDay = new DateOnly(m.Year, m.Month, 1).AddMonths(1).AddDays(-1);
 
                     // ■残業_平均最大
                     var avgMax = GetMaxAverageZangyoForRecentMonths(m.Year, m.Month, zangyoMap);
@@ -233,7 +250,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     // 残業年度
                     var zangyoNendo = m.Month >= KinmuJokyoConstants.ZangyoMonth ? m.Year : m.Year - 1;
                     // 残業年度初日
-                    var zangyoFirstDay = new DateTime(zangyoNendo, KinmuJokyoConstants.ZangyoMonth, 1).ToDateOnly();
+                    var zangyoFirstDay = new DateOnly(zangyoNendo, KinmuJokyoConstants.ZangyoMonth, 1);
 
                     // ■残業_年間累計
                     var yearTotalZangyoExceptHoliday = m.Nippous
@@ -267,7 +284,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     // 有給年度
                     var yukyuNendo = m.Month >= KinmuJokyoConstants.YukyuMonth ? m.Year : m.Year - 1;
                     // 有給年度初日
-                    var yukyuFirstDay = new DateTime(yukyuNendo, KinmuJokyoConstants.YukyuMonth, 1).ToDateOnly();
+                    var yukyuFirstDay = new DateOnly(yukyuNendo, KinmuJokyoConstants.YukyuMonth, 1);
 
                     // ■有給休暇_年間累計
                     decimal paidYearTotal = m.Nippous
@@ -283,7 +300,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
                     // 年度初めの有給日数
                     decimal wariate = 0;
-                    var today = timeProvider.Today();
+
                     var currentNendo = today.Month >= KinmuJokyoConstants.YukyuMonth ? today.Year : today.Year - 1;
 
                     if (syainBaseMap.TryGetValue(s.SyainBaseId, out var syainBase))
@@ -344,9 +361,9 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         TransferExpired = transferExpired
                     };
 
-                    // 警告レベルを設定
-                    SetWarningLevels(zangyoRow, avgMax, yearTotalZangyoExceptHoliday, overLimitCount, maxConsecutiveNum);
-                    yukyuRow.PaidYearTotalWarnLevel = GetWarnLevelCssByYukyuValue(paidYearTotal, m.Month);
+                    // 警告レベルをViewModel側で設定
+                    zangyoRow.ApplyWarningLevels(appSettings, avgMax, yearTotalZangyoExceptHoliday, overLimitCount, maxConsecutiveNum);
+                    yukyuRow.ApplyWarningLevel(appSettings, paidYearTotal, m.Month);
 
                     // 警告レベルでの絞り込み
                     if (Search.WarnLevel == WarnLevel.All ||
@@ -366,103 +383,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             return SuccessJson(data: html);
         }
 
-        /// <summary>
-        /// 警告レベルを設定します
-        /// </summary>
-        private void SetWarningLevels(
-            WorkRowViewModel row,
-            decimal avgMax,
-            decimal yearTotal,
-            decimal? overLimitCount,
-            decimal? maxConsecutiveNum)
-        {
-            row.AverageMaxWarnLevel = GetWarnLevelCssByZangyoValue(
-                avgMax,
-                appSettings.AvgMaxWarn,
-                appSettings.AvgMaxNotice);
-            row.YearTotalWarnLevel = GetWarnLevelCssByZangyoValue(
-                yearTotal,
-                appSettings.YearTotalZangyoExceptHolidayWarn,
-                appSettings.YearTotalZangyoExceptHolidayNotice);
-            row.OverLimitCountWarnLevel = GetWarnLevelCssByZangyoValue(
-                overLimitCount,
-                appSettings.OverLimitCountWarn,
-                appSettings.OverLimitCountNotice);
-            row.MaxConsecutiveWorkingDaysWarnLevel = GetWarnLevelCssByZangyoValue(
-                maxConsecutiveNum,
-                appSettings.MaxConsecutiveWorkingDaysWarn,
-                appSettings.MaxConsecutiveWorkingDaysNotice);
-        }
-
-        /// <summary>
-        /// 日報実績.出勤区分1または2のいずれかが、指定した出勤区分に含まれるか
-        /// </summary>
-        /// <param name="n">日報実績DTO</param>
-        /// <param name="targets">対象の出勤区分</param>
-        /// <returns></returns>
-        private static bool HasAnyKubun(Nippou n, params AttendanceClassification[] targets)
-        {
-            var code1 = n.SyukkinKubunId1Navigation.Code;
-            var code2 = n.SyukkinKubunId2Navigation?.Code;
-
-            return targets.Contains(code1)
-                || (code2.HasValue && targets.Contains(code2.Value));
-        }
-
-        /// <summary>
-        /// 境界値をもとに残業各項目の警告レベルを判定し、表示用を返す
-        /// 多いほどNG
-        /// </summary>
-        /// <param name="value">判定対象の値</param>
-        /// <param name="warn">警告の下限</param>
-        /// <param name="notice">通知の下限</param>
-        /// <returns>警告レベル</returns>
-        private string GetWarnLevelCssByZangyoValue(decimal? value, decimal warn, decimal notice)
-        {
-            // 警告レベルを判定
-            WarnLevel level = All;
-            if (!value.HasValue)
-            {
-                level = All;
-            }
-            else if (warn <= value)
-            {
-                level = Warn;
-            }
-            else if (notice <= value)
-            {
-                level = Notice;
-            }
-
-            return ToCssClass(level);
-        }
-
-        /// <summary>
-        /// 境界値をもとに有給休暇年間累計の警告レベルを判定し、表示用CSSクラス名を返す
-        /// </summary>
-        /// <param name="value">判定対象の値</param>
-        /// <param name="month">月</param>
-        /// <returns>警告レベル</returns>
-        private string GetWarnLevelCssByYukyuValue(decimal value, int month)
-        {
-            bool firstTerm = month <= 1 || 12 <= month;
-            bool secondTerm = 2 <= month && month <= 3;
-
-            // 警告レベルを判定
-            WarnLevel level = All;
-            if (firstTerm && value <= appSettings.PaidYearTotalWarn12To1
-                || secondTerm && value <= appSettings.PaidYearTotalWarn2To3)
-            {
-                level = Warn;
-            }
-            else if (firstTerm && value <= appSettings.PaidYearTotalNotice12To1
-                || secondTerm && value <= appSettings.PaidYearTotalNotice2To3)
-            {
-                level = Notice;
-            }
-
-            return ToCssClass(level);
-        }
+        // 警告レベル判定はViewModel側へ移譲しました
 
         /// <summary>
         /// 警告レベルから表示用CSSクラス名を返す
@@ -609,7 +530,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
             decimal maxAverageZangyo = 0m;
 
             // 集計対象月の初日
-            var baseMonthDate = new DateTime(baseYear, baseMonth, 1);
+            var baseMonthDate = new DateOnly(baseYear, baseMonth, 1);
 
             // 直近2ヶ月～6ヶ月の平均を順に計算
             for (int monthsSpan = 2; monthsSpan <= 6; monthsSpan++)

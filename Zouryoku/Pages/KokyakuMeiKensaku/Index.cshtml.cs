@@ -204,8 +204,7 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
                 return Success();
             }
 
-            ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-            return ModelState.ErrorJson()!;
+            return ErrorJson(Const.ErrorSelectedDataNotExists);
         }
 
         // -- POST ------------------------------
@@ -224,15 +223,15 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
             // 存在性チェック
             if (!await IsExistCustomerAsync(customerId))
             {
-                ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                return ModelState.ErrorJson()!;
+                return ErrorJson(Const.ErrorSelectedDataNotExists);
             }
 
             await DeleteHistoryAsync(LoginInfo.User.SyainBaseId, customerId, version);
 
+            var errorJson = ModelState.ErrorJson();
             // 同時実行制御が働いたとき
-            if (!ModelState.IsValid)
-                return ModelState.ErrorJson()!;
+            if (errorJson is not null)
+                return errorJson;
 
             return Success();
         }
@@ -247,11 +246,7 @@ namespace Zouryoku.Pages.KokyakuMeiKensaku
             // 存在性チェック
             if (!await IsExistCustomerAsync(customerId))
             {
-                // 顧客名の必須チェックエラーを削除
-                ModelState.Clear();
-
-                ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-                return ModelState.ErrorJson()!;
+                return ErrorJson(Const.ErrorSelectedDataNotExists);
             }
 
             // 登録または更新を行い、参照履歴超過分を削除

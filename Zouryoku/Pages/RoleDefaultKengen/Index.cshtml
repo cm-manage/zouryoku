@@ -23,7 +23,7 @@
             </div>
 
             <div class="app-area__tool-button">
-                <button class="btn btn-primary app-btn__base col-auto btn-add" type="button">
+                <button class="btn btn-primary app-btn__base col-auto" data-js="btn-add" type="button">
                     <i class="fa-solid fa-check"></i>登録
                 </button>
             </div>
@@ -33,7 +33,7 @@
             </main>
 
             <div class="app-area__tool-button mt-3">
-                <button class="btn btn-primary app-btn__base col-auto btn-add" type="button">
+                <button class="btn btn-primary app-btn__base col-auto" data-js="btn-add" type="button">
                     <i class="fa-solid fa-check"></i>登録
                 </button>
             </div>
@@ -47,7 +47,7 @@
             var $form = $('#role-form');
 
             // ロールの値を変更する
-            $(document).on('change', '#role-select', function () {
+            $('#role-select').on('change', function () {
                 var roleId = $(this).val();
                 sendAjax(toUrl("RoleData"), $form, $form.serialize(), function (result) {
                     $('#permission-table').html(result);
@@ -55,7 +55,7 @@
             });
 
             // 登録ボタンのクリック
-            $(document).on('click', '.btn-add', function () {
+            $('[data-js=btn-add]').on('click', function () {
                 commonConfirm('登録します。よろしいですか？', null, async function() {
                     var flags = 0;
                     $('#permission-table input[type=checkbox]').each(function () {
@@ -66,7 +66,9 @@
 
                     $('#input-kengen-value').val(flags);
                     sendAjax(toUrl("UpdateRole"), $form, $form.serializeArray(), function (result) {
-                        registerSuccessSwal("登録しました");
+                        registerSuccessSwal("登録しました", null, function () {
+                            location.reload();
+                        });
                     }, false, null, false);
                 });
             });

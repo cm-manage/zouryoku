@@ -72,19 +72,10 @@ namespace Zouryoku.Pages.RoleDefaultKengen
         {
             // 単項目チェック
             JsonResult? errorJson = ModelState.ErrorJson();
-            if (errorJson is not null)
-            {
-                return errorJson;
-            }
+            if (errorJson is not null) return errorJson;
 
             var role = await db.UserRoles.FindAsync(ViewModel.SelectedRoleId);
-            if (role is null)
-            {
-                ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-
-                errorJson = ModelState.ErrorJson();
-                return CommonErrorResponse();
-            }
+            if (role is null) return ErrorJson(ErrorSelectedDataNotExists);
 
             role.Kengen = (EmployeeAuthority)ViewModel.KengenValue;
 
@@ -93,10 +84,7 @@ namespace Zouryoku.Pages.RoleDefaultKengen
 
             // 同時実行制御が働いたとき
             errorJson = ModelState.ErrorJson();
-            if (!ModelState.IsValid)
-            {
-                return CommonErrorResponse();
-            }
+            if (errorJson is not null) return errorJson;
 
             return SuccessJson(data: role);
         }

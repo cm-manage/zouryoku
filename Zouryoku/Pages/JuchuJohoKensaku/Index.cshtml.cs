@@ -213,10 +213,7 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             {
                 return Success();
             }
-
-            ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-            var errorJson = ModelState.ErrorJson();
-            return errorJson!;
+            return ErrorJson(ErrorSelectedDataNotExists);
         }
 
         /// <summary>
@@ -252,19 +249,17 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
             var rirekiId = await IsExistJuchuRirekiAsync(LoginInfo.User.SyainBaseId, juchuId);
             if (!rirekiId.HasValue)
             {
-                ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-                var errorJson = ModelState.ErrorJson();
-                return errorJson!;
+                return ErrorJson(ErrorSelectedDataNotExists);
             }
 
             // 取得した受注参照履歴情報を削除
             await DeleteHistoryAsync(rirekiId.Value, version);
 
             // 同時実行制御が働いたとき
-            if (!ModelState.IsValid)
+            var errorJson = ModelState.ErrorJson();
+            if (errorJson is not null)
             {
-                var errorJson = ModelState.ErrorJson();
-                return errorJson!;
+                return errorJson;
             }
 
             return Success();
@@ -285,9 +280,7 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
                 // BIndPropertyのエラーを削除
                 ModelState.Clear();
 
-                ModelState.AddModelError(string.Empty, ErrorSelectedDataNotExists);
-                var errorJson = ModelState.ErrorJson();
-                return errorJson!;
+                return ErrorJson(ErrorSelectedDataNotExists);
             }
 
             // 登録または更新を行い、参照履歴超過分を削除
@@ -354,10 +347,11 @@ namespace Zouryoku.Pages.JuchuJohoKensaku
         /// <returns>履歴ID　存在しなければnull</returns>
         private async Task<long?> IsExistJuchuRirekiAsync(long syainBaseId, long juchuId)
         {
+            // NOTE：プログラム仕様 社員BaseID＋受注IDでユニークとなる
             var rireki = await db.KingsJuchuSansyouRirekis
                 .Where(k => k.SyainBaseId == syainBaseId && k.KingsJuchuId == juchuId)
                 .AsNoTracking()
-                .SingleOrDefaultAsync();
+                .FirstOrDefaultAsync();
 
             return rireki?.Id;
         }

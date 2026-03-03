@@ -1,4 +1,5 @@
 @page
+@using Zouryoku.Pages.Shared.Components
 @model Zouryoku.Pages.KinmuNippouKakunin.IndexModel
 @{
     ViewData["Title"] = "勤務日報確認";
@@ -57,13 +58,13 @@
                     <div class="input-group app-input-target-ym">
                         <input id="target-ym-input" class="form-control app-input__textbox" type="text"
                                value="@Model.TargetDaysQuery.TargetYmText" readonly aria-label="表示年月" />
-                        <input asp-for="TargetDaysQuery.TargetYm" type="hidden" asp-format="{0:yyyy-MM-dd}" />
-                        <input id="target-ym-picker" class="visually-hidden" type="month"
-                               value="@Model.TargetDaysQuery.TargetYmPickerValue" tabindex="-1" />
                         <button id="target-ym-picker-btn" class="btn btn-primary app-btn__base" type="button" aria-label="月選択">
                             <i class="fa-solid fa-calendar-days"></i>
                         </button>
                     </div>
+                    <input asp-for="TargetDaysQuery.TargetYm" type="hidden" asp-format="{0:yyyy-MM-dd}" />
+                    <partial name="Components/_MonthPicker"
+                             model="@(new MonthPickerModel { Id = "target-ym-input" })" />
                     @* 月送りボタン(右) *@
                     <button id="next-month-btn" class="btn btn-primary app-btn__base" type="button" aria-label="次月">
                         <i class="fa-solid fa-angle-right"></i>
@@ -130,7 +131,6 @@
             const $targetSyainId = $('#TargetDaysQuery_TargetSyainId');
             const $targetYmInput = $('#target-ym-input');
             const $targetYm = $('#TargetDaysQuery_TargetYm');
-            const $targetYmPicker = $('#target-ym-picker');
             const $daysPartial = $('#days-partial');
             const $searchForm = $('#search-form');
             const $root = $(':root');
@@ -161,14 +161,9 @@
             }
 
             // 対象年月
-            // ピッカー表示
-            $('#target-ym-input,#target-ym-picker-btn').on('click', function () {
-                $targetYmPicker.val($targetYm.val().slice(0, 7));
-                $targetYmPicker[0].showPicker?.();
-            });
             // ピッカー選択
-            $targetYmPicker.on('change', function () {
-                $targetYm.val(`${$(this).val()}-01`);
+            $targetYmInput.on('change', function () {
+                $targetYm.val(`${$(this).val().replace('/', '-')}-01`);
                 updateView();
             });
             // 月送りボタン(左)

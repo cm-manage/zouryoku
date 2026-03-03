@@ -100,15 +100,7 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
 
             if (anken is null)
             {
-                ModelState.AddModelError
-                    (string.Empty,
-                    string.Format(Const.ErrorNotFound, AnkenInfoLabel, id));
-            }
-
-            JsonResult? errorJson = ModelState.ErrorJson();
-            if (errorJson is not null)
-            {
-                return errorJson;
+                return ErrorJson(string.Format(Const.ErrorNotFound, AnkenInfoLabel, id));
             }
 
             // 画面描画用ViewModelの作成
@@ -138,13 +130,7 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
             // データが存在しない場合、エラーメッセージを返却
             if (!isExists)
             {
-                ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-            }
-
-            JsonResult? errorJson = ModelState.ErrorJson();
-            if (errorJson is not null)
-            {
-                return errorJson;
+                return ErrorJson(Const.ErrorSelectedDataNotExists);
             }
 
             return Success();
@@ -165,13 +151,7 @@ namespace Zouryoku.Pages.AnkenJohoHyoji
             // データが存在しない場合、エラーメッセージを返却
             if (!isExists)
             {
-                ModelState.AddModelError(string.Empty, Const.ErrorSelectedDataNotExists);
-            }
-
-            JsonResult? errorJson = ModelState.ErrorJson();
-            if (errorJson is not null)
-            {
-                return errorJson;
+                return ErrorJson(Const.ErrorSelectedDataNotExists);
             }
 
             return Success();

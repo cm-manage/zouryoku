@@ -69,9 +69,8 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             var result = await model.OnGetAsync();
 
             // Assert
-            Assert.IsInstanceOfType(
+            Assert.IsInstanceOfType<PageResult>(
                 result,
-                typeof(PageResult),
                 "ロールデータがある場合はPageResultを返すべきです。");
         }
 

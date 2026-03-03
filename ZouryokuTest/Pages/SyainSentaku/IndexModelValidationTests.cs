@@ -81,18 +81,9 @@ namespace ZouryokuTest.Pages.SyainSentaku
 
             // Act
             var response = await model.OnPostValidateSelectionAsync(input);
-            var result = (JsonResult)response;
 
             // Assert
-            Assert.IsNotNull(result.Value);
-            var errorMessage = model.ModelState
-                .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
-                .First()
-                .ErrorMessage;
-            Assert.AreEqual(
-                string.Format(Const.ErrorSelectRequired, "社員"),
-                errorMessage
-            );
+            AssertErrorJson(response, string.Format(Const.ErrorSelectRequired, "社員"));
         }
     }
 }

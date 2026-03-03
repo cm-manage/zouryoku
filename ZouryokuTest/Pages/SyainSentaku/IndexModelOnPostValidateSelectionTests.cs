@@ -83,9 +83,7 @@ namespace ZouryokuTest.Pages.SyainSentaku
             var result = (JsonResult)response;
 
             // Assert
-            var errorJson = GetErrors(result, string.Empty);
-            Assert.IsNotNull(errorJson);
-            Assert.AreEqual(ErrorMsgSyainSelectRequired, errorJson[0]);
+            AssertErrorJson(result, ErrorMsgSyainSelectRequired);
         }
 
     }

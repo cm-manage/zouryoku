@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.Graph.Education.Classes.Item.Assignments.Item.Submissions.Item.Return;
 using Model.Data;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
@@ -184,6 +185,12 @@ namespace Zouryoku.Pages.Shared
                 // 楽観排他制御
                 ModelState.AddModelError(string.Empty, message);
             }
+        }
+
+        [Obsolete($"【削除予定】")]
+        public IActionResult CommonErrorResponse()
+        {
+            return ErrorJson("");
         }
     }
 }

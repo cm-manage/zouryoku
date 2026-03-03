@@ -28,8 +28,6 @@ namespace Zouryoku.Pages.KinmuNippouKakunin
             /// </summary>
             public string TargetYmText => TargetYm?.ToString("yyyy/MM") ?? "";
 
-            public string TargetYmPickerValue => TargetYm?.ToString("yyyy-MM") ?? "";
-
             /// <summary>
             /// 対象社員ID
             /// </summary>

@@ -215,6 +215,11 @@ namespace Zouryoku.Services
                 { ParamIsDairiSinsei, isDairiSinsei.ToString() }
             };
 
+        /// <summary>
+        /// 計画有給事業部承認のパラメータ作成処理
+        /// </summary>
+        /// <param name="finalApproval">最終承認フラグ</param>
+        /// <returns>計画有給事業部承認の呼び出しパラメータ</returns>
         private static Dictionary<string, string> CreateYukyuKeikakuJigyobuShoninParams(bool finalApproval)
             => new()
             {

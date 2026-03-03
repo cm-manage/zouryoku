@@ -182,16 +182,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             var result = await model.OnPostUpdateRoleAsync();
 
             // ---------- Assert ----------
-            Assert.IsInstanceOfType<ObjectResult>(result);
-
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
-            Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
-
-            // 存在チェックエラーが含まれていることを確認
-            Assert.Contains(ErrorSelectedDataNotExists, message, "存在チェックのエラーが含まれているはずです。");
+            AssertErrorJson(result, ErrorSelectedDataNotExists);
         }
 
         /// <summary>
@@ -220,16 +211,7 @@ namespace ZouryokuTest.Pages.RoleDefaultKengen
             var result = await model.OnPostUpdateRoleAsync();
 
             // ---------- Assert ----------
-            Assert.IsInstanceOfType<ObjectResult>(result);
-
-            // ObjectResult にエラーメッセージが含まれていることを確認
-            var json = result as ObjectResult;
-            Assert.IsNotNull(json);
-            var message = GetMessage(json);
-            Assert.IsNotNull(message);
-
-            // 楽観的同時実行制御エラーメッセージが含まれている
-            Assert.Contains(string.Format(ErrorConflictReload, "ロール"), message, "楽観的同時実行制御エラーメッセージが含まれているはずです。");
+            AssertErrors(result, string.Format(ErrorConflictReload, "ロール"));
         }
 
         private static UserRole CreateUserRole(

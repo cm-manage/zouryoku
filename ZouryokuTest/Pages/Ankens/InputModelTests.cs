@@ -1767,16 +1767,8 @@ namespace ZouryokuTest.Pages.Ankens
             var result = await model.OnPostRegisterAsync();
 
             // ---------- Assert ----------
-            var json = Assert.IsInstanceOfType<JsonResult>(result);
-
-            // JsonResult にエラーメッセージが含まれていることを確認
-            var errorMessageList = GetErrors(json, "");
-            Assert.IsNotNull(errorMessageList);
-            Assert.HasCount(1, errorMessageList);
-
             // 指定IDが存在しない旨のエラーメッセージを確認
-            Assert.AreEqual(string.Format(Const.ErrorNotFound, "案件情報", model.Anken.Id),
-                errorMessageList[0]);
+            AssertErrorJson(result, string.Format(Const.ErrorNotFound, "案件情報", model.Anken.Id));
         }
 
         // =================================================================
@@ -2034,16 +2026,8 @@ namespace ZouryokuTest.Pages.Ankens
             var result = await model.OnPostDeleteAsync();
 
             //Assert
-            var json = Assert.IsInstanceOfType<JsonResult>(result);
-
-            // JsonResult にエラーメッセージが含まれていることを確認
-            var errorMessageList = GetErrors(json, "");
-            Assert.IsNotNull(errorMessageList);
-            Assert.HasCount(1, errorMessageList);
-
             // 指定IDが存在しない旨のエラーメッセージを確認
-            Assert.AreEqual(string.Format(Const.ErrorNotFound, "案件情報", model.Anken.Id),
-                errorMessageList[0]);
+            AssertErrorJson(result, string.Format(Const.ErrorNotFound, "案件情報", model.Anken.Id));
         }
 
         // =================================================================

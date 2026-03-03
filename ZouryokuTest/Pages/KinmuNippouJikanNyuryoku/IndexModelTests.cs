@@ -168,20 +168,6 @@ namespace ZouryokuTest.Pages.KinmuNippouJikanNyuryoku
             Assert.AreEqual(expectedTaikinTime3, timeInputResult.TaikinTime3, "TaikinTime3 が一致しません。");
             Assert.AreEqual(expectedIsDairiInput, timeInputResult.IsDairiInput, "IsDairiInput が一致しません。");
         }
-
-        /// <summary>
-        /// <paramref name="result"/> が期待するエラーメッセージであることを検証します。
-        /// </summary>
-        /// <param name="result">検証する <see cref="IActionResult"/></param>
-        /// <param name="expectedErrors">期待するエラーメッセージ配列</param>
-        private void AssertErrors(IActionResult result, params string[] expectedErrors)
-        {
-            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
-            var errors = GetErrors(jsonResult, string.Empty);
-            Assert.IsNotNull(errors, "エラーメッセージが存在しません。");
-            Assert.HasCount(1, errors, "エラーメッセージの件数が一致しません。");
-            CollectionAssert.AreEqual(expectedErrors, errors, "エラーメッセージが一致しません。");
-        }
         #endregion
 
         #region テスト用モデル生成

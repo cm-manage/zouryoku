@@ -66,10 +66,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
         {
             // 単項目チェック
             JsonResult? errorJson = ModelState.ErrorJson();
-            if (errorJson is not null)
-            {
-                return errorJson;
-            }
+            if (errorJson is not null) return errorJson;
 
             // 更新対象IDのみ抽出
             var updateIds = syains.Select(s => s.Id).ToHashSet();
@@ -93,10 +90,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.JyunjyoNarabikae
             await SaveWithConcurrencyCheckAsync(ErrorConflictSyain);
 
             errorJson = ModelState.ErrorJson();
-            if (!ModelState.IsValid)
-            {
-                return CommonErrorResponse();
-            }
+            if (errorJson is not null) return errorJson;
 
             return Success();
         }

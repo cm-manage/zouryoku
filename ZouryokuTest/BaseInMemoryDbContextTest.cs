@@ -384,5 +384,31 @@ namespace ZouryokuTest
             var errorMessage = Assert.IsInstanceOfType<ErrorMessage>(objectResult.Value, "ErrorMessage が返るべきです。");
             Assert.AreEqual(expectedMessage, errorMessage.Message, "エラーメッセージが一致しません。");
         }
+
+        /// <summary>
+        /// <paramref name="result"/> がエラーレスポンス (<see cref="エラー"/>) かつ
+        /// 期待するエラーメッセージであることを検証します。
+        /// </summary>
+        /// <param name="result">検証する <see cref="IActionResult"/></param>
+        /// <param name="expectedMessage">期待するエラーメッセージ</param>
+        protected static void AssertErrorJson(IActionResult result, string expectedMessage)
+        {
+            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
+            var responseJson = Assert.IsInstanceOfType<ResponseJson>(jsonResult.Value, "ResponseJson が返るべきです。");
+            Assert.AreEqual(エラー, responseJson.Status, "ステータスが一致しません。");
+            Assert.AreEqual(expectedMessage, responseJson.Message, "エラーメッセージが一致しません。");
+        }
+
+        /// <summary>
+        /// <paramref name="result"/> が期待するエラーメッセージであることを検証します。
+        /// </summary>
+        /// <param name="result">検証する <see cref="IActionResult"/></param>
+        /// <param name="expectedErrors">期待するエラーメッセージ配列</param>
+        protected void AssertErrors(IActionResult result, params string[] expectedErrors)
+        {
+            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
+            var errors = GetErrors(jsonResult, string.Empty);
+            CollectionAssert.AreEqual(expectedErrors, errors, "エラーメッセージが一致しません。");
+        }
     }
 }

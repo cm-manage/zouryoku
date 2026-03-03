@@ -1,13 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
 using Model.Enums;
 using Model.Extensions;
 using Model.Model;
 using Zouryoku.Data;
 using Zouryoku.Extensions;
-using Zouryoku.Pages.Shared;
 using Zouryoku.Pages.YukyuKeikakuToroku;
 using static Model.Enums.LeavePlanStatus;
-using static Model.Enums.ResponseStatus;
 
 namespace ZouryokuTest.Pages.YukyuKeikakuToroku
 {
@@ -204,34 +201,6 @@ namespace ZouryokuTest.Pages.YukyuKeikakuToroku
                     expectedYukyuKeikakuMeisais[i].IsTokukyu, actualYukyuKeikakuMeisais[i].IsTokukyu,
                     $"{i}件目の IsTokukyu が一致しません。");
             }
-        }
-
-        /// <summary>
-        /// <paramref name="result"/> がエラーレスポンス (<see cref="エラー"/>) かつ
-        /// 期待するエラーメッセージであることを検証します。
-        /// </summary>
-        /// <param name="result">検証する <see cref="IActionResult"/></param>
-        /// <param name="expectedMessage">期待するエラーメッセージ</param>
-        protected static void AssertErrorJson(IActionResult result, string expectedMessage)
-        {
-            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
-            var responseJson = Assert.IsInstanceOfType<ResponseJson>(jsonResult.Value, "ResponseJson が返るべきです。");
-            Assert.AreEqual(エラー, responseJson.Status, "ステータスが一致しません。");
-            Assert.AreEqual(expectedMessage, responseJson.Message, "エラーメッセージが一致しません。");
-        }
-
-        /// <summary>
-        /// <paramref name="result"/> が期待するエラーメッセージであることを検証します。
-        /// </summary>
-        /// <param name="result">検証する <see cref="IActionResult"/></param>
-        /// <param name="expectedErrors">期待するエラーメッセージ配列</param>
-        protected void AssertErrors(IActionResult result, params string[] expectedErrors)
-        {
-            var jsonResult = Assert.IsInstanceOfType<JsonResult>(result, "JsonResult が返るべきです。");
-            var errors = GetErrors(jsonResult, string.Empty);
-            Assert.IsNotNull(errors, "エラーメッセージが存在しません。");
-            Assert.HasCount(1, errors, "エラーメッセージの件数が一致しません。");
-            CollectionAssert.AreEqual(expectedErrors, errors, "エラーメッセージが一致しません。");
         }
     }
 }

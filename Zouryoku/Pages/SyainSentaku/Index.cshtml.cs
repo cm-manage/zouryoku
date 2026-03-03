@@ -328,17 +328,10 @@ namespace Zouryoku.Pages.SyainSentaku
 
             ModelState.Remove(nameof(SyainName));
 
+            // 選択数が0の場合、アラート表示
             if (data.SelectCounts <= 0)
             {
-                ModelState.AddModelError(string.Empty,
-                    string.Format(Const.ErrorSelectRequired, "社員"));
-            }
-
-            // 選択数が0の場合、アラート表示
-            var errorJson = ModelState.ErrorJson();
-            if (errorJson is not null)
-            {
-                return errorJson;
+                return ErrorJson(string.Format(Const.ErrorSelectRequired, "社員"));
             }
 
             // セッションに部署IDを保存

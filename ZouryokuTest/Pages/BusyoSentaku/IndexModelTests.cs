@@ -1,6 +1,5 @@
 using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Model.Enums;
 using Model.Model;
 using System.Text.Json;
@@ -235,22 +234,7 @@ namespace ZouryokuTest.Pages.BusyoSentaku
             var result = model.OnPostValidateSelection(input);
 
             // Assert
-            // Jsonが返却されることを確認
-            var json = AssertJson(result);
-            Assert.IsNotNull(json);
-
-            // ModelState にエラーメッセージが含まれていることを確認
-            var errorMessage = model.ModelState
-                .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
-                .First()
-                .ErrorMessage;
-            Assert.IsNotNull(errorMessage);
-
-            // メッセージ内容を確認
-            Assert.AreEqual(
-                string.Format(Const.ErrorSelectRequired, "部署"),
-                errorMessage
-            );
+            AssertErrorJson(result, string.Format(Const.ErrorSelectRequired, "部署"));
         }
 
         /// <summary>

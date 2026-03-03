@@ -20,7 +20,7 @@ namespace ZouryokuTest.Api
         /// <summary>
         /// 当日日付
         /// </summary>
-        private DateOnly Today => fakeTimeProvider.Today();
+        private readonly DateOnly Today = new(2025, 7, 1);
 
         /// <summary>
         /// 有効開始日
@@ -45,6 +45,7 @@ namespace ZouryokuTest.Api
         /// <returns>コントローラーのインスタンス</returns>
         private SinseiKensuBadgeController CreateController(Syain loginUser)
         {
+            fakeTimeProvider.SetLocalNow(Today.ToDateTime());
             SinseiKensuBadgeController controller = new(db, fakeTimeProvider);
 
             // HttpContextの取得
@@ -515,13 +516,13 @@ namespace ZouryokuTest.Api
 
             // 子部署
             var childBusyo = new Busyo
-                {
-                    Id = 2,
-                    IsActive = true,
-                    StartYmd = ConstStartYmd,
-                    EndYmd = ConstEndYmd,
-                    OyaId = ownBusyo.Id,
-                    ShoninBusyoId = null,
+            {
+                Id = 2,
+                IsActive = true,
+                StartYmd = ConstStartYmd,
+                EndYmd = ConstEndYmd,
+                OyaId = ownBusyo.Id,
+                ShoninBusyoId = null,
                 // テストに不要だが、NotNullAbleな項目を設定
                 Code = "",
                 Name = "",
@@ -533,13 +534,13 @@ namespace ZouryokuTest.Api
 
             // 孫部署
             var grandChildBusyo = new Busyo
-                {
-                    Id = 3,
-                    IsActive = true,
-                    StartYmd = ConstStartYmd,
-                    EndYmd = ConstEndYmd,
-                    OyaId = childBusyo.Id,
-                    ShoninBusyoId = null,
+            {
+                Id = 3,
+                IsActive = true,
+                StartYmd = ConstStartYmd,
+                EndYmd = ConstEndYmd,
+                OyaId = childBusyo.Id,
+                ShoninBusyoId = null,
                 // テストに不要だが、NotNullAbleな項目を設定
                 Code = "",
                 Name = "",
@@ -567,12 +568,12 @@ namespace ZouryokuTest.Api
             // シード：申請ユーザー
             // 子部署ユーザー
             var childSinseiUser = new Syain
-                {
-                    Id = 5,
-                    BusyoId = childBusyo.Id,
-                    Kengen = None,
-                    StartYmd = ConstStartYmd,
-                    EndYmd = ConstEndYmd,
+            {
+                Id = 5,
+                BusyoId = childBusyo.Id,
+                Kengen = None,
+                StartYmd = ConstStartYmd,
+                EndYmd = ConstEndYmd,
                 // テストに不要だが、NotNullAbleな項目を設定
                 Code = "",
                 Name = "",
@@ -602,12 +603,12 @@ namespace ZouryokuTest.Api
             // シード：一次承認待ち伺い申請ヘッダ
             // 子部署
             var childUkagaiHeader = new UkagaiHeader
-                {
-                    SyainId = childSinseiUser.Id,
-                    ShoninSyainId = null,
-                    Status = 承認待,
-                    Invalid = false
-                };
+            {
+                SyainId = childSinseiUser.Id,
+                ShoninSyainId = null,
+                Status = 承認待,
+                Invalid = false
+            };
 
             // 孫部署
             var grandChildUkagaiHeader = new UkagaiHeader

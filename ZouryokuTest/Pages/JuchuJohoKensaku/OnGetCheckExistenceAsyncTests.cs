@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Zouryoku.Pages.JuchuJohoKensaku;
 using static Zouryoku.Utils.Const;
 
@@ -64,20 +62,7 @@ namespace ZouryokuTest.Pages.JuchuJohoKensaku
             var result = await Model!.OnGetCheckExistenceAsync(2);
 
             // Assert
-            // Jsonが返却されることを確認
-            Assert.IsInstanceOfType<JsonResult>(result);
-            var json = result as JsonResult;
-            Assert.IsNotNull(json);
-
-            // ModelState にエラーメッセージが含まれていることを確認
-            var errorMessage = Model.ModelState
-                .SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<ModelError>())
-                .First()
-                .ErrorMessage;
-            Assert.IsNotNull(errorMessage);
-
-            // メッセージ内容を確認
-            Assert.AreEqual(ErrorSelectedDataNotExists, errorMessage);
+            AssertErrorJson(result, ErrorSelectedDataNotExists);
         }
     }
 }

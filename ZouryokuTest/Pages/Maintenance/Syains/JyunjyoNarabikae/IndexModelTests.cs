@@ -208,7 +208,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.JyunjyoNarabikae
             var result = await model.OnPostRegisterAsync(request);
 
             // Assert
-            AssertError(result, IndexModel.ErrorConflictSyain);
+            AssertErrors(result, IndexModel.ErrorConflictSyain);
         }
 
         /// <summary>

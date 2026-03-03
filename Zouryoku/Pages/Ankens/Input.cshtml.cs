@@ -136,12 +136,7 @@ namespace Zouryoku.Pages.Ankens
                 entity = await db.Ankens.FirstOrDefaultAsync(x => x.Id == Anken.Id);
                 if (entity is null)
                 {
-                    ModelState.AddModelError
-                        (string.Empty,
-                        string.Format(Const.ErrorNotFound, AnkenInfoLabel, Anken.Id));
-
-                    errorJson = ModelState.ErrorJson();
-                    return errorJson!;
+                    return ErrorJson(string.Format(Const.ErrorNotFound, AnkenInfoLabel, Anken.Id));
                 }
 
                 // 更新項目反映
@@ -210,12 +205,7 @@ namespace Zouryoku.Pages.Ankens
                 .FirstOrDefaultAsync(x => x.Id == Anken.Id);
             if (target is null)
             {
-                ModelState.AddModelError
-                    (string.Empty,
-                    string.Format(Const.ErrorNotFound, AnkenInfoLabel, Anken.Id));
-
-                errorJson = ModelState.ErrorJson();
-                return errorJson!;
+                return ErrorJson(string.Format(Const.ErrorNotFound, AnkenInfoLabel, Anken.Id));
             }
 
             // 紐づく案件情報参照履歴を削除

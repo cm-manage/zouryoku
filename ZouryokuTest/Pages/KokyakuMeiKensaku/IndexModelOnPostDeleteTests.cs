@@ -30,12 +30,7 @@ namespace ZouryokuTest.Pages.KokyakuMeiKensaku
             var response = await model.OnPostDeleteHistoryAsync(customerId, 1);
 
             // Assert
-            Assert.IsInstanceOfType<JsonResult>(response);
-            var jsonResult = (JsonResult)response;
-            var errors = GetErrors(jsonResult, string.Empty);
-            Assert.IsNotNull(errors);
-            Assert.HasCount(1, errors);
-            Assert.AreEqual(ErrorSelectedDataNotExists, errors[0]);
+            AssertErrorJson(response, ErrorSelectedDataNotExists);
         }
 
         /// <summary>

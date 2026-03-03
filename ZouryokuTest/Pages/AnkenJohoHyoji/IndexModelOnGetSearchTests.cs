@@ -696,16 +696,8 @@ namespace ZouryokuTest.Pages.AnkenJohoHyoji
             var result = await model.OnGetSearchAsync(nonexistentId, false);
 
             // ---------- Assert ----------
-            var json = Assert.IsInstanceOfType<JsonResult>(result);
-
-            // JsonResult にエラーメッセージが含まれていることを確認
-            var errorMessageList = GetErrors(json, "");
-            Assert.IsNotNull(errorMessageList);
-            Assert.HasCount(1, errorMessageList);
-
             // 存在チェックエラーが含まれていることを確認
-            Assert.AreEqual(string.Format(Const.ErrorNotFound, "案件情報", nonexistentId),
-                errorMessageList[0]);
+            AssertErrorJson(result, string.Format(Const.ErrorNotFound, "案件情報", nonexistentId));
         }
     }
 }

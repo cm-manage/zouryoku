@@ -69,7 +69,9 @@
                                class="visually-hidden"
                                type="month"
                                value="@Model.SearchIndex.DisplayYearMonthDate.ToString("yyyy-MM")"
-                               tabindex="-1" />
+                               tabindex="-1"
+                               min="2001-01"
+                               max="2099-12" />
                         <button id="search-fr-picker-btn" class="btn btn-primary" type="button" aria-label="select month">
                             <i class="fa-solid fa-calendar-days"></i>
                         </button>
@@ -90,7 +92,9 @@
                                class="visually-hidden"
                                type="month"
                                value="@Model.SearchIndex.DisplayYearMonthDate.ToString("yyyy-MM")"
-                               tabindex="-1" />
+                               tabindex="-1"
+                               min="2001-01"
+                               max="2099-12" />
                         <button id="search-to-picker-btn" class="btn btn-primary" type="button" aria-label="select month">
                             <i class="fa-solid fa-calendar-days"></i>
                         </button>

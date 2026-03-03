@@ -179,7 +179,8 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
             var syainBaseMap = syainBases.ToDictionary(x => x.Id);
 
-            foreach (var s in syains)
+            // WorkList / HolidayList を LINQ で構築する
+            var rows = syains.SelectMany(s =>
             {
                 // ■月別集計（月中に社員IDが変わった場合は1行に合算）
                 var monthlyList = nippous
@@ -239,8 +240,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                 // 年月・■残業_残業 を Map化
                 var zangyoMap = monthlyList.ToDictionary(x => (x.Year, x.Month), x => x.Zangyo);
 
-                // 1か月ずつループ
-                foreach (var m in monthlyList)
+                return monthlyList.Select(m =>
                 {
                     // 集計月末日
                     var finalDay = new DateOnly(m.Year, m.Month, 1).AddMonths(1).AddDays(-1);
@@ -272,7 +272,6 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         ZokuseiName = s.KintaiZokusei?.Name ?? "",
                         YearMonth = m.YearMonth,
                         Jitsudo = m.Jitsudo,
-
                         ZangyoExceptHoliday = m.ZangyoExceptHoliday,
                         Zangyo = m.Zangyo,
                         ZangyoWarnLevel = "",
@@ -301,9 +300,7 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
 
                     // 年度初めの有給日数
                     decimal wariate = 0;
-
                     var currentNendo = today.Month >= KinmuJokyoConstants.YukyuMonth ? today.Year : today.Year - 1;
-
                     if (syainBaseMap.TryGetValue(s.SyainBaseId, out var syainBase))
                     {
                         if (yukyuNendo == currentNendo)
@@ -352,7 +349,6 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                         ZokuseiName = zangyoRow.ZokuseiName,
                         YearMonth = zangyoRow.YearMonth,
                         Jitsudo = zangyoRow.Jitsudo,
-
                         PaidYearTotal = paidYearTotal,
                         PaidRemain = paidRemain,
                         PaidHalfRemain = paidHalfRemain,
@@ -366,16 +362,17 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                     zangyoRow.ApplyWarningLevels(appSettings, avgMax, yearTotalZangyoExceptHoliday, overLimitCount, maxConsecutiveNum);
                     yukyuRow.ApplyWarningLevel(appSettings, paidYearTotal, m.Month);
 
-                    // 警告レベルでの絞り込み
-                    if (Search.WarnLevel == WarnLevel.All ||
+                    bool include = Search.WarnLevel == WarnLevel.All ||
                         Search.WarnLevel == WarnLevel.Warn && (zangyoRow.IsWarn || yukyuRow.IsWarn) ||
-                        Search.WarnLevel == WarnLevel.Notice && (zangyoRow.IsNotice || yukyuRow.IsNotice))
-                    {
-                        vm.WorkList.Add(zangyoRow);
-                        vm.HolidayList.Add(yukyuRow);
-                    }
-                }
-            }
+                        Search.WarnLevel == WarnLevel.Notice && (zangyoRow.IsNotice || yukyuRow.IsNotice);
+
+                    return (zangyoRow, yukyuRow, include);
+                });
+            }).ToList();
+
+            vm.WorkList = rows.Where(r => r.include).Select(r => r.zangyoRow).ToList();
+            vm.HolidayList = rows.Where(r => r.include).Select(r => r.yukyuRow).ToList();
+
 
             // Excel出力用にSessionへ保持
             HttpContext.Session.Set(vm, SessionKey_StatusViewVm);
@@ -413,45 +410,34 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         /// </returns>
         private static List<(DateOnly Start, DateOnly End, int Length)> BuildStreaks(List<DateOnly> workingDates)
         {
-            var blocks = new List<(DateOnly, DateOnly, int)>();
-
-            if (workingDates.Count == 0)
-                return blocks;
-
-            // 現在の連勤ブロックの開始日
-            var blockStart = workingDates[0];
-            // 現在の連勤ブロックの直前日
-            var previousDay = workingDates[0];
-
-            foreach (var currentDay in workingDates)
-            {
-                // 前日から連続していれば連勤継続
-                if (currentDay == previousDay.AddDays(1))
-                {
-                    previousDay = currentDay;
-                    continue;
-                }
-
-                // 連勤が途切れたので、ここまでをブロックとして確定
-                blocks.Add((
-                    blockStart,
-                    previousDay,
-                    previousDay.DayNumber - blockStart.DayNumber + 1
-                ));
-
-                // 新しい連勤ブロックを開始
-                blockStart = currentDay;
-                previousDay = currentDay;
-            }
-
-            // 最後の連勤ブロックを追加
-            blocks.Add((
-                blockStart,
-                previousDay,
-                previousDay.DayNumber - blockStart.DayNumber + 1
-            ));
-
-            return blocks;
+            // LINQ + Aggregate を使って連勤ブロックを構築する
+            // foreach/forは禁止なので、Aggregate 内で状態を保持しつつリストを生成する
+            return workingDates
+                .OrderBy(d => d)
+                .Aggregate(
+                    new List<(DateOnly Start, DateOnly End, int Length)>(),
+                    (blocks, currentDay) =>
+                    {
+                        if (blocks.Count == 0)
+                        {
+                            blocks.Add((currentDay, currentDay, 1));
+                        }
+                        else
+                        {
+                            var last = blocks[^1];
+                            if (currentDay == last.End.AddDays(1))
+                            {
+                                // 連続しているので末尾だけ更新
+                                blocks[^1] = (last.Start, currentDay, last.Length + 1);
+                            }
+                            else
+                            {
+                                // 新しいブロックを追加
+                                blocks.Add((currentDay, currentDay, 1));
+                            }
+                        }
+                        return blocks;
+                    });
         }
 
         /// <summary>

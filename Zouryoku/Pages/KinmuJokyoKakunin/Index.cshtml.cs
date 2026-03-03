@@ -648,6 +648,17 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
         }
 
         /// <summary>
+        /// セルを取得または作成する
+        /// </summary>
+        private static ICell GetOrCreateCell(IRow row, int cellIndex)
+        {
+            var cell = row.GetCell(cellIndex);
+            if (cell == null)
+                cell = row.CreateCell(cellIndex);
+            return cell;
+        }
+
+        /// <summary>
         /// 振替休暇残テーブルの未取得日数を計算する
         /// </summary>
         /// <param name="z">振替休暇残DTO</param>
@@ -683,56 +694,69 @@ namespace Zouryoku.Pages.KinmuJokyoKakunin
                 ? Path.Combine(folderPath, file)
                 : Path.Combine(Dir, folderPath, file);
 
+            // テンプレートファイルの存在確認
+            if (!System.IO.File.Exists(template))
+                return BadRequest($"テンプレートファイルが見つかりません: {template}");
+
             // Excel作成（NPOI）
             byte[] bytes = ExcelUtil.Write(book =>
             {
                 var sheet = book.GetSheet("勤務状況");
+                if (sheet == null)
+                    throw new InvalidOperationException("テンプレートに「勤務状況」シートが見つかりません。");
 
                 int rowIndex = excelHeader;
+                int maxCount = Math.Max(vm.WorkList.Count, vm.HolidayList.Count);
 
-
-                foreach (var w in vm.WorkList)
+                // 行数分、1行目をコピーして行を追加
+                for (int i = 1; i < maxCount; i++)
                 {
-                    // 最終行以外、1行目をコピーする
-                    if (w != vm.WorkList.Last())
+                    sheet.CopyAndInsertRow(rowIndex, rowIndex + 1);
+                }
+
+                // WorkList と HolidayList を同じ行に並べて記入
+                for (int i = 0; i < maxCount; i++)
+                {
+                    IRow? row = sheet.GetRow(rowIndex + i);
+                    if (row == null)
+                        row = sheet.CreateRow(rowIndex + i);
+
+                    // WorkList のデータ（存在する場合）
+                    if (i < vm.WorkList.Count)
                     {
-                        sheet.CopyAndInsertRow(rowIndex, rowIndex + 1);
+                        var w = vm.WorkList[i];
+                        // 共通
+                        GetOrCreateCell(row, 0).SetCellValue(w.BusyoName);
+                        GetOrCreateCell(row, 1).SetCellValue(w.SyainName);
+                        GetOrCreateCell(row, 2).SetCellValue(w.ZokuseiName);
+                        GetOrCreateCell(row, 3).SetCellValue(w.YearMonth);
+                        GetOrCreateCell(row, 4).SetCellValue((double)w.Jitsudo);
+
+                        // 残業
+                        GetOrCreateCell(row, 5).SetCellValue((double)w.ZangyoExceptHoliday);
+                        GetOrCreateCell(row, 6).SetCellValue((double)w.Zangyo);
+                        GetOrCreateCell(row, 7).SetCellValue((double)w.AverageMax);
+                        GetOrCreateCell(row, 8).SetCellValue((double)w.YearTotal);
+                        if (w.OverLimitCount != null) GetOrCreateCell(row, 9).SetCellValue((double)w.OverLimitCount);
+                        GetOrCreateCell(row, 10).SetCellValue(w.MaxConsecutiveWorkingDays);
                     }
-                    IRow? row = sheet.GetRow(rowIndex++);
 
-                    // 共通
-                    row.GetCell(0).SetCellValue(w.BusyoName);
-                    row.GetCell(1).SetCellValue(w.SyainName);
-                    row.GetCell(2).SetCellValue(w.ZokuseiName);
-                    row.GetCell(3).SetCellValue(w.YearMonth);
-                    row.GetCell(4).SetCellValue((double)w.Jitsudo);
-
-                    // 残業
-                    row.GetCell(5).SetCellValue((double)w.ZangyoExceptHoliday);
-                    row.GetCell(6).SetCellValue((double)w.Zangyo);
-                    row.GetCell(7).SetCellValue((double)w.AverageMax);
-                    row.GetCell(8).SetCellValue((double)w.YearTotal);
-                    if (w.OverLimitCount != null) row.GetCell(9).SetCellValue((double)w.OverLimitCount);
-                    row.GetCell(10).SetCellValue(w.MaxConsecutiveWorkingDays);
+                    // HolidayList のデータ（存在する場合）
+                    if (i < vm.HolidayList.Count)
+                    {
+                        var h = vm.HolidayList[i];
+                        // 休暇
+                        GetOrCreateCell(row, 11).SetCellValue((double)h.PaidYearTotal);
+                        GetOrCreateCell(row, 12).SetCellValue((double)h.PaidRemain);
+                        GetOrCreateCell(row, 13).SetCellValue((double)h.PaidHalfRemain);
+                        if (h.SpecialUsed != null) GetOrCreateCell(row, 14).SetCellValue((double)h.SpecialUsed);
+                        GetOrCreateCell(row, 15).SetCellValue((double)h.TransferRemain);
+                        GetOrCreateCell(row, 16).SetCellValue((double)h.Transfer3Month);
+                        GetOrCreateCell(row, 17).SetCellValue((double)h.TransferExpired);
+                    }
                 }
 
-                rowIndex = excelHeader;
-
-                foreach (var h in vm.HolidayList)
-                {
-                    IRow row = sheet.GetRow(rowIndex++);
-
-                    // 休暇
-                    row.GetCell(11).SetCellValue((double)h.PaidYearTotal);
-                    row.GetCell(12).SetCellValue((double)h.PaidRemain);
-                    row.GetCell(13).SetCellValue((double)h.PaidHalfRemain);
-                    if (h.SpecialUsed != null) row.GetCell(14).SetCellValue((double)h.SpecialUsed);
-                    row.GetCell(15).SetCellValue((double)h.TransferRemain);
-                    row.GetCell(16).SetCellValue((double)h.Transfer3Month);
-                    row.GetCell(17).SetCellValue((double)h.TransferExpired);
-                }
-
-                for (int i = 0; i <= 11; i++)
+                for (int i = 0; i <= 17; i++)
                     sheet.AutoSizeColumn(i);
             }
             , template

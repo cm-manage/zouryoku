@@ -175,8 +175,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             Assert.AreEqual((EmployeeWorkType)みなし対象者, model.SearchCondition.KintaiZokuseiId, "初期表示時の勤怠属性IDは" +
                 "3であること。");
             Assert.IsNotNull(model.KintaiZokuseiOptions, "勤怠属性の選択肢が取得されていること");
-            Assert.AreEqual(3, model.KintaiZokuseiOptions.Count(), "勤怠属性の選択肢が" +
-                "2件取得されていること");
+            Assert.HasCount(3, model.KintaiZokuseiOptions, "勤怠属性の選択肢が2件取得されていること");
         }
 
         /// <summary>
@@ -217,8 +216,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             // Assert
             Assert.IsFalse(model.SearchCondition.KintaiZokuseiId.HasValue, "みなし対象者が存在しない場合は勤怠属性IDが" +
                 "設定されないこと");
-            Assert.AreEqual(2, model.KintaiZokuseiOptions.Count(), "みなし対象者なしの2件が" +
-                "選択肢になること");
+            Assert.HasCount(2, model.KintaiZokuseiOptions, "みなし対象者なしの2件が選択肢になること");
         }
 
         /// <summary>
@@ -260,8 +258,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             Assert.IsNotNull(model.KengenOptions, "社員権限の選択肢が取得されていること");
             // EmployeeAuthority enumの全値分
             var expectedCount = Enum.GetValues<EmployeeAuthority>().Length;
-            Assert.HasCount(expectedCount, model.KengenOptions, "全権限の選択肢が" +
-                "取得されていること");
+            Assert.HasCount(expectedCount, model.KengenOptions, "全権限の選択肢が取得されていること");
         }
 
         /// <summary>
@@ -437,14 +434,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert（検証）
-            Assert.HasCount(
-                1,
-                model.Results,
-                "退職者ONのときは1件取得されること");
-            Assert.AreEqual(
-                "S002",
-                model.Results[0].SyainNo,
-                "退職者の佐藤が取得されていること");
+            Assert.HasCount(1, model.Results, "退職者ONのときは1件取得されること");
+            Assert.AreEqual("S002", model.Results[0].SyainNo, "退職者の佐藤が取得されていること");
         }
 
         /// <summary>

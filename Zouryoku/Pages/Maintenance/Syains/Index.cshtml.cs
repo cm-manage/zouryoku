@@ -1,5 +1,6 @@
 using CommonLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Model.Data;
@@ -17,7 +18,7 @@ namespace Zouryoku.Pages.Maintenance.Syains
       　ILogger<IndexModel> logger,
       　IOptions<AppConfig> optionsAccessor,
         ICompositeViewEngine viewEngine,
-        timeProviderTimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null)
         : BasePageModel<IndexModel>(db, logger, optionsAccessor, viewEngine, timeProvider)
     {
         /// <summary>

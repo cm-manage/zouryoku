@@ -17,7 +17,7 @@ namespace Zouryoku.Pages.Maintenance.Syains
       　ILogger<IndexModel> logger,
       　IOptions<AppConfig> optionsAccessor,
         ICompositeViewEngine viewEngine,
-        timeProviderTimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null)
         : BasePageModel<IndexModel>(db, logger, optionsAccessor, viewEngine, timeProvider)
     {
         /// <summary>

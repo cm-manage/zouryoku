@@ -238,7 +238,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
 
             // Assert
             Assert.IsNotNull(model.UserRoleOptions, "ロールの選択肢が取得されていること");
-            Assert.AreEqual(2, model.UserRoleOptions.Count(), "ロールの選択肢が2件取得されていること");
+            Assert.HasCount(2, model.UserRoleOptions, "ロールの選択肢が2件取得されていること");
         }
 
         /// <summary>
@@ -259,16 +259,16 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             // Assert
             Assert.IsNotNull(model.KengenOptions, "社員権限の選択肢が取得されていること");
             // EmployeeAuthority enumの全値分
-            var expectedCount = Enum.GetValues(typeof(EmployeeAuthority)).Length;
-            Assert.AreEqual(expectedCount, model.KengenOptions.Count(), "全権限の選択肢が" +
+            var expectedCount = Enum.GetValues<EmployeeAuthority>().Length;
+            Assert.HasCount(expectedCount, model.KengenOptions, "全権限の選択肢が" +
                 "取得されていること");
         }
 
         /// <summary>
-        /// ④初期表示: 検索結果は空である
+        /// ④初期表示: 検索結果は空であること
         /// </summary>
-        [TestMethod(DisplayName = "初期表示したとき、検索結果はあること")]
-        public async Task OnGetAsync_初期表示_検索結果はあること()
+        [TestMethod(DisplayName = "初期表示_検索結果は空であること")]
+        public async Task OnGetAsync_初期表示_検索結果は空であること()
         {
             // Arrange
             CreateConditionRecords();
@@ -299,8 +299,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             var result = await model.OnGetAsync();
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(PageResult), "PageResultが" +
-                "返されること");
+            Assert.IsInstanceOfType<PageResult>(result, "PageResultが返されること");
         }
 
         // =====================================================================
@@ -325,7 +324,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
 
             // Assert
             // 田中(S001)と鈴木(S003)のみ、佐藤(S002 退職)は除外
-            Assert.AreEqual(2, model.Results.Count(), "退職者以外の2件が取得されること");
+            Assert.HasCount(2, model.Results, "退職者以外の2件が取得されること");
             Assert.IsTrue(model.Results.Any(r => r.SyainNo == "S001"), "田中が取得されていること");
             Assert.IsTrue(model.Results.Any(r => r.SyainNo == "S003"), "鈴木が取得されていること");
             Assert.IsFalse(model.Results.Any(r => r.SyainNo == "S002"), "退職者の佐藤は取得されないこと");
@@ -349,7 +348,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
 
             // Assert
             // 田中(S001), 佐藤(S002), 鈴木(S003) 全員取得
-            Assert.AreEqual(3, model.Results.Count(), "退職者を含む全3件が取得されること");
+            Assert.HasCount(3, model.Results, "退職者を含む全3件が取得されること");
         }
 
         /// <summary>
@@ -369,7 +368,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(1, model.Results.Count(), "1件取得されること");
+            Assert.HasCount(1, model.Results, "1件取得されること");
             Assert.AreEqual("S003", model.Results[0].SyainNo, "社員番号S003の社員が取得されていること");
         }
 
@@ -390,7 +389,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(1, model.Results.Count(), "1件取得されること");
+            Assert.HasCount(1, model.Results, "1件取得されること");
             Assert.AreEqual("S001", model.Results[0].SyainNo, "社員名に'太郎'を含む社員が取得されていること");
         }
 
@@ -438,9 +437,9 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert（検証）
-            Assert.AreEqual(
+            Assert.HasCount(
                 1,
-                model.Results.Count(),
+                model.Results,
                 "退職者ONのときは1件取得されること");
             Assert.AreEqual(
                 "S002",
@@ -465,7 +464,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(1, model.Results.Count(), "1件取得されること");
+            Assert.HasCount(1, model.Results, "1件取得されること");
             Assert.AreEqual("S001", model.Results[0].SyainNo, "部署名に'システム'を含む社員が取得されていること");
         }
 
@@ -487,7 +486,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(2, model.Results.Count(), "営業部の社員が2件取得されること");
+            Assert.HasCount(2, model.Results, "営業部の社員が2件取得されること");
         }
 
         /// <summary>
@@ -507,7 +506,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(1, model.Results.Count(), "該当する1件のみ取得されること");
+            Assert.HasCount(1, model.Results, "該当する1件のみ取得されること");
             Assert.AreEqual("S003", model.Results[0].SyainNo, "勤怠属性が'シフト'の鈴木が取得されていること");
         }
 
@@ -528,7 +527,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(1, model.Results.Count(), "該当する1件のみ取得されること");
+            Assert.HasCount(1, model.Results, "該当する1件のみ取得されること");
             Assert.AreEqual("S001", model.Results[0].SyainNo, "ロールが'管理者'の田中が取得されていること");
         }
 
@@ -549,7 +548,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(2, model.Results.Count(), "該当する2件が取得されること");
+            Assert.HasCount(2, model.Results, "該当する2件が取得されること");
             Assert.IsTrue(model.Results.Any(r => r.SyainNo == "S001"), "田中が取得されていること");
             Assert.IsTrue(model.Results.Any(r => r.SyainNo == "S003"), "鈴木が取得されていること");
         }
@@ -571,7 +570,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(1, model.Results.Count(), "該当する1件のみ取得されること");
+            Assert.HasCount(1, model.Results, "該当する1件のみ取得されること");
             Assert.AreEqual("S003", model.Results[0].SyainNo, "該当する権限を持つ鈴木が取得されていること");
         }
 
@@ -593,7 +592,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(1, model.Results.Count(), "該当する1件のみ取得されること");
+            Assert.HasCount(1, model.Results, "該当する1件のみ取得されること");
             Assert.AreEqual("S002", model.Results[0].SyainNo, "級職'5'の佐藤が取得されていること");
         }
 
@@ -614,7 +613,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             await model.OnGetSearchAsync();
 
             // Assert
-            Assert.AreEqual(2, model.Results.Count(), "同じ級職の社員が2件取得されること");
+            Assert.HasCount(2, model.Results, "同じ級職の社員が2件取得されること");
         }
 
         /// <summary>
@@ -656,7 +655,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
 
             // Assert
             // 営業部かつシフト勤務 → 鈴木(S003)のみ
-            Assert.AreEqual(1, model.Results.Count(), "絞り込まれた1件のみ取得されること");
+            Assert.HasCount(1, model.Result, "絞り込まれた1件のみ取得されること");
             Assert.AreEqual("S003", model.Results[0].SyainNo, "条件に一致する鈴木が取得されていること");
         }
 
@@ -686,7 +685,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
             //         .ThenByDescending(s => s.Code)     → コード降順
             // システム部(順1): 田中(順1, S001)
             // 営業部(順2): 鈴木(順3, S003), 佐藤(順2, S002)
-            Assert.AreEqual(3, model.Results.Count(), "全員取得されていること");
+            Assert.HasCount(3, model.Results, "全員取得されていること");
             Assert.AreEqual("S001", model.Results[0].SyainNo, "1番目は田中（システム部 順1）");
             Assert.AreEqual("S003", model.Results[1].SyainNo, "2番目は鈴木（営業部 順3）");
             Assert.AreEqual("S002", model.Results[2].SyainNo, "3番目は佐藤（営業部 順2）");

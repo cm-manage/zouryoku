@@ -14,7 +14,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
     public class IndexModelTests : BaseInMemoryDbContextTest
     {
         // TODO: DateOnly.MaxValue
-        private static readonly DateOnly MaxEndYmd = new(9999, 12, 31);
+        private static readonly DateOnly MaxEndYmd = DateOnly.MaxValue;
         // TODO: fakeTimeProviderの現在日付であることを分かりやすくする
         private static readonly DateOnly FixedToday = new(2025, 7, 1);
 
@@ -174,7 +174,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
                 // TODO: キャストしない そのまま入れる
                 SyucyoSyokui = (BusinessTripRole)6,
                 KingsSyozoku = "10000",
-                KintaiZokuseiId = 1,
+                KintaiZokuseiId = EmployeeWorkType.みなし対象者,
                 IsGenkaRendou = false,
                 KaisyaCode = 1,
                 EMail = "after@example.com",
@@ -188,9 +188,12 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
                 IsOvertimeExcessLimitStart = false,
                 OvertimeExcessLimitYm = null,
                 UserRoleId = 1,
-                Perm1Checked = true,
-                Perm3Checked = true,
-                Perm15Checked = true,
+                SelectedAuthorities = new()
+                {
+                    EmployeeAuthority.労働状況報告,
+                    EmployeeAuthority.労働最終警告メール送信対象者,
+                    EmployeeAuthority.代理入力権限
+                },
             };
         }
 
@@ -260,9 +263,9 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
             Assert.IsTrue(model.Input.IsOvertimeExcessLimitStart);
             Assert.AreEqual("2026/01", model.Input.OvertimeExcessLimitYm);
             Assert.AreEqual(FixedToday, model.Input.StartDate);
-            Assert.IsTrue(model.Input.Perm1Checked);
-            Assert.IsTrue(model.Input.Perm3Checked);
-            Assert.IsFalse(model.Input.Perm2Checked);
+            Assert.IsTrue(model.Input.SelectedAuthorities.Contains(EmployeeAuthority.労働状況報告));
+            Assert.IsTrue(model.Input.SelectedAuthorities.Contains(EmployeeAuthority.労働最終警告メール送信対象者));
+            Assert.IsFalse(model.Input.SelectedAuthorities.Contains(EmployeeAuthority.労働状況報告の部署選択));
         }
 
         [TestMethod(DisplayName = "初期表示 目的：存在しない社員BaseId指定時にモデルエラーを設定すること 前提：" +
@@ -307,7 +310,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 
             var result = await model.OnPostRegisterAsync();
 
-            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
+            Assert.IsNotNull(GetErrors(json, "BusyoId"));
             Assert.AreEqual(0, await db.SyainBases.CountAsync());
             Assert.AreEqual(0, await db.Syains.CountAsync());
         }
@@ -326,7 +330,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 
             var result = await model.OnPostRegisterAsync();
 
-            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
+            Assert.IsNotNull(GetErrors(json, "Code"));
             Assert.AreEqual(1, await db.Syains.CountAsync());
         }
 
@@ -372,7 +377,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 
             var result = await model.OnPostRegisterAsync();
 
-            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
+            Assert.IsNotNull(GetErrors(json, "Id"));
         }
 
         [TestMethod(DisplayName = "登録処理 目的：更新時に社員Base未存在ならエラー応答を返すこと 前提：" +
@@ -388,7 +394,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 
             var result = await model.OnPostRegisterAsync();
 
-            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
+            Assert.IsNotNull(GetErrors(json, "SyainBaseId"));
         }
 
         [TestMethod(DisplayName = "登録処理 目的：更新時に他社員と社員番号重複ならエラー応答を返すこと 前提：" +
@@ -407,7 +414,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 
             var result = await model.OnPostRegisterAsync();
 
-            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
+            Assert.IsNotNull(GetErrors(json, "Code"));
             var target = await db.Syains.SingleAsync(x => x.Id == 100);
             Assert.AreEqual("10001", target.Code);
         }
@@ -433,7 +441,8 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
 
             var result = await model.OnPostRegisterAsync();
 
-            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var json = Assert.IsInstanceOfType<JsonResult>(result);
+            Assert.IsNotNull(GetErrors(json, "StartDate"));
             Assert.AreEqual(1, await db.Syains.CountAsync());
             var current = await db.Syains.SingleAsync(x => x.Id == 100);
             Assert.AreEqual(MaxEndYmd, current.EndYmd);
@@ -606,11 +615,11 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Touroku
             var html = GetData(json);
             Assert.IsNotNull(html);
 
-            Assert.IsTrue(model.Input.Perm1Checked);
-            Assert.IsTrue(model.Input.Perm5Checked);
-            Assert.IsTrue(model.Input.Perm15Checked);
-            Assert.IsFalse(model.Input.Perm2Checked);
-            Assert.IsFalse(model.Input.Perm14Checked);
+            Assert.IsTrue(model.Input.SelectedAuthorities.Contains(EmployeeAuthority.労働状況報告));
+            Assert.IsTrue(model.Input.SelectedAuthorities.Contains(EmployeeAuthority.出退勤一覧画面の部署選択));
+            Assert.IsTrue(model.Input.SelectedAuthorities.Contains(EmployeeAuthority.代理入力権限));
+            Assert.IsFalse(model.Input.SelectedAuthorities.Contains(EmployeeAuthority.労働状況報告の部署選択));
+            Assert.IsFalse(model.Input.SelectedAuthorities.Contains(EmployeeAuthority.指示最終承認者));
         }
 
         private static Busyo CreateBusyo(

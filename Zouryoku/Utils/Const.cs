@@ -111,6 +111,10 @@ namespace Zouryoku.Utils
         /// <summary> 未入力 </summary>
         public const string NotEntered = "未入力";
 
+        /// <summary> 社員ID該当なし </summary>
+        public const string ErrorSyainNonExistance = "{0}:{1} の社員が見つかりません。";
+
+
         /// <summary>
         /// 日報未確定通知メッセージの初期表示テキスト。
         /// </summary>

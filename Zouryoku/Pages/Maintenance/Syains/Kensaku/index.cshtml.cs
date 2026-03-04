@@ -24,7 +24,7 @@ namespace Zouryoku.Pages.Maintenance.Syains.Kensaku
             ILogger<IndexModel> logger,
             IOptions<AppConfig> optionsAccessor,
             ICompositeViewEngine viewEngine,
-            TimeProvider timeProvider)
+            TimeProvider? timeProvider = null)
             : base(db, logger, optionsAccessor, viewEngine, timeProvider) { }
 
         public override bool UseInputAssets => true;

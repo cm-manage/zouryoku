@@ -655,7 +655,7 @@ namespace ZouryokuTest.Pages.Maintenance.Syains.Kensaku
 
             // Assert
             // 営業部かつシフト勤務 → 鈴木(S003)のみ
-            Assert.HasCount(1, model.Result, "絞り込まれた1件のみ取得されること");
+            Assert.HasCount(1, model.Results, "絞り込まれた1件のみ取得されること");
             Assert.AreEqual("S003", model.Results[0].SyainNo, "条件に一致する鈴木が取得されていること");
         }
 
